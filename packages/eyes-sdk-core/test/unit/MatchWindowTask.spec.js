@@ -11,6 +11,7 @@ const {
   GeneralUtils,
   AppOutput,
   AppOutputWithScreenshot,
+  Location,
 } = require('../../index')
 const {EyesBaseImpl} = require('../testUtils')
 const logger = new Logger(process.env.APPLITOOLS_SHOW_LOGS)
@@ -64,7 +65,10 @@ describe('MatchWindowTask', () => {
       )
 
       const userInputs = 'userInputs'
-      const appOutput = new AppOutputWithScreenshot(new AppOutput({screenshot: 'screenshot'}), null)
+      const appOutput = new AppOutputWithScreenshot(
+        new AppOutput({screenshot: 'screenshot', imageLocation: Location.ZERO}),
+        null,
+      )
 
       const name = 'test name'
       const ignoreMismatch = 'ignoreMismatch'
@@ -100,7 +104,7 @@ describe('MatchWindowTask', () => {
       expect(result).to.eql({
         runningSession,
         matchWindowData: {
-          appOutput: {screenshotUrl: 'url:screenshot', title: undefined},
+          appOutput: {screenshotUrl: 'url:screenshot', title: undefined, location: {x: 0, y: 0}},
           ignoreMismatch,
           tag: name,
           userInputs,

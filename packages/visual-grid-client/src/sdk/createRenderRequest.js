@@ -1,6 +1,6 @@
 'use strict'
 
-const {RenderRequest, RenderInfo} = require('@applitools/eyes-sdk-core')
+const {RenderRequest, RenderInfo} = require('@applitools/eyes-sdk-core/shared')
 const createEmulationInfo = require('./createEmulationInfo')
 
 function createRenderRequest({

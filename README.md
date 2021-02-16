@@ -31,6 +31,7 @@
 - https://github.com/applitools/tutorial-playwright-ultrafastgrid
 - https://github.com/applitools/tutorial-webdriverio4-applitools-service
 - https://github.com/applitools/tutorial-webdriverio5-applitools-service
+- https://github.com/applitools/tutorial-webdriverio5-applitools-service-ultrafastgrid
 - https://github.com/applitools/tutorial-cypress
 - https://github.com/applitools/tutorial-testcafe
 - https://github.com/applitools/tutorial-storybook-vue

@@ -6,7 +6,7 @@ const {expect} = require('chai')
 const puppeteer = require('puppeteer')
 const makeRenderingGridClient = require('../../src/sdk/renderingGridClient')
 const testServer = require('@applitools/sdk-shared/src/run-test-server')
-const {deserializeDomSnapshotResult} = require('@applitools/eyes-sdk-core')
+const {deserializeDomSnapshotResult} = require('@applitools/eyes-sdk-core/shared')
 const {getProcessPageAndSerialize} = require('@applitools/dom-snapshot')
 const testLogger = require('../util/testLogger')
 

@@ -37,6 +37,7 @@ docker-compose.yaml
 
 # other
 tags
+tags.*
 support
 eyes-testcafe-bak
 

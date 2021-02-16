@@ -1313,13 +1313,7 @@ class Configuration {
 
   setLayoutBreakpoints(breakpoints) {
     ArgumentGuard.notNull(breakpoints, 'breakpoints')
-    if (!TypeUtils.isArray(breakpoints)) {
-      this._layoutBreakpoints = breakpoints
-    } else if (breakpoints.length === 0) {
-      this._layoutBreakpoints = false
-    } else {
-      this._layoutBreakpoints = Array.from(new Set(breakpoints)).sort((a, b) => (a < b ? 1 : -1))
-    }
+    this._layoutBreakpoints = breakpoints
     return this
   }
 
@@ -1382,6 +1376,7 @@ class Configuration {
       baselineName: this.getBaselineEnvName(),
       envName: this.getEnvironmentName(),
       branchName: this.getBranchName(),
+      saveDiffs: this.getSaveDiffs(),
       saveFailedTests: this.getSaveFailedTests(),
       saveNewTests: this.getSaveNewTests(),
       compareWithParentBranch: this.getCompareWithParentBranch(),

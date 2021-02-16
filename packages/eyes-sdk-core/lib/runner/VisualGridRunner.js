@@ -1,6 +1,5 @@
 'use strict'
 
-const GeneralUtils = require('../utils/GeneralUtils')
 const EyesRunner = require('./EyesRunner')
 
 /**
@@ -38,6 +37,10 @@ class VisualGridRunner extends EyesRunner {
 
   get testConcurrency() {
     return this._concurrentSessions
+  }
+
+  set testConcurrency(runnerOptions) {
+    this._concurrentSessions = runnerOptions.testConcurrency
   }
 
   makeGetVisualGridClient(makeVisualGridClient) {

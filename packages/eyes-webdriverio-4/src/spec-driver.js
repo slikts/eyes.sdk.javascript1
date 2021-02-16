@@ -16,6 +16,7 @@ function transformSelector(selector) {
   } else if (TypeUtils.has(selector, ['type', 'selector'])) {
     if (selector.type === 'css') return `css selector:${selector.selector}`
     else if (selector.type === 'xpath') return `xpath:${selector.selector}`
+    else return `${selector.type}:${selector.selector}`
   }
   return selector
 }
@@ -137,8 +138,8 @@ async function takeScreenshot(driver) {
   return driver.saveScreenshot()
 }
 async function click(browser, element) {
-  if (isSelector(element)) browser.click(transformSelector(element))
-  else browser.elementIdClick(extractElementId(element))
+  if (isSelector(element)) element = await findElement(browser, element)
+  await browser.elementIdClick(extractElementId(element))
 }
 async function type(browser, element, keys) {
   if (isSelector(element)) browser.setValue(transformSelector(element), keys)

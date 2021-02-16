@@ -11,7 +11,7 @@ class RegionPositionCompensationFactory {
    * @param {Logger} logger
    * @return {RegionPositionCompensation}
    */
-  static getRegionPositionCompensation(userAgent, eyes, logger) {
+  static getRegionPositionCompensation(userAgent, _eyes, _logger) {
     if (userAgent) {
       if (userAgent.getBrowser() === BrowserNames.Safari) {
         return new SafariRegionPositionCompensation()

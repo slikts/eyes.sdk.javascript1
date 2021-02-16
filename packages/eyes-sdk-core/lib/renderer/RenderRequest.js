@@ -1,7 +1,5 @@
 'use strict'
 
-const ArgumentGuard = require('../utils/ArgumentGuard')
-
 /**
  * Encapsulates data required to start render using the RenderingGrid API.
  */
@@ -38,11 +36,6 @@ class RenderRequest {
     visualGridOptions,
     renderer,
   } = {}) {
-    // ArgumentGuard.notNullOrEmpty(webhook, 'webhook')
-    // ArgumentGuard.notNull(url, 'url')
-    // ArgumentGuard.notNull(dom, 'dom')
-    // ArgumentGuard.notNull(resources, 'resources')
-
     this._webhook = webhook
     this._stitchingService = stitchingService
     this._url = url

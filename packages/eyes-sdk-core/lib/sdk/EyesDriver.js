@@ -217,18 +217,63 @@ class EyesDriver {
     if (contextInfo.isRoot) {
       return (this._currentContext = this._mainContext)
     }
-    const path = []
-    while (!contextInfo.isRoot) {
-      await this.spec.parentContext(this._driver)
-      const contextReference = await this.findChildContext(contextInfo)
-      if (!contextReference) throw new Error('Unable to find out the chain of frames')
-      path.unshift(contextReference)
-      contextInfo = await EyesUtils.getContextInfo(this._logger, this)
+    let path
+    if (!this.spec.parentContext) {
+      path = await this.findPathToChildContext(contextInfo)
+      await this.switchToMainContext()
+    } else {
+      path = []
+      while (!contextInfo.isRoot) {
+        await this.spec.parentContext(this._driver)
+        const contextReference = await this.findChildContext(contextInfo)
+        if (!contextReference) throw new Error('Unable to find out the chain of frames')
+        path.unshift(contextReference)
+        contextInfo = await EyesUtils.getContextInfo(this._logger, this)
+      }
     }
     this._currentContext = this._mainContext
     return this.switchToChildContext(...path)
   }
-
+  // NOTE:
+  // This is the fallback used when a spec does not have parentContext
+  // implemented (e.g., TestCafe). It assumes that the spec is not able to
+  // switch between child and parent contexts (even when you are in the child
+  // context and have the selector/element of the parent context). This is a
+  // recursive function that performs a depth-first-search from the top of
+  // the window. When it needs to switch to a higher frame context it resets
+  // its context to the root and walks down to the target child context.
+  async findPathToChildContext(contextInfo, path = []) {
+    await this.switchToMainContext()
+    for (const element of path) {
+      await this.spec.childContext(this._driver, element)
+    }
+    const contentDocument = await this.spec.findElement(this._driver, {
+      type: 'css',
+      selector: 'html',
+    })
+    const contextDocument = contextInfo.documentElement
+    if (contextInfo.selector) {
+      const element = await this.spec.findElement(this._driver, {
+        type: 'xpath',
+        selector: contextInfo.selector,
+      })
+      if (
+        element //&& (await this.spec.isEqualElements(this._driver, contentDocument, contextDocument))
+      ) {
+        return [...path, element]
+      }
+    } else {
+      if (await this.spec.isEqualElements(this._driver, contentDocument, contextDocument)) {
+        return path
+      }
+    }
+    const framesInfo = await EyesUtils.getChildFramesInfo(this._logger, this)
+    for (const frameInfo of framesInfo) {
+      const possiblePath = [...path, frameInfo.element]
+      const result = await this.findPathToChildContext(contextInfo, possiblePath)
+      if (result && result.length) return result
+    }
+  }
   async findChildContext(contextInfo) {
     if (contextInfo.selector) {
       return this.spec.findElement(this._driver, {

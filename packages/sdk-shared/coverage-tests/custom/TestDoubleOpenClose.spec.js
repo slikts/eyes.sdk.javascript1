@@ -8,14 +8,14 @@ const {Target, ClassicRunner, VisualGridRunner, Eyes} = require(cwd)
 
 const appName = 'Eyes Selenium SDK - Double Open Close'
 
-describe(appName, () => {
+describe.skip(appName, () => {
   let webDriver, destroyDriver, eyes
 
   afterEach(async () => {
     await eyes.abortIfNotClosed()
     await destroyDriver()
   })
-  describe('Classic', () => {
+  describe.skip('Classic', () => {
     let runner
     beforeEach(async () => {
       ;[webDriver, destroyDriver] = await spec.build({browser: 'chrome'})
@@ -83,7 +83,7 @@ describe(appName, () => {
     })
   })
 
-  describe('VG', () => {
+  describe.skip('VG', () => {
     let runner
     beforeEach(async () => {
       ;[webDriver, destroyDriver] = await spec.build({browser: 'chrome'})
@@ -134,7 +134,7 @@ describe(appName, () => {
   })
 })
 
-describe(appName, () => {
+describe.skip(appName, () => {
   let webDriver, destroyDriver
   beforeEach(async () => {
     ;[webDriver, destroyDriver] = await spec.build({browser: 'chrome'})

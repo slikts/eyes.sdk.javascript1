@@ -72,7 +72,7 @@ Add this file to your project with either:
 
 In order to authenticate via the Applitools server, you need to supply the Eyes-Cypress SDK with the API key you got from Applitools. Read more about how to obtain the API key [here](https://applitools.com/docs/topics/overview/obtain-api-key.html).
 
-To do this, set the environment variable `APPLITOOLS_API_KEY` to the API key before running your tests.
+To do so, set the environment variable `APPLITOOLS_API_KEY` to the API key before running your tests.
 For example, on Linux/Mac:
 
 ```bash
@@ -92,11 +92,28 @@ It's also possible to specify the API key in the `applitools.config.js` file. Th
 ```js
 module.exports = {
   apiKey: 'YOUR_API_KEY',
-  ...
+  // ...
 }
 ```
 
 See the [Advanced configuration](#method-3-the-applitoolsconfigjs-file) section below for more information on using the config file.
+
+### Eyes server URL (optional)
+
+In case the Eyes server is deployed at a location different than https://eyes.applitools.com, then it should be configured similarly to the Applitools API key above. To obtain the server url of your Applitools Eyes dashboard just copy the origin of its url (for example https://MY_COMPANYY.applitools.com).
+
+```bash
+export APPLITOOLS_SERVER_URL=<YOUR_SERVER_URL>
+```
+
+It's also possible to specify the server URL in the `applitools.config.js` file. The property name is `serverUrl`. For example:
+
+```js
+module.exports = {
+  serverUrl: 'YOUR_SERVER_URL',
+  // ...
+}
+```
 
 ## Usage
 
@@ -171,6 +188,7 @@ Applitools will take screenshots and perform the visual comparisons in the backg
     - [content](#content)
     - [accessibility](#accessibility)
     - [scriptHooks](#scriptHooks)
+    - [layoutBreakpoints](#layoutBreakpoints)
     - [sendDom](#sendDom)
   - [Close](#Close)
 - [Concurrency](#Concurrency)
@@ -383,6 +401,19 @@ An object with the following properties:
       })
       ```
 
+##### `layoutBreakpoints`
+(optional): An array of viewport widths to use in order to take different sized dom captures.   
+It can also be specified as a boolean, at which point we will take dom captures using the device/browser widths configured.   
+Responsive pages display different content depending on the viewport's width, so this option can be used to instruct `eyes` to take dom captures using those widths, and test all responsive variations of your page.   
+
+Note that this option can also be specificed in `eyesOpen` or globally in `applitools.config.js`.   
+
+```js
+cy.eyesCheckWindow({
+  layoutBreakpoints: [500, 1000]
+});
+```
+
 ##### `sendDom`
 
 (optional): A flag to specify whether a capture of DOM and CSS should be taken when rendering the screenshot. The default value is true. This should only be modified to troubleshoot unexpected behavior, and not for normal production use.
@@ -417,8 +448,6 @@ cy.eyesCheckWindow({matchLevel: 'Layout'})
 
 The different matchLevels are specified here:  https://github.com/applitools/eyes.sdk.javascript1/blob/master/packages/eyes-sdk-core/lib/config/MatchLevel.js
 
-<!-- TODO uncomment when polyfillAdoptedStyleSheets feature is released
-
 ##### `visualGridOptions`
 
 An object that specifies options to configure renderings on the Ultrafast grid.
@@ -433,7 +462,6 @@ cy.eyesCheckWindow({
   }
 })
 ```
--->
 
 #### Close
 
@@ -449,8 +477,8 @@ cy.eyesClose();
 
 ## Concurrency
 
-The default level of concurrency for free accounts is `1`. This means that visual tests will not run in parallel during your tests, and will therefore be slow.
-If your account does support a higher level of concurrency, it's possible to pass a different value by specifying it in the property `concurrency` in the applitools.config.js file (see [Advanced configuration](#advanced-configuration) section below).
+The default level of concurrency for free accounts is `5`. This means that only up to 5 visual tests can run in parallel, and therefore the execution might be slow.
+If your account does support a higher level of concurrency, it's possible to pass a different value by specifying it in the property `testConcurrency` in the applitools.config.js file (see [Advanced configuration](#advanced-configuration) section below).
 
 If you are interested in speeding up your visual tests, contact sdr@applitools.com to get a trial account and faster tests with more concurrency.
 
@@ -487,6 +515,7 @@ The list above is also the order of precedence, which means that if you pass a p
 | `notifyOnCompletion`  | false | If `true` batch completion notifications are sent. |
 | `accessibilityValidation` | undefined | An object that specifies the accessibility level and guidelines version to use for the screenshots. Possible values for **level** are `None`, `AA` and `AAA`, and possible values for **guidelinesVersion** are `WCAG_2_0` and `WCAG_2_1`. For example: `{level: 'AA', guidelinesVersion: 'WCAG_2_0'}`|
 | `visualGridOptions` | undefined | An object that specifies options to configure renderings on the Ultrafast grid. See more information [here](#visualgridoptions) |
+|`layoutBreakpoints`| undefined | When set to `true`, a snapshot of the DOM will be taken once for each browser/device size in the `browser` configuration. For optimization purposes, an array of numbers can be passed. The DOM snapshot will be taken once for every **width** in the array. For more information, see [layoutBreakpoints](#layoutBreakpoints)|
 
 ### Global configuration properties:
 
@@ -501,7 +530,7 @@ The following configuration properties cannot be defined using the first method 
 | `isDisabled`              | false                       | If true, all calls to Eyes-Cypress commands will be silently ignored. |
 | `failCypressOnDiff`       | true                        | If true, then the Cypress test fails if an eyes visual test fails. If false and an eyes test fails, then the Cypress test does not fail. 
 | `tapDirPath`              | undefined                   | Directory path of a results file. If set, then a [TAP](https://en.wikipedia.org/wiki/Test_Anything_Protocol#Specification) file is created in this directory, the tap file name is created with the name [ISO-DATE](https://en.wikipedia.org/wiki/ISO_8601)\-eyes.tap and contains the Eyes test results (Note that because of a current Cypress [limitation](https://github.com/cypress-io/cypress-documentation/issues/818) the results are scoped per spec file, this means that the results file is created once for each spec file).|
-| `concurrency`             | 1                           | The maximum number of tests that can run concurrently. The default value is the allowed amount for free accounts. For paid accounts, set this number to the quota set for your account. |
+| `testConcurrency`             | 5                          | The maximum number of tests that can run concurrently. The default value is the allowed amount for free accounts. For paid accounts, set this number to the quota set for your account. |
 |`dontCloseBatches`| false | If true, batches are not closed for  [notifyOnCompletion](#advanced-configuration).|
 |`disableBrowserFetching`| false | If true, page resources for rendering on the UFG will be fetched from outside of the browser.|
 |`enablePatterns`| false | |

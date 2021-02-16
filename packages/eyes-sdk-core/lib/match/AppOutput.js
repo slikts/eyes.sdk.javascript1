@@ -1,5 +1,7 @@
 'use strict'
 
+const Location = require('../geometry/Location')
+
 /**
  * An application output (title, image, etc).
  *
@@ -25,7 +27,7 @@ class AppOutput {
     this._screenshot64 = screenshot
     this._screenshotUrl = screenshotUrl
     this._domUrl = domUrl
-    this._imageLocation = imageLocation
+    this._imageLocation = new Location(imageLocation)
   }
 
   /**

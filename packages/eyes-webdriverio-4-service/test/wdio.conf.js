@@ -1,9 +1,8 @@
 const EyesService = require('../index')
 
 exports.config = {
-  path: '/',
-  port: 9515,
-  runner: 'local',
+  port: 4444,
+  path: '/wd/hub',
 
   //
   // ==================
@@ -140,9 +139,10 @@ exports.config = {
   // See the full list at http://mochajs.org/
   mochaOpts: {
     ui: 'bdd',
-    timeout: 60000,
+    timeout: 120000,
   },
   eyes: {
+    concurrency: 1,
     batch: 'WebDriverIO eyes-service tests',
     viewportSize: {width: 600, height: 500},
     stitchMode: 'CSS',

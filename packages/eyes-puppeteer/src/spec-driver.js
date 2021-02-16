@@ -23,34 +23,26 @@ function transformSelector(selector) {
   if (TypeUtils.has(selector, ['type', 'selector'])) return `${selector.selector}`
   return selector
 }
-function serializeArgs(args, elements = []) {
-  let argsWithElementMarkers
-  if (TypeUtils.isArray(args)) {
-    argsWithElementMarkers = args.map(arg => {
-      if (TypeUtils.isArray(arg)) {
-        const result = serializeArgs(arg, elements)
-        return result.argsWithElementMarkers
-      } else if (isElement(arg)) {
-        elements.push(arg)
-        return {isElement: true}
-      } else {
-        return arg
-      }
-    })
-  } else if (TypeUtils.isObject(args)) {
-    if (isElement(args)) {
-      elements.push(args)
+function serializeArgs(args) {
+  const elements = []
+  const argsWithElementMarkers = args.map(serializeArg)
+
+  return {argsWithElementMarkers, elements}
+
+  function serializeArg(arg) {
+    if (isElement(arg)) {
+      elements.push(arg)
+      return {isElement: true}
+    } else if (TypeUtils.isArray(arg)) {
+      return arg.map(serializeArg)
+    } else if (TypeUtils.isObject(arg)) {
+      return Object.entries(arg).reduce((object, [key, value]) => {
+        return Object.assign(object, {[key]: serializeArg(value)})
+      }, {})
     } else {
-      argsWithElementMarkers = {...args}
-      for (const [key, value] of Object.entries(args)) {
-        if (isElement(value)) {
-          elements.push(value)
-          argsWithElementMarkers[key] = {isElement: true}
-        }
-      }
+      return arg
     }
   }
-  return {argsWithElementMarkers, elements}
 }
 // NOTE:
 // A few things to note:
@@ -61,29 +53,29 @@ function serializeArgs(args, elements = []) {
 //    of the arguments in a serialized structure, deserialize them, and call the script,
 //    and pass the arguments as originally intended
 async function scriptRunner() {
-  function deserializeArgs(args, elements = []) {
-    if (args === undefined) {
-      return elements
-    } else if (Array.isArray(args)) {
-      return args.map(arg => {
-        if (Array.isArray(arg)) return deserializeArgs(arg, elements)
-        return arg && arg.isElement ? elements.shift() : arg
-      })
-    } else if (typeof args === 'object') {
-      const deserializedArgs = {...args}
-      for (const [key, value] of Object.entries(args)) {
-        if (value.isElement) deserializedArgs[key] = elements.shift()
-      }
-      return deserializedArgs
+  function deserializeArg(arg) {
+    if (!arg) {
+      return arg
+    } else if (arg.isElement) {
+      return elements.shift()
+    } else if (Array.isArray(arg)) {
+      return arg.map(deserializeArg)
+    } else if (typeof arg === 'object') {
+      return Object.entries(arg).reduce((object, [key, value]) => {
+        return Object.assign(object, {[key]: deserializeArg(value)})
+      }, {})
+    } else {
+      return arg
     }
   }
   const args = Array.from(arguments)
+  const elements = args.slice(1)
   let script = args[0].script
   script = new Function(
     script.startsWith('function') ? `return (${script}).apply(null, arguments)` : script,
   )
-  const deserializedArgs = deserializeArgs(args[0].argsWithElementMarkers, args.slice(1))
-  return script(deserializedArgs)
+  const deserializedArgs = args[0].argsWithElementMarkers.map(deserializeArg)
+  return script.apply(null, deserializedArgs)
 }
 async function findElementByXpath(frame, selector) {
   const result = await frame.$x(selector)
@@ -128,7 +120,7 @@ async function isEqualElements(frame, element1, element2) {
 
 // #region COMMANDS
 
-async function executeScript(frame, script, args = []) {
+async function executeScript(frame, script, ...args) {
   // a function is not serializable, so we pass it as a string instead
   script = TypeUtils.isString(script) ? script : script.toString()
   const {argsWithElementMarkers, elements} = serializeArgs(args)
@@ -170,7 +162,8 @@ async function getViewportSize(page) {
   return page.viewport()
 }
 async function setViewportSize(page, size = {}) {
-  return page.setViewport(size)
+  await page.setViewport(size)
+  await new Promise(res => setTimeout(res, 100))
 }
 async function getTitle(page) {
   return page.title()
@@ -231,6 +224,7 @@ async function build(env) {
     env.devtools = true
     delete env.executablePath
   }
+  if (process.platform !== 'linux') delete env.executablePath
   const driver = await puppeteer.launch(env)
   const page = await driver.newPage()
   return [page, () => driver.close()]

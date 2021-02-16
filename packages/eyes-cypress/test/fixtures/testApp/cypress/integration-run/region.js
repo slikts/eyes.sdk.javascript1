@@ -1,5 +1,5 @@
+/* global cy */
 describe('eyes-cypress', () => {
-
   const url = `http://localhost:${Cypress.config('testPort')}/test.html`;
 
   // This also tests the setting of `testName` in `beforeEach`
@@ -15,7 +15,7 @@ describe('eyes-cypress', () => {
 
   afterEach(() => {
     cy.eyesClose();
-  })
+  });
 
   it('region absolute', () => {
     cy.visit(url);
@@ -28,7 +28,7 @@ describe('eyes-cypress', () => {
       });
     });
   });
-  
+
   it('region selector', () => {
     cy.visit(url);
     cy.get('.absolutely').then($el => {
@@ -42,9 +42,9 @@ describe('eyes-cypress', () => {
   });
 
   it('ignore regions', () => {
-    cy.visit(`http://localhost:${Cypress.config('testPort')}/dynamic.html`)
+    cy.visit(`http://localhost:${Cypress.config('testPort')}/dynamic.html`);
     cy.eyesCheckWindow({
-      ignore: [{selector: '.dynamic-region'}]
-    })
-  })
+      ignore: [{selector: '.dynamic-region'}],
+    });
+  });
 });

@@ -35,18 +35,18 @@
     "eyes-universal-windows": "./bin/app-win.exe"
   },
   "dependencies": {
-    "@applitools/eyes-sdk-core": "12.4.2",
-    "@applitools/visual-grid-client": "15.0.10",
+    "@applitools/eyes-sdk-core": "12.13.5",
+    "@applitools/visual-grid-client": "15.5.11",
     "chalk": "^4.1.0",
     "uuid": "^8.3.1",
     "ws": "^7.3.1",
     "yargs": "^16.1.0"
   },
   "devDependencies": {
-    "@applitools/sdk-coverage-tests": "^1.0.15",
-    "@applitools/sdk-fake-eyes-server": "^2.0.0",
-    "@applitools/sdk-release-kit": "^0.4.2",
-    "@applitools/sdk-shared": "^0.3.0",
+    "@applitools/sdk-coverage-tests": "^2.3.5",
+    "@applitools/sdk-fake-eyes-server": "^2.1.1",
+    "@applitools/sdk-release-kit": "^0.11.1",
+    "@applitools/sdk-shared": "^0.8.5",
     "eslint": "^7.13.0",
     "eslint-plugin-mocha-no-only": "^1.1.1",
     "eslint-plugin-node": "^11.1.0",

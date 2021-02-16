@@ -1,7 +1,7 @@
 'use strict'
 const {describe, it} = require('mocha')
 const {expect} = require('chai')
-const {BatchInfo} = require('@applitools/eyes-sdk-core')
+const {BatchInfo} = require('@applitools/eyes-sdk-core/shared')
 const EyesWrapper = require('../../src/sdk/EyesWrapper')
 const {configureWrappers} = require('../../src/sdk/wrapperUtils')
 

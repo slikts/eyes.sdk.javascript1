@@ -27,6 +27,7 @@ class RenderStatusResults {
     userAgent,
     deviceSize,
     selectorRegions,
+    imagePositionInActiveFrame,
   } = {}) {
     if (deviceSize && !(deviceSize instanceof RectangleSize)) {
       deviceSize = new RectangleSize(deviceSize)
@@ -53,6 +54,7 @@ class RenderStatusResults {
     this._userAgent = userAgent
     this._deviceSize = deviceSize
     this._selectorRegions = selectorRegions
+    this._imagePositionInActiveFrame = imagePositionInActiveFrame
   }
 
   /**
@@ -181,6 +183,20 @@ class RenderStatusResults {
    */
   setSelectorRegions(value) {
     this._selectorRegions = value
+  }
+
+  /**
+   * @return {Location}
+   */
+  imagePositionInActiveFrame() {
+    return this._imagePositionInActiveFrame
+  }
+
+  /**
+   * @param {Location} value
+   */
+  setImagePositionInActiveFrame(value) {
+    this._imagePositionInActiveFrame = value
   }
 
   /**

@@ -6,8 +6,6 @@ const util = require('util')
 const yargs = require('yargs')
 const {URL} = require('url')
 const {emitTest} = require('@applitools/sdk-coverage-tests')
-const makeSdk = require('../coverage-tests/generic/spec-emitter')
-const fileTemplate = require('../coverage-tests/generic/mocha-template')
 const utils = require('../src/cli-utils')
 const cwd = process.cwd()
 const spec = require(path.resolve(cwd, 'src/spec-driver'))
@@ -385,7 +383,7 @@ async function saver(args) {
       eyes.close()
     },
   }
-  const {name, code} = emitTest(test, {makeSdk, fileTemplate})
+  const {name, code} = emitTest(test)
   const testPath = typeof args.save === 'string' ? args.save : `./generated/${name}.spec.js`
   fs.mkdirSync(path.dirname(testPath), {recursive: true})
   fs.writeFileSync(testPath, code)
@@ -453,7 +451,7 @@ function argsToCheckConfig(args) {
     timeout: args.matchTimeout,
     isFully: args.fully,
     hooks: args.bcsHook
-      ? {beforeCaptureScreenshot: ['beforeCaptureScreenshot', args.bcsHook]}
+      ? {beforeCaptureScreenshot: args.bcsHook}
       : undefined,
   }
 }

@@ -1,4 +1,4 @@
-const {TestResultsFormatter} = require('@applitools/eyes-sdk-core');
+const {TestResultsFormatter} = require('@applitools/visual-grid-client');
 const {resolve} = require('path');
 const {promisify} = require('util');
 const fs = require('fs');

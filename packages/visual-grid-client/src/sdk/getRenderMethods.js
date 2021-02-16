@@ -9,6 +9,8 @@ function getRenderMethods(renderWrapper) {
   const setRenderingInfo = renderWrapper.setRenderingInfo.bind(renderWrapper)
   const doGetRenderJobInfo = renderWrapper.getRenderJobInfo.bind(renderWrapper)
   const doLogEvents = renderWrapper.logEvents.bind(renderWrapper)
+  const doGetEmulatedDevicesSizes = renderWrapper.getEmulatedDevicesSizes.bind(renderWrapper)
+  const doGetIosDevicesSizes = renderWrapper.getIosDevicesSizes.bind(renderWrapper)
   return {
     doGetRenderInfo,
     doRenderBatch,
@@ -18,6 +20,8 @@ function getRenderMethods(renderWrapper) {
     setRenderingInfo,
     doGetRenderJobInfo,
     doLogEvents,
+    doGetEmulatedDevicesSizes,
+    doGetIosDevicesSizes,
   }
 }
 

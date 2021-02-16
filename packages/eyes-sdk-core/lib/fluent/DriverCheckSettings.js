@@ -208,7 +208,7 @@ class CheckSettings {
       settings.scrollRootElement(object.scrollRootElement)
     }
     if (object.hooks) {
-      Object.values(object.hooks).forEach(([name, script]) => {
+      Object.entries(object.hooks).forEach(([name, script]) => {
         settings.hook(name, script)
       })
     }
@@ -964,13 +964,7 @@ class CheckSettings {
     return this._visualGridOptions
   }
   layoutBreakpoints(breakpoints = true) {
-    if (!TypeUtils.isArray(breakpoints)) {
-      this._layoutBreakpoints = breakpoints
-    } else if (breakpoints.length === 0) {
-      this._layoutBreakpoints = false
-    } else {
-      this._layoutBreakpoints = Array.from(new Set(breakpoints)).sort((a, b) => (a < b ? 1 : -1))
-    }
+    this._layoutBreakpoints = breakpoints
     return this
   }
   getLayoutBreakpoints() {

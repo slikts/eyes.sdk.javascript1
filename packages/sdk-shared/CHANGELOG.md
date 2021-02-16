@@ -2,6 +2,63 @@
 
 ## Unreleased
 
+- chore: add husky
+
+## 0.8.5 - 2021/1/11
+
+- removing skipped tests
+
+## 0.8.4 - 2021/1/11
+
+- removing skipped tests
+
+## 0.8.3 - 2021/1/11
+
+- updated to @applitools/sdk-coverage-tests@2.3.3 (from 2.3.0)
+
+## 0.8.2 - 2021/1/9
+
+- fix bug in test-setup cwd require
+
+## 0.8.1 - 2021/1/9
+
+- fix test-setup require to work with packages that don't have an index.js in the package root
+
+## 0.8.0 - 2021/1/8
+
+- added debugScreenshots boolean option to getEyes that will automatically create a screenshots dir in the cwd
+- update the Eyes deps require statement in test-setup to use 'index' explicitly in the path (to support eyes-testcafe's need for dual index files)
+- updated to @applitools/sdk-coverage-tests@2.3.0 (from 2.2.2)
+
+## 0.7.1 - 2021/1/5
+
+- change safari-11 to run on Mac 10.13 instead of 10.12
+- change safari-11 to run on Mac 10.13 instead of 10.12
+## 0.7.0 - 2021/1/4
+
+- expose coverateTestsConfig
+- updated to @applitools/sdk-coverage-tests@2.2.2 (from 2.1.3)
+
+## 0.6.1 - 2020/12/22
+
+- add dom traversing functionality
+
+## 0.6.0 - 2020/12/18
+
+- Re-established defaults for a few of the native mobile tests (which defaults to skipEmit: true) since they are failing. Need to revisit them later.
+
+## 0.5.19 - 2020/12/16
+
+- add `getDom` function to the coverage tests
+
+## 0.5.18 - 2020/12/1
+
+- remove hard-coded testsPath to generic tests (fixes broken generic coverage test generation)
+
+## 0.5.17 - 2020/12/1
+
+- add extractText to the spec-emitted
+- updated to @applitools/sdk-coverage-tests@2.1.3 (from 2.1.0)
 
 ## 0.5.16 - 2020/11/25
 
@@ -90,4 +147,3 @@
 - remove yarn workspaces
 - updated to @applitools/functional-commons@1.6.0 (from 1.5.4)
 - updated to @applitools/sdk-coverage-tests@1.0.14 (from 1.0.13)
-

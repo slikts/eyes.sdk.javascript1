@@ -1,5 +1,5 @@
 'use strict'
-const {EyesBase, NullRegionProvider} = require('@applitools/eyes-sdk-core')
+const {EyesBase, NullRegionProvider, Location} = require('@applitools/eyes-sdk-core/shared')
 const {presult} = require('@applitools/functional-commons')
 const VERSION = require('../../package.json').version
 
@@ -144,6 +144,14 @@ class EyesWrapper extends EyesBase {
     return this._serverConnector.renderStatusById(renderId)
   }
 
+  getEmulatedDevicesSizes() {
+    return this._serverConnector.getEmulatedDevicesSizes()
+  }
+
+  getIosDevicesSizes() {
+    return this._serverConnector.getIosDevicesSizes()
+  }
+
   logEvents(events) {
     return this._serverConnector.logEvents(events)
   }
@@ -161,7 +169,7 @@ class EyesWrapper extends EyesBase {
     const regionProvider = new NullRegionProvider()
     this.screenshotUrl = screenshotUrl
     this.domUrl = domUrl
-    this.imageLocation = imageLocation
+    this.imageLocation = imageLocation || Location.ZERO
     return closeAfterMatch
       ? this.checkWindowAndCloseBase(regionProvider, tag, false, checkSettings, url, throwEx)
       : this.checkWindowBase(regionProvider, tag, false, checkSettings, url)

@@ -16,8 +16,63 @@ function transformSelector(selector) {
   } else if (TypeUtils.has(selector, ['type', 'selector'])) {
     if (selector.type === 'css') return `css selector:${selector.selector}`
     else if (selector.type === 'xpath') return `xpath:${selector.selector}`
+    else return `${selector.type}:${selector.selector}`
   }
   return selector
+}
+function serializeArgs(args) {
+  const elements = []
+  const argsWithElementMarkers = args.map(serializeArg)
+
+  return {argsWithElementMarkers, elements}
+
+  function serializeArg(arg) {
+    if (isElement(arg)) {
+      elements.push(arg)
+      return {isElement: true}
+    } else if (TypeUtils.isArray(arg)) {
+      return arg.map(serializeArg)
+    } else if (TypeUtils.isObject(arg)) {
+      return Object.entries(arg).reduce((object, [key, value]) => {
+        return Object.assign(object, {[key]: serializeArg(value)})
+      }, {})
+    } else {
+      return arg
+    }
+  }
+}
+// NOTE:
+// A few things to note:
+//  - this function runs inside of the browser process
+//  - evaluations in Puppeteer accept multiple arguments (not just one like in Playwright)
+//  - an element reference (a.k.a. an ElementHandle) can only be sent as its
+//    own argument. To account for this, we use a wrapper function to receive all
+//    of the arguments in a serialized structure, deserialize them, and call the script,
+//    and pass the arguments as originally intended
+async function scriptRunner() {
+  function deserializeArg(arg) {
+    if (!arg) {
+      return arg
+    } else if (arg.isElement) {
+      return elements.shift()
+    } else if (Array.isArray(arg)) {
+      return arg.map(deserializeArg)
+    } else if (typeof arg === 'object') {
+      return Object.entries(arg).reduce((object, [key, value]) => {
+        return Object.assign(object, {[key]: deserializeArg(value)})
+      }, {})
+    } else {
+      return arg
+    }
+  }
+  const args = Array.from(arguments)
+  const elements = args.slice(1)
+  let script = args[0].script
+  script = new Function(
+    script.startsWith('function') ? `return (${script}).apply(null, arguments)` : script,
+  )
+  const deserializedArgs = args[0].argsWithElementMarkers.map(deserializeArg)
+  return script.apply(null, deserializedArgs)
 }
 
 // #endregion
@@ -70,7 +125,13 @@ async function isEqualElements(browser, element1, element2) {
 // #region COMMANDS
 
 async function executeScript(browser, script, ...args) {
-  return browser.execute(script, ...args)
+  if (browser.isDevTools) {
+    script = TypeUtils.isString(script) ? script : script.toString()
+    const {argsWithElementMarkers, elements} = serializeArgs(args)
+    return browser.execute(scriptRunner, {script, argsWithElementMarkers}, ...elements)
+  } else {
+    return browser.execute(script, ...args)
+  }
 }
 async function mainContext(browser) {
   await browser.switchToFrame(null)
@@ -211,7 +272,7 @@ async function build(env) {
   const chromedriver = require('chromedriver')
   const {testSetup} = require('@applitools/sdk-shared')
   const {
-    protocol = 'wd',
+    protocol,
     browser = '',
     capabilities,
     url,
@@ -221,7 +282,7 @@ async function build(env) {
     args = [],
     headless,
     logLevel = 'silent',
-  } = testSetup.Env(env)
+  } = testSetup.Env(env, process.env.APPLITOOLS_WDIO_PROTOCOL)
 
   const options = {
     capabilities: {browserName: browser, ...capabilities},

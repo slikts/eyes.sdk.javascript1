@@ -1,6 +1,6 @@
 'use strict'
 
-const {RGridResource} = require('@applitools/eyes-sdk-core')
+const {RGridResource} = require('@applitools/eyes-sdk-core/shared')
 
 function createRGridDom({cdt, resources}) {
   const resourceArr = Object.values(resources).sort((r1, r2) =>

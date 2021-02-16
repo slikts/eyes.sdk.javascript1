@@ -43,9 +43,9 @@ export function isNumber(value: any, {name, strict = true, lt, lte, gt, gte}: Nu
     throw new Error(`IllegalArgument: ${name} is not a number`)
   }
   if (!types.isNull(lt)) isLessThen(value, lt, {name})
-  else if (!types.isNull(lte)) isLessThenOrEqual(value, lt, {name})
-  else if (!types.isNull(gt)) isGreaterThenOrEqual(value, lt, {name})
-  else if (!types.isNull(gte)) isGreaterThen(value, lt, {name})
+  else if (!types.isNull(lte)) isLessThenOrEqual(value, lte, {name})
+  else if (!types.isNull(gt)) isGreaterThenOrEqual(value, gt, {name})
+  else if (!types.isNull(gte)) isGreaterThen(value, gte, {name})
 }
 
 export function isInteger(value: any, {name, strict = true, lt, lte, gt, gte}: NumberParam) {

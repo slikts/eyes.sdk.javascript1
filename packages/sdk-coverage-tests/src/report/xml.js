@@ -2,37 +2,22 @@ const convert = require('xml-js')
 const {logDebug} = require('../log')
 
 function convertJunitXmlToResultSchema({junit, browser, metadata}) {
-  const tests = parseJunitXmlForTests(junit).filter(test => !test.skipped && !test.ignored)
+  const tests = parseJunitXmlForTests(junit)
   logDebug(tests)
-  return tests.map(test => {
-    const testName = parseBareTestName(test._attributes.name)
-    const testNameWithoutSuffix = removeSuffix(testName)
+  return Object.entries(metadata).map(([testName, testMeta]) => {
+    const testResult = tests.find(t => testName === parseBareTestName(t._attributes.name))
+    const isSkipped = testMeta.skip || testMeta.skipEmit || false // we explicitly set false to preserve backwards compatibility
     return {
-      test_name: testNameWithoutSuffix,
+      test_name: testMeta.name || testName,
       parameters: {
-        browser: browser ? browser : 'chrome',
-
-        mode: parseExecutionMode(testName),
+        browser: browser || 'chrome',
+        mode: testMeta.executionMode,
       },
-      passed: !test.failure,
-      ...metadata[testName],
+      passed: testResult && !isSkipped ? !testResult.failure : undefined,
+      isGeneric: testMeta.isGeneric,
+      isSkipped,
     }
   })
-}
-
-function removeSuffix(testName) {
-  return testName.replace(/_(VG|Scroll)$/, '')
-}
-
-function convertSuffixToExecutionMode(suffix) {
-  switch (suffix) {
-    case 'VG':
-      return 'visualgrid'
-    case 'Scroll':
-      return 'scroll'
-    default:
-      return 'css'
-  }
 }
 
 function parseBareTestName(testCaseName) {
@@ -40,13 +25,6 @@ function parseBareTestName(testCaseName) {
     .replace(/Coverage Tests /, '')
     .replace(/\(.*\)/, '')
     .trim()
-}
-
-function parseExecutionMode(bareTestName) {
-  const parsedBareTestName = bareTestName.split('_')
-  const suffix =
-    parsedBareTestName.length > 1 ? parsedBareTestName[parsedBareTestName.length - 1] : undefined
-  return convertSuffixToExecutionMode(suffix)
 }
 
 function parseJunitXmlForTests(xmlResult) {
@@ -69,6 +47,5 @@ function parseJunitXmlForTests(xmlResult) {
 module.exports = {
   convertJunitXmlToResultSchema,
   parseBareTestName,
-  parseExecutionMode,
   parseJunitXmlForTests,
 }

@@ -3,6 +3,7 @@ const fs = require('fs')
 const path = require('path')
 const {URL} = require('url')
 const cwd = process.cwd()
+const cwdPath = path.join(cwd, 'index.js')
 const {
   BatchInfo,
   Configuration,
@@ -10,7 +11,7 @@ const {
   VisualGridRunner,
   ConsoleLogHandler,
   FileLogHandler,
-} = require(cwd)
+} = require(fs.existsSync(cwdPath) ? cwdPath : cwd)
 
 const SAUCE_SERVER_URL = 'https://ondemand.saucelabs.com:443/wd/hub'
 
@@ -89,6 +90,18 @@ const DEVICES = {
       ...SAUCE_CREDENTIALS,
     },
   },
+  'iPhone 11 Pro Max': {
+    type: 'sauce',
+    url: SAUCE_SERVER_URL,
+    capabilities: {
+      appiumVersion: '1.18.3',
+      deviceName: 'iPhone 11 Pro Max Simulator',
+      deviceOrientation: 'portrait',
+      platformVersion: '14.0',
+      platformName: 'iOS',
+      ...SAUCE_CREDENTIALS,
+    },
+  },
   'iPhone XS': {
     type: 'sauce',
     url: SAUCE_SERVER_URL,
@@ -105,6 +118,18 @@ const DEVICES = {
     capabilities: {
       deviceName: 'iPad Air Simulator',
       platformVersion: '12.4',
+      platformName: 'iOS',
+      ...SAUCE_CREDENTIALS,
+    },
+  },
+  'iPad (7th generation)': {
+    type: 'sauce',
+    url: SAUCE_SERVER_URL,
+    capabilities: {
+      browserName: 'Safari',
+      deviceName: 'iPad (7th generation) Simulator',
+      deviceOrientation: 'portrait',
+      platformVersion: '13.2',
       platformName: 'iOS',
       ...SAUCE_CREDENTIALS,
     },
@@ -167,13 +192,13 @@ const BROWSERS = {
     capabilities: {
       w3c: {
         browserName: 'safari',
-        browserVersion: '11.0',
-        platformName: 'macOS 10.12',
+        browserVersion: '11',
+        platformName: 'macOS 10.13',
       },
       legacy: {
         browserName: 'safari',
-        version: '11.0',
-        platform: 'macOS 10.12',
+        version: '11',
+        platform: 'macOS 10.13',
       },
     },
     options: {
@@ -200,6 +225,21 @@ const BROWSERS = {
     options: {
       name: 'Safari 12',
       seleniumVersion: '3.4.0',
+      ...SAUCE_CREDENTIALS,
+    },
+  },
+  'firefox-48': {
+    type: 'sauce',
+    url: SAUCE_SERVER_URL,
+    capabilities: {
+      legacy: {
+        browserName: 'firefox',
+        platform: 'Windows 10',
+        version: '48.0',
+      },
+    },
+    options: {
+      name: 'Firefox 48',
       ...SAUCE_CREDENTIALS,
     },
   },

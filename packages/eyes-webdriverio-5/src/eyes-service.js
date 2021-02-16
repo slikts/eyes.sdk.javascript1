@@ -1,6 +1,6 @@
 'use strict'
 
-const {ConsoleLogHandler, VisualGridRunner} = require('@applitools/eyes-sdk-core')
+const {ConsoleLogHandler, VisualGridRunner, RunnerOptions} = require('@applitools/eyes-sdk-core')
 const {EyesFactory: Eyes, CheckSettings: Target} = require('./sdk')
 const VERSION = require('../package.json').version
 
@@ -12,9 +12,8 @@ const DEFAULT_VIEWPORT = {
 class EyesService {
   constructor(config) {
     this._eyesConfig = getServiceConfig(config) || {}
-    const runner = this._eyesConfig.useVisualGrid
-      ? new VisualGridRunner(this._eyesConfig.concurrency)
-      : undefined
+    const runnerOptions = new RunnerOptions().testConcurrency(this._eyesConfig.concurrency)
+    const runner = this._eyesConfig.useVisualGrid ? new VisualGridRunner(runnerOptions) : undefined
     this._eyes = new Eyes(runner)
     this._eyes.getBaseAgentId = () =>
       runner

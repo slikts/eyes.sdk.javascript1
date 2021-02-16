@@ -45,4 +45,28 @@ describe('renderingGridClient', () => {
       expect(err.message).to.equal(apiKeyFailMsg)
     }
   })
+
+  it('getEmulatedDevicesSizes calls proper method on EyesWrapper', async () => {
+    const wrapper = createFakeWrapper('http://some_url')
+    const {getEmulatedDevicesSizes} = makeRenderingGridClient({
+      showLogs: process.env.APPLITOOLS_SHOW_LOGS,
+      appName,
+      renderWrapper: wrapper,
+    })
+
+    const result = await getEmulatedDevicesSizes()
+    expect(result).to.eql(['emulated device 1', 'emulated device 2'])
+  })
+
+  it('getIosDevicesSizes calls proper method on EyesWrapper', async () => {
+    const wrapper = createFakeWrapper('http://some_url')
+    const {getIosDevicesSizes} = makeRenderingGridClient({
+      showLogs: process.env.APPLITOOLS_SHOW_LOGS,
+      appName,
+      renderWrapper: wrapper,
+    })
+
+    const result = await getIosDevicesSizes()
+    expect(result).to.eql(['ios device 1', 'ios device 2'])
+  })
 })

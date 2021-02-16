@@ -28,6 +28,12 @@ export function jwtDecode(token: string): Record<string, any> {
   return JSON.parse(Buffer.from(payloadSeg, 'base64').toString())
 }
 
+export function sleep(ms: number) {
+  if (types.isNumber(ms)) {
+    return new Promise(resolve => setTimeout(resolve, ms))
+  }
+}
+
 export function toJSON<TObject extends Record<PropertyKey, any>, TKey extends string, TProps extends Readonly<TKey[]>>(
   object: TObject,
   props: TProps,

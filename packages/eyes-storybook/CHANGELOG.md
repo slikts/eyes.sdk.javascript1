@@ -3,6 +3,97 @@
 ## Unreleased
 
 
+## 3.16.5 - 2021/1/31
+
+- updated to @applitools/dom-snapshot@4.4.10 (from 4.4.9)
+- updated to @applitools/eyes-sdk-core@12.14.6 (from 12.14.5)
+- updated to @applitools/visual-grid-client@15.5.19 (from 15.5.17)
+
+## 3.16.4 - 2021/1/31
+
+- chore: add husky
+- updated to @applitools/dom-snapshot@4.4.9 (from 4.4.7)
+- updated to @applitools/eyes-puppeteer@1.4.3 (from 1.4.2)
+- updated to @applitools/eyes-sdk-core@12.14.5 (from 12.13.4)
+- updated to @applitools/visual-grid-client@15.5.17 (from 15.5.10)
+
+## 3.16.3 - 2021/1/15
+
+- updated to @applitools/dom-snapshot@4.4.7 (from 4.4.5)
+- updated to @applitools/eyes-puppeteer@1.4.2 (from 1.4.0)
+- updated to @applitools/eyes-sdk-core@12.13.4 (from 12.12.2)
+- updated to @applitools/visual-grid-client@15.5.10 (from 15.5.5)
+
+## 3.16.2 - 2021/1/12
+
+- updated to @applitools/dom-snapshot@4.4.5 (from 4.4.4)
+
+## 3.16.1 - 2021/1/10
+
+- updated to @applitools/dom-snapshot@4.4.4 (from 4.4.1)
+- updated to @applitools/eyes-sdk-core@12.12.2 (from 12.11.0)
+- updated to @applitools/visual-grid-client@15.5.5 (from 15.5.0)
+
+## 3.16.0 - 2020/12/30
+
+- support JS layout
+- updated to @applitools/eyes-sdk-core@12.11.0 (from 12.10.0)
+- updated to @applitools/visual-grid-client@15.5.0 (from 15.4.0)
+
+## 3.15.0 - 2020/12/18
+
+- updated to @applitools/eyes-puppeteer@1.4.0 (from 1.3.1)
+- updated to @applitools/eyes-sdk-core@12.10.0 (from 12.9.3)
+- updated to @applitools/visual-grid-client@15.4.0 (from 15.3.2)
+
+## 3.14.2 - 2020/12/15
+
+- updated to @applitools/dom-snapshot@4.4.1 (from 4.4.0)
+- updated to @applitools/eyes-puppeteer@1.3.1 (from 1.3.0)
+- updated to @applitools/eyes-sdk-core@12.9.3 (from 12.9.2)
+- updated to @applitools/visual-grid-client@15.3.2 (from 15.3.1)
+
+## 3.14.1 - 2020/12/14
+
+- updated to @applitools/dom-snapshot@4.4.0 (from 4.3.1)
+- updated to @applitools/eyes-puppeteer@1.3.0 (from 1.2.2)
+- updated to @applitools/eyes-sdk-core@12.9.2 (from 12.9.1)
+- updated to @applitools/visual-grid-client@15.3.1 (from 15.3.0)
+
+## 3.14.0 - 2020/12/11
+
+- updated to @applitools/dom-snapshot@4.3.1 (from 4.2.9)
+- updated to @applitools/eyes-sdk-core@12.9.1 (from 12.8.3)
+- updated to @applitools/visual-grid-client@15.3.0 (from 15.2.4)
+
+## 3.13.4 - 2020/12/4
+
+- updated to @applitools/eyes-puppeteer@1.2.2 (from 1.2.1)
+- updated to @applitools/eyes-sdk-core@12.8.3 (from 12.8.2)
+- updated to @applitools/visual-grid-client@15.2.4 (from 15.2.3)
+
+## 3.13.3 - 2020/12/4
+
+- updated to @applitools/visual-grid-client@15.2.3 (from 15.2.2)
+
+## 3.13.2 - 2020/12/4
+
+- updated to @applitools/dom-snapshot@4.2.9 (from 4.2.8)
+- updated to @applitools/eyes-puppeteer@1.2.1 (from 1.2.0)
+
+## 3.13.1 - 2020/12/3
+
+- updated to @applitools/dom-snapshot@4.2.8 (from 4.2.7)
+- updated to @applitools/eyes-sdk-core@12.8.2 (from 12.8.1)
+- updated to @applitools/visual-grid-client@15.2.2 (from 15.2.1)
+
+- fix `saveFailedTests`
+
+## 3.13.0 - 2020/12/2
+
+- use eyes-puppeteer SDK for running dom-snapshot - adds support for cross-origin iframes [Trello 635](https://trello.com/c/TgiAqTUM) and [Trello 551](https://trello.com/c/wPl3ef7y))
+- updated to @applitools/eyes-puppeteer@1.2.0 (from 1.1.1)
+- updated to @applitools/eyes-sdk-core@12.8.1 (from 12.6.2)
 
 ## 3.12.1 - 2020/11/26
 

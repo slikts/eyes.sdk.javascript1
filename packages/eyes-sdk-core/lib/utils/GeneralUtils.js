@@ -6,6 +6,7 @@ const {promisify} = require('util')
 const TypeUtils = require('./TypeUtils')
 const DateTimeUtils = require('./DateTimeUtils')
 const chalk = require('chalk')
+const {URL} = require('url')
 
 const promisifiedExec = promisify && exec && promisify(exec)
 const ENV_PREFIXES = ['APPLITOOLS_', 'bamboo_APPLITOOLS_']
@@ -51,6 +52,19 @@ function stripTrailingSlash(url) {
  */
 function isAbsoluteUrl(url) {
   return /^[a-z][a-z0-9+.-]*:/.test(url)
+}
+
+/**
+ * Add unique query parameter to URL
+ *
+ * @param {string} url
+ * @return {string} - URL with unique query parameter
+ */
+function generateUniqueUrl(url, query) {
+  const uniqueId = guid()
+  const uniqueUrl = new URL(url)
+  if (!url.includes(query)) uniqueUrl.searchParams.append(query, uniqueId)
+  return uniqueUrl.href
 }
 
 /**
@@ -464,8 +478,9 @@ function getBreakpointWidth(breakpoints, width) {
   if (!TypeUtils.isArray(breakpoints) || breakpoints.length === 0) {
     return width
   }
-  const breakpoint = breakpoints.find(breakpoint => width >= breakpoint)
-  return breakpoint || breakpoints[breakpoints.length - 1] - 1
+  const sortedBreakpoints = Array.from(new Set(breakpoints)).sort((a, b) => (a < b ? 1 : -1))
+  const breakpoint = sortedBreakpoints.find(breakpoint => width >= breakpoint)
+  return breakpoint || sortedBreakpoints[breakpoints.length - 1] - 1
 }
 
 function deprecationWarning({deprecatedThing, newThing, isDead}) {
@@ -505,4 +520,5 @@ module.exports = {
   cachify,
   getBreakpointWidth,
   deprecationWarning,
+  generateUniqueUrl,
 }

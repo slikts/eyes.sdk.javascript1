@@ -22,7 +22,7 @@ const {takeDomCapture} = require(require.resolve('@applitools/eyes-sdk-core', cw
   const url = await driver.getUrl()
   console.log(url)
 
-  const domStr = await takeDomCapture(logger, eyesDriver)
+  const domStr = await takeDomCapture(logger, eyesDriver.mainContext)
   console.log('captured dom of size', domStr.length)
   let obj
   try {

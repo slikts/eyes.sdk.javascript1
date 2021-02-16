@@ -1,5 +1,5 @@
 'use strict'
-const {RGridResource} = require('@applitools/eyes-sdk-core')
+const {RGridResource} = require('@applitools/eyes-sdk-core/shared')
 
 // TODO remove and replace with `new RGridResource`
 function toRGridResource({url, type, value, errorStatusCode}) {

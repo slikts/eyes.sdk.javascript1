@@ -58,6 +58,7 @@
     "eslint-plugin-mocha-no-only": "^1.1.1",
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.1.4",
+    "husky": "^4.3.7",
     "mocha": "^6.2.2",
     "prettier": "1.19.0",
     "protractor": "^5.4.2",
@@ -80,10 +81,16 @@
     "preversion": "bongo preversion && yarn test",
     "version": "bongo version",
     "postversion": "bongo postversion --skip-release-notification",
-    "prepublish:setup": "echo 'no setup'"
+    "prepublish:setup": "echo 'no setup'",
+    "deps": "bongo deps"
   },
   "license": "SEE LICENSE IN LICENSE",
   "engines": {
     "node": ">=8.9.0"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "yarn bongo lint"
+    }
   }
 }

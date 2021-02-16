@@ -3,6 +3,7 @@ const {describe, it} = require('mocha');
 const {expect} = require('chai');
 const makeWaitForBatch = require('../../../src/plugin/waitForBatch');
 const {concurrencyMsg} = require('../../../src/plugin/concurrencyMsg');
+const {presult} = require('@applitools/functional-commons');
 
 function getErrorsAndDiffs(testResultsArr) {
   return testResultsArr.reduce(
@@ -41,6 +42,20 @@ describe('waitForBatch', () => {
   it("returns test count when there's no error", async () => {
     const runningTests = [['passed'], ['passed'], ['passed', 'passed']];
     expect(await waitForBatch(runningTests)).to.eql(4);
+  });
+
+  it('passes isInteractive to errorDigest', async () => {
+    let works = false;
+    const waitForBatch = makeWaitForBatch({
+      logger,
+      processCloseAndAbort,
+      getErrorsAndDiffs: () => ({failed: [0]}),
+      handleBatchResultsFile: results => results,
+      errorDigest: ({isInteractive}) => (works = isInteractive),
+      isInteractive: true,
+    });
+    await presult(waitForBatch([]));
+    expect(works).to.be.true;
   });
 
   it('throws error with digest when found errors', async () => {

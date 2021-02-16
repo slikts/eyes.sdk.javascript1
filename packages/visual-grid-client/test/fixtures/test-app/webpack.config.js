@@ -14,4 +14,12 @@ module.exports = {
     child_process: 'empty',
     module: 'empty',
   },
+  module: {
+    rules: [
+      {
+        test: /@applitools\/screenshoter/,
+        use: 'null-loader',
+      },
+    ],
+  },
 }

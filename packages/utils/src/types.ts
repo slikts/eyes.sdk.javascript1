@@ -10,6 +10,10 @@ export function isString(value: any): value is string {
   return Object.prototype.toString.call(value) === '[object String]'
 }
 
+export function isBase64(value: any): value is string {
+  return isString(value) && /^([A-Za-z0-9+/]{4})*([A-Za-z0-9+/]{3}=|[A-Za-z0-9+/]{2}==)?$/.test(value)
+}
+
 export function isNumber(value: any): value is number {
   return typeof value === 'number' || value instanceof Number
 }

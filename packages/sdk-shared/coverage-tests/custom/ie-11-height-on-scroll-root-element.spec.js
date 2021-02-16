@@ -5,7 +5,7 @@ const spec = require(path.resolve(cwd, 'src/spec-driver'))
 const {getEyes} = require('../../src/test-setup')
 const {Target} = require(cwd)
 
-describe('calculating scrollRootElement offset errors on IE11', async () => {
+describe.skip('calculating scrollRootElement offset errors on IE11', async () => {
   let eyes
   let browser
 

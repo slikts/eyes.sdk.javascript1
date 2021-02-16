@@ -1,5 +1,5 @@
 'use strict'
-const {getTunnelAgentFromProxy} = require('@applitools/eyes-sdk-core')
+const {getTunnelAgentFromProxy} = require('@applitools/eyes-sdk-core/shared')
 
 function getFetchOptions({url, referer, userAgent, proxySettings}) {
   const fetchOptions = {headers: {Referer: referer}}

@@ -15,6 +15,7 @@ function getSupportedBrowsers() {
     edgelegacy: 'edgelegacy',
     ie: 'ie',
     safari: 'safari',
+    'safari-earlyaccess': 'safari-earlyaccess',
     [translateBrowserNameVersion('chrome-1')]: 'chrome-1',
     [translateBrowserNameVersion('chrome-2')]: 'chrome-2',
     [translateBrowserNameVersion('firefox-1')]: 'firefox-1',

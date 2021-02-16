@@ -83,4 +83,62 @@ describe('fetchResource', () => {
     expect(await fetchResourceWithRetry(url)).to.eql({url, errorStatusCode: 404})
     expect(called).to.equal(1)
   })
+
+  describe('mediaDownloadTimeout', () => {
+    it('stop fetching media after mediaDownloadTimeout', async () => {
+      const fetchResource = makeFetchResource({logger: testLogger, mediaDownloadTimeout: 80, fetch})
+      const url = 'http://something2'
+      nock(url)
+        .get('/')
+        .delayBody(200)
+        .reply(200, 'bla', {'content-type': 'audio/content-type'})
+
+      expect(await fetchResource(url)).to.eql({url, errorStatusCode: 599})
+    })
+
+    it("doesn't include headers fetching time", async () => {
+      const fetchResource = makeFetchResource({logger: testLogger, mediaDownloadTimeout: 80, fetch})
+      const url = 'http://something2'
+      nock(url)
+        .get('/')
+        .delay(200)
+        .reply(200, 'bla', {'content-type': 'audio/content-type'})
+
+      expect(await fetchResource(url)).to.eql({
+        url,
+        type: 'audio/content-type',
+        value: Buffer.from('bla'),
+      })
+    })
+
+    it("doesn't apply to requests with content length", async () => {
+      const fetchResource = makeFetchResource({logger: testLogger, mediaDownloadTimeout: 80, fetch})
+      const url = 'http://something2'
+      nock(url)
+        .get('/')
+        .delayBody(200)
+        .reply(200, 'bla', {'content-type': 'audio/content-type', 'content-length': 3})
+
+      expect(await fetchResource(url)).to.eql({
+        url,
+        type: 'audio/content-type',
+        value: Buffer.from('bla'),
+      })
+    })
+
+    it("doesn't apply to requests with non media content type", async () => {
+      const fetchResource = makeFetchResource({logger: testLogger, mediaDownloadTimeout: 80, fetch})
+      const url = 'http://something2'
+      nock(url)
+        .get('/')
+        .delayBody(200)
+        .reply(200, 'bla', {'content-type': 'some/content-type'})
+
+      expect(await fetchResource(url)).to.eql({
+        url,
+        type: 'some/content-type',
+        value: Buffer.from('bla'),
+      })
+    })
+  })
 })

@@ -6,7 +6,6 @@ const CoordinatesType = require('../geometry/CoordinatesType')
 const Region = require('../geometry/Region')
 const Location = require('../geometry/Location')
 const FailureReports = require('../FailureReports')
-const MatchResult = require('../match/MatchResult')
 const FullPageCaptureAlgorithm = require('../capture/FullPageCaptureAlgorithm')
 const EyesScreenshot = require('../capture/EyesScreenshotNew')
 const EyesScreenshotFactory = require('../capture/EyesScreenshotFactory')
@@ -201,6 +200,13 @@ class EyesClassic extends EyesCore {
           return this._checkFrame(checkSettings, closeAfterMatch, throwEx)
         }
       } else {
+        if (!this._stitchContent) {
+          this._context = this._driver.mainContext
+          this._regionToCheck = new Region(
+            await this._context.getInnerOffset(),
+            await this._driver.getViewportSize(),
+          )
+        }
         const source = await this._driver.getUrl()
         return this.checkWindowBase(
           new NullRegionProvider(),
@@ -253,10 +259,11 @@ class EyesClassic extends EyesCore {
 
     for (const context of this._context.path) {
       const scrollRootElement = await context.getScrollRootElement()
-      await scrollRootElement.preservePosition(positionProvider)
-
-      if (shouldHideScrollbars) {
-        await scrollRootElement.hideScrollbars()
+      if (scrollRootElement) {
+        await scrollRootElement.preservePosition(positionProvider)
+        if (shouldHideScrollbars) {
+          await scrollRootElement.hideScrollbars()
+        }
       }
     }
 
@@ -266,10 +273,12 @@ class EyesClassic extends EyesCore {
       let currentContext = this._context
       while (currentContext) {
         const scrollRootElement = await currentContext.getScrollRootElement()
-        if (shouldHideScrollbars) {
-          await scrollRootElement.restoreScrollbars()
+        if (scrollRootElement) {
+          if (shouldHideScrollbars) {
+            await scrollRootElement.restoreScrollbars()
+          }
+          await scrollRootElement.restorePosition(positionProvider)
         }
-        await scrollRootElement.restorePosition(positionProvider)
         currentContext = currentContext.parent
       }
       this._context = await originalContext.focus()
@@ -372,7 +381,7 @@ class EyesClassic extends EyesCore {
       )
 
       const source = await this._driver.getUrl()
-      return super.checkWindowBase(
+      return await super.checkWindowBase(
         new RegionProvider(this._regionToCheck),
         checkSettings.getName(),
         false,
@@ -429,10 +438,8 @@ class EyesClassic extends EyesCore {
         await this._context.getScrollRootElement(),
       )
       this._regionFullArea = new Region(
-        this._regionToCheck
-          .getLocation()
-          .offsetNegative(remainingOffset)
-          .offsetNegative(await this._context.getInnerOffset()),
+        this._regionToCheck.getLocation().offsetNegative(remainingOffset),
+        // .offsetNegative(await this._context.getInnerOffset()),
         this._regionToCheck.getSize(),
       )
     }
@@ -602,14 +609,16 @@ class EyesClassic extends EyesCore {
     )
 
     await this._targetPositionProvider.markScrollRootElement()
-    const fullRegionImage = await fullPageCapture.getStitchedRegion(
+    const screenshot = await fullPageCapture.getStitchedRegion(
       this._regionToCheck,
       this._regionFullArea,
       this._targetPositionProvider,
     )
 
+    this._imageLocation = screenshot.imageLocation
+
     this._logger.verbose('Building screenshot object...')
-    return EyesScreenshot.fromScreenshotType(this._logger, this, fullRegionImage)
+    return EyesScreenshot.fromScreenshotType(this._logger, this, screenshot.image)
   }
   /**
    * Create a full page screenshot
@@ -646,14 +655,16 @@ class EyesClassic extends EyesCore {
     }
 
     const region = await scrollRootElement.getClientRect()
-    const fullPageImage = await fullCapture.getStitchedRegion(region, null, positionProvider)
+    const screenshot = await fullCapture.getStitchedRegion(region, null, positionProvider)
+
+    this._imageLocation = screenshot.imageLocation
 
     const originalFramePosition = await this._context.main.getInnerOffset()
     this._logger.verbose('Building screenshot object...')
     return EyesScreenshot.fromScreenshotType(
       this._logger,
       this,
-      fullPageImage,
+      screenshot.image,
       null,
       originalFramePosition,
     )
@@ -688,11 +699,25 @@ class EyesClassic extends EyesCore {
    * @private
    */
   async tryCaptureDom() {
+    this._logger.verbose('Getting window DOM...')
+    const positionProvider = this._positionProviderHandler.get()
+    let originalPosition
     try {
-      this._logger.verbose('Getting window DOM...')
-      return await takeDomCapture(this._logger, this._driver)
+      if (
+        !this._driver.isNative &&
+        !this._shouldCheckFullRegion &&
+        (this._configuration.getForceFullPageScreenshot() || this._stitchContent)
+      ) {
+        originalPosition = await positionProvider.getState()
+        await positionProvider.setPosition(Location.ZERO)
+      }
+      return await takeDomCapture(this._logger, this._driver.mainContext)
     } catch (ignored) {
       return ''
+    } finally {
+      if (originalPosition) {
+        await positionProvider.setPosition(originalPosition)
+      }
     }
   }
   /**
@@ -739,10 +764,10 @@ class EyesClassic extends EyesCore {
    * @private
    */
   getImageLocation() {
-    if (this._regionToCheck) {
+    if (this._imageLocation) {
       return new Location(
-        Math.round(this._regionToCheck.getLeft()),
-        Math.round(this._regionToCheck.getTop()),
+        Math.round(this._imageLocation.getX()),
+        Math.round(this._imageLocation.getY()),
       )
     }
     return Location.ZERO

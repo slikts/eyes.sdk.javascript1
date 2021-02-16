@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- chore: add husky
 - using new concurrency model
 
 ## 3.9.1 - 2020/6/9

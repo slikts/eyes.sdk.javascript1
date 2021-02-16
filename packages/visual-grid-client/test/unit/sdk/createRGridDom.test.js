@@ -1,7 +1,7 @@
 'use strict'
 const {describe, it} = require('mocha')
 const {expect} = require('chai')
-const {RGridResource} = require('@applitools/eyes-sdk-core')
+const {RGridResource} = require('@applitools/eyes-sdk-core/shared')
 const createRGridDom = require('../../../src/sdk/createRGridDom')
 
 describe('createRGridDom', () => {

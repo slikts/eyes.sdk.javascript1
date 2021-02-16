@@ -9,6 +9,7 @@ function makeWaitForBatch({
   getErrorsAndDiffs,
   errorDigest,
   handleBatchResultsFile,
+  isInteractive,
 }) {
   return async function(runningTests, closeBatch) {
     logger.log(`Waiting for test results of ${runningTests.length} tests.`);
@@ -22,7 +23,7 @@ function makeWaitForBatch({
     }
 
     if (failed.length || diffs.length) {
-      throw new Error(errorDigest({passed, failed, diffs, logger}));
+      throw new Error(errorDigest({passed, failed, diffs, logger, isInteractive}));
     }
 
     return passed.length;

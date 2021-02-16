@@ -12,6 +12,7 @@ function makePluginExport({startServer, config}) {
       const eyesConfig = {
         eyesIsDisabled: !!config.isDisabled,
         eyesBrowser: JSON.stringify(config.browser),
+        eyesLayoutBreakpoints: JSON.stringify(config.layoutBreakpoints),
         eyesFailCypressOnDiff:
           config.failCypressOnDiff === undefined ? true : !!config.failCypressOnDiff,
         eyesTimeout: config.eyesTimeout,

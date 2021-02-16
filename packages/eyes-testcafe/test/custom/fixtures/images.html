@@ -1,0 +1,29 @@
+<html>
+  <head>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+    <link href="images.css" rel="stylesheet">
+    <style>
+      html {
+        font-family: 'Roboto', sans-serif;
+      }
+    </style>
+  </head>
+  <body style="margin:20px;">
+    <h2>img tag<h2>
+    <img src="smurfs.jpg">
+    <h2>background-image url</h2>
+    <h3>inline</h3>
+    <div style="width: 200px; height: 200px; background-image: url('smurfs2.jpg');">Should have an image here (If SDK can fetch it).</div>
+    <h3>style block in markup</h3>
+    <div class="hasImgFromMarkup" style="width: 200px; height: 200px;">Should have an image here (If SDK can fetch it).</div>
+    <h3>style in css file</h3>
+    <div class="hasImgFromCssFile" style="width: 200px; height: 200px;">Should have an image here (If SDK can fetch it).</div>
+    <h3>style in nested css file</h3>
+    <div class="hasImgFromNestedCssFile" style="width: 200px; height: 200px;">Should have an image here (If SDK can fetch it).</div>
+  </body>
+  <style>
+    .hasImgFromMarkup {
+      background-image: url('smurfs.jpg');
+    }
+  </style>
+</html>

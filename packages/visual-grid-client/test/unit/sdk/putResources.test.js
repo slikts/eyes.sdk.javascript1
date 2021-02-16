@@ -2,7 +2,7 @@
 const {describe, it} = require('mocha')
 const {expect} = require('chai')
 const makePutResources = require('../../../src/sdk/putResources')
-const {RGridDom, RGridResource} = require('@applitools/eyes-sdk-core')
+const {RGridDom, RGridResource} = require('@applitools/eyes-sdk-core/shared')
 const {promisify: p} = require('util')
 const createResourceCache = require('../../../src/sdk/createResourceCache')
 const testLogger = require('../../util/testLogger')

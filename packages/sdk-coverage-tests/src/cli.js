@@ -2,33 +2,50 @@
 
 const yargs = require('yargs')
 const generate = require('./generate/command')
-const report = require('./report')
+const report = require('./report/command')
 
 const cliName = 'SAT - SDK Agnostic Test-framework'
 
 const cli = yargs
   .usage(cliName)
   .command({
-    command: 'generate [config-path]',
+    command: 'generate [config]',
     description: 'create test files for a given SDK configuration',
     builder: yargs =>
       yargs.options({
-        configPath: {
+        config: {
+          alias: ['c', 'configPath'],
           description: 'path to the sdk configuration .js file',
           type: 'string',
           default: './test/coverage/index.js',
         },
-        testsPath: {
-          alias: 't',
+        tests: {
+          alias: ['t', 'testsPath'],
           description: 'path to the tests file (local or remote)',
           type: 'string',
         },
-        outPath: {
-          alias: 'o',
+        template: {
+          alias: ['templatePath'],
+          description: 'path to the template .hbs file (local or remote)',
+          type: 'string',
+        },
+        spec: {
+          alias: ['s', 'specPath'],
+          description: 'path to the spec emitter definition file (local or remote)',
+          type: 'string',
+        },
+        overrides: {
+          alias: ['overridesPath'],
+          description: 'path to the tests overrides file (local or remote)',
+          type: 'string',
+        },
+        outDir: {
+          alias: ['o', 'out', 'outPath'],
           description: 'path to save generated files',
           type: 'string',
         },
-        metaPath: {
+        metaDir: {
+          alias: ['m', 'metaPath'],
           description: 'path to save metadata file',
           type: 'string',
         },
@@ -38,12 +55,22 @@ const cli = yargs
           default: true,
         },
         emitOnly: {
+          alias: ['only'],
           description: 'name of the test to emit',
           type: 'array',
         },
         ignoreSkip: {
           description: 'ignore skip flag',
           type: 'boolean',
+        },
+        ignoreSkipEmit: {
+          description: 'ignore skip emit flag',
+          type: 'boolean',
+        },
+        pascalizeTests: {
+          description: 'save tests metadata with pascalized keys',
+          type: 'boolean',
+          default: false,
         },
         strict: {
           description: 'whether to throw an error if test emitting is failed',
@@ -64,34 +91,37 @@ const cli = yargs
     handler: generate,
   })
   .command({
-    command: 'report [config-path]',
+    command: 'report [config]',
     description: 'send a report to QA dashboard',
     builder: yargs =>
       yargs.options({
-        configPath: {
+        config: {
+          alias: ['c', 'configPath'],
           description: 'path to the sdk configuration .js file',
           type: 'string',
           default: './test/coverage/index.js',
         },
         name: {
-          alias: 'n',
+          alias: ['n'],
           description: 'the sdk name',
           type: 'string',
         },
-        metaPath: {
-          description: 'path to the json metadata file generated with tests',
-          type: 'string',
-        },
-        resultsPath: {
+        resultDir: {
+          alias: ['r', 'resultPath'],
           description: 'path to the junit xml file',
           type: 'string',
         },
+        metaDir: {
+          alias: ['m', 'metaPath'],
+          description: 'path to the json metadata file generated with tests',
+          type: 'string',
+        },
         reportId: {
-          alias: 'id',
+          alias: ['id'],
           describe: 'id of the report which will be displayed at the dashboard',
         },
         sandbox: {
-          description: `don't send a result report to the sandbox QA dashboard`,
+          description: `send a result report to the sandbox QA dashboard instead of prod`,
         },
       }),
     handler: report,

@@ -6,7 +6,7 @@ const {
   Logger,
   GeneralUtils: {backwardCompatible, deprecationWarning},
   RunnerStartedEvent,
-} = require('@applitools/eyes-sdk-core')
+} = require('@applitools/eyes-sdk-core/shared')
 const {ptimeoutWithError, presult} = require('@applitools/functional-commons')
 const makeGetAllResources = require('./getAllResources')
 const extractCssResources = require('./extractCssResources')
@@ -72,6 +72,7 @@ function makeRenderingGridClient({
   branchName,
   branch,
   proxy,
+  saveDiffs,
   saveFailedTests,
   saveNewTests,
   compareWithParentBranch,
@@ -128,6 +129,8 @@ function makeRenderingGridClient({
     setRenderingInfo,
     doGetRenderJobInfo,
     doLogEvents,
+    doGetEmulatedDevicesSizes,
+    doGetIosDevicesSizes,
   } = getRenderMethods(renderWrapper)
   const resourceCache = createResourceCache()
   const fetchCache = createResourceCache()
@@ -194,6 +197,7 @@ function makeRenderingGridClient({
     parentBranch,
     branch,
     proxy,
+    saveDiffs,
     saveFailedTests,
     saveNewTests,
     compareWithParentBranch,
@@ -218,11 +222,17 @@ function makeRenderingGridClient({
   const closeBatch = makeCloseBatch({globalState, dontCloseBatches, isDisabled})
   const testWindow = makeTestWindow(openConfig)
 
+  let emulatedDevicesSizesPromise
+  let iosDevicesSizesPromise
+
   return {
     openEyes,
     closeBatch,
     globalState,
     testWindow,
+    getResourceUrlsInCache,
+    getIosDevicesSizes,
+    getEmulatedDevicesSizes,
   }
 
   async function getInitialData() {
@@ -264,6 +274,26 @@ function makeRenderingGridClient({
 
     setRenderingInfo(renderInfo)
     return {renderInfo}
+  }
+
+  async function getEmulatedDevicesSizes() {
+    if (!emulatedDevicesSizesPromise) {
+      await getInitialData()
+      emulatedDevicesSizesPromise = doGetEmulatedDevicesSizes()
+    }
+    return emulatedDevicesSizesPromise
+  }
+
+  async function getIosDevicesSizes() {
+    if (!iosDevicesSizesPromise) {
+      await getInitialData()
+      iosDevicesSizesPromise = doGetIosDevicesSizes()
+    }
+    return iosDevicesSizesPromise
+  }
+
+  function getResourceUrlsInCache() {
+    return resourceCache.getKeys()
   }
 }
 

@@ -1,26 +1,27 @@
 const path = require('path')
 const fs = require('fs')
 const chalk = require('chalk')
+const {configLoader} = require('../loaders/config-loader')
 const {createReport} = require('./create')
 const {sendReport} = require('./send')
 const uploadToStorage = require('./upload')
 
 const DEFAULT_CONFIG = {
-  metaPath: '',
-  resultPath: '',
+  metaDir: '',
+  resultDir: '',
 }
 
-async function report({configPath, ...options}) {
+async function report(options) {
   const config = {
     ...DEFAULT_CONFIG,
-    ...require(path.join(path.resolve('.'), configPath)),
+    ...configLoader(options),
     ...options,
   }
   const cwd = process.cwd()
-  const junit = fs.readFileSync(path.resolve(cwd, config.resultPath, 'coverage-test-report.xml'), {
+  const junit = fs.readFileSync(path.resolve(cwd, config.resultDir, 'coverage-test-report.xml'), {
     encoding: 'utf-8',
   })
-  const metadata = require(path.resolve(cwd, config.metaPath, 'coverage-tests-metadata.json'))
+  const metadata = require(path.resolve(cwd, config.metaDir, 'coverage-tests-metadata.json'))
 
   process.stdout.write(`\nSending report to QA dashboard ${config.sandbox ? '(sandbox)' : ''}... `)
   const report = createReport({

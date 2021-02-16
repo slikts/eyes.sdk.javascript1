@@ -9,7 +9,7 @@ class UnscaledFixedCutProvider extends CutProvider {
    * @param {number} left - The left to cut in pixels.
    * @param {number} right - The right to cut in pixels.
    */
-  constructor(header, footer, left, right) {
+  constructor(header = 0, footer = 0, left = 0, right = 0) {
     super()
 
     this._header = header
@@ -51,6 +51,10 @@ class UnscaledFixedCutProvider extends CutProvider {
   scale(_scaleRatio) {
     // eslint-disable-line no-unused-vars
     return new UnscaledFixedCutProvider(this._header, this._footer, this._left, this._right)
+  }
+
+  toObject() {
+    return {left: this._left, right: this._right, top: this._header, bottom: this._footer}
   }
 }
 

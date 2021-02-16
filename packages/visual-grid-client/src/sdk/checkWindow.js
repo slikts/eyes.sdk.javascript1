@@ -1,6 +1,5 @@
 'use strict'
 
-const {Region} = require('@applitools/eyes-sdk-core')
 const {presult} = require('@applitools/functional-commons')
 const createRenderRequest = require('./createRenderRequest')
 const createCheckSettings = require('./createCheckSettings')
@@ -236,7 +235,12 @@ function makeCheckWindow({
         return
       }
 
-      const {imageLocation: screenshotUrl, domLocation, selectorRegions} = renderStatusResult
+      const {
+        imageLocation: screenshotUrl,
+        domLocation,
+        selectorRegions,
+        imagePositionInActiveFrame: imageLocation,
+      } = renderStatusResult
 
       if (screenshotUrl) {
         logger.verbose(`screenshot available for ${renderId} at ${screenshotUrl}`)
@@ -259,14 +263,7 @@ function makeCheckWindow({
         return
       }
 
-      const {imageLocationRegion, ...regions} = getMatchRegions({selectorRegions})
-
-      let imageLocation = undefined
-      if ((sizeMode === 'selector' || sizeMode === 'full-selector') && imageLocationRegion) {
-        imageLocation = new Region(imageLocationRegion).getLocation()
-      } else if (sizeMode === 'region' && region) {
-        imageLocation = new Region(region).getLocation()
-      }
+      const regions = getMatchRegions({selectorRegions, imageLocation})
 
       const checkSettings = createCheckSettings({
         ...regions,

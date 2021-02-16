@@ -1,0 +1,25 @@
+// {{name}}
+{{#each output.hooks.deps as |dep|}}
+{{dep}}
+{{/each}}
+
+{{#each output.hooks.vars as |var|}}
+{{var}}
+{{/each}}
+
+fixture`Coverage Tests`
+.beforeEach(async () => {
+  {{#each output.hooks.beforeEach as |command|}}
+  {{command}}
+  {{/each}}
+})
+.after(async () => {
+  {{#each output.hooks.afterEach as |command|}}
+  {{command}}
+  {{/each}}
+})
+test{{#if skip}}.skip{{/if}}('{{name}}{{#tags tags}}@{{this}}{{/tags}}', async driver => {
+  {{#each output.commands as |command|}}
+  {{command}}
+  {{/each}}
+})

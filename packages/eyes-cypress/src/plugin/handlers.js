@@ -3,7 +3,7 @@ const {presult} = require('@applitools/functional-commons');
 const pollingHandler = require('./pollingHandler');
 const makeWaitForBatch = require('./waitForBatch');
 const makeHandleBatchResultsFile = require('./makeHandleBatchResultsFile');
-const {GeneralUtils} = require('@applitools/eyes-sdk-core');
+const {GeneralUtils} = require('@applitools/visual-grid-client');
 
 const TIMEOUT_MSG = timeout =>
   `Eyes-Cypress timed out after ${timeout}ms. The default timeout is 2 minutes. It's possible to increase this timeout by setting a the value of 'eyesTimeout' in Cypress configuration, e.g. for 3 minutes: Cypress.config('eyesTimeout', 180000)`;
@@ -17,7 +17,14 @@ function makeHandlers({
   errorDigest,
 }) {
   logger.log('[handlers] creating handlers with the following config:', config);
-  let openEyes, pollBatchEnd, checkWindow, close, resources, openErr;
+  let openEyes,
+    pollBatchEnd,
+    checkWindow,
+    close,
+    resources,
+    openErr,
+    getEmulatedDevicesSizes,
+    getIosDevicesSizes;
   let runningTests = [];
 
   return {
@@ -43,7 +50,6 @@ function makeHandlers({
         throw err;
       }
     },
-
     batchStart: data => {
       logger.log('[handlers] batchStart with data', data);
       runningTests = [];
@@ -64,12 +70,15 @@ function makeHandlers({
         }),
       );
       openEyes = client.openEyes;
+      getEmulatedDevicesSizes = client.getEmulatedDevicesSizes;
+      getIosDevicesSizes = client.getIosDevicesSizes;
       const waitForBatch = makeWaitForBatch({
         logger: (logger.extend && logger.extend('waitForBatch')) || logger,
         concurrency: config.concurrency,
         processCloseAndAbort,
         getErrorsAndDiffs,
         errorDigest,
+        isInteractive: GeneralUtils.getPropertyByPath(data, 'isInteractive'),
         handleBatchResultsFile: makeHandleBatchResultsFile(config),
       });
       pollBatchEnd = pollingHandler(
@@ -78,7 +87,8 @@ function makeHandlers({
       );
       return client;
     },
-
+    getIosDevicesSizes: () => getIosDevicesSizes(),
+    getEmulatedDevicesSizes: () => getEmulatedDevicesSizes(),
     batchEnd: async ({timeout} = {}) => {
       logger.log(`[handlers] batchEnd, timeout=${timeout}`);
       return await pollBatchEnd({timeout});
@@ -119,11 +129,9 @@ function makeHandlers({
         throw new Error('Please call cy.eyesOpen() before calling cy.eyesCheckWindow()');
       }
 
-      const snapshotWithResourceContents = Object.assign({}, snapshot, {
-        resourceContents: blobDataToResourceContents(snapshot.blobData),
-        frames: createResourceContents(snapshot.frames),
-      });
-      delete snapshotWithResourceContents.blobData;
+      const snapshotsWithResourceContents = Array.isArray(snapshot)
+        ? snapshot.map(getSnapshotWithResourceContents)
+        : getSnapshotWithResourceContents(snapshot);
 
       if (sizeMode) {
         console.warn(
@@ -131,9 +139,10 @@ function makeHandlers({
           '\nSee: https://github.com/applitools/eyes-cypress#target for more details.',
         );
       }
+
       return await checkWindow({
         url,
-        snapshot: snapshotWithResourceContents,
+        snapshot: snapshotsWithResourceContents,
         tag,
         sizeMode,
         target,
@@ -184,6 +193,16 @@ function makeHandlers({
     return async function() {
       return (runningTest.closePromise = presult(doClose(false)));
     };
+  }
+
+  function getSnapshotWithResourceContents(snapshot) {
+    const target = {};
+    Object.assign(target, snapshot, {
+      resourceContents: blobDataToResourceContents(snapshot.blobData),
+      frames: createResourceContents(snapshot.frames),
+    });
+    delete target.blobData;
+    return target;
   }
 
   function createResourceContents(frames = []) {

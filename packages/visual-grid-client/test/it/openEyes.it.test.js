@@ -20,7 +20,7 @@ const {
   FloatingRegionByRectangle,
   AccessibilityRegionByRectangle,
   TestResults,
-} = require('@applitools/eyes-sdk-core')
+} = require('@applitools/eyes-sdk-core/shared')
 const {
   apiKeyFailMsg,
   authorizationErrMsg,
@@ -350,7 +350,7 @@ describe('openEyes', () => {
         appName,
       }),
     )
-    expect(err.message).to.equal(
+    expect(err && err.message).to.equal(
       `browser name should be one of the following:
 * chrome
 * chrome-canary
@@ -361,6 +361,7 @@ describe('openEyes', () => {
 * edgelegacy
 * ie
 * safari
+* safari-earlyaccess
 * chrome-one-version-back
 * chrome-two-versions-back
 * firefox-one-version-back
@@ -1133,6 +1134,7 @@ Received: 'firefox-1'.`,
       accessibilitySettings: 'accessibilitySettings',
       parentBranch: 'parentBranch',
       branch: 'branch',
+      saveDiffs: 'saveDiffs',
       saveFailedTests: 'saveFailedTests',
       saveNewTests: 'saveNewTests',
       compareWithParentBranch: 'compareWithParentBranch',
@@ -1154,6 +1156,7 @@ Received: 'firefox-1'.`,
       expect(wrapper.parentBranchName).to.equal('parentBranch')
       expect(wrapper.branchName).to.equal('branch')
       expect(wrapper.proxy).to.equal('proxy')
+      expect(wrapper.saveDiffs).to.equal('saveDiffs')
       expect(wrapper.saveFailedTests).to.equal('saveFailedTests')
       expect(wrapper.saveNewTests).to.equal('saveNewTests')
       expect(wrapper.compareWithParentBranch).to.equal('compareWithParentBranch')
@@ -1192,6 +1195,7 @@ Received: 'firefox-1'.`,
       accessibilitySettings: 'accessibilitySettings',
       parentBranch: 'parentBranch',
       branch: 'branch',
+      saveDiffs: 'saveDiffs',
       saveFailedTests: 'saveFailedTests',
       saveNewTests: 'saveNewTests',
       compareWithParentBranch: 'compareWithParentBranch',
@@ -1217,6 +1221,7 @@ Received: 'firefox-1'.`,
       expect(wrapper.parentBranchName).to.equal('parentBranch')
       expect(wrapper.branchName).to.equal('branch')
       expect(wrapper.proxy).to.equal('proxy')
+      expect(wrapper.saveDiffs).to.equal('saveDiffs')
       expect(wrapper.saveFailedTests).to.equal('saveFailedTests')
       expect(wrapper.saveNewTests).to.equal('saveNewTests')
       expect(wrapper.compareWithParentBranch).to.equal('compareWithParentBranch')

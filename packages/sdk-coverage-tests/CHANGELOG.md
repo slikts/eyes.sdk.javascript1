@@ -3,6 +3,66 @@
 ## Unreleased
 
 
+## 2.3.7 - 2021/2/6
+
+- Include non-emitted tests in the report
+
+## 2.3.6 - 2021/1/31
+
+- chore: add husky
+- add `isSkipped` to test metadata
+
+## 2.3.5 - 2021/1/15
+
+- fix resultDir property
+
+## 2.3.4 - 2021/1/14
+
+- fix bug with not escaped backslashes (`\`) in a name of the key
+- adjust cli and config option names
+
+## 2.3.3 - 2021/1/11
+
+- fix `addExpression`
+
+## 2.3.2 - 2021/1/11
+
+- add `.js` if extension is missed for remote files
+
+## 2.3.1 - 2021/1/11
+
+- fix remote multifile modules requiring
+## 2.3.0 - 2021/1/6
+
+- add operators support
+- add auto variable name handling
+- add support for remote multifile specs
+- add expressions support
+
+## 2.2.2 - 2020/12/29
+
+- fix remote overrides
+- fix remote overrides
+## 2.2.1 - 2020/12/22
+
+- fix type in getter
+
+## 2.2.0 - 2020/12/22
+
+- add types registration mechanism - `addType`
+- add type cast mechanism
+- add a possibility to register type-specific syntax variations
+
+## 2.1.5 - 2020/12/17
+
+- add a temporary solution for recursive types
+
+## 2.1.4 - 2020/12/2
+
+- add more metadata about the test
+- add `skipEmit` flag to the test configuration and also cli flag `ignoreSkipEmit` to ignore the test flag
+- change behavior of `emitOnly`
+
 ## 2.1.3 - 2020/11/25
 
 - fix playwright report sdk name
@@ -55,4 +115,3 @@
 - updated to chalk@4.1.0 (from 3.0.0)
 - updated to node-fetch@2.6.1 (from 2.6.0)
 - updated to yargs@16.0.3 (from 15.0.2)
-

@@ -1,12 +1,20 @@
-const makeTemplate = require('./mocha-template')
-const makeEmitter = require('./spec-emitter')
-const overrideTests = require('./override-tests')
+const prettier = require('prettier')
 
 module.exports = {
-  outPath: './test/generic',
+  output: './test/generic',
   ext: '.spec.js',
-  initializeSdk: makeEmitter,
-  testFrameworkTemplate: makeTemplate,
-  overrideTests,
-  testsPath: '/Users/ep/Documents/applitools/sdk.coverage.tests/coverage-tests.js',
+  emitter: 'https://raw.githubusercontent.com/applitools/sdk.coverage.tests/master/js/emitter.js',
+  overrides:
+    'https://raw.githubusercontent.com/applitools/sdk.coverage.tests/master/js/overrides.js',
+  template:
+    'https://raw.githubusercontent.com/applitools/sdk.coverage.tests/master/js/template.hbs',
+  formatter: code => {
+    return prettier.format(code, {
+      parser: 'babel',
+      singleQuote: true,
+      semi: false,
+      bracketSpacing: false,
+      trailingComma: 'es5',
+    })
+  },
 }

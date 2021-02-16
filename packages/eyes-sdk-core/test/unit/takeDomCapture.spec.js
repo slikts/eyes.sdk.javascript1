@@ -65,7 +65,7 @@ describe('takeDomCapture', () => {
       return JSON.stringify({status: 'SUCCESS', value: createDomCapture('dom capture')})
     })
 
-    const result = await takeDomCapture(logger, driver)
+    const result = await takeDomCapture(logger, driver.currentContext)
 
     assert.strictEqual(result, 'dom capture')
   })
@@ -84,7 +84,7 @@ describe('takeDomCapture', () => {
       return result
     })
 
-    const result = await takeDomCapture(logger, driver)
+    const result = await takeDomCapture(logger, driver.currentContext)
 
     assert.strictEqual(result, 'dom capture')
   })
@@ -106,7 +106,7 @@ describe('takeDomCapture', () => {
       return JSON.stringify({status: 'SUCCESS', value})
     })
 
-    const result = await takeDomCapture(logger, driver)
+    const result = await takeDomCapture(logger, driver.currentContext)
 
     assert.strictEqual(
       result,
@@ -122,7 +122,7 @@ describe('takeDomCapture', () => {
       })
     })
 
-    const result = await takeDomCapture(logger, driver, {
+    const result = await takeDomCapture(logger, driver.currentContext, {
       axios: Axios.create({
         adapter: async () => ({data: 'very big css file', status: 200}),
       }),
@@ -137,7 +137,7 @@ describe('takeDomCapture', () => {
     })
 
     assertRejects(
-      takeDomCapture(logger, driver),
+      takeDomCapture(logger, driver.currentContext),
       `Error during capture dom and pull script: 'Oops! Something went wrong!'`,
     )
   })
@@ -147,6 +147,9 @@ describe('takeDomCapture', () => {
       return JSON.stringify({status: 'WIP'})
     })
 
-    assertRejects(takeDomCapture(logger, driver, {executionTimeout: 1000}), 'dom-capture Timed out')
+    assertRejects(
+      takeDomCapture(logger, driver.currentContext, {executionTimeout: 1000}),
+      'dom-capture Timed out',
+    )
   })
 })

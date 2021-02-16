@@ -5,7 +5,7 @@ const spec = require(path.resolve(cwd, 'src/spec-driver'))
 const {getEyes} = require('../../src/test-setup')
 const appName = 'Eyes Selenium SDK - Duplicates'
 
-describe(appName, async () => {
+describe.skip(appName, async () => {
   let driver, destroyDriver, eyes
   afterEach(async () => {
     await destroyDriver()

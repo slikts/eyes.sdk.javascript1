@@ -4,7 +4,7 @@ const {
   BatchInfo,
   GeneralUtils: {backwardCompatible, cachify},
   BrowserType,
-} = require('@applitools/eyes-sdk-core')
+} = require('@applitools/eyes-sdk-core/shared')
 const makeCheckWindow = require('./checkWindow')
 const makeAbort = require('./makeAbort')
 const makeClose = require('./makeClose')
@@ -43,6 +43,7 @@ function makeOpenEyes({
   parentBranch: _parentBranch,
   branchName: _branchName,
   branch: _branch,
+  saveDiffs: _saveDiffs,
   saveFailedTests: _saveFailedTests,
   saveNewTests: _saveNewTests,
   compareWithParentBranch: _compareWithParentBranch,
@@ -95,6 +96,7 @@ function makeOpenEyes({
     parentBranch = _parentBranch,
     branchName = _branchName,
     branch = _branch,
+    saveDiffs = _saveDiffs,
     saveFailedTests = _saveFailedTests,
     saveNewTests = _saveNewTests,
     compareWithParentBranch = _compareWithParentBranch,
@@ -201,6 +203,7 @@ function makeOpenEyes({
       parentBranch,
       branch,
       proxy,
+      saveDiffs,
       saveFailedTests,
       saveNewTests,
       compareWithParentBranch,

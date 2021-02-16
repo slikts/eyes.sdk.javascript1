@@ -4,7 +4,7 @@ const {
   IgnoreRegionByRectangle,
   AccessibilityRegionByRectangle,
   FloatingRegionByRectangle,
-} = require('@applitools/eyes-sdk-core')
+} = require('@applitools/eyes-sdk-core/shared')
 const {describe, it} = require('mocha')
 const {expect} = require('chai')
 const createCheckSettings = require('../../../src/sdk/createCheckSettings')

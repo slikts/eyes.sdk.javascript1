@@ -3,8 +3,174 @@
 ## Unreleased
 
 
-## 12.6.2 - 2020/11/26
+## 12.14.9 - 2021/2/16
 
+- handle contexts with no elements
+- updated to @applitools/screenshoter@3.0.4 (from 3.0.3)
+
+## 12.14.8 - 2021/2/4
+
+- add support for custom batch properties
+- updated to @applitools/dom-snapshot@4.4.11 (from 4.4.10)
+
+## 12.14.7 - 2021/2/1
+
+- fix stale SRE fix from version 12.14.3 when running mobile native apps
+
+## 12.14.6 - 2021/1/31
+
+- updated to @applitools/dom-snapshot@4.4.10 (from 4.4.9)
+
+## 12.14.5 - 2021/1/31
+
+- updated to @applitools/dom-snapshot@4.4.9 (from 4.4.8)
+
+## 12.14.4 - 2021/1/30
+
+- handle firefox buggy versions
+
+## 12.14.3 - 2021/1/30
+
+- fix stale SRE exception in mobile browsers
+- updated to @applitools/dom-capture@11.0.1 (from 11.0.0)
+
+## 12.14.2 - 2021/1/27
+
+- fix: rename function to avoid naming collision
+
+## 12.14.1 - 2021/1/27
+
+- fix bug when dom-capture was taken with incorrect scroll location during `extractText` operation
+- avoid js snippet execution in native context
+- updated to @applitools/driver@1.0.4 (from 1.0.2)
+- updated to @applitools/screenshoter@3.0.3 (from 2.1.1)
+- updated to @applitools/snippets@2.1.1 (from 2.1.0)
+
+## 12.14.0 - 2021/1/24
+
+- chore: add husky
+- add galaxy s20 to device enum
+
+## 12.13.5 - 2021/1/18
+
+- fix bug when screenshots on iPad were taken with Safari navigation bar and iOS status bar
+- updated to @applitools/dom-snapshot@4.4.8 (from 4.4.7)
+
+## 12.13.4 - 2021/1/15
+
+- updated to @applitools/screenshoter@2.1.1 (from 2.1.0)
+
+## 12.13.3 - 2021/1/15
+
+- updated to @applitools/screenshoter@2.1.0 (from 2.0.0)
+
+## 12.13.2 - 2021/1/14
+
+- fix escaping in `extractText` method
+
+## 12.13.1 - 2021/1/14
+
+- add `extractTextRegions` method
+
+## 12.13.0 - 2021/1/13
+
+- updated to @applitools/dom-snapshot@4.4.7 (from 4.4.4)
+
+## 12.12.2 - 2021/1/10
+
+- fix(axios): update `maxContentLength` to `maxBodyLength`
+
+## 12.12.1 - 2021/1/9
+
+- fix usage of APPLITOOLS_SCRIPT_RESULT_MAX_BYTE_LENGTH env var so it is referenced when needed, not before (when it's possibly not set)
+
+## 12.12.0 - 2021/1/8
+
+- add env var APPLITOOLS_SCRIPT_RESULT_MAX_BYTE_LENGTH
+- add support for SDKs that don't support traversing between frames (e.g., it doesn't implement parentContext)
+- republish to update vgc due to cyclic dependency
+- updated to axios@0.21.1 (from 0.19.2)
+- updated to @applitools/dom-snapshot@4.4.4 (from 4.4.3)
+
+## 12.11.1 - 2021/1/7
+
+- fix DOM and image alignment
+- updated to @applitools/screenshoter@2.0.0 (from 1.0.2)
+- updated to @applitools/dom-snapshot@4.4.3 (from 4.4.1)
+
+## 12.11.0 - 2020/12/29
+
+- export `takeDomSnapshots` function for JS layout in Storybook
+
+## 12.10.2 - 2020/12/29
+
+- bring back verify-installed-versions
+
+## 12.10.1 - 2020/12/29
+
+- fix `extractText` method
+- add `imagePositionInActiveFrame` to `RenderStatusResults`
+- updated to @applitools/driver@1.0.2 (from 1.0.1)
+- updated to @applitools/screenshoter@1.0.2 (from 1.0.1)
+
+## 12.10.0 - 2020/12/18
+
+- add new option to browser list ([Trello 693](https://trello.com/c/cEKupD0M))
+- updated to @applitools/dom-capture@9.0.0 (from 8.0.2)
+
+## 12.9.4 - 2020/12/17
+
+- change `takeDomCapture` to capture dom only of the provided context
+
+## 12.9.3 - 2020/12/15
+
+- calculate image location for viewport screenshots
+- revert update baseline logic
+- updated to @applitools/dom-capture@8.0.2 (from 8.0.1)
+- updated to @applitools/dom-snapshot@4.4.1 (from 4.4.0)
+
+## 12.9.2 - 2020/12/14
+
+- using new protection method for native builtins with dom-snapshot
+- updated to @applitools/dom-snapshot@4.4.0 (from 4.3.1)
+
+## 12.9.1 - 2020/12/11
+
+- updated visual-grid-client dev dependency to latest (used for testing)
+
+## 12.9.0 - 2020/12/11
+
+- long running tasks enhancement
+- updated to @applitools/dom-snapshot@4.3.1 (from 4.3.0)
+
+## 12.8.4 - 2020/12/8
+
+- support skip list in dom-snapshot
+- updated to @applitools/dom-snapshot@4.3.0 (from 4.2.9)
+
+## 12.8.3 - 2020/12/4
+
+- fix a typo on MatchWindowAndCloseTask
+- updated to @applitools/dom-snapshot@4.2.9 (from 4.2.8)
+
+## 12.8.2 - 2020/12/3
+
+- add `updateBaselineIfDifferent` to MatchWindowAndCloseTask
+- split `updateBaseline` to `updateBaselineIfNew` and `updateBaselineIfDifferent` in EyesBase.close
+- updated to @applitools/dom-snapshot@4.2.8 (from 4.2.7)
+
+## 12.8.1 - 2020/12/1
+
+- fix stitchMode usage in `extractText`
+
+## 12.8.0 - 2020/12/1
+
+- add `extractText` function to the Eyes class
+
+## 12.7.0 - 2020/12/1
+
+- export `takeDomSnapshot`
+# 12.6.2 - 2020/11/26
 - fix concurrency bug with 503 responses
 
 ## 12.6.1 - 2020/11/24
@@ -413,7 +579,7 @@
 
 ## 8.0.2
 
-- fix exception on aborts - using _getSetBatchId in closeBatch so we dont generate batch id but still get the generated batch id.
+- fix exception on aborts - using `_getSetBatchId` in closeBatch so we dont generate batch id but still get the generated batch id.
 guarding addBrowsers arguments for sending an array
 - upload domsnapshot directly to Azure [Trello](https://trello.com/c/ZCLJo8Fy/241-upload-dom-directly-to-azure)
 - support future long running tasks [Trello](https://trello.com/c/60Rm4xXG/240-support-future-long-running-tasks)

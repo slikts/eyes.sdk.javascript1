@@ -20,22 +20,24 @@ class ImageProviderFactory {
     if (driver.userAgent) {
       if (driver.userAgent.getBrowser() === BrowserNames.Firefox) {
         try {
-          if (Number.parseInt(driver.userAgent.getBrowserMajorVersion(), 10) >= 48) {
+          const browserVersion = Number.parseInt(driver.userAgent.getBrowserMajorVersion(), 10)
+          if (browserVersion >= 48 && browserVersion <= 72) {
             return new FirefoxScreenshotImageProvider(logger, driver, rotation, eyes)
           }
         } catch (ignored) {
           return new TakesScreenshotImageProvider(logger, driver, rotation)
         }
       } else if (driver.userAgent.getBrowser() === BrowserNames.Safari) {
-        if (driver.userAgent.getOS() === OSNames.IOS) {
+        if (driver.userAgent.getOS() === OSNames.IOS || driver.isIOS) {
           return new IOSSafariScreenshotImageProvider(logger, driver, rotation, eyes)
         } else {
           return new SafariScreenshotImageProvider(logger, driver, rotation, eyes)
         }
       }
     }
-    if (driver.isNative)
+    if (driver.isNative) {
       return new MobileApplicationScreenshotImageProvider(logger, driver, rotation)
+    }
     return new TakesScreenshotImageProvider(logger, driver, rotation)
   }
 }

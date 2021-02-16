@@ -12,6 +12,7 @@ const {
   NullRegionProvider,
   EyesSimpleScreenshot,
   GeneralUtils,
+  Location,
 } = require('@applitools/eyes-sdk-core')
 
 const {Target} = require('./fluent/Target')
@@ -369,7 +370,7 @@ class Eyes extends EyesBase {
    * @inheritDoc
    */
   async getImageLocation() {
-    return this._imageLocation
+    return this._imageLocation || Location.ZERO
   }
 
   /**

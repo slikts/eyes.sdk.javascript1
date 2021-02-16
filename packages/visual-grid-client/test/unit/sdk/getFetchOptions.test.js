@@ -1,6 +1,6 @@
 'use strict'
 
-const {ProxySettings} = require('@applitools/eyes-sdk-core')
+const {ProxySettings} = require('@applitools/eyes-sdk-core/shared')
 const getFetchOptions = require('../../../src/sdk/getFetchOptions')
 const {expect} = require('chai')
 

@@ -41,7 +41,7 @@ describe('handlers', () => {
   });
 
   it('handles "open"', async () => {
-    handlers.batchStart();
+    handlers.batchStart({});
     const {checkWindow} = await handlers.open({__test: 123, accessibilityValidation: 'bla'});
     const checkResult = await checkWindow();
     expect(checkResult.__test).to.equal('checkWindow_123');
@@ -50,7 +50,7 @@ describe('handlers', () => {
   });
 
   it('throws when calling "checkWindow" before "open"', async () => {
-    handlers.batchStart();
+    handlers.batchStart({});
     expect(
       await handlers.checkWindow({}).then(
         x => x,
@@ -70,7 +70,7 @@ describe('handlers', () => {
         openEyes: openEyesWithCloseRejection,
       }),
     });
-    handlers.batchStart();
+    handlers.batchStart({});
     expect(
       await handlers.checkWindow({}).then(
         x => x,
@@ -87,7 +87,7 @@ describe('handlers', () => {
   });
 
   it('throws when calling "close" before "open"', async () => {
-    handlers.batchStart();
+    handlers.batchStart({});
     expect(
       await handlers.close().then(
         x => x,
@@ -107,7 +107,7 @@ describe('handlers', () => {
         openEyes: openEyesWithCloseRejection,
       }),
     });
-    handlers.batchStart();
+    handlers.batchStart({});
     expect(
       await handlers.close().then(
         x => x,
@@ -124,7 +124,7 @@ describe('handlers', () => {
   });
 
   it('handles "checkWindow"', async () => {
-    handlers.batchStart();
+    handlers.batchStart({});
     await handlers.open({__test: 123});
 
     const cdt = 'cdt';
@@ -209,8 +209,32 @@ describe('handlers', () => {
     });
   });
 
+  it('handles an array of snapshots', async () => {
+    handlers.batchStart({});
+    await handlers.open({__test: 123});
+
+    handlers.putResource('id1', 'buff1');
+    handlers.putResource('id2', 'buff2');
+    handlers.putResource('id3', 'buff3');
+
+    const blobData = [
+      {url: 'id1', type: 'type1'},
+      {url: 'id2', type: 'type2'},
+      {url: 'id3', type: 'type3'},
+    ];
+
+    const resourceContents = {
+      id1: {url: 'id1', type: 'type1', value: 'buff1'},
+      id2: {url: 'id2', type: 'type2', value: 'buff2'},
+      id3: {url: 'id3', type: 'type3', value: 'buff3'},
+    };
+
+    const result = await handlers.checkWindow({snapshot: [{blobData}]});
+    expect(result.snapshot[0].resourceContents).to.eql(resourceContents);
+  });
+
   it('handles "putResource"', async () => {
-    handlers.batchStart();
+    handlers.batchStart({});
     await handlers.open({__test: 123});
 
     handlers.putResource('id1', 'buff1');
@@ -234,7 +258,7 @@ describe('handlers', () => {
   });
 
   it('handles "checkWindow" with errorStatusCode resources', async () => {
-    handlers.batchStart();
+    handlers.batchStart({});
     await handlers.open({__test: 123});
 
     const blobData = [{url: 'id1', errorStatusCode: 500}];
@@ -248,7 +272,7 @@ describe('handlers', () => {
   });
 
   it('handles "checkWindow" with nested frames', async () => {
-    handlers.batchStart();
+    handlers.batchStart({});
     await handlers.open({__test: 123});
 
     const blobData = [{url: 'id1', type: 'type1'}];
@@ -335,7 +359,7 @@ describe('handlers', () => {
   });
 
   it('cleans resources on close', async () => {
-    handlers.batchStart();
+    handlers.batchStart({});
     await handlers.open({__test: 123});
 
     handlers.putResource('id', 'buff');
@@ -372,7 +396,7 @@ describe('handlers', () => {
   });
 
   it('handles "close"', async () => {
-    handlers.batchStart();
+    handlers.batchStart({});
     const {checkWindow, close} = await handlers.open({__test: 123});
 
     expect((await checkWindow()).__test).to.equal('checkWindow_123');
@@ -384,7 +408,7 @@ describe('handlers', () => {
     handlers = makeHandlers({
       makeVisualGridClient: () => (flag = 'flag'),
     });
-    handlers.batchStart();
+    handlers.batchStart({});
     expect(flag).to.equal('flag');
   });
 
@@ -426,7 +450,7 @@ describe('handlers', () => {
       errorDigest: ({passed, failed, diffs}) => `${passed}::${failed}##${diffs}`,
     });
 
-    handlers.batchStart();
+    handlers.batchStart({});
     await openAndClose();
 
     // IDLE ==> WIP
@@ -516,7 +540,7 @@ describe('handlers', () => {
         },
       }),
     });
-    handlers.batchStart();
+    handlers.batchStart({});
     await handlers.open({}).catch(x => x);
     const err = await handlers.close().then(
       x => x,

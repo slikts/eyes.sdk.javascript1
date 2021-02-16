@@ -2,7 +2,7 @@
 
 const makeRenderer = require('./renderer')
 const createRenderRequest = require('./createRenderRequest')
-const {RenderingInfo, deserializeDomSnapshotResult} = require('@applitools/eyes-sdk-core')
+const {RenderingInfo, deserializeDomSnapshotResult} = require('@applitools/eyes-sdk-core/shared')
 
 require('@applitools/isomorphic-fetch') // TODO can just use node-fetch
 

@@ -14,7 +14,7 @@ function emitTests(tests, config) {
   return {emittedTests, errors}
 }
 
-function emitTest(test, {makeSdk, fileTemplate}) {
+function emitTest(test, {makeSpecEmitter, makeFile}) {
   if (!isFunction(test.test)) {
     throw new Error(`Missing implementation for test ${test.name}`)
   }
@@ -24,14 +24,21 @@ function emitTest(test, {makeSdk, fileTemplate}) {
     test.meta.browser = test.env.browser
     test.meta.mobile = Boolean(test.env.device)
     test.meta.native = Boolean(test.env.device && !test.env.browser)
-    test.meta.headfull = Boolean(!test.env.headless)
+    test.meta.headfull = test.env.headless === false
   }
-  const [output, emitter] = useEmitter()
-  const sdk = makeSdk(emitter, test)
+  test.tags = Object.entries(test.meta).reduce((tags, [name, value]) => {
+    if (Array.isArray(value)) tags.push(...value)
+    else if (typeof value === 'string') tags.push(value.replace(/-[\d.]+$/, ''))
+    else if (value) tags.push(name)
+    return tags
+  }, [])
+
+  const [output, emitter, utils] = useEmitter()
+  const sdk = makeSpecEmitter(emitter, test)
   test.output = output
   if (test.page) sdk.driver.visit(test.page)
-  test.test(sdk)
-  test.code = fileTemplate(test)
+  test.test.call(utils, sdk)
+  test.code = makeFile(test)
   return test
 }
 

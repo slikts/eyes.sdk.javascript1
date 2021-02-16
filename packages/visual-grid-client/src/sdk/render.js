@@ -1,6 +1,6 @@
 'use strict'
 
-const {RenderStatus} = require('@applitools/eyes-sdk-core')
+const {RenderStatus} = require('@applitools/eyes-sdk-core/shared')
 
 function makeRender({logger, doRenderBatch, timeout = 300}) {
   let pendingRequests = new Map()

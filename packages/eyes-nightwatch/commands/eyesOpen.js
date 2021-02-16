@@ -1,6 +1,6 @@
 'use strict'
 const Events = require('events')
-const {Eyes, ConsoleLogHandler, VisualGridRunner, Configuration} = require('..')
+const {Eyes, ConsoleLogHandler, VisualGridRunner, Configuration, RunnerOptions} = require('..')
 
 module.exports = class EyesOpen extends Events {
   async command(appName, testName, viewportSize) {
@@ -8,7 +8,8 @@ module.exports = class EyesOpen extends Events {
 
     let eyes = this.client.api.globals.__eyes
     if (!eyes) {
-      const runner = config.useVisualGrid ? new VisualGridRunner(config.concurrency) : undefined // TODO update to testConcurrency
+      const runnerOptions = new RunnerOptions().testConcurrency(config.concurrency)
+      const runner = config.useVisualGrid ? new VisualGridRunner(runnerOptions) : undefined
       this.client.api.globals.__eyes = eyes = new Eyes(runner)
     }
 

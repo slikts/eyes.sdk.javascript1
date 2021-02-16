@@ -20,9 +20,11 @@ function extractElementId(element) {
 }
 
 function transformSelector(selector) {
+  const {By} = require('selenium-webdriver')
   if (TypeUtils.has(selector, ['type', 'selector'])) {
     if (selector.type === 'css') return {css: selector.selector}
     else if (selector.type === 'xpath') return {xpath: selector.selector}
+    else return new By(selector.type, selector.selector)
   }
   return selector
 }
@@ -114,7 +116,7 @@ async function getElementRect(_driver, element) {
 async function getWindowRect(driver) {
   try {
     if (TypeUtils.isFunction(driver.manage().window().getRect)) {
-      return driver
+      return await driver
         .manage()
         .window()
         .getRect()

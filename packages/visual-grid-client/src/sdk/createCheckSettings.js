@@ -6,7 +6,7 @@ const {
   GetRegion,
   GetFloatingRegion,
   GetAccessibilityRegion,
-} = require('@applitools/eyes-sdk-core')
+} = require('@applitools/eyes-sdk-core/shared')
 
 function createCheckSettings({
   ignore,

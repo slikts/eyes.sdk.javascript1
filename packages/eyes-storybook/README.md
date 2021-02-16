@@ -35,6 +35,7 @@ Applitools Eyes SDK for [Storybook](http://storybook.js.org).
   * [`runBefore`](#runbefore)
   * [`scriptHooks`](#scripthooks)
     + [beforeCaptureScreenshot](#beforecapturescreenshot)
+  * [`layoutBreakpoints`](#layoutBreakpoints)
 - [Running Eyes-Storybook in Docker](#running-eyes-storybook-in-docker)
 - [Dealing with dynamic data](#dealing-with-dynamic-data)
 - [Troubleshooting](#troubleshooting)
@@ -157,7 +158,7 @@ In addition to command-line arguments, it's possible to define the following con
 | `parentBranchName`        | undefined                   | Sets the branch under which new branches are created. |
 | `proxy`                   | undefined                   | Sets the proxy settings to be used in network requests to Eyes server. This can be either a string to the proxy URI, or an object containing the URI, username and password.<br/><br/>For example: <br/>`{url: 'https://myproxy.com:443', username: 'my_user', password: 'my_password', isHttpOnly: false}`<br/>or:<br/>`"https://username:password@myproxy.com:443"`|
 | `saveFailedTests`         | false                       | Set whether or not failed tests are saved by default (saved as baseline). |
-| `saveNewTests`            | false                       | Set whether or not new tests are saved by default (saved as baseline). |
+| `saveNewTests`            | true                        | Set whether or not new tests are saved by default (saved as baseline). |
 | `serverUrl`               | Default Eyes server URL     | The URL of Eyes server |
 | `compareWithParentBranch` | false                       |  |
 | `ignoreBaseline`          | false                       |  |
@@ -184,6 +185,7 @@ In addition to command-line arguments, it's possible to define the following con
 | `accessibilityValidation` | undefined | An object that specifies the accessibility level and guidelines version to use for the screenshots. Possible values for **level** are `None`, `AA` and `AAA`, and possible values for **guidelinesVersion** are `WCAG_2_0` and `WCAG_2_1`. For example: `{level: 'AA', guidelinesVersion: 'WCAG_2_0'}`. For more information, see [per component  configuration - accessibilityValidation](#accessibilityValidation)|
 |`enablePatterns`| false | |
 |`useDom`| false | |
+|`layoutBreakpoints`| undefined | When set to `true`, a snapshot of the DOM will be taken once for each browser/device size in the `browser` configuration. For optimization purposes, an array of numbers can be passed. The DOM snapshot will be taken once for every **width** in the array. For more information, see [per component  configuration - layoutBreakpoints](#layoutBreakpoints)|
 
 There are 2 ways to specify test configuration:
 
@@ -562,8 +564,9 @@ storiesOf('Components with accessibility regions', module)
   .add(
     'Some story',
     () => <div>
-      <span>I am visually perfect!<span>
+      <span>I am visually perfect!</span>
       <span className="check-me">this should be tested for accessibility</span>
+    </div>,
     {eyes: {
       accessibilityValidation: {
         level: 'AA',
@@ -586,7 +589,8 @@ storiesOf('Components with ignoreDisplacements', module)
   .add(
     'Some story',
     () => <div>
-      <span>I am visually perfect!<span>
+      <span>I am visually perfect!</span>
+    </div>,
     {eyes: {
       ignoreDisplacements: true
     }}
@@ -644,6 +648,28 @@ An object with the following properties:
           }
         })
   ```
+
+### `layoutBreakpoints`
+
+```js
+  storiesOf('Components', module)
+    .add(
+      'Some story with breakpoints for all browser and device sizes',
+      () =>
+        <div>Some Story</div>, { 
+          eyes: { 
+            layoutBreakpoints: true
+          }
+        })
+    .add(
+      'Some story with breakpoints for desktop and mobile',
+      () =>
+        <div>Some Story</div>, { 
+          eyes: { 
+            layoutBreakpoints: [500, 1200]
+          }
+        })
+```
 
 ## Running Eyes-Storybook in Docker
 

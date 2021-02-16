@@ -6,7 +6,7 @@ const {describe, it, before} = require('mocha')
 const {expect} = require('chai')
 const makeRenderer = require('../../src/sdk/renderer')
 const createRenderRequest = require('../../src/sdk/createRenderRequest')
-const {RenderingInfo} = require('@applitools/eyes-sdk-core')
+const {RenderingInfo} = require('@applitools/eyes-sdk-core/shared')
 
 describe('render e2e', () => {
   let renderingInfo

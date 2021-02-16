@@ -125,131 +125,196 @@ describe('EyesDriver', () => {
       await driver.switchToMainContext()
     })
 
-    it('untracked same origin frame chain [(0-0)?]', async () => {
-      const frameElements = [null]
-      const frameElement = await mock.findElement('frame0')
-      frameElements.push(frameElement)
-      await mock.switchToFrame(frameElement)
-      assert.strictEqual(driver.mainContext, driver.currentContext)
-      await driver.refreshContexts()
-      const contextPath = driver.currentContext.path
-      assert.strictEqual(contextPath.length, frameElements.length)
-      for (const frameIndex of frameElements.keys()) {
-        assert.ok(await contextPath[frameIndex].equals(frameElements[frameIndex]))
-      }
+    it('untracked same origin frame chain [(0-0)?]', () => {
+      return untrackedFrameChainSameOrigin()
     })
 
-    it('untracked cors frame chain [(0-1-2)?]', async () => {
-      const frameElements = [null]
-      const frameElement1 = await mock.findElement('frame1')
-      frameElements.push(frameElement1)
-      await mock.switchToFrame(frameElement1)
-      const frameElement2 = await mock.findElement('frame1-2')
-      frameElements.push(frameElement2)
-      await mock.switchToFrame(frameElement2)
-      assert.strictEqual(driver.mainContext, driver.currentContext)
-      await driver.refreshContexts()
-      const contextPath = driver.currentContext.path
-      assert.strictEqual(contextPath.length, frameElements.length)
-      for (const frameIndex of frameElements.keys()) {
-        assert.ok(await contextPath[frameIndex].equals(frameElements[frameIndex]))
-      }
+    it('untracked cors frame chain [(0-1-2)?]', () => {
+      return untrackedCorsFrameChain()
     })
 
-    it('untracked mixed frame chain [(0-1-0)?]', async () => {
-      const frameElements = [null]
-      const frameElement1 = await mock.findElement('frame1')
-      frameElements.push(frameElement1)
-      await mock.switchToFrame(frameElement1)
-      const frameElement0 = await mock.findElement('frame1-0')
-      frameElements.push(frameElement0)
-      await mock.switchToFrame(frameElement0)
-      assert.strictEqual(driver.mainContext, driver.currentContext)
-      await driver.refreshContexts()
-      const contextPath = driver.currentContext.path
-      assert.strictEqual(contextPath.length, frameElements.length)
-      for (const frameIndex of frameElements.keys()) {
-        assert.ok(await contextPath[frameIndex].equals(frameElements[frameIndex]))
-      }
+    it('untracked mixed frame chain [(0-1-0)?]', () => {
+      return untrackedMixedFrameChain1()
     })
 
-    it('untracked mixed frame chain [(0-1-1)?]', async () => {
-      const frameElements = [null]
-      const frameElement1 = await mock.findElement('frame1')
-      frameElements.push(frameElement1)
-      await mock.switchToFrame(frameElement1)
-      const frameElement11 = await mock.findElement('frame1-1')
-      frameElements.push(frameElement11)
-      await mock.switchToFrame(frameElement11)
-      assert.strictEqual(driver.mainContext, driver.currentContext)
-      await driver.refreshContexts()
-      const contextPath = driver.currentContext.path
-      assert.strictEqual(contextPath.length, frameElements.length)
-      for (const frameIndex of frameElements.keys()) {
-        assert.ok(await contextPath[frameIndex].equals(frameElements[frameIndex]))
-      }
+    it('untracked mixed frame chain [(0-1-1)?]', () => {
+      return untrackedMixedFrameChain2()
     })
 
-    it('partially tracked frame chain [0-2-1-(2)?]', async () => {
-      const frameElements = [null]
-      const frameElement2 = await mock.findElement('frame2')
-      frameElements.push(frameElement2)
-      await driver.switchToChildContext(frameElement2)
-      const frameElement1 = await mock.findElement('frame2-1')
-      frameElements.push(frameElement1)
-      await driver.switchToChildContext(frameElement1)
-      const frameElement22 = await mock.findElement('frame2-1-2')
-      frameElements.push(frameElement22)
-      await mock.switchToFrame(frameElement22)
-      assert.strictEqual(driver.currentContext.path.length, 3)
-      await driver.refreshContexts()
-      const contextPath = driver.currentContext.path
-      assert.strictEqual(contextPath.length, frameElements.length)
-      for (const frameIndex of frameElements.keys()) {
-        assert.ok(await contextPath[frameIndex].equals(frameElements[frameIndex]))
-      }
+    it('partially tracked frame chain [0-2-1-(2)?]', () => {
+      return partiallyTrackedFrameChain1()
     })
 
-    it('partially tracked frame chain [(0-2)?-1-2]', async () => {
-      const frameElements = [null]
-      const frameElement2 = await mock.findElement('frame2')
-      frameElements.push(frameElement2)
-      await mock.switchToFrame(frameElement2)
-      const frameElement1 = await mock.findElement('frame2-1')
-      frameElements.push(frameElement1)
-      await driver.switchToChildContext(frameElement1)
-      const frameElement22 = await mock.findElement('frame2-1-2')
-      frameElements.push(frameElement22)
-      await driver.switchToChildContext(frameElement22)
-      assert.strictEqual(driver.currentContext.path.length, 3)
-      await driver.refreshContexts()
-      const contextPath = driver.currentContext.path
-      assert.strictEqual(contextPath.length, frameElements.length)
-      for (const frameIndex of frameElements.keys()) {
-        assert.ok(await contextPath[frameIndex].equals(frameElements[frameIndex]))
-      }
+    it('partially tracked frame chain [(0-2)?-1-2]', () => {
+      return partiallyTrackedFrameChain2()
     })
 
-    it('tracked frame chain [0-2-1-2]', async () => {
-      const frameElements = [null]
-      const frameElement2 = await mock.findElement('frame2')
-      frameElements.push(frameElement2)
-      await driver.switchToChildContext(frameElement2)
-      const frameElement1 = await mock.findElement('frame2-1')
-      frameElements.push(frameElement1)
-      await driver.switchToChildContext(frameElement1)
-      const frameElement22 = await mock.findElement('frame2-1-2')
-      frameElements.push(frameElement22)
-      await driver.switchToChildContext(frameElement22)
-      assert.strictEqual(driver.currentContext.path.length, frameElements.length)
-      await driver.refreshContexts()
-      const contextPath = driver.currentContext.path
-      assert.strictEqual(contextPath.length, frameElements.length)
-      for (const frameIndex of frameElements.keys()) {
-        assert.ok(await contextPath[frameIndex].equals(frameElements[frameIndex]))
-      }
+    it('tracked frame chain [0-2-1-2]', () => {
+      return trackedFrameChain()
     })
   })
+  describe('refreshContexts() when parentContext not implemented', () => {
+    before(() => {
+      // unable to deep clone driver object atm
+      delete driver.spec.parentContext
+    })
+    afterEach(async () => {
+      await driver.switchToMainContext()
+    })
+
+    it('untracked same origin frame chain [(0-0)?]', () => {
+      return untrackedFrameChainSameOrigin()
+    })
+
+    it('untracked cors frame chain [(0-1-2)?]', () => {
+      return untrackedCorsFrameChain()
+    })
+
+    it('untracked mixed frame chain [(0-1-0)?]', () => {
+      return untrackedMixedFrameChain1()
+    })
+
+    it('untracked mixed frame chain [(0-1-1)?]', () => {
+      return untrackedMixedFrameChain2()
+    })
+
+    it('partially tracked frame chain [0-2-1-(2)?]', () => {
+      return partiallyTrackedFrameChain1()
+    })
+
+    it('partially tracked frame chain [(0-2)?-1-2]', () => {
+      return partiallyTrackedFrameChain2()
+    })
+
+    it('tracked frame chain [0-2-1-2]', () => {
+      return trackedFrameChain()
+    })
+  })
+
+  async function untrackedFrameChainSameOrigin() {
+    const frameElements = [null]
+    const frameElement = await mock.findElement('frame0')
+    frameElements.push(frameElement)
+    await mock.switchToFrame(frameElement)
+    assert.strictEqual(driver.mainContext, driver.currentContext)
+    await driver.refreshContexts()
+    const contextPath = driver.currentContext.path
+    assert.strictEqual(contextPath.length, frameElements.length)
+    for (const frameIndex of frameElements.keys()) {
+      assert.ok(await contextPath[frameIndex].equals(frameElements[frameIndex]))
+    }
+  }
+
+  async function untrackedCorsFrameChain() {
+    const frameElements = [null]
+    const frameElement1 = await mock.findElement('frame1')
+    frameElements.push(frameElement1)
+    await mock.switchToFrame(frameElement1)
+    const frameElement2 = await mock.findElement('frame1-2')
+    frameElements.push(frameElement2)
+    await mock.switchToFrame(frameElement2)
+    assert.strictEqual(driver.mainContext, driver.currentContext)
+    await driver.refreshContexts()
+    const contextPath = driver.currentContext.path
+    assert.strictEqual(contextPath.length, frameElements.length)
+    for (const frameIndex of frameElements.keys()) {
+      assert.ok(await contextPath[frameIndex].equals(frameElements[frameIndex]))
+    }
+  }
+
+  async function untrackedMixedFrameChain1() {
+    const frameElements = [null]
+    const frameElement1 = await mock.findElement('frame1')
+    frameElements.push(frameElement1)
+    await mock.switchToFrame(frameElement1)
+    const frameElement0 = await mock.findElement('frame1-0')
+    frameElements.push(frameElement0)
+    await mock.switchToFrame(frameElement0)
+    assert.strictEqual(driver.mainContext, driver.currentContext)
+    await driver.refreshContexts()
+    const contextPath = driver.currentContext.path
+    assert.strictEqual(contextPath.length, frameElements.length)
+    for (const frameIndex of frameElements.keys()) {
+      assert.ok(await contextPath[frameIndex].equals(frameElements[frameIndex]))
+    }
+  }
+
+  async function untrackedMixedFrameChain2() {
+    const frameElements = [null]
+    const frameElement1 = await mock.findElement('frame1')
+    frameElements.push(frameElement1)
+    await mock.switchToFrame(frameElement1)
+    const frameElement11 = await mock.findElement('frame1-1')
+    frameElements.push(frameElement11)
+    await mock.switchToFrame(frameElement11)
+    assert.strictEqual(driver.mainContext, driver.currentContext)
+    await driver.refreshContexts()
+    const contextPath = driver.currentContext.path
+    assert.strictEqual(contextPath.length, frameElements.length)
+    for (const frameIndex of frameElements.keys()) {
+      assert.ok(await contextPath[frameIndex].equals(frameElements[frameIndex]))
+    }
+  }
+
+  async function partiallyTrackedFrameChain1() {
+    const frameElements = [null]
+    const frameElement2 = await mock.findElement('frame2')
+    frameElements.push(frameElement2)
+    await driver.switchToChildContext(frameElement2)
+    const frameElement1 = await mock.findElement('frame2-1')
+    frameElements.push(frameElement1)
+    await driver.switchToChildContext(frameElement1)
+    const frameElement22 = await mock.findElement('frame2-1-2')
+    frameElements.push(frameElement22)
+    await mock.switchToFrame(frameElement22)
+    assert.strictEqual(driver.currentContext.path.length, 3)
+    await driver.refreshContexts()
+    const contextPath = driver.currentContext.path
+    assert.strictEqual(contextPath.length, frameElements.length)
+    for (const frameIndex of frameElements.keys()) {
+      assert.ok(await contextPath[frameIndex].equals(frameElements[frameIndex]))
+    }
+  }
+
+  async function partiallyTrackedFrameChain2() {
+    const frameElements = [null]
+    const frameElement2 = await mock.findElement('frame2')
+    frameElements.push(frameElement2)
+    await mock.switchToFrame(frameElement2)
+    const frameElement1 = await mock.findElement('frame2-1')
+    frameElements.push(frameElement1)
+    await driver.switchToChildContext(frameElement1)
+    const frameElement22 = await mock.findElement('frame2-1-2')
+    frameElements.push(frameElement22)
+    await driver.switchToChildContext(frameElement22)
+    assert.strictEqual(driver.currentContext.path.length, 3)
+    await driver.refreshContexts()
+    const contextPath = driver.currentContext.path
+    assert.strictEqual(contextPath.length, frameElements.length)
+    for (const frameIndex of frameElements.keys()) {
+      assert.ok(await contextPath[frameIndex].equals(frameElements[frameIndex]))
+    }
+  }
+
+  async function trackedFrameChain() {
+    const frameElements = [null]
+    const frameElement2 = await mock.findElement('frame2')
+    frameElements.push(frameElement2)
+    await driver.switchToChildContext(frameElement2)
+    const frameElement1 = await mock.findElement('frame2-1')
+    frameElements.push(frameElement1)
+    await driver.switchToChildContext(frameElement1)
+    const frameElement22 = await mock.findElement('frame2-1-2')
+    frameElements.push(frameElement22)
+    await driver.switchToChildContext(frameElement22)
+    assert.strictEqual(driver.currentContext.path.length, frameElements.length)
+    await driver.refreshContexts()
+    const contextPath = driver.currentContext.path
+    assert.strictEqual(contextPath.length, frameElements.length)
+    for (const frameIndex of frameElements.keys()) {
+      assert.ok(await contextPath[frameIndex].equals(frameElements[frameIndex]))
+    }
+  }
 })
 
 describe('EyesDriver native', () => {

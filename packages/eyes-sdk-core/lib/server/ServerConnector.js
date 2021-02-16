@@ -114,7 +114,7 @@ class ServerConnector {
       headers: DEFAULT_HEADERS,
       timeout: DEFAULT_TIMEOUT_MS,
       responseType: 'json',
-      maxContentLength: 200 * 1024 * 1024, // 200 MB
+      maxBodyLength: 200 * 1024 * 1024, // 200 MB
     })
 
     this._axios.interceptors.request.use(async config => {
@@ -202,15 +202,20 @@ class ServerConnector {
    *
    * @param {RunningSession} runningSession - The running session to be stopped.
    * @param {boolean} isAborted
-   * @param {boolean} save
+   * @param {{updateBaselineIfDifferent: boolean, updateBaselineIfNew: boolean}} save
    * @return {Promise<TestResults>} - TestResults object for the stopped running session
    */
-  async stopSession(runningSession, isAborted, save) {
+  async stopSession(
+    runningSession,
+    isAborted,
+    {updateBaselineIfDifferent, updateBaselineIfNew} = {},
+  ) {
     ArgumentGuard.notNull(runningSession, 'runningSession')
     this._logger.verbose(
       `ServerConnector.stopSession called with ${JSON.stringify({
         isAborted,
-        updateBaseline: save,
+        updateBaselineIfNew,
+        updateBaselineIfDifferent,
       })} for session: ${runningSession}`,
     )
 
@@ -225,7 +230,9 @@ class ServerConnector {
       ),
       params: {
         aborted: isAborted,
-        updateBaseline: save,
+        updateBaseline: runningSession.getIsNew() ? updateBaselineIfNew : updateBaselineIfDifferent,
+        // updateBaselineIfNew,
+        // updateBaselineIfDifferent,
       },
     }
 
@@ -389,7 +396,10 @@ class ServerConnector {
         'ServerConnector.matchWindowAndClose was not found in the previous call. Fallback is used',
       )
       await this.matchWindow(runningSession, matchWindowData)
-      return this.stopSession(runningSession, false, matchWindowData.getUpdateBaselineIfNew())
+      return this.stopSession(runningSession, false, {
+        updateBaselineIfNew: matchWindowData.getUpdateBaselineIfNew(),
+        updateBaselineIfDifferent: matchWindowData.getUpdateBaselineIfDifferent(),
+      })
     }
     ArgumentGuard.notNull(runningSession, 'runningSession')
     ArgumentGuard.notNull(matchWindowData, 'matchWindowData')
@@ -437,7 +447,10 @@ class ServerConnector {
       this._matchWindowAndCloseFallback = true
       this._logger.verbose('ServerConnector.matchWindowAndClose was not found. Fallback is used')
       await this.matchWindow(runningSession, matchWindowData)
-      return this.stopSession(runningSession, false, matchWindowData.getUpdateBaselineIfNew())
+      return this.stopSession(runningSession, false, {
+        updateBaselineIfNew: matchWindowData.getUpdateBaselineIfNew(),
+        updateBaselineIfDifferent: matchWindowData.getUpdateBaselineIfDifferent(),
+      })
     }
 
     throw new Error(
@@ -677,7 +690,7 @@ class ServerConnector {
         'X-Auth-Token': this._renderingInfo.getAccessToken(),
         'Content-Type': resource.getContentType(),
       },
-      maxContentLength: 15.5 * 1024 * 1024, // 15.5 MB  (VG limit is 16MB)
+      maxBodyLength: 15.5 * 1024 * 1024, // 15.5 MB  (VG limit is 16MB)
       params: {
         'render-id': GeneralUtils.guid(),
       },
@@ -843,14 +856,107 @@ class ServerConnector {
     throw new Error(`ServerConnector.postLocators - unexpected status (${response.statusText})`)
   }
 
-  async getEmulatedDevicesSizes() {
+  async extractText({screenshotUrl, domUrl, location, region, minMatch, language}) {
+    ArgumentGuard.notNull(screenshotUrl, 'screenshotUrl')
+    this._logger.verbose(
+      `ServerConnector.extractText called with ${JSON.stringify({
+        screenshotUrl,
+        domUrl,
+        region,
+        location,
+        minMatch,
+        language,
+      })}`,
+    )
+
+    const config = {
+      name: 'extractText',
+      method: 'POST',
+      url: GeneralUtils.urlConcat(
+        this._configuration.getServerUrl(),
+        EYES_API_PATH,
+        '/running/images/text',
+      ),
+      data: {
+        appOutput: {screenshotUrl, domUrl, location},
+        regions: [region],
+        minMatch,
+        language,
+      },
+    }
+
+    const response = await this._axios.request(config)
+    const validStatusCodes = [HTTP_STATUS_CODES.OK]
+    if (validStatusCodes.includes(response.status)) {
+      this._logger.verbose('ServerConnector.extractText - post succeeded', response.data)
+      return response.data
+    }
+
+    throw new Error(`ServerConnector.extractText - unexpected status (${response.statusText})`)
+  }
+
+  async extractTextRegions({
+    screenshotUrl,
+    domUrl,
+    location,
+    patterns,
+    ignoreCase,
+    firstOnly,
+    language,
+  }) {
+    ArgumentGuard.notNull(screenshotUrl, 'screenshotUrl')
+    this._logger.verbose(
+      `ServerConnector.extractTextRegions called with ${JSON.stringify({
+        screenshotUrl,
+        domUrl,
+        location,
+        patterns,
+        ignoreCase,
+        firstOnly,
+        language,
+      })}`,
+    )
+
+    const config = {
+      name: 'extractTextRegions',
+      method: 'POST',
+      url: GeneralUtils.urlConcat(
+        this._configuration.getServerUrl(),
+        EYES_API_PATH,
+        '/running/images/textregions',
+      ),
+      data: {
+        appOutput: {screenshotUrl, domUrl, location},
+        patterns,
+        ignoreCase,
+        firstOnly,
+        language,
+      },
+    }
+
+    const response = await this._axios.request(config)
+    const validStatusCodes = [HTTP_STATUS_CODES.OK]
+    if (validStatusCodes.includes(response.status)) {
+      this._logger.verbose('ServerConnector.extractTextRegions - post succeeded', response.data)
+      return response.data
+    }
+
+    throw new Error(
+      `ServerConnector.extractTextRegions - unexpected status (${response.statusText})`,
+    )
+  }
+
+  async getEmulatedDevicesSizes(serviceUrl) {
     this._logger.verbose(`ServerConnector.getEmulatedDevicesSizes`)
 
     const config = {
       name: 'getEmulatedDevicesSizes',
       method: 'GET',
       withApiKey: false,
-      url: GeneralUtils.urlConcat(this._renderingInfo.getServiceUrl(), '/emulated-devices-sizes'),
+      url: GeneralUtils.urlConcat(
+        serviceUrl || this._renderingInfo.getServiceUrl(),
+        '/emulated-devices-sizes',
+      ),
     }
 
     const response = await this._axios.request(config)
@@ -863,13 +969,16 @@ class ServerConnector {
     }
   }
 
-  async getIosDevicesSizes() {
+  async getIosDevicesSizes(serviceUrl) {
     this._logger.verbose(`ServerConnector.getIosDevicesSizes`)
 
     const config = {
       name: 'getIosDevicesSizes',
       method: 'GET',
-      url: GeneralUtils.urlConcat(this._renderingInfo.getServiceUrl(), '/ios-devices-sizes'),
+      url: GeneralUtils.urlConcat(
+        serviceUrl || this._renderingInfo.getServiceUrl(),
+        '/ios-devices-sizes',
+      ),
     }
 
     const response = await this._axios.request(config)

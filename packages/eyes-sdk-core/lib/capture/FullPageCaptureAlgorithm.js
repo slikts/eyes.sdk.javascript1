@@ -148,7 +148,7 @@ class FullPageCaptureAlgorithm {
       ) {
         await this._originProvider.restoreState(originalPosition)
         await positionProvider.restoreState(originalStitchedState)
-        return image
+        return {image, imageLocation: regionInScreenshot.getLocation()}
       }
 
       fullArea = new Region(Location.ZERO, entireSize)
@@ -339,7 +339,7 @@ class FullPageCaptureAlgorithm {
     }
 
     await this._debugScreenshotsProvider.save(stitchedImage, 'stitched')
-    return stitchedImage
+    return {image: stitchedImage, imageLocation: regionInScreenshot.getLocation()}
   }
 
   /**

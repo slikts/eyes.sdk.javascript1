@@ -1,5 +1,5 @@
+/* global cy */
 describe('eyes-cypress', () => {
-
   /*
   NOTE: this test intentionally embeds the browser version into the test name. This is because of the "ping-pong problem":
   2 browser versions share the same baseline. If there are visual differences between them, then one of them will be unresolved, and after
@@ -27,11 +27,11 @@ describe('eyes-cypress', () => {
       cy.visit(url);
       cy.eyesOpen({
         appName: 'some app',
-        browser
+        browser,
         // showLogs: true,
       });
       cy.eyesCheckWindow();
       cy.eyesClose();
     });
-  })
+  });
 });

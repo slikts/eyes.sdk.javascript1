@@ -2,7 +2,6 @@
 const puppeteer = require('puppeteer');
 const getStories = require('../dist/getStories');
 const {makeVisualGridClient} = require('@applitools/visual-grid-client');
-const {getProcessPageAndSerialize} = require('@applitools/dom-snapshot');
 const {presult} = require('@applitools/functional-commons');
 const chalk = require('chalk');
 const makeInitPage = require('./initPage');
@@ -17,6 +16,8 @@ const memoryLog = require('./memoryLog');
 const getIframeUrl = require('./getIframeUrl');
 const createPagePool = require('./pagePool');
 const getClientAPI = require('../dist/getClientAPI');
+const {takeDomSnapshots} = require('@applitools/eyes-sdk-core');
+const {Driver} = require('@applitools/eyes-puppeteer');
 
 const CONCURRENT_PAGES = 3;
 
@@ -44,7 +45,14 @@ async function eyesStorybook({
   logger.log('browser launched');
   const page = await browser.newPage();
   const userAgent = await page.evaluate('navigator.userAgent');
-  const {testWindow, closeBatch, globalState} = makeVisualGridClient({
+  const {
+    testWindow,
+    closeBatch,
+    globalState,
+    getIosDevicesSizes,
+    getEmulatedDevicesSizes,
+    getResourceUrlsInCache,
+  } = makeVisualGridClient({
     userAgent,
     ...config,
     logger: logger.extend('vgc'),
@@ -54,9 +62,24 @@ async function eyesStorybook({
 
   const pagePool = createPagePool({initPage, logger});
 
-  const processPageAndSerialize = `(${await getProcessPageAndSerialize()})(document, {useSessionCache: true, showLogs: ${
-    config.showLogs
-  }, dontFetchResources: ${config.disableBrowserFetching}})`;
+  const doTakeDomSnapshots = async ({page, layoutBreakpoints}) => {
+    const driver = new Driver(logger, page);
+    const skipResources = getResourceUrlsInCache();
+    const result = await takeDomSnapshots({
+      logger,
+      driver,
+      breakpoints: layoutBreakpoints !== undefined ? layoutBreakpoints : config.layoutBreakpoints,
+      browsers: config.browser || [true], // this is a hack, since takeDomSnapshots expects an array. And VGC has a default in case browser is not specified. So we just need an array with length of 1 here.
+      skipResources,
+      showLogs: !!config.showLogs,
+      disableBrowserFetching: !!config.disableBrowserFetching,
+      getViewportSize: () => config.viewportSize,
+      getIosDevicesSizes,
+      getEmulatedDevicesSizes,
+    });
+    return result;
+  };
+
   logger.log('got script for processPage');
   browserLog({
     page,
@@ -81,7 +104,11 @@ async function eyesStorybook({
 
     logger.log(`starting to run ${storiesIncludingVariations.length} stories`);
 
-    const getStoryData = makeGetStoryData({logger, processPageAndSerialize, waitBeforeScreenshot});
+    const getStoryData = makeGetStoryData({
+      logger,
+      takeDomSnapshots: doTakeDomSnapshots,
+      waitBeforeScreenshot,
+    });
     const renderStory = makeRenderStory({
       config,
       logger: logger.extend('renderStory'),

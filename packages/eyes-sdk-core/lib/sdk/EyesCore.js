@@ -1,4 +1,6 @@
 'use strict'
+const {makeDriver} = require('@applitools/driver')
+const screenshoter = require('@applitools/screenshoter')
 const ArgumentGuard = require('../utils/ArgumentGuard')
 const Region = require('../geometry/Region')
 const Location = require('../geometry/Location')
@@ -20,6 +22,8 @@ const ImageProviderFactory = require('../capture/ImageProviderFactory')
 const TypeUtils = require('../utils/TypeUtils')
 const MatchResult = require('../match/MatchResult')
 const TestResults = require('../TestResults')
+const NullDebugScreenshotProvider = require('../debug/NullDebugScreenshotProvider')
+const takeDomCapture = require('../utils/takeDomCapture')
 
 const UNKNOWN_DEVICE_PIXEL_RATIO = 0
 const DEFAULT_DEVICE_PIXEL_RATIO = 1
@@ -407,6 +411,145 @@ class EyesCore extends EyesBase {
       imageUrl,
       locatorNames: visualLocatorSettings.locatorNames,
       firstOnly: visualLocatorSettings.firstOnly,
+    })
+  }
+
+  async extractText(regions) {
+    if (!TypeUtils.isArray(regions)) regions = [regions]
+
+    const driver = makeDriver(this._driver.spec, this._logger, this._driver.wrapper)
+    await driver.refreshContexts()
+
+    const extractTextInputs = []
+
+    for (const userRegion of regions) {
+      const region = {...userRegion}
+
+      const screenshot = await screenshoter({
+        logger: this._logger,
+        driver,
+        target: Region.isRegionCompatible(region.target)
+          ? {
+              x: region.target.left,
+              y: region.target.top,
+              width: region.target.width,
+              height: region.target.height,
+            }
+          : region.target,
+        fully: true,
+        dom: true,
+        hideScrollbars: false, // because otherwise DOM will not be aligned with image // this._configuration.getHideScrollbars(),
+        hideCaret: this._configuration.getHideCaret(),
+        scrollingMode: this._configuration.getStitchMode().toLocaleLowerCase(),
+        overlap: this._configuration.getStitchOverlap(),
+        wait: this._configuration.getWaitBeforeScreenshots(),
+        stabilization: {
+          crop:
+            this._cutProviderHandler.get() instanceof NullCutProvider
+              ? null
+              : this._cutProviderHandler.get().toObject(),
+          scale:
+            this._scaleProviderHandler.get() instanceof NullScaleProvider
+              ? null
+              : this._scaleProviderHandler.get().getScaleRatio(),
+        },
+        debug: {
+          path:
+            this._debugScreenshotsProvider instanceof NullDebugScreenshotProvider
+              ? null
+              : this._debugScreenshotsProvider.getPath(),
+        },
+        takeDomCapture: () => takeDomCapture(this._logger, this._context),
+      })
+
+      if (region.hint === undefined && !Region.isRegionCompatible(region.target)) {
+        const element = await this._context.element(region.target)
+        if (!element) {
+          throw new Error(`Unable to find element using provided selector - "${region.target}"`)
+        }
+        // TODO create a separate snippet with more sophisticated logic
+        region.hint = await this._context.execute('return arguments[0].innerText', element)
+        if (region.hint) {
+          region.hint = region.hint.replace(/[.\\+]/g, '\\$&')
+        }
+      }
+
+      await this.getAndSaveRenderingInfo()
+      const [screenshotUrl, domUrl] = await Promise.all([
+        this._serverConnector.uploadScreenshot(GeneralUtils.guid(), await screenshot.image.toPng()),
+        this._serverConnector.postDomSnapshot(GeneralUtils.guid(), screenshot.dom),
+      ])
+      extractTextInputs.push({
+        domUrl,
+        screenshotUrl,
+        location: {x: Math.round(screenshot.region.x), y: Math.round(screenshot.region.y)},
+        region: {
+          left: 0,
+          top: 0,
+          width: screenshot.image.width,
+          height: screenshot.image.height,
+          expected: region.hint,
+        },
+        minMatch: region.minMatch,
+        language: region.language,
+      })
+    }
+
+    const results = await Promise.all(
+      extractTextInputs.map(input => this._serverConnector.extractText(input)),
+    )
+
+    return results.reduce((strs, result) => strs.concat(result), [])
+  }
+
+  async extractTextRegions(config) {
+    ArgumentGuard.notNull(config.patterns, 'patterns')
+
+    const driver = makeDriver(this._driver.spec, this._logger, this._driver.wrapper)
+    await driver.refreshContexts()
+
+    const screenshot = await screenshoter({
+      logger: this._logger,
+      driver,
+      dom: true,
+      hideScrollbars: false,
+      hideCaret: this._configuration.getHideCaret(),
+      scrollingMode: this._configuration.getStitchMode().toLocaleLowerCase(),
+      overlap: this._configuration.getStitchOverlap(),
+      wait: this._configuration.getWaitBeforeScreenshots(),
+      stabilization: {
+        crop:
+          this._cutProviderHandler.get() instanceof NullCutProvider
+            ? null
+            : this._cutProviderHandler.get().toObject(),
+        scale:
+          this._scaleProviderHandler.get() instanceof NullScaleProvider
+            ? null
+            : this._scaleProviderHandler.get().getScaleRatio(),
+      },
+      debug: {
+        path:
+          this._debugScreenshotsProvider instanceof NullDebugScreenshotProvider
+            ? null
+            : this._debugScreenshotsProvider.getPath(),
+      },
+      takeDomCapture: () => takeDomCapture(this._logger, this._context),
+    })
+
+    await this.getAndSaveRenderingInfo()
+    const [screenshotUrl, domUrl] = await Promise.all([
+      this._serverConnector.uploadScreenshot(GeneralUtils.guid(), await screenshot.image.toPng()),
+      this._serverConnector.postDomSnapshot(GeneralUtils.guid(), screenshot.dom),
+    ])
+
+    return this._serverConnector.extractTextRegions({
+      domUrl,
+      screenshotUrl,
+      location: {x: Math.round(screenshot.region.x), y: Math.round(screenshot.region.y)},
+      patterns: config.patterns,
+      ignoreCase: config.ignoreCase,
+      firstOnly: config.firstOnly,
+      language: config.language,
     })
   }
 

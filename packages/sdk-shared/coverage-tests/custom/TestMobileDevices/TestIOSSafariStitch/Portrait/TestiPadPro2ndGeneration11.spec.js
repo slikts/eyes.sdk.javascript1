@@ -5,7 +5,7 @@ let device = {
   name: 'iPad Pro (12.9 inch) (2nd generation) Simulator 11.0',
   orientation: 'Portrait',
 }
-describe(`${device.name} Portrait`, () => {
+describe.skip(`${device.name} Portrait`, () => {
   describe(`mobile`, () => {
     it('TestIOSSafariStitch', testMobileDevices(device, 'mobile'))
   })

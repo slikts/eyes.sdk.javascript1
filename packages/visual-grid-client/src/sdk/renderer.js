@@ -13,7 +13,7 @@ const makeCreateRGridDOMAndGetResourceMapping = require('./createRGridDOMAndGetR
 const getRenderMethods = require('./getRenderMethods')
 const {createRenderWrapper} = require('./wrapperUtils')
 const {ptimeoutWithError} = require('@applitools/functional-commons')
-const {Logger} = require('@applitools/eyes-sdk-core')
+const {Logger} = require('@applitools/eyes-sdk-core/shared')
 
 const fetchResourceTimeout = 120000
 

@@ -10,6 +10,7 @@ const ArgumentGuard = require('./ArgumentGuard')
 const EyesUtils = require('../sdk/EyesUtils')
 const deserializeDomSnapshotResult = require('./deserializeDomSnapshotResult')
 const createFramesPaths = require('./createFramesPaths')
+const {generateUniqueUrl} = require('./GeneralUtils')
 
 const EXECUTION_TIMEOUT = 5 * 60 * 1000
 const POLL_TIMEOUT = 200
@@ -20,9 +21,15 @@ async function takeDomSnapshot(logger, driver, options = {}) {
   ArgumentGuard.notNull(driver, 'driver')
   const {
     disableBrowserFetching: dontFetchResources,
-    chunkByteLength = DEFAULT_CHUNK_BYTE_LENGTH,
+    chunkByteLength = Number(process.env.APPLITOOLS_SCRIPT_RESULT_MAX_BYTE_LENGTH) ||
+      DEFAULT_CHUNK_BYTE_LENGTH,
     pollTimeout = POLL_TIMEOUT,
     executionTimeout = EXECUTION_TIMEOUT,
+    showLogs,
+    skipResources,
+    removeReverseProxyURLPrefixes = !!process.env
+      .APPLITOOLS_SCRIPT_REMOVE_REVERSE_PROXY_URL_PREFIXES,
+    uniqueUrl = generateUniqueUrl,
   } = options
   const isLegacyBrowser = driver.isIE || driver.isEdgeLegacy
   const arg = {
@@ -30,6 +37,9 @@ async function takeDomSnapshot(logger, driver, options = {}) {
     dontFetchResources,
     serializeResources: true,
     compressResources: false,
+    showLogs,
+    skipResources,
+    removeReverseProxyURLPrefixes,
   }
   const scripts = {
     main: {
@@ -80,11 +90,15 @@ async function takeDomSnapshot(logger, driver, options = {}) {
         })
       if (frameContext) {
         const frameSnapshot = await takeContextDomSnapshot(frameContext)
+        frameSnapshot.url = uniqueUrl(frameSnapshot.url, 'applitools-iframe')
         parentSnapshot.frames.push(frameSnapshot)
         cdtNode.attributes.push({name: 'data-applitools-src', value: frameSnapshot.url})
       }
     }
 
+    logger.verbose(`dom snapshot cdt length: ${snapshot.cdt.length}`)
+    logger.verbose(`blobs urls (${snapshot.blobs.length}):`, JSON.stringify(snapshot.blobs.map(({url}) => url))) // eslint-disable-line prettier/prettier
+    logger.verbose(`resource urls (${snapshot.resourceUrls.length}):`, JSON.stringify(snapshot.resourceUrls)) // eslint-disable-line prettier/prettier
     return snapshot
   }
 }

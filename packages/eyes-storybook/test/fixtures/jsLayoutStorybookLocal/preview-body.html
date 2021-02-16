@@ -1,0 +1,19 @@
+<script>
+    function handleResize() {
+      var root = document.querySelector('#main')
+      var text = document.querySelector('#text')
+      console.log('resize')
+      if (window.matchMedia('(max-width: 499px)').matches) {
+        text.innerText = 'SMALL'
+        root.style.background = 'coral'
+      } else if (window.matchMedia('(max-width: 999px)').matches) {
+        text.innerText = 'MEDIUM'
+        root.style.background = 'greenyellow'
+      } else {
+        text.innerText = 'LARGE'
+        root.style.background = 'cornflowerblue'
+      }
+    }
+    window.addEventListener('load', handleResize)
+    window.addEventListener('resize', handleResize)
+</script>

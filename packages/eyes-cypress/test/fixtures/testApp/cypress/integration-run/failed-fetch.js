@@ -1,5 +1,5 @@
+/* global cy */
 describe('eyes-cypress', () => {
-
   // This also tests the setting of `testName` inside `it`
 
   it.skip('failed fetch', () => {

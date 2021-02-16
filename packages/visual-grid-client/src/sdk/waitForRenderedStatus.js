@@ -1,5 +1,5 @@
 'use strict'
-const {RenderStatus} = require('@applitools/eyes-sdk-core')
+const {RenderStatus} = require('@applitools/eyes-sdk-core/shared')
 const {presult} = require('@applitools/functional-commons')
 
 const psetTimeout = t =>

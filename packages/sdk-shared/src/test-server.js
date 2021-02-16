@@ -63,7 +63,7 @@ function startTestServer(argv = {}) {
       } else {
         const serverPort = server.address().port
         const close = server.close.bind(server)
-        log(`test server running at port: ${port}`)
+        log(`test server running at port: ${serverPort}`)
         resolve({port: serverPort, close})
       }
 
