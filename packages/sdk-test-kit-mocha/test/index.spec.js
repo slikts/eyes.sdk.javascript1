@@ -24,7 +24,7 @@ describe('index', () => {
     it('works for tests with multiple tags', () => {
       assert(testFilter.test('check region by native selector (@safari @mobile @native)'))
     })
-    it('works for tests with multiple tags but not all tags mach', () => {
+    it('works for tests with multiple tags, but not all tags match', () => {
       assert(testFilter.test('check region by native selector (@native-selectors @mobile @native)'))
     })
   })
