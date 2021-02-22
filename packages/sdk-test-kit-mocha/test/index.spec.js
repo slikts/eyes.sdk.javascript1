@@ -15,7 +15,7 @@ const testFilter = makeTestFilter(tags)
 
 describe('index', () => {
   describe('test filter', () => {
-    it('works for without tags', () => {
+    it('works without tags', () => {
       assert(testFilter.test('check region by selector after manual scroll with vg'))
     })
     it('works for tests with a single tag', () => {
