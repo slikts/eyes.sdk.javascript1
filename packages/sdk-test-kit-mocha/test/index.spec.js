@@ -18,7 +18,10 @@ describe('index', () => {
     it('works for without tags', () => {
       assert(testFilter.test('check region by selector after manual scroll with vg'))
     })
-    it('works for tests with tags', () => {
+    it('works for tests with a single tag', () => {
+      assert(testFilter.test('check frame after manual switch to frame with css stitching classic (@webdriver)'))
+    })
+    it('works for tests with multiple tags', () => {
       assert(testFilter.test('check region by native selector (@native-selectors @mobile @native)'))
     })
   })
