@@ -22,6 +22,9 @@ describe('index', () => {
       assert(testFilter.test('check frame after manual switch to frame with css stitching classic (@webdriver)'))
     })
     it('works for tests with multiple tags', () => {
+      assert(testFilter.test('check region by native selector (@safari @mobile @native)'))
+    })
+    it('works for tests with multiple tags but not all tags mach', () => {
       assert(testFilter.test('check region by native selector (@native-selectors @mobile @native)'))
     })
   })
