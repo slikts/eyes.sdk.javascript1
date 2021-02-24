@@ -1,70 +1,15 @@
 const {describe, it} = require('mocha');
+const fakeCypress = require('../../util/fakeCypress');
 const chai = require('chai');
 const expect = chai.expect;
-
-function override(target, name) {
-  Object.defineProperty(target, name, {
-    accessCount: 0,
-    accessed: false,
-    get: function() {
-      const fake = `fake_${name}`;
-      this.value = fake;
-      this.accessed = true;
-      this.accessCount = this.accessCount ? this.accessCount + 1 : 1;
-      return fake;
-    },
-  });
-}
-
-function fakeCypress(modulePath, calls = {}) {
-  const fake = {called: false, callCount: 0, args: []};
-  function createContext(modulePath) {
-    this.state = {viewport: {...fake}, fetch: {...fake}};
-    this.Cypress = {
-      Commands: {add: (name, func) => (calls[name] = func)},
-      config: () => {},
-      log: () => {},
-      config: () => {},
-    };
-    this.cy = {
-      viewport: (...args) => {
-        setFake('viewport', args);
-        return {then: (_args, cb) => (this.state.viewport.cb = cb)};
-      },
-    };
-    this.window = {
-      fetch: (...args) => {
-        setFake('fetch', args);
-        return {
-          then: () => ({
-            json: () => {},
-            then: () => 'fake',
-          }),
-        };
-      },
-    };
-    this.navigator = {};
-    delete require.cache[require.resolve(modulePath)];
-    require(modulePath);
-    return this;
-  }
-  const context = createContext(modulePath);
-  function setFake(name, args) {
-    context.state[name].called = true;
-    context.state[name].args = args;
-    context.state[name].callCount++;
-  }
-
-  override(context.navigator, 'userAgent');
-  return {context, calls};
-}
+const path = require('path');
 
 describe('commands', () => {
   describe('eyesOpen', () => {
     let context, eyesOpen, self, cypress, browser;
 
     beforeEach(() => {
-      cypress = fakeCypress('../../../src/browser/commands');
+      cypress = fakeCypress(path.resolve(__dirname, '../../../src/browser/commands'));
       context = cypress.context;
       browser = {width: 800, height: 600};
       eyesOpen = cypress.calls['eyesOpen'];
