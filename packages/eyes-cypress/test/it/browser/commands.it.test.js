@@ -84,8 +84,9 @@ describe('commands', () => {
     it('should validate args to sendRequest', async () => {
       eyesOpen.call(self, {browser});
       context.state.viewport.cb();
+      const [, args] = context.state.fetch.args;
       expect(context.state.fetch.called).to.be.true;
-      expect(JSON.parse(context.state.fetch.args[1].body)).to.deep.equal({
+      expect(JSON.parse(args.body)).to.deep.equal({
         testName: 'test',
         browser: {width: 800, height: 600, name: 'chrome'},
         userAgent: 'fake_userAgent',
@@ -101,7 +102,6 @@ describe('commands', () => {
     it('should call fetch on global window', async () => {
       eyesOpen.call(self, {browser});
       context.state.viewport.cb();
-      expect(context.state.fetch.called).to.be.true;
       expect(context.state.fetch.called).to.be.true;
       expect(context.state.fetch.callCount).to.equal(1);
     });
