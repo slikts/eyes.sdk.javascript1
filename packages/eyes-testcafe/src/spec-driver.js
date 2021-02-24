@@ -314,10 +314,14 @@ async function getWindowRect(driver) {
   )
   console.log(`getWindowRect rect: ${JSON.stringify(rect)}`)
   // ensure there is a width and height
-  if (rect && rect.width && rect.height) return rect
-  const defaultRect = {width: 1024, height: 768}
-  await setWindowRect(driver, defaultRect)
-  return await getWindowRect(driver)
+  if (rect && rect.width && rect.height) {
+    await setWindowRect(driver, rect)
+    return rect
+  } else {
+    const defaultRect = {width: 800, height: 600}
+    await setWindowRect(driver, defaultRect)
+    return await getWindowRect(driver)
+  }
 }
 // NOTE:
 // This is an interim solution until it's properly implemented in core
