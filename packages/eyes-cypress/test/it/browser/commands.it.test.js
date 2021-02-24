@@ -21,16 +21,19 @@ describe('commands', () => {
     });
 
     it('should call handleViewport with correct viewport', async () => {
+      const viewport = context.journal.cy.viewport;
       eyesOpen.call(self, {browser});
-      expect(context.state.viewport.called).to.be.true;
-      expect(context.state.viewport.args).to.deep.equal([800, 600]);
+      expect(viewport.called).to.be.true;
+      expect(viewport.args).to.deep.equal([800, 600]);
     });
 
     it('should validate args to sendRequest', async () => {
+      const viewport = context.journal.cy.viewport;
+      const fetch = context.journal.window.fetch;
       eyesOpen.call(self, {browser});
-      context.state.viewport.cb();
-      const [, args] = context.state.fetch.args;
-      expect(context.state.fetch.called).to.be.true;
+      viewport.cb();
+      const [, args] = fetch.args;
+      expect(fetch.called).to.be.true;
       expect(JSON.parse(args.body)).to.deep.equal({
         testName: 'test',
         browser: {width: 800, height: 600, name: 'chrome'},
@@ -46,9 +49,9 @@ describe('commands', () => {
 
     it('should call fetch on global window', async () => {
       eyesOpen.call(self, {browser});
-      context.state.viewport.cb();
-      expect(context.state.fetch.called).to.be.true;
-      expect(context.state.fetch.callCount).to.equal(1);
+      context.journal.cy.viewport.cb();
+      expect(context.journal.window.fetch.called).to.be.true;
+      expect(context.journal.window.fetch.callCount).to.equal(1);
     });
   });
 });
