@@ -48,4 +48,3 @@ export * from './src/api'
 // // exports.RunningSession = core.RunningSession
 // exports.FailureReports = core.FailureReports
 // exports.TestResultsFormatter = core.TestResultsFormatter
-

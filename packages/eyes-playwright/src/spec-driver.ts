@@ -10,7 +10,7 @@ export type Selector = string
 // #region HELPERS
 
 async function handleToObject(handle: JSHandle): Promise<any> {
-  const [_, type] = handle.toString().split('@')
+  const [, type] = handle.toString().split('@')
   if (type === 'array') {
     const map = await handle.getProperties()
     return Promise.all(Array.from(map.values(), handleToObject))
