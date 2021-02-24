@@ -1,62 +1,62 @@
 const {describe, it} = require('mocha');
 const chai = require('chai');
-const spies = require('chai-spies');
 const expect = chai.expect;
-chai.use(spies);
 
-function override(target, method, name) {
+function override(target, name) {
   Object.defineProperty(target, name, {
     accessCount: 0,
     accessed: false,
-    [method]: function() {
-      const fakeUserAgent = `fake_${name}`;
-      this.value = fakeUserAgent;
+    get: function() {
+      const fake = `fake_${name}`;
+      this.value = fake;
       this.accessed = true;
       this.accessCount = this.accessCount ? this.accessCount + 1 : 1;
-      return fakeUserAgent;
+      return fake;
     },
   });
 }
 
 function fakeCypress(modulePath, calls = {}) {
-  function setFake(name, args) {
-    this.state[name].called = true;
-    this.state[name].args = args;
-    this.state[name].callCount++;
-  }
   const fake = {called: false, callCount: 0, args: []};
-  this.state = {viewport: {...fake}, fetch: {...fake}};
-  this.Cypress = {
-    Commands: {add: (name, func) => (calls[name] = func)},
-    config: () => {},
-    log: () => {},
-    config: () => {},
-  };
-  this.cy = {
-    viewport: (...args) => {
-      setFake('viewport', args);
-      return {then: (_args, cb) => (this.state.viewport.cb = cb)};
-    },
-  };
+  function createContext(modulePath) {
+    this.state = {viewport: {...fake}, fetch: {...fake}};
+    this.Cypress = {
+      Commands: {add: (name, func) => (calls[name] = func)},
+      config: () => {},
+      log: () => {},
+      config: () => {},
+    };
+    this.cy = {
+      viewport: (...args) => {
+        setFake('viewport', args);
+        return {then: (_args, cb) => (this.state.viewport.cb = cb)};
+      },
+    };
+    this.window = {
+      fetch: (...args) => {
+        setFake('fetch', args);
+        return {
+          then: () => ({
+            json: () => {},
+            then: () => 'fake',
+          }),
+        };
+      },
+    };
+    this.navigator = {};
+    delete require.cache[require.resolve(modulePath)];
+    require(modulePath);
+    return this;
+  }
+  const context = createContext(modulePath);
+  function setFake(name, args) {
+    context.state[name].called = true;
+    context.state[name].args = args;
+    context.state[name].callCount++;
+  }
 
-  this.window = {
-    fetch: (...args) => {
-      setFake('fetch', args);
-      return {
-        then: () => ({
-          json: () => {},
-          then: () => 'fake',
-        }),
-      };
-    },
-  };
-
-  this.navigator = {};
-  override(this.navigator, 'get', 'userAgent');
-
-  delete require.cache[require.resolve(modulePath)];
-  require(modulePath);
-  return {context: this, calls};
+  override(context.navigator, 'userAgent');
+  return {context, calls};
 }
 
 describe('commands', () => {
