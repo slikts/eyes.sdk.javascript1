@@ -321,6 +321,7 @@ async function getWindowRect(driver) {
 // NOTE:
 // This is an interim solution until it's properly implemented in core
 async function setWindowRect(driver, {_x, _y, width, height} = {}) {
+  console.log(arguments[1])
   if (width && height) {
     await driver.resizeWindow(width, height)
     await executeScript(
