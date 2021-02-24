@@ -1,9 +1,6 @@
 {
   "compilerOptions": {
     "outDir": "dist",
-    "declarationDir": "types",
-    "declaration": true,
-    "declarationMap": true,
     "sourceMap": true,
 
     "target": "ES2015",
@@ -13,6 +10,6 @@
     "preserveConstEnums": true,
     "downlevelIteration": true,
     "stripInternal": true,
-    "experimentalDecorators": true
+    "experimentalDecorators": false
   },
 }

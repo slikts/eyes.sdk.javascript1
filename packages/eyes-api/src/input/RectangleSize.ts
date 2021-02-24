@@ -5,7 +5,7 @@ export type RectangleSize = {
   height: number
 }
 
-export default class RectangleSizeData implements Required<RectangleSize> {
+export class RectangleSizeData implements Required<RectangleSize> {
   private _width: number
   private _height: number
 

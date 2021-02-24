@@ -5,7 +5,7 @@ export type MatchResult = {
   windowId?: number
 }
 
-export default class MatchResultData implements Required<MatchResult> {
+export class MatchResultData implements Required<MatchResult> {
   private _asExpected: boolean
   private _windowId: number
 

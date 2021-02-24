@@ -5,7 +5,7 @@ export type Location = {
   y: number
 }
 
-export default class LocationData implements Required<Location> {
+export class LocationData implements Required<Location> {
   private _x: number
   private _y: number
 

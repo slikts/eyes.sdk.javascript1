@@ -7,7 +7,7 @@ export type ProxySettings = {
   isHttpOnly?: boolean
 }
 
-export default class ProxySettingsData implements Required<ProxySettings> {
+export class ProxySettingsData implements Required<ProxySettings> {
   private _url: string
   private _username: string
   private _password: string

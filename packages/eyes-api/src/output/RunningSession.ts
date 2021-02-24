@@ -1,5 +1,5 @@
 import * as utils from '@applitools/utils'
-import RenderingInfoData, {RenderingInfo} from './RenderingInfo'
+import {RenderingInfo, RenderingInfoData} from './RenderingInfo'
 
 export type RunningSession = {
   id: string
@@ -11,7 +11,7 @@ export type RunningSession = {
   renderingInfo: RenderingInfo
 }
 
-export default class RunningSessionData implements Required<RunningSession> {
+export class RunningSessionData implements Required<RunningSession> {
   private _id: string
   private _sessionId: string
   private _batchId: string
@@ -114,7 +114,7 @@ export default class RunningSessionData implements Required<RunningSession> {
   set renderingInfo(renderingInfo: RenderingInfo) {
     this._renderingInfo = new RenderingInfoData(renderingInfo)
   }
-  getRenderingInfo(): RenderingInfo {
+  getRenderingInfo(): RenderingInfoData {
     return this._renderingInfo
   }
   setRenderingInfo(renderingInfo: RenderingInfo) {

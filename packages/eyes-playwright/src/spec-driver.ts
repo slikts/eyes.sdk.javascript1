@@ -5,7 +5,7 @@ import type {ElementHandle, Frame, JSHandle, LaunchOptions, Page} from 'playwrig
 export type Driver = Page
 export type Element = ElementHandle
 export type Context = Frame
-export type Selector = string | {type: 'css' | 'xpath', selector: string}
+export type Selector = string
 
 // #region HELPERS
 
@@ -16,10 +16,8 @@ async function handleToObject(handle: JSHandle): Promise<any> {
     return Promise.all(Array.from(map.values(), handleToObject))
   } else if (type === 'object') {
     const map = await handle.getProperties()
-    const chunks = await Promise.all(
-      Array.from(map, async ([key, handle]) => ({[key]: await handleToObject(handle)})),
-    )
-    return chunks.length > 0 ? Object.assign(...chunks as [any]) : {}
+    const chunks = await Promise.all(Array.from(map, async ([key, handle]) => ({[key]: await handleToObject(handle)})))
+    return chunks.length > 0 ? Object.assign(...(chunks as [any])) : {}
   } else if (type === 'node') {
     return handle.asElement()
   } else {
@@ -56,9 +54,7 @@ export function isStaleElementError(err: any): boolean {
   return err && err.message && err.message.includes('Protocol error (DOM.describeNode)')
 }
 export async function isEqualElements(frame: Context, element1: Element, element2: Element): Promise<boolean> {
-  return frame
-    .evaluate(([element1, element2]) => element1 === element2, [element1, element2])
-    .catch(() => false)
+  return frame.evaluate(([element1, element2]) => element1 === element2, [element1, element2]).catch(() => false)
 }
 
 // #endregion
@@ -66,7 +62,7 @@ export async function isEqualElements(frame: Context, element1: Element, element
 // #region COMMANDS
 
 export async function executeScript(frame: Context, script: ((...args: any) => any) | string, arg: any): Promise<any> {
-  script = utils.types.isString(script) ? new Function(script) as ((...args: any) => any) : script
+  script = utils.types.isString(script) ? (new Function(script) as (...args: any) => any) : script
   const result = await frame.evaluateHandle(script, arg)
   return handleToObject(result)
 }
@@ -91,14 +87,17 @@ export async function findElement(frame: Context, selector: Element): Promise<El
 export async function findElements(frame: Context, selector: Element): Promise<Element[]> {
   return frame.$$(transformSelector(selector))
 }
-export async function getElementRect(_frame: Context, element: Element): Promise<{x: number, y: number, width: number, height: number}> {
+export async function getElementRect(
+  _frame: Context,
+  element: Element,
+): Promise<{x: number; y: number; width: number; height: number}> {
   const {x, y, width, height} = await element.boundingBox()
   return {x: Math.round(x), y: Math.round(y), width: Math.round(width), height: Math.round(height)}
 }
-export async function getViewportSize(page: Driver): Promise<{width: number, height: number}> {
+export async function getViewportSize(page: Driver): Promise<{width: number; height: number}> {
   return page.viewportSize()
 }
-export async function setViewportSize(page: Driver, size?: {width: number, height: number}): Promise<void> {
+export async function setViewportSize(page: Driver, size?: {width: number; height: number}): Promise<void> {
   return page.setViewportSize(size)
 }
 export async function getTitle(page: Driver): Promise<string> {
@@ -107,7 +106,7 @@ export async function getTitle(page: Driver): Promise<string> {
 export async function getUrl(page: Driver): Promise<string> {
   return page.url()
 }
-export async function getDriverInfo(_page: Driver): Promise<any> {
+export async function getDriverInfo(): Promise<any> {
   return {
     // isStateless: true,
   }

@@ -47,3 +47,4 @@ types
 docs
 doc
 bin
+*.d.ts

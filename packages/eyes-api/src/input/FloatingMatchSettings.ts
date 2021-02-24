@@ -1,22 +1,22 @@
 import * as utils from '@applitools/utils'
-import RegionData, {Region} from './Region'
+import {Region, RegionData} from './Region'
 
-export type FloatingRegion = {
+export type FloatingMatchSettings = {
   region: Region
-  maxUpOffset: number
-  maxDownOffset: number
-  maxLeftOffset: number
-  maxRightOffset: number
+  maxUpOffset?: number
+  maxDownOffset?: number
+  maxLeftOffset?: number
+  maxRightOffset?: number
 }
 
-export default class FloatingRegionData implements Required<FloatingRegion> {
+export class FloatingMatchSettingsData implements Required<FloatingMatchSettings> {
   private _region: RegionData
   private _maxUpOffset: number
   private _maxDownOffset: number
   private _maxLeftOffset: number
   private _maxRightOffset: number
 
-  constructor(floatingRegion: FloatingRegion)
+  constructor(floatingRegion: FloatingMatchSettings)
   constructor(
     x: number,
     y: number,
@@ -28,7 +28,7 @@ export default class FloatingRegionData implements Required<FloatingRegion> {
     maxRightOffset: number,
   )
   constructor(
-    floatingRegionOrX: FloatingRegion | number,
+    floatingRegionOrX: FloatingMatchSettings | number,
     y?: number,
     width?: number,
     height?: number,
@@ -38,7 +38,7 @@ export default class FloatingRegionData implements Required<FloatingRegion> {
     maxRightOffset?: number,
   ) {
     if (utils.types.isNumber(floatingRegionOrX)) {
-      return new FloatingRegionData({
+      return new FloatingMatchSettingsData({
         region: {x: floatingRegionOrX, y, width, height},
         maxUpOffset,
         maxDownOffset,
@@ -63,7 +63,7 @@ export default class FloatingRegionData implements Required<FloatingRegion> {
   getRegion(): RegionData {
     return this._region
   }
-  setRegion(region: Region | RegionData) {
+  setRegion(region: Region) {
     this.region = region
   }
   getLeft(): number {

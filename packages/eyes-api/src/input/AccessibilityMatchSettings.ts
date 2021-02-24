@@ -1,27 +1,27 @@
 import * as utils from '@applitools/utils'
 import AccessibilityRegionType from '../enums/AccessibilityRegionType'
-import RegionData, {Region} from './Region'
+import {Region, RegionData} from './Region'
 
-export type AccessibilityRegion = {
+export type AccessibilityMatchSettings = {
   region: Region
   type?: AccessibilityRegionType
 }
 
-export default class AccessibilityRegionData implements Required<AccessibilityRegion> {
+export class AccessibilityMatchSettingsData implements Required<AccessibilityMatchSettings> {
   private _region: RegionData
   private _type: AccessibilityRegionType
 
-  constructor(accessibilityRegion: AccessibilityRegion)
+  constructor(accessibilityRegion: AccessibilityMatchSettings)
   constructor(x: number, y: number, width: number, height: number, type?: AccessibilityRegionType)
   constructor(
-    accessibilityRegionOrX: AccessibilityRegion | number,
+    accessibilityRegionOrX: AccessibilityMatchSettings | number,
     y?: number,
     width?: number,
     height?: number,
     type?: AccessibilityRegionType,
   ) {
     if (utils.types.isNumber(accessibilityRegionOrX)) {
-      return new AccessibilityRegionData({region: {x: accessibilityRegionOrX, y, width, height}, type})
+      return new AccessibilityMatchSettingsData({region: {x: accessibilityRegionOrX, y, width, height}, type})
     }
     this.region = accessibilityRegionOrX.region
     this.type = accessibilityRegionOrX.type
@@ -37,7 +37,7 @@ export default class AccessibilityRegionData implements Required<AccessibilityRe
   getRegion(): RegionData {
     return this._region
   }
-  setRegion(region: Region | RegionData) {
+  setRegion(region: Region) {
     this.region = region
   }
   getLeft(): number {
@@ -46,7 +46,7 @@ export default class AccessibilityRegionData implements Required<AccessibilityRe
   setLeft(left: number) {
     this._region.setLeft(left)
   }
-  retTop(): number {
+  getTop(): number {
     return this._region.getTop()
   }
   setTop(top: number) {

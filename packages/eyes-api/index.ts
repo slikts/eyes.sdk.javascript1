@@ -18,53 +18,62 @@ export {default as TestResultsStatus} from './src/enums/TestResultsStatus'
 
 // #region INPUT
 
-export {CheckSettings as CheckSettingsPlain, default as CheckSettings} from './src/input/CheckSettings'
 export {
-  GeneralConfig as GeneralConfigurationPlain,
-  OpenConfig as OpenConfigurationPlain,
-  CheckConfig as CheckConfigurationPlain,
-  ClassicConfig as ClassicConfigurationPlain,
-  VGConfig as VGConfigurationPlain,
-  Config as ConfigurationPlain,
-  default as Configuration,
-} from './src/input/Config'
-export {ProxySettings as ProxySettingsPlain, default as ProxySettings} from './src/input/ProxySettings'
+  CheckSettings as CheckSettingsPlain,
+  CheckSettingsFluent as CheckSettings,
+  Target,
+} from './src/input/CheckSettings'
+export {
+  GeneralConfiguration as GeneralConfigurationPlain,
+  OpenConfiguration as OpenConfigurationPlain,
+  CheckConfiguration as CheckConfigurationPlain,
+  ClassicConfiguration as ClassicConfigurationPlain,
+  VGConfiguration as VGConfigurationPlain,
+  Configuration as ConfigurationPlain,
+  ConfigurationData,
+} from './src/input/Configuration'
+export {ProxySettings as ProxySettingsPlain, ProxySettingsData as ProxySettings} from './src/input/ProxySettings'
 export {
   ImageMatchSettings as ImageMatchSettingsPlain,
-  default as ImageMatchSettings,
+  ImageMatchSettingsData as ImageMatchSettings,
 } from './src/input/ImageMatchSettings'
 export {
   ExactMatchSettings as ExactMatchSettingsPlain,
-  default as ExactMatchSettings,
+  ExactMatchSettingsData as ExactMatchSettings,
 } from './src/input/ExactMatchSettings'
 export {
-  AccessibilityRegion as AccessibilityMatchSettingsPlain,
-  default as AccessibilityMatchSettings,
-} from './src/input/AccessibilityRegion'
+  AccessibilityMatchSettings as AccessibilityMatchSettingsPlain,
+  AccessibilityMatchSettingsData as AccessibilityMatchSettings,
+} from './src/input/AccessibilityMatchSettings'
 export {AccessibilitySettings} from './src/input/AccessibilitySettings'
 export {
-  FloatingRegion as FloatingMatchSettingsPlain,
-  default as FloatingMatchSettings,
-} from './src/input/FloatingRegion'
-export {BatchInfo as BatchInfoPlain, default as BatchInfo} from './src/input/BatchInfo'
-export {CustomProperty as PropertyDataPlain, default as PropertyData} from './src/input/CustomProperty'
+  FloatingMatchSettings as FloatingMatchSettingsPlain,
+  FloatingMatchSettingsData as FloatingMatchSettings,
+} from './src/input/FloatingMatchSettings'
+export {BatchInfo as BatchInfoPlain, BatchInfoData as BatchInfo} from './src/input/BatchInfo'
+export {PropertyData as PropertyDataPlain, PropertyDataData as PropertyData} from './src/input/PropertyData'
 export {RenderInfo} from './src/input/RenderInfo'
-export {Location as LocationPlain, default as Location} from './src/input/Location'
-export {RectangleSize as RectangleSizePlain, default as RectangleSize} from './src/input/RectangleSize'
-export {Region as RegionPlain, default as Region} from './src/input/Region'
+export {Location as LocationPlain, LocationData as Location} from './src/input/Location'
+export {RectangleSize as RectangleSizePlain, RectangleSizeData as RectangleSize} from './src/input/RectangleSize'
+export {Region as RegionPlain, RegionData as Region} from './src/input/Region'
+export {
+  RunnerOptions as RunnerOptionsPlain,
+  RunnerOptionsFluent,
+  RunnerOptionsFluentInit as RunnerOptions,
+} from './src/input/RunnerOptions'
 
 // #endregion
 
 // #region OUTPUT
 
-export {ApiUrls as ApiUrlsPlain, default as ApiUrls} from './src/output/ApiUrls'
-export {AppUrls as AppUrlsPlain, default as AppUrls} from './src/output/AppUrls'
-export {SessionUrls as SessionUrlsPlain, default as SessionUrls} from './src/output/SessionUrls'
-export {StepInfo as StepInfoPlain, default as StepInfo} from './src/output/StepInfo'
-export {TestResults as TestResultsPlain, default as TestResults} from './src/output/TestResults'
-export {MatchResult as MatchResultPlain, default as MatchResult} from './src/output/MatchResult'
+export {ApiUrls as ApiUrlsPlain, ApiUrlsData as ApiUrls} from './src/output/ApiUrls'
+export {AppUrls as AppUrlsPlain, AppUrlsData as AppUrls} from './src/output/AppUrls'
+export {SessionUrls as SessionUrlsPlain, SessionUrlsData as SessionUrls} from './src/output/SessionUrls'
+export {StepInfo as StepInfoPlain, StepInfoData as StepInfo} from './src/output/StepInfo'
+export {TestResults as TestResultsPlain, TestResultsData as TestResults} from './src/output/TestResults'
+export {MatchResult as MatchResultPlain, MatchResultData as MatchResult} from './src/output/MatchResult'
 
 // #endregion
 
-export {default as EyesRunner, ClassicRunner, VisualGridRunner} from './src/Runners'
-export {default as Eyes} from './src/Eyes'
+export {EyesRunner, ClassicRunner, VisualGridRunner} from './src/Runners'
+export {Eyes} from './src/Eyes'

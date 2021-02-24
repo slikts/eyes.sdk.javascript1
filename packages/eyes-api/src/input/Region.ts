@@ -9,7 +9,7 @@ type Offset = {
 
 export type Region = (Location | Offset) & RectangleSize
 
-export default class RegionData implements Required<Offset & Location & RectangleSize> {
+export class RegionData implements Required<Offset & Location & RectangleSize> {
   private _x: number
   private _y: number
   private _width: number

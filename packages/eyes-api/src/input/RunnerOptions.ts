@@ -22,6 +22,6 @@ export class RunnerOptionsFluent {
   }
 }
 
-export default function RunnerOptionsFluentInit(): RunnerOptionsFluent {
+export function RunnerOptionsFluentInit(): RunnerOptionsFluent {
   return new RunnerOptionsFluent()
 }

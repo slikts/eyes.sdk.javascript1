@@ -10,7 +10,7 @@ export type BatchInfo = {
   isGeneratedId?: boolean
 }
 
-export default class BatchInfoData implements Required<BatchInfo> {
+export class BatchInfoData implements Required<BatchInfo> {
   private _id: string
   private _name: string
   private _startedAt: Date

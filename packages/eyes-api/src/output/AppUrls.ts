@@ -5,7 +5,7 @@ export type AppUrls = {
   stepEditor?: string
 }
 
-export default class AppUrlsData implements Required<AppUrls> {
+export class AppUrlsData implements Required<AppUrls> {
   private _step: string
   private _stepEditor: string
 

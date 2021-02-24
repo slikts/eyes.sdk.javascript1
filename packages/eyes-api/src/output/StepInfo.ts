@@ -1,6 +1,6 @@
 import * as utils from '@applitools/utils'
-import AppUrlsData, {AppUrls} from './AppUrls'
-import ApiUrlsData, {ApiUrls} from './ApiUrls'
+import {AppUrls, AppUrlsData} from './AppUrls'
+import {ApiUrls, ApiUrlsData} from './ApiUrls'
 
 export type StepInfo = {
   name?: string
@@ -12,7 +12,7 @@ export type StepInfo = {
   renderId?: string[]
 }
 
-export default class StepInfoData implements Required<StepInfo> {
+export class StepInfoData implements Required<StepInfo> {
   private _name: string
   private _isDifferent: boolean
   private _hasBaselineImage: boolean
@@ -105,7 +105,7 @@ export default class StepInfoData implements Required<StepInfo> {
   getApiUrls(): ApiUrlsData {
     return this._apiUrls
   }
-  setApiUrls(apiUrls: ApiUrls | ApiUrlsData) {
+  setApiUrls(apiUrls: ApiUrls) {
     this.apiUrls = apiUrls
   }
 

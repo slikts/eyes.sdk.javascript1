@@ -2,18 +2,18 @@ import * as utils from '@applitools/utils'
 import SessionType from './enums/SessionType'
 import StitchMode from './enums/StitchMode'
 import MatchLevel from './enums/MatchLevel'
-import CheckSettingsFluent, {CheckSettings} from './input/CheckSettings'
-import ProxySettingsData, {ProxySettings} from './input/ProxySettings'
-import ConfigData, {Config, GeneralConfig, OpenConfig} from './input/Config'
-import BatchInfoData, {BatchInfo} from './input/BatchInfo'
-import RectangleSizeData, {RectangleSize} from './input/RectangleSize'
-import RegionData, {Region} from './input/Region'
-import MatchResultData, {MatchResult} from './output/MatchResult'
-import TestResultsData, {TestResults} from './output/TestResults'
-import EyesRunner, {RunnerConfig, ClassicRunner} from './Runners'
+import {CheckSettings, CheckSettingsFluent} from './input/CheckSettings'
+import {ProxySettings, ProxySettingsData} from './input/ProxySettings'
+import {Configuration, OpenConfiguration, ConfigurationData} from './input/Configuration'
+import {BatchInfo, BatchInfoData} from './input/BatchInfo'
+import {RectangleSize} from './input/RectangleSize'
+import {Region} from './input/Region'
+import {MatchResult, MatchResultData} from './output/MatchResult'
+import {TestResults, TestResultsData} from './output/TestResults'
+import {EyesRunner, RunnerConfig, ClassicRunner} from './Runners'
 
 /** @internal */
-export type EyesCommands<TElement = unknown, TSelector = unknown> = {
+type EyesCommands<TElement = unknown, TSelector = unknown> = {
   locate: <TLocatorName extends string>(settings: {
     locatorNames: TLocatorName[]
     firstOnly: boolean
@@ -24,39 +24,39 @@ export type EyesCommands<TElement = unknown, TSelector = unknown> = {
 }
 
 /** @internal */
-export type EyesSpec<TDriver = unknown, TElement = unknown, TSelector = unknown> = {
+type EyesSpec<TDriver = unknown, TElement = unknown, TSelector = unknown> = {
   isDriver(value: any): value is TDriver
   isElement(value: any): value is TElement
   isSelector(value: any): value is TSelector
-  makeEyes(config?: RunnerConfig): (driver: TDriver, config: Config) => EyesCommands<TElement, TSelector>
+  makeEyes(config?: RunnerConfig): (driver: TDriver, config: Configuration) => EyesCommands<TElement, TSelector>
   setViewportSize(driver: TDriver, viewportSize: RectangleSize): Promise<void>
   // closeBatch(...args: any[]): Promise<any>
 }
 
-export default abstract class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
-  protected abstract readonly _spec: EyesSpec<TDriver, TElement, TSelector>
+export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
+  protected readonly _spec: EyesSpec<TDriver, TElement, TSelector>
 
-  private _config: ConfigData
+  private _config: ConfigurationData
   private _runner: EyesRunner
   private _driver: TDriver
   private _commands: EyesCommands<TElement, TSelector>
 
-  static async setViewportSize<TDriver>(driver: TDriver, viewportSize: RectangleSizeData | RectangleSize) {
+  static async setViewportSize<TDriver>(driver: TDriver, viewportSize: RectangleSize) {
     await this.prototype._spec.setViewportSize(driver, viewportSize)
   }
 
-  constructor(runner?: EyesRunner, config?: Config | ConfigData)
-  constructor(config: Config | ConfigData, runner?: EyesRunner)
-  constructor(runnerOrConfig?: EyesRunner | Config | ConfigData, configOrRunner?: Config | ConfigData | EyesRunner) {
+  constructor(runner?: EyesRunner, config?: Configuration)
+  constructor(config?: Configuration, runner?: EyesRunner)
+  constructor(runnerOrConfig?: EyesRunner | Configuration, configOrRunner?: Configuration | EyesRunner) {
     if (utils.types.instanceOf(runnerOrConfig, EyesRunner)) {
       this._runner = runnerOrConfig
-      this._config = new ConfigData(configOrRunner as Config | ConfigData)
+      this._config = new ConfigurationData(configOrRunner as Configuration)
     } else if (utils.types.instanceOf(configOrRunner, EyesRunner)) {
       this._runner = configOrRunner
-      this._config = new ConfigData(runnerOrConfig as Config | ConfigData)
+      this._config = new ConfigurationData(runnerOrConfig as Configuration)
     } else {
       this._runner = new ClassicRunner()
-      this._config = new ConfigData()
+      this._config = new ConfigurationData(runnerOrConfig as Configuration)
     }
     this._runner.attach(this, config => this._spec.makeEyes(config))
   }
@@ -75,20 +75,20 @@ export default abstract class Eyes<TDriver = unknown, TElement = unknown, TSelec
     return this._driver
   }
 
-  get config(): Config {
+  get config(): Configuration {
     return this._config
   }
-  set config(config: Config) {
-    this._config = new ConfigData(config)
+  set config(config: Configuration) {
+    this._config = new ConfigurationData(config)
   }
-  getConfig(): ConfigData {
+  getConfig(): ConfigurationData {
     return this._config
   }
-  setConfig(config: Config | ConfigData) {
-    this._config = new ConfigData(config)
+  setConfig(config: Configuration) {
+    this._config = new ConfigurationData(config)
   }
 
-  async open(driver: TDriver, config?: OpenConfig | ConfigData): Promise<TDriver>
+  async open(driver: TDriver, config?: OpenConfiguration): Promise<TDriver>
   async open(
     driver: TDriver,
     appName?: string,
@@ -98,13 +98,13 @@ export default abstract class Eyes<TDriver = unknown, TElement = unknown, TSelec
   ): Promise<TDriver>
   async open(
     driver: TDriver,
-    configOrAppName?: OpenConfig | ConfigData | string,
+    configOrAppName?: OpenConfiguration | string,
     testName?: string,
     viewportSize?: RectangleSize,
     sessionType?: SessionType,
   ): Promise<TDriver> {
     const config = {...this._config.general, ...this._config.open}
-    if (utils.types.instanceOf(configOrAppName, ConfigData)) {
+    if (utils.types.instanceOf(configOrAppName, ConfigurationData)) {
       Object.assign(config, configOrAppName.open)
     } else if (utils.types.isObject(configOrAppName)) {
       Object.assign(config, configOrAppName)
@@ -254,9 +254,9 @@ export default abstract class Eyes<TDriver = unknown, TElement = unknown, TSelec
   getBatch(): BatchInfoData {
     return this._config.getBatch()
   }
-  setBatch(batch: BatchInfo | BatchInfoData): void
+  setBatch(batch: BatchInfo): void
   setBatch(name: string, id?: string, startedAt?: Date | string): void
-  setBatch(batchOrName: BatchInfo | BatchInfoData | string, id?: string, startedAt?: Date | string) {
+  setBatch(batchOrName: BatchInfo | string, id?: string, startedAt?: Date | string) {
     if (utils.types.isString(batchOrName)) {
       this._config.setBatch({name: batchOrName, id, startedAt: new Date(startedAt)})
     } else {
@@ -385,11 +385,11 @@ export default abstract class Eyes<TDriver = unknown, TElement = unknown, TSelec
     this._config.setParentBranchName(parentBranchName)
   }
 
-  setProxy(proxy: ProxySettings | ProxySettingsData): void
+  setProxy(proxy: ProxySettings): void
   setProxy(isDisabled: true): void
   setProxy(url: string, username?: string, password?: string, isHttpOnly?: boolean): void
   setProxy(
-    proxyOrUrlOrIsDisabled: ProxySettings | ProxySettingsData | string | true,
+    proxyOrUrlOrIsDisabled: ProxySettings | string | true,
     username?: string,
     password?: string,
     isHttpOnly?: boolean,

@@ -1,5 +1,5 @@
 import EyesError from './EyesError'
-import TestResultsData, {TestResults} from '../output/TestResults'
+import {TestResults, TestResultsData} from '../output/TestResults'
 
 export default class TestFailedError extends EyesError {
   private _testResults: TestResultsData

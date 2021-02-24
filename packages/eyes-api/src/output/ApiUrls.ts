@@ -8,7 +8,7 @@ export type ApiUrls = {
   diffImage?: string
 }
 
-export default class ApiUrlsData implements Required<ApiUrls> {
+export class ApiUrlsData implements Required<ApiUrls> {
   private _baselineImage: string
   private _currentImage: string
   private _checkpointImage: string

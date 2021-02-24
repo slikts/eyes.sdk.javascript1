@@ -1,19 +1,19 @@
 import * as utils from '@applitools/utils'
 
-export type CustomProperty = {
+export type PropertyData = {
   name: string
   value: string
 }
 
-export default class CustomPropertyData implements Required<CustomProperty> {
+export class PropertyDataData implements Required<PropertyData> {
   private _name: string
   private _value: string
 
-  constructor(prop: CustomProperty)
+  constructor(prop: PropertyData)
   constructor(name: string, value: string)
-  constructor(propOrName: CustomProperty | string, value?: string) {
+  constructor(propOrName: PropertyData | string, value?: string) {
     if (utils.types.isString(propOrName)) {
-      return new CustomPropertyData({name: propOrName, value})
+      return new PropertyDataData({name: propOrName, value})
     }
     const prop = propOrName
     utils.guard.isString(prop.name, {name: 'prop.name'})

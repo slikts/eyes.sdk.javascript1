@@ -5,15 +5,15 @@ import MatchLevel from '../enums/MatchLevel'
 import BrowserName from '../enums/BrowserName'
 import DeviceName from '../enums/DeviceName'
 import ScreenOrientation from '../enums/ScreenOrientation'
-import RectangleSizeData, {RectangleSize} from './RectangleSize'
-import ProxySettingsData, {ProxySettings} from './ProxySettings'
-import BatchInfoData, {BatchInfo} from './BatchInfo'
-import CustomPropertyData, {CustomProperty} from './CustomProperty'
-import ImageMatchSettingsData, {ImageMatchSettings} from './ImageMatchSettings'
 import {AccessibilitySettings} from './AccessibilitySettings'
 import {RenderInfo} from './RenderInfo'
+import {RectangleSize, RectangleSizeData} from './RectangleSize'
+import {ProxySettings, ProxySettingsData} from './ProxySettings'
+import {BatchInfo, BatchInfoData} from './BatchInfo'
+import {PropertyData, PropertyDataData} from './PropertyData'
+import {ImageMatchSettings, ImageMatchSettingsData} from './ImageMatchSettings'
 
-export type GeneralConfig = {
+export type GeneralConfiguration = {
   showLogs?: boolean
   agentId?: string
   apiKey?: string
@@ -24,13 +24,13 @@ export type GeneralConfig = {
   isDisabled?: boolean
 }
 
-export type OpenConfig = {
+export type OpenConfiguration = {
   appName?: string
   testName?: string
   displayName?: string
   viewportSize?: RectangleSize
   sessionType?: SessionType
-  properties?: CustomProperty[]
+  properties?: PropertyData[]
   batch?: BatchInfo
   defaultMatchSettings?: ImageMatchSettings
   hostApp?: string
@@ -51,13 +51,13 @@ export type OpenConfig = {
   dontCloseBatches?: boolean
 }
 
-export type CheckConfig = {
+export type CheckConfiguration = {
   sendDom?: boolean
   matchTimeout?: number
   forceFullPageScreenshot?: boolean
 }
 
-export type ClassicConfig = {
+export type ClassicConfiguration = {
   waitBeforeScreenshots?: number
   stitchMode?: StitchMode
   hideScrollbars?: boolean
@@ -65,7 +65,7 @@ export type ClassicConfig = {
   stitchOverlap?: number
 }
 
-export type VGConfig = {
+export type VGConfiguration = {
   concurrentSessions?: number
   browsersInfo?: RenderInfo[]
   visualGridOptions?: Record<string, any>
@@ -73,9 +73,13 @@ export type VGConfig = {
   disableBrowserFetching?: boolean
 }
 
-export type Config = GeneralConfig & OpenConfig & CheckConfig & ClassicConfig & VGConfig
+export type Configuration = GeneralConfiguration &
+  OpenConfiguration &
+  CheckConfiguration &
+  ClassicConfiguration &
+  VGConfiguration
 
-export default class ConfigData implements Required<Config> {
+export class ConfigurationData implements Required<Configuration> {
   private _showLogs: boolean
   private _appName: string
   private _testName: string
@@ -91,7 +95,7 @@ export default class ConfigData implements Required<Config> {
   private _connectionTimeout: number
   private _removeSession: boolean
   private _batch: BatchInfoData
-  private _properties: CustomPropertyData[]
+  private _properties: PropertyDataData[]
   private _baselineEnvName: string
   private _environmentName: string
   private _branchName: string
@@ -122,7 +126,7 @@ export default class ConfigData implements Required<Config> {
   private _disableBrowserFetching: boolean
   private _dontCloseBatches: boolean
 
-  constructor(config?: Config) {
+  constructor(config?: Configuration) {
     if (!config) return this
     const self = this as any
     for (const [key, value] of Object.entries(config)) {
@@ -132,7 +136,7 @@ export default class ConfigData implements Required<Config> {
     }
   }
 
-  get general(): GeneralConfig {
+  get general(): GeneralConfiguration {
     return utils.general.toJSON(this, [
       'showLogs',
       'agentId',
@@ -145,7 +149,7 @@ export default class ConfigData implements Required<Config> {
     ])
   }
 
-  get open(): OpenConfig {
+  get open(): OpenConfiguration {
     return utils.general.toJSON(this, [
       'appName',
       'testName',
@@ -174,11 +178,11 @@ export default class ConfigData implements Required<Config> {
     ])
   }
 
-  get check(): CheckConfig {
+  get check(): CheckConfiguration {
     return utils.general.toJSON(this, ['sendDom', 'matchTimeout', 'forceFullPageScreenshot'])
   }
 
-  get classic(): ClassicConfig {
+  get classic(): ClassicConfiguration {
     return utils.general.toJSON(this, [
       'waitBeforeScreenshots',
       'stitchMode',
@@ -188,7 +192,7 @@ export default class ConfigData implements Required<Config> {
     ])
   }
 
-  get vg(): VGConfig {
+  get vg(): VGConfiguration {
     return utils.general.toJSON(this, [
       'concurrentSessions',
       'browsersInfo',
@@ -309,10 +313,10 @@ export default class ConfigData implements Required<Config> {
     if (!viewportSize) this._viewportSize = undefined
     this._viewportSize = new RectangleSizeData(viewportSize)
   }
-  getViewportSize(): RectangleSize {
+  getViewportSize(): RectangleSizeData {
     return this._viewportSize
   }
-  setViewportSize(viewportSize: RectangleSize | RectangleSizeData): this {
+  setViewportSize(viewportSize: RectangleSize): this {
     this.viewportSize = viewportSize
     return this
   }
@@ -372,7 +376,7 @@ export default class ConfigData implements Required<Config> {
   getProxy(): ProxySettingsData {
     return this._proxy
   }
-  setProxy(proxy: ProxySettings | ProxySettingsData): this
+  setProxy(proxy: ProxySettings): this
   setProxy(isDisabled: true): this
   setProxy(url: string, username?: string, password?: string, isHttpOnly?: boolean): this
   setProxy(
@@ -431,31 +435,31 @@ export default class ConfigData implements Required<Config> {
   getBatch(): BatchInfoData {
     return this._batch
   }
-  setBatch(batch: BatchInfo | BatchInfoData): this {
+  setBatch(batch: BatchInfo): this {
     this.batch = batch
     return this
   }
 
-  get properties(): CustomProperty[] {
+  get properties(): PropertyData[] {
     return this._properties
   }
-  set properties(properties: CustomProperty[]) {
+  set properties(properties: PropertyData[]) {
     utils.guard.isArray(properties, {name: 'properties'})
-    this._properties = properties.map(prop => new CustomPropertyData(prop))
+    this._properties = properties.map(prop => new PropertyDataData(prop))
   }
-  getProperties(): CustomPropertyData[] {
+  getProperties(): PropertyDataData[] {
     return this._properties
   }
-  setProperties(properties: CustomProperty[] | CustomPropertyData[]): this {
+  setProperties(properties: PropertyData[]): this {
     this.properties = properties
     return this
   }
   addProperty(name: string, value: string): this
-  addProperty(prop: CustomProperty | CustomPropertyData): this
-  addProperty(propOrName: CustomProperty | CustomPropertyData | string, value?: string): this {
+  addProperty(prop: PropertyData): this
+  addProperty(propOrName: PropertyData | string, value?: string): this {
     const prop = utils.types.isString(propOrName)
-      ? new CustomPropertyData({name: propOrName, value})
-      : new CustomPropertyData(propOrName)
+      ? new PropertyDataData({name: propOrName, value})
+      : new PropertyDataData(propOrName)
     this._properties.push(prop)
     return this
   }
@@ -705,7 +709,7 @@ export default class ConfigData implements Required<Config> {
   getDefaultMatchSettings(): ImageMatchSettings {
     return this._defaultMatchSettings
   }
-  setDefaultMatchSettings(defaultMatchSettings: ImageMatchSettings | ImageMatchSettingsData): this {
+  setDefaultMatchSettings(defaultMatchSettings: ImageMatchSettings): this {
     this.defaultMatchSettings = defaultMatchSettings
     return this
   }
@@ -965,7 +969,7 @@ export default class ConfigData implements Required<Config> {
     return this
   }
 
-  toJSON(): Config {
+  toJSON(): Configuration {
     return utils.general.toJSON(this, [
       'showLogs',
       'appName',

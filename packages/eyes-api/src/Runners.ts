@@ -1,5 +1,5 @@
 import * as utils from '@applitools/utils'
-import Eyes from './Eyes'
+import {Eyes} from './Eyes'
 import {RunnerOptions, RunnerOptionsFluent} from './input/RunnerOptions'
 
 export type RunnerConfig<TType extends 'vg' | 'classic' = 'vg' | 'classic'> = {
@@ -8,7 +8,7 @@ export type RunnerConfig<TType extends 'vg' | 'classic' = 'vg' | 'classic'> = {
   legacy?: TType extends 'vg' ? boolean : never
 }
 
-export default abstract class EyesRunner {
+export abstract class EyesRunner {
   private _make: (config: RunnerConfig) => (...args: any[]) => unknown
   private _open: (...args: any[]) => unknown
   private _eyes: Eyes[] = []

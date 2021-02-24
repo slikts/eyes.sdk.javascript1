@@ -5,7 +5,7 @@ export type SessionUrls = {
   session?: string
 }
 
-export default class SessionUrlsData implements Required<SessionUrls> {
+export class SessionUrlsData implements Required<SessionUrls> {
   private _batch: string
   private _session: string
 

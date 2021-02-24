@@ -7,7 +7,7 @@ export type RenderingInfo = {
   stitchingServiceUrl: string
 }
 
-export default class RenderingInfoData {
+export class RenderingInfoData {
   private _accessToken: string
   private _serviceUrl: string
   private _resultsUrl: string

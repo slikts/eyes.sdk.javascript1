@@ -9,5 +9,3 @@ export default makeSDK({
   spec,
   VisualGridClient,
 })
-
-

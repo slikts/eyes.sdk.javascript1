@@ -1,9 +1,9 @@
 import * as utils from '@applitools/utils'
 import AccessibilityRegionType from '../enums/AccessibilityRegionType'
 import MatchLevel from '../enums/MatchLevel'
-import RegionData, {Region} from './Region'
+import {Region} from './Region'
 
-type RegionReference<TElement, TSelector> = Region | RegionData | ElementReference<TElement, TSelector>
+type RegionReference<TElement, TSelector> = Region | ElementReference<TElement, TSelector>
 
 type ElementReference<TElement, TSelector> = TElement | TSelector
 
@@ -27,7 +27,7 @@ type AccessibilityRegionReference<TElement, TSelector> = {
   type?: AccessibilityRegionType
 }
 
-export type CheckSettingsSpec<TElement, TSelector> = {
+type CheckSettingsSpec<TElement, TSelector> = {
   isElement(value: any): value is TElement
   isSelector(value: any): value is TSelector
 }
@@ -58,34 +58,31 @@ export type CheckSettings<TElement, TSelector> = {
   timeout?: number
 }
 
-export type Target<TElement, TSelector> = {
-  window(): CheckSettingsFluent<TElement, TSelector>
-  frame(context: ContextReference<TElement, TSelector>): CheckSettingsFluent<TElement, TSelector>
+export type Target<TElement, TSelector, TCheckSettings extends CheckSettingsFluent<TElement, TSelector>> = {
+  window(): TCheckSettings
+  region(region: RegionReference<TElement, TSelector>): TCheckSettings
+  frame(context: ContextReference<TElement, TSelector>): TCheckSettings
   frame(
     frame: FrameReference<TElement, TSelector>,
     scrollRootElement?: ElementReference<TElement, TSelector>,
-  ): CheckSettingsFluent<TElement, TSelector>
-  region(region: RegionReference<TElement, TSelector>): CheckSettingsFluent<TElement, TSelector>
+  ): TCheckSettings
 }
 
-export default abstract class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
+export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
   /** @internal */
-  static make<TElement, TSelector>(spec: CheckSettingsSpec<TElement, TSelector>): Target<TElement, TSelector> {
-    return class extends CheckSettingsFluent<TElement, TSelector> {
-      protected readonly _spec = spec
-      static window() {
-        return new this()
-      }
-      static frame(contextOrFrame: any, scrollRootElement?: any) {
-        return new this().frame(contextOrFrame, scrollRootElement)
-      }
-      static region(region: any) {
-        return new this().region(region)
-      }
-    }
+  static window(): CheckSettingsFluent {
+    return new this()
+  }
+  /** @internal */
+  static region(region: unknown): CheckSettingsFluent {
+    return new this().region(region)
+  }
+  /** @internal */
+  static frame(contextOrFrame: unknown, scrollRootElement?: unknown): CheckSettingsFluent {
+    return new this().frame(contextOrFrame, scrollRootElement)
   }
 
-  protected abstract readonly _spec: CheckSettingsSpec<TElement, TSelector>
+  protected readonly _spec: CheckSettingsSpec<TElement, TSelector>
 
   private _settings: CheckSettings<TElement, TSelector> = {}
 

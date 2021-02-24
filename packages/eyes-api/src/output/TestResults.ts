@@ -3,9 +3,9 @@ import TestResultsStatus from '../enums/TestResultsStatus'
 import AccessibilityLevel from '../enums/AccessibilityLevel'
 import AccessibilityGuidelinesVersion from '../enums/AccessibilityGuidelinesVersion'
 import AccessibilityStatus from '../enums/AccessibilityStatus'
-import RectangleSizeData, {RectangleSize} from '../input/RectangleSize'
-import SessionUrlsData, {SessionUrls} from './SessionUrls'
-import StepInfoData, {StepInfo} from './StepInfo'
+import {RectangleSize, RectangleSizeData} from '../input/RectangleSize'
+import {SessionUrls, SessionUrlsData} from './SessionUrls'
+import {StepInfo, StepInfoData} from './StepInfo'
 
 export type TestAccessibilityStatus = {
   level: AccessibilityLevel
@@ -46,7 +46,7 @@ export type TestResults = {
   url?: string
 }
 
-export default class TestResultsData implements Required<TestResults> {
+export class TestResultsData implements Required<TestResults> {
   private _id: string
   private _name: string
   private _secretToken: string
@@ -227,7 +227,7 @@ export default class TestResultsData implements Required<TestResults> {
   getHostDisplaySize(): RectangleSizeData {
     return this._hostDisplaySize
   }
-  setHostDisplaySize(hostDisplaySize: RectangleSize | RectangleSizeData) {
+  setHostDisplaySize(hostDisplaySize: RectangleSize) {
     this.hostDisplaySize = hostDisplaySize
   }
 
@@ -318,7 +318,7 @@ export default class TestResultsData implements Required<TestResults> {
   getAppUrls(): SessionUrlsData {
     return this._appUrls
   }
-  setAppUrls(appUrls: SessionUrls | SessionUrlsData) {
+  setAppUrls(appUrls: SessionUrls) {
     this.appUrls = appUrls
   }
 
@@ -331,7 +331,7 @@ export default class TestResultsData implements Required<TestResults> {
   getApiUrls(): SessionUrlsData {
     return this._apiUrls
   }
-  setApiUrls(apiUrls: SessionUrls | SessionUrlsData) {
+  setApiUrls(apiUrls: SessionUrls) {
     this.apiUrls = apiUrls
   }
 
@@ -344,7 +344,7 @@ export default class TestResultsData implements Required<TestResults> {
   getStepsInfo(): StepInfoData[] {
     return this._stepsInfo
   }
-  setStepsInfo(stepInfo: StepInfo[] | StepInfoData[]) {
+  setStepsInfo(stepInfo: StepInfo[]) {
     this.stepsInfo = stepInfo
   }
 
