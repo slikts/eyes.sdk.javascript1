@@ -19,8 +19,13 @@ function override(target, method, name) {
 }
 
 function fakeCypress(modulePath, calls = {}) {
-  const stub = {called: false, callCount: 0, args: []};
-  this.state = {viewport: {...stub}, fetch: {...stub}};
+  function setFake(name, args) {
+    this.state[name].called = true;
+    this.state[name].args = args;
+    this.state[name].callCount++;
+  }
+  const fake = {called: false, callCount: 0, args: []};
+  this.state = {viewport: {...fake}, fetch: {...fake}};
   this.Cypress = {
     Commands: {add: (name, func) => (calls[name] = func)},
     config: () => {},
@@ -29,18 +34,14 @@ function fakeCypress(modulePath, calls = {}) {
   };
   this.cy = {
     viewport: (...args) => {
-      this.state.viewport.called = true;
-      this.state.viewport.args = args;
-      this.state.viewport.callCount++;
+      setFake('viewport', args);
       return {then: (_args, cb) => (this.state.viewport.cb = cb)};
     },
   };
 
   this.window = {
     fetch: (...args) => {
-      this.state.fetch.called = true;
-      this.state.fetch.callCount++;
-      this.state.fetch.args = args;
+      setFake('fetch', args);
       return {
         then: () => ({
           json: () => {},
