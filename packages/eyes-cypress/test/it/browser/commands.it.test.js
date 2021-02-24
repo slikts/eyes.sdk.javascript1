@@ -19,6 +19,8 @@ function override(target, method, name) {
 }
 
 function fakeCypress(modulePath, calls = {}) {
+  const stub = {called: false, callCount: 0, args: []};
+  this.state = {viewport: {...stub}, fetch: {...stub}};
   this.Cypress = {
     Commands: {add: (name, func) => (calls[name] = func)},
     config: () => {},
@@ -26,19 +28,30 @@ function fakeCypress(modulePath, calls = {}) {
     config: () => {},
   };
   this.cy = {
-    _viewport: {called: false, callCount: 0},
-    async viewport(...args) {
-      this._viewport.called = true;
-      this._viewport.args = args;
-      this._viewport.callCount++;
-      return Promise.resolve(...args);
+    viewport: (...args) => {
+      this.state.viewport.called = true;
+      this.state.viewport.args = args;
+      this.state.viewport.callCount++;
+      return {then: (_args, cb) => (this.state.viewport.cb = cb)};
     },
   };
 
-  this.window = {};
+  this.window = {
+    fetch: (...args) => {
+      this.state.fetch.called = true;
+      this.state.fetch.callCount++;
+      this.state.fetch.args = args;
+      return {
+        then: () => ({
+          json: () => {},
+          then: () => 'fake',
+        }),
+      };
+    },
+  };
+
   this.navigator = {};
   override(this.navigator, 'get', 'userAgent');
-  override(this.window, 'get', 'fetch');
 
   delete require.cache[require.resolve(modulePath)];
   require(modulePath);
@@ -63,8 +76,19 @@ describe('commands', () => {
 
     it('should call handleViewport with correct viewport', async () => {
       eyesOpen.call(self, {browser});
-      expect(context.cy._viewport.called).to.be.true;
-      expect(context.cy._viewport.args).to.deep.equal([800, 600]);
+      expect(context.state.viewport.called).to.be.true;
+      expect(context.state.viewport.args).to.deep.equal([800, 600]);
+    });
+
+    it('should validate args to sendRequest', async () => {
+      eyesOpen.call(self, {browser});
+      context.state.viewport.cb();
+      expect(context.state.fetch.called).to.be.true;
+      expect(JSON.parse(context.state.fetch.args[1].body)).to.deep.equal({
+        testName: 'test',
+        browser: {width: 800, height: 600, name: 'chrome'},
+        userAgent: 'fake_userAgent',
+      });
     });
 
     it('should access userAgent on global navigator', async () => {
@@ -73,10 +97,12 @@ describe('commands', () => {
       expect(context.navigator.accessCount).to.equal(1);
     });
 
-    it('should access fetch on global window', async () => {
+    it('should call fetch on global window', async () => {
       eyesOpen.call(self, {browser});
-      expect(context.window.accessed).to.be.true;
-      expect(context.window.accessCount).to.equal(1);
+      context.state.viewport.cb();
+      expect(context.state.fetch.called).to.be.true;
+      expect(context.state.fetch.called).to.be.true;
+      expect(context.state.fetch.callCount).to.equal(1);
     });
   });
 });
