@@ -248,7 +248,7 @@ test('eyes failTestcafeOnDiff true', async t => {
 })
 // THIS
 // eslint-disable-next-line
-test.only('should load applitools.config.js', async t => {
+test('should load applitools.config.js', async t => {
   const configPath = path.join(__dirname, 'applitools.config.js')
   const eyes = new Eyes({configPath})
   await t.resizeWindow(2000, 1000)
