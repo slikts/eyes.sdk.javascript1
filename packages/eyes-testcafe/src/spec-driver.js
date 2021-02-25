@@ -315,7 +315,7 @@ async function getWindowRect(driver) {
   console.log(`getWindowRect rect: ${JSON.stringify(rect)}`)
   // ensure there is a width and height
   if (rect && rect.width && rect.height) {
-    await setWindowRect(driver, rect)
+    //await setWindowRect(driver, rect)
     return rect
   } else {
     const defaultRect = {width: 800, height: 600}
@@ -329,13 +329,7 @@ async function setWindowRect(driver, {_x, _y, width, height} = {}) {
   console.log(`setWindowRect rect: ${JSON.stringify(arguments[1])}`)
   if (width && height) {
     await driver.resizeWindow(width, height)
-    await executeScript(
-      driver,
-      `if (!window.outerWidth && !window.outerHeight) {
-    window.outerWidth = ${width}
-    window.outerHeight = ${height}
-  }`,
-    )
+    await executeScript(driver, `window.outerWidth = ${width}; window.outerHeight = ${height}`)
   }
 }
 async function getDriverInfo(_driver) {
