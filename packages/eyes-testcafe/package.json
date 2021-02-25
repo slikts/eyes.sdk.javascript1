@@ -54,8 +54,7 @@
   "dependencies": {
     "@applitools/eyes-sdk-core": "file:../eyes-sdk-core",
     "@applitools/visual-grid-client": "15.5.20",
-    "rimraf": "3.0.2",
-    "testcafe-browser-tools": "^2.0.14"
+    "rimraf": "3.0.2"
   },
   "peerDependencies": {
     "testcafe": "^1.7.1"

@@ -269,6 +269,23 @@ test('getElementRect (DOM Node snapshot)', async driver => {
   assert.ok(Number.isInteger(Math.floor(rect.width)))
   assert.ok(Number.isInteger(Math.floor(rect.height)))
 })
+test('getWindowRect', async driver => {
+  const rect = await spec.getWindowRect(driver)
+  assert.ok(Number.isInteger(rect.width))
+  assert.ok(Number.isInteger(rect.height))
+})
+test('getWindowRect after resize', async driver => {
+  await driver.resizeWindow(2000, 1000)
+  const rect = await spec.getWindowRect(driver)
+  assert.deepStrictEqual(rect.width, 2000)
+  assert.deepStrictEqual(rect.height, 1000)
+})
+test('setWindowRect (width, height)', async driver => {
+  const expectedRect = {x: 0, y: 0, width: 500, height: 500}
+  await spec.setWindowRect(driver, expectedRect)
+  const actualRect = await spec.getWindowRect(driver)
+  assert.deepStrictEqual(actualRect, expectedRect)
+})
 test('Eyes integration', async driver => {
   const eyes = new Eyes()
   assert.doesNotThrow(async () => {
