@@ -3,6 +3,7 @@ const {ClientFunction, Selector} = require('testcafe')
 const path = require('path')
 const fs = require('fs')
 const rmrf = require('rimraf')
+const browserTools = require('testcafe-browser-tools')
 
 // helpers
 //
@@ -134,9 +135,6 @@ async function transformSelector({driver, selector}) {
     return Selector(selector.selector, {boundTestRun: driver})
   }
   return Selector(selector, {boundTestRun: driver})
-}
-async function setOuterWindowProperties(driver, {width, height} = {}) {
-  await executeScript(driver, `window.outerWidth = ${width}; window.outerHeight = ${height}`)
 }
 //
 // end helpers
@@ -308,45 +306,12 @@ async function type(driver, element, keys) {
 async function waitUntilDisplayed(_driver, element, timeout) {
   await element.with({visibilityCheck: true, timeout})
 }
-async function getWindowRect(driver) {
-  const rect = await executeScript(
+async function setViewportSize(driver, size = {}) {
+  const {windowDescriptor, currentWidth, currentHeight} = await executeScript(
     driver,
-    `return {
-      window: {
-        x: screenX,
-        y: screenY,
-        width: window.outerWidth,
-        height: window.outerHeight
-      },
-      viewport: {
-        x: screenX,
-        y: screenY,
-        width: window.innerWidth,
-        height: window.innerHeight
-      }
-    }`,
+    'return {windowDescriptor: document.title, currentWidth: window.innerWidth, currentHeight: window.innerHeight}',
   )
-  console.log(`getWindowRect rect: ${JSON.stringify(rect)}`)
-  if (rect.viewport.width > rect.window.width) {
-    await setOuterWindowProperties(driver, {
-      width: rect.viewport.width,
-      height: rect.viewport.height,
-    })
-    return rect.viewport
-  } else if (rect.window.width && rect.window.height) {
-    return rect.window
-  } else {
-    const defaultRect = {width: 800, height: 600}
-    await setWindowRect(driver, defaultRect)
-    return await getWindowRect(driver)
-  }
-}
-async function setWindowRect(driver, {width, height} = {}) {
-  console.log(`setWindowRect rect: ${JSON.stringify(arguments[1])}`)
-  if (width && height) {
-    await driver.resizeWindow(width, height)
-    await setOuterWindowProperties(driver, {width, height})
-  }
+  await browserTools.resize(windowDescriptor, currentWidth, currentHeight, size.width, size.height)
 }
 async function getDriverInfo(_driver) {
   return {}
@@ -374,8 +339,7 @@ exports.takeScreenshot = takeScreenshot
 exports.click = click
 exports.type = type
 exports.waitUntilDisplayed = waitUntilDisplayed
-exports.getWindowRect = getWindowRect
-exports.setWindowRect = setWindowRect
+exports.setViewportSize = setViewportSize
 exports.hover = hover
 // no-op for coverage-tests
 exports.build = () => {
