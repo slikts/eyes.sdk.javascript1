@@ -308,45 +308,58 @@ async function type(driver, element, keys) {
 async function waitUntilDisplayed(_driver, element, timeout) {
   await element.with({visibilityCheck: true, timeout})
 }
+// NOTE:
+// TestCafe doesn't offer a way to get the window size and relying on
+// window.outerWidth & window.outerHeight is not reliable since these
+// values don't get updated when resizing the window, and there are cases
+// where it's not populated (e.g., headless Chrome on Mac). And using a
+// third-party library like testcafe-browser-tools isn't sufficient either
+// since the native binary for linux runs into issues out-of-the-box when
+// running in Github Actions.
+//
+// As a result, we opt for a less efficient implementation in getWindowRect
+// but it is based on one fact which seems to hold true -- window.innerHeight
+// and window.innerWidth are a trustworthy source of truth. From this starting
+// point we're able to construct an understanding of the browser window and
+// calculate the window size - removing the dependency on window.outerHeight
+// and window.outerWidth.
+//
+// So the order goes:
+// - get the current viewport size
+// - set the window size to a known value
+// - get the viewport size again
+// - find the difference between them
+// - resize the window back by (using the anchor viewport size + the diff)
+// - TODO: add verification at the end, and potential compensation/retry for legacy browsers
 async function getWindowRect(driver) {
-  const rect = await executeScript(
+  const initialViewportSize = await executeScript(
     driver,
     `return {
-      window: {
-        x: screenX,
-        y: screenY,
-        width: window.outerWidth,
-        height: window.outerHeight
-      },
-      viewport: {
-        x: screenX,
-        y: screenY,
-        width: window.innerWidth,
-        height: window.innerHeight
-      }
+      width: window.innerWidth,
+      height: window.innerHeight
     }`,
   )
-  console.log(`getWindowRect rect: ${JSON.stringify(rect)}`)
-  if (rect.viewport.width > rect.window.width) {
-    await setOuterWindowProperties(driver, {
-      width: rect.viewport.width,
-      height: rect.viewport.height,
-    })
-    return rect.viewport
-  } else if (rect.window.width && rect.window.height) {
-    return rect.window
-  } else {
-    const defaultRect = {width: 800, height: 600}
-    await setWindowRect(driver, defaultRect)
-    return await getWindowRect(driver)
+  await setWindowRect(driver, {width: 600, height: 600})
+  const anchorViewportSize = await executeScript(
+    driver,
+    `return {
+      width: window.innerWidth,
+      height: window.innerHeight
+    }`,
+  )
+  const diff = {
+    width: initialViewportSize.width - anchorViewportSize.width,
+    height: initialViewportSize.height - anchorViewportSize.height,
   }
+  const windowRect = {
+    width: anchorViewportSize.width + diff.width,
+    height: anchorViewportSize.height + diff.height,
+  }
+  await setWindowRect(driver, windowRect)
+  return windowRect
 }
 async function setWindowRect(driver, {width, height} = {}) {
-  console.log(`setWindowRect rect: ${JSON.stringify(arguments[1])}`)
-  if (width && height) {
-    await driver.resizeWindow(width, height)
-    await setOuterWindowProperties(driver, {width, height})
-  }
+  await driver.resizeWindow(width, height)
 }
 async function getDriverInfo(_driver) {
   return {}

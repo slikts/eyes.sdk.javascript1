@@ -281,7 +281,7 @@ test('getWindowRect after resize', async driver => {
   assert.deepStrictEqual(rect.height, 1000)
 })
 test('setWindowRect (width, height)', async driver => {
-  const expectedRect = {x: 0, y: 0, width: 500, height: 500}
+  const expectedRect = {width: 500, height: 500}
   await spec.setWindowRect(driver, expectedRect)
   const actualRect = await spec.getWindowRect(driver)
   assert.deepStrictEqual(actualRect, expectedRect)
