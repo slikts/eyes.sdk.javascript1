@@ -135,6 +135,9 @@ async function transformSelector({driver, selector}) {
   }
   return Selector(selector, {boundTestRun: driver})
 }
+async function setOuterWindowProperties(driver, {width, height} = {}) {
+  await executeScript(driver, `window.outerWidth = ${width}; window.outerHeight = ${height}`)
+}
 //
 // end helpers
 
@@ -305,31 +308,44 @@ async function type(driver, element, keys) {
 async function waitUntilDisplayed(_driver, element, timeout) {
   await element.with({visibilityCheck: true, timeout})
 }
-// NOTE:
-// This is an interim solution until it's properly implemented in core
 async function getWindowRect(driver) {
   const rect = await executeScript(
     driver,
-    'return {x: window.screenX, y: screenY, width: window.outerWidth, height: window.outerHeight}',
+    `return {
+      window: {
+        x: screenX,
+        y: screenY,
+        width: window.outerWidth,
+        height: window.outerHeight
+      },
+      viewport: {
+        x: screenX,
+        y: screenY,
+        width: window.innerWidth,
+        height: window.innerHeight
+      }
+    }`,
   )
   console.log(`getWindowRect rect: ${JSON.stringify(rect)}`)
-  // ensure there is a width and height
-  if (rect && rect.width && rect.height) {
-    //await setWindowRect(driver, rect)
-    return rect
+  if (rect.viewport.width > rect.window.width) {
+    await setOuterWindowProperties(driver, {
+      width: rect.viewport.width,
+      height: rect.viewport.height,
+    })
+    return rect.viewport
+  } else if (rect.window.width && rect.window.height) {
+    return rect.window
   } else {
     const defaultRect = {width: 800, height: 600}
     await setWindowRect(driver, defaultRect)
     return await getWindowRect(driver)
   }
 }
-// NOTE:
-// This is an interim solution until it's properly implemented in core
-async function setWindowRect(driver, {_x, _y, width, height} = {}) {
+async function setWindowRect(driver, {width, height} = {}) {
   console.log(`setWindowRect rect: ${JSON.stringify(arguments[1])}`)
   if (width && height) {
     await driver.resizeWindow(width, height)
-    await executeScript(driver, `window.outerWidth = ${width}; window.outerHeight = ${height}`)
+    await setOuterWindowProperties(driver, {width, height})
   }
 }
 async function getDriverInfo(_driver) {
