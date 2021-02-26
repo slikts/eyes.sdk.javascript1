@@ -1695,7 +1695,7 @@ class EyesBase {
         this._renderingInfoPromise = this.getAndSaveRenderingInfo()
       }
 
-      if (!this._configuration.getIgnoreGitMergeBase)
+      if (!this._configuration.getIgnoreGitMergeBase())
         this._scmMergeBaseTimePromise = this.handleScmMergeBaseTime()
 
       await this._sessionEventHandlers.testStarted(await this.getAUTSessionId())
