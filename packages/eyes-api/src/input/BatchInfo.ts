@@ -7,7 +7,6 @@ export type BatchInfo = {
   sequenceName?: string
   notifyOnCompletion?: boolean
   isCompleted?: boolean
-  isGeneratedId?: boolean
 }
 
 export class BatchInfoData implements Required<BatchInfo> {
@@ -17,7 +16,6 @@ export class BatchInfoData implements Required<BatchInfo> {
   private _sequenceName: string
   private _notifyOnCompletion: boolean
   private _isCompleted: boolean
-  private _isGeneratedId: boolean
 
   constructor()
   constructor(batch: BatchInfo)
@@ -35,15 +33,8 @@ export class BatchInfoData implements Required<BatchInfo> {
       strict: false,
     })
     utils.guard.isBoolean(batch.isCompleted, {name: 'batch.isCompleted', strict: false})
-    utils.guard.isBoolean(batch.isGeneratedId, {name: 'batch.isGeneratedId', strict: false})
 
     this._id = id || utils.general.getEnvValue('BATCH_ID')
-    if (this._id) {
-      this._isGeneratedId = Boolean(batch.isGeneratedId)
-    } else {
-      this._isGeneratedId = true
-      this._id = utils.general.guid()
-    }
 
     this._name = batch.name || utils.general.getEnvValue('BATCH_NAME')
 
@@ -75,20 +66,6 @@ export class BatchInfoData implements Required<BatchInfo> {
   }
   setId(id: string): this {
     this.id = id
-    return this
-  }
-
-  get isGeneratedId(): boolean {
-    return this._isGeneratedId
-  }
-  set isGeneratedId(isGeneratedId: boolean) {
-    this._isGeneratedId = isGeneratedId
-  }
-  getIsGeneratedId() {
-    return this._isGeneratedId
-  }
-  setIsGeneratedId(isGeneratedId: boolean): this {
-    this.isGeneratedId = isGeneratedId
     return this
   }
 

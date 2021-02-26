@@ -30,7 +30,7 @@ export {
   ClassicConfiguration as ClassicConfigurationPlain,
   VGConfiguration as VGConfigurationPlain,
   Configuration as ConfigurationPlain,
-  ConfigurationData,
+  ConfigurationData as Configuration,
 } from './src/input/Configuration'
 export {ProxySettings as ProxySettingsPlain, ProxySettingsData as ProxySettings} from './src/input/ProxySettings'
 export {
@@ -52,7 +52,7 @@ export {
 } from './src/input/FloatingMatchSettings'
 export {BatchInfo as BatchInfoPlain, BatchInfoData as BatchInfo} from './src/input/BatchInfo'
 export {PropertyData as PropertyDataPlain, PropertyDataData as PropertyData} from './src/input/PropertyData'
-export {RenderInfo} from './src/input/RenderInfo'
+export {DesktopBrowserInfo, ChromeEmulationInfo, IOSDeviceInfo} from './src/input/RenderInfo'
 export {Location as LocationPlain, LocationData as Location} from './src/input/Location'
 export {RectangleSize as RectangleSizePlain, RectangleSizeData as RectangleSize} from './src/input/RectangleSize'
 export {Region as RegionPlain, RegionData as Region} from './src/input/Region'

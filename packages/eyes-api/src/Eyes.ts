@@ -75,16 +75,16 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     return this._driver
   }
 
-  get config(): Configuration {
+  get configuration(): Configuration {
     return this._config
   }
-  set config(config: Configuration) {
+  set configuration(config: Configuration) {
     this._config = new ConfigurationData(config)
   }
-  getConfig(): ConfigurationData {
+  getConfiguration(): ConfigurationData {
     return this._config
   }
-  setConfig(config: Configuration) {
+  setConfiguration(config: Configuration) {
     this._config = new ConfigurationData(config)
   }
 
@@ -121,27 +121,35 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     return this._driver
   }
 
+  /** @deprecated */
   async checkWindow(name?: string, timeout?: number, isFully = true) {
     return this.check({name, timeout, isFully})
   }
+  /** @deprecated */
   async checkFrame(element: TElement | TSelector | string | number, timeout?: number, name?: string) {
     return this.check({name, frames: [element], timeout, isFully: true})
   }
+  /** @deprecated */
   async checkElement(element: TElement, timeout?: number, name?: string) {
     return this.check({name, region: element, timeout, isFully: true})
   }
+  /** @deprecated */
   async checkElementBy(selector: TSelector, timeout?: number, name?: string) {
     return this.check({name, region: selector, timeout, isFully: true})
   }
+  /** @deprecated */
   async checkRegion(region?: Region, name?: string, timeout?: number) {
     return this.check({name, region, timeout})
   }
+  /** @deprecated */
   async checkRegionByElement(element: TElement, name?: string, timeout?: number) {
     return this.check({name, region: element, timeout})
   }
+  /** @deprecated */
   async checkRegionBy(selector: TSelector, name?: string, timeout?: number, isFully = false) {
     return this.check({name, region: selector, timeout, isFully})
   }
+  /** @deprecated */
   async checkRegionInFrame(
     frame: TElement | TSelector | string | number,
     selector: TSelector,

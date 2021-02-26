@@ -75,6 +75,7 @@ export class VisualGridRunner extends EyesRunner {
     return this._testConcurrency
   }
 
+  /** @deprecated */
   get legacyConcurrency() {
     return this._legacyConcurrency
   }

@@ -4,25 +4,20 @@ import IOSDeviceName from '../enums/IOSDeviceName'
 import IOSVersion from '../enums/IOSVersion'
 import ScreenOrientation from '../enums/ScreenOrientation'
 
-type DesktopBrowserInfo = {
+export type DesktopBrowserInfo = {
   name?: BrowserName
   width: number
   height: number
 }
 
-type ChromeEmulationInfo = {
-  deviceName: DeviceName
-  screenOrientation?: ScreenOrientation
-}
+export type ChromeEmulationInfo =
+  | {chromeEmulationInfo: {deviceName: DeviceName; screenOrientation?: ScreenOrientation}}
+  | {deviceName: DeviceName; screenOrientation?: ScreenOrientation}
 
-type IOSSimulationInfo = {
-  deviceName: IOSDeviceName
-  iosVersion?: IOSVersion
-  screenOrientation?: ScreenOrientation
+export type IOSDeviceInfo = {
+  iosDeviceInfo: {
+    deviceName: IOSDeviceName
+    iosVersion?: IOSVersion
+    screenOrientation?: ScreenOrientation
+  }
 }
-
-export type RenderInfo =
-  | DesktopBrowserInfo
-  | ChromeEmulationInfo
-  | {chromeEmulationInfo: ChromeEmulationInfo}
-  | {iosDeviceInfo: IOSSimulationInfo}

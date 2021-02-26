@@ -58,14 +58,14 @@ export type CheckSettings<TElement, TSelector> = {
   timeout?: number
 }
 
-export type Target<TElement, TSelector, TCheckSettings extends CheckSettingsFluent<TElement, TSelector>> = {
-  window(): TCheckSettings
-  region(region: RegionReference<TElement, TSelector>): TCheckSettings
-  frame(context: ContextReference<TElement, TSelector>): TCheckSettings
+export type Target<TElement, TSelector> = {
+  window(): CheckSettingsFluent<TElement, TSelector>
+  region(region: RegionReference<TElement, TSelector>): CheckSettingsFluent<TElement, TSelector>
+  frame(context: ContextReference<TElement, TSelector>): CheckSettingsFluent<TElement, TSelector>
   frame(
     frame: FrameReference<TElement, TSelector>,
     scrollRootElement?: ElementReference<TElement, TSelector>,
-  ): TCheckSettings
+  ): CheckSettingsFluent<TElement, TSelector>
 }
 
 export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
@@ -202,9 +202,11 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     ignoreRegions.forEach(ignoreRegion => this.ignoreRegion(ignoreRegion))
     return this
   }
+  /** @deprecated */
   ignore(ignoreRegion: RegionReference<TElement, TSelector>) {
     return this.ignoreRegion(ignoreRegion)
   }
+  /** @deprecated */
   ignores(...ignoreRegions: RegionReference<TElement, TSelector>[]): this {
     return this.ignoreRegions(...ignoreRegions)
   }
@@ -295,7 +297,9 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     }
     return this
   }
+  /** @deprecated */
   floating(region: FloatingRegionReference<TElement, TSelector>): this
+  /** @deprecated */
   floating(region: RegionReference<TElement, TSelector>): this
   floating(
     region: FloatingRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector>,
@@ -312,7 +316,9 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
       maxRightOffset,
     )
   }
+  /** @deprecated */
   floatings(...regions: (FloatingRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector>)[]): this
+  /** @deprecated */
   floatings(maxOffset: number, ...regions: RegionReference<TElement, TSelector>[]): this
   floatings(
     regionOrMaxOffset: FloatingRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector> | number,
@@ -361,7 +367,9 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     }
     return this
   }
+  /** @deprecated */
   accessibility(region: AccessibilityRegionReference<TElement, TSelector>): this
+  /** @deprecated */
   accessibility(region: RegionReference<TElement, TSelector>, type?: AccessibilityRegionType): this
   accessibility(
     region: AccessibilityRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector>,
@@ -369,9 +377,11 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
   ): this {
     return this.accessibilityRegion(region as RegionReference<TElement, TSelector>, type)
   }
+  /** @deprecated */
   accessibilities(
     ...regions: (AccessibilityRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector>)[]
   ): this
+  /** @deprecated */
   accessibilities(type: AccessibilityRegionType, ...regions: RegionReference<TElement, TSelector>[]): this
   accessibilities(
     regionOrType:
@@ -518,6 +528,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     return this
   }
 
+  /** @internal */
   toJSON(): CheckSettings<TElement, TSelector> {
     // TODO create a plain object
     return {}

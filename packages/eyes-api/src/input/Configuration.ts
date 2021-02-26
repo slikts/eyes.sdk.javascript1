@@ -6,12 +6,14 @@ import BrowserName from '../enums/BrowserName'
 import DeviceName from '../enums/DeviceName'
 import ScreenOrientation from '../enums/ScreenOrientation'
 import {AccessibilitySettings} from './AccessibilitySettings'
-import {RenderInfo} from './RenderInfo'
+import {DesktopBrowserInfo, ChromeEmulationInfo, IOSDeviceInfo} from './RenderInfo'
 import {RectangleSize, RectangleSizeData} from './RectangleSize'
 import {ProxySettings, ProxySettingsData} from './ProxySettings'
 import {BatchInfo, BatchInfoData} from './BatchInfo'
 import {PropertyData, PropertyDataData} from './PropertyData'
 import {ImageMatchSettings, ImageMatchSettingsData} from './ImageMatchSettings'
+
+type RenderInfo = DesktopBrowserInfo | ChromeEmulationInfo | IOSDeviceInfo
 
 export type GeneralConfiguration = {
   showLogs?: boolean
@@ -969,6 +971,7 @@ export class ConfigurationData implements Required<Configuration> {
     return this
   }
 
+  /** @internal */
   toJSON(): Configuration {
     return utils.general.toJSON(this, [
       'showLogs',
@@ -1019,6 +1022,7 @@ export class ConfigurationData implements Required<Configuration> {
     ])
   }
 
+  /** @internal */
   toString() {
     return utils.general.toString(this)
   }
