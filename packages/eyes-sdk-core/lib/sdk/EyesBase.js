@@ -1,4 +1,4 @@
-packages/eyes-sdk-core/lib/sdk/EyesBase.js'use strict'
+'use strict'
 
 const Logger = require('../logging/Logger')
 const EyesError = require('../errors/EyesError')
