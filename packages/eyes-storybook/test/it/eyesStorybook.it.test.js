@@ -40,7 +40,36 @@ describe('eyesStorybook', () => {
   after(async () => {
     await closeEyesServer();
   });
+  it('handles ignoreGitMergeBase', async () => {
+    const {stream} = testStream();
+    const configPath = path.resolve(
+      __dirname,
+      '../fixtures/applitools-ignore-git-merge-base.config.js',
+    );
+    const defaultConfig = {waitBeforeScreenshots: 50};
+    const config = generateConfig({argv: {conf: configPath}, defaultConfig, externalConfigParams});
+    let results = await eyesStorybook({
+      config: {
+        serverUrl,
+        storybookUrl: 'http://localhost:9001',
+        ...config,
+      },
+      logger,
+      performance,
+      timeItAsync,
+      outputStream: stream,
+    });
+    results = flatten(results.map(r => r.resultsOrErr));
+    for (const testResults of results) {
+      const sessionUrl = `${serverUrl}/api/sessions/batches/${encodeURIComponent(
+        testResults.getBatchId(),
+      )}/${encodeURIComponent(testResults.getId())}`;
 
+      const session = await fetch(sessionUrl).then(r => r.json());
+      console.log(session);
+      expect(session.startInfo.parentBranchBaselineSavedBefore).to.be.undefined;
+    }
+  });
   it('renders test storybook with fake eyes and visual grid', async () => {
     const {stream, getEvents} = testStream();
     const configPath = path.resolve(__dirname, '../fixtures/applitools.config.js');
@@ -143,6 +172,7 @@ describe('eyesStorybook', () => {
       )}/${encodeURIComponent(testResults.getId())}`;
 
       const session = await fetch(sessionUrl).then(r => r.json());
+      expect(session.startInfo.parentBranchBaselineSavedBefore).to.not.be.undefined;
       const {scenarioIdOrName} = session.startInfo;
       const [componentName, state] = scenarioIdOrName.split(':').map(s => s.trim());
       expect(session.startInfo.defaultMatchSettings.ignoreDisplacements).to.be.true;
