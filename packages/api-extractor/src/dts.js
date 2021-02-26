@@ -1,20 +1,20 @@
 const ts = require('typescript')
 const {ReflectionKind} = require('typedoc')
 
-function dts(prj, context) {
-  const exports = prj.children.reduce((exports, child) => {
+function dts({project, context, externals = []}) {
+  const exports = project.children.reduce((exports, child) => {
     if (child.kind === ReflectionKind.Class) {
-      return exports.concat(`export ${$class(child)}`)
+      return exports.concat($class(child, {exported: true}))
     } else if (child.kind === ReflectionKind.Interface) {
-      return exports.concat(`export ${$interface(child)}`)
+      return exports.concat($interface(child, {exported: true}))
     } else if (child.kind === ReflectionKind.TypeAlias) {
-      return exports.concat(`export ${$typedef(child)}`)
+      return exports.concat($typedef(child, {exported: true}))
     } else if (child.kind === ReflectionKind.Enum) {
-      return exports.concat(`export ${$enum(child)}`)
+      return exports.concat($enum(child, {exported: true}))
     } else if (child.kind === ReflectionKind.Function) {
-      return exports.concat($function(child).map(signature => `export ${signature}`).join('\n'))
+      return exports.concat($function(child, {exported: true}).join('\n'))
     } else if (child.kind === ReflectionKind.Variable) {
-      return exports.concat(`export ${$variable(child)}`)
+      return exports.concat($variable(child, {exported: true}))
     } else {
       return exports
     }
@@ -22,34 +22,49 @@ function dts(prj, context) {
 
   return exports.join('\n\n')
 
-  function $variable(node) {
-    return `const ${node.name}: ${$type(node.type)}`
+  function $variable(node, {exported} = {}) {
+    return $comment(node.comment) + (exported ? 'export ' : '') + `const ${node.name}: ${$type(node.type)}`
   }
-
-  function $enum(node) {
-    const members = node.children.map(member => `${member.name} ${member.defaultValue ? `= ${member.defaultValue}` : ''}`)
-    return `enum ${node.name} {${members.join(', ')}}`
+  function $enum(node, {exported} = {}) {
+    const members = node.children.map((member) => {
+      return `${member.name} ${member.defaultValue ? `= ${member.defaultValue}` : ''}`
+    })
+    return $comment(node.comment) + (exported ? 'export ' : '') + `enum ${node.name} {${members.join(', ')}}`
   }
-
-  function $class(node) {
-    const extendedType = node.extendedTypes ? $type(node.extendedTypes[0]) : null
+  function $class(node, {exported} = {}) {
+    const extendedType = node.extendedTypes ? $type(node.extendedTypes[0], {ext: true}) : null
     const extendsExpression = extendedType && !extendedType.unknown ? `extends ${extendedType}` : ''
-    const implementedTypes = node.implementedTypes ? node.implementedTypes.map(type => $type(type)).filter(type => !type.unknown) : []
-    const implementsExpression = implementedTypes.length > 0 ? `implements ${implementedTypes.join(', ')}` : ''
+    const implementedTypes = node.implementedTypes
+      ? node.implementedTypes.map((type) => $type(type)).filter((type) => !type.unknown)
+      : []
+    const implementsExpression = implementedTypes.length ? `implements ${implementedTypes.join(', ')}` : ''
+
+    const replacer = [extendedType, ...implementedTypes].reduce((replacer, typeReference) => {
+      if (!typeReference || typeReference.reflection) return replacer
+      const typeDeclaration = typeReference._target.declarations.find(ts.isClassDeclaration)
+      return typeDeclaration ? $replacer(typeReference, typeDeclaration, replacer) : replacer
+    }, null)
 
     const members = node.children.reduce((members, member) => {
-      if (member.kind === ReflectionKind.Constructor) return members.concat($constructor(member))
-      else if (member.kind === ReflectionKind.Property) return members.concat($property(member))
-      else if (member.kind === ReflectionKind.Accessor) return members.concat($accessor(member))
-      else if (member.kind === ReflectionKind.Method) return members.concat($method(member))
+      const parent = !member.flags.isStatic ? {_replacer: replacer} : undefined
+      if (member.kind === ReflectionKind.Constructor) return members.concat($constructor(member, parent))
+      else if (member.kind === ReflectionKind.Property) return members.concat($property(member, parent))
+      else if (member.kind === ReflectionKind.Accessor) return members.concat($accessor(member, parent))
+      else if (member.kind === ReflectionKind.Method) return members.concat($method(member, parent))
       else members
     }, [])
 
-    return `class ${node.name}${$generics(node)} ${extendsExpression} ${implementsExpression} {${members.join('\n')}}`
+    return (
+      $comment(node.comment) +
+      (exported ? 'export ' : '') +
+      `class ${node.name}${$generics(node)} ${extendsExpression} ${implementsExpression} {${members.join('\n')}}`
+    )
   }
-
-  function $interface(node) {
-    const extended = node.extendedTypes ? `extends ${node.implementedTypes.map(type).join(', ')}` : ''
+  function $interface(node, {exported} = {}) {
+    const extendedTypes = node.extendedTypes
+      ? node.extendedTypes.map((type) => $type(type, {ext: true})).filter((type) => !type.unknown)
+      : []
+    const extendsExpression = extendedTypes ? `extends ${extendedTypes.join(', ')}` : ''
 
     const members = node.children.reduce((members, member) => {
       if (member.kindString === 'Constructor') return members.concat($constructor(member))
@@ -59,198 +74,246 @@ function dts(prj, context) {
       else members
     }, [])
 
-    return `interface ${node.name}${$generics(node)} ${extended} {${members.join('\n')}}`
+    return (
+      $comment(node.comment) +
+      (exported ? 'export ' : '') +
+      `interface ${node.name}${$generics(node)} ${extendsExpression} {${members.join('\n')}}`
+    )
   }
-
-  function $typedef(node) {
-    return `type ${node.name}${$generics(node)} = ${$type(node.type)}`
+  function $typedef(node, {exported} = {}) {
+    return (
+      $comment(node.comment) +
+      (exported ? 'export ' : '') +
+      `type ${node.name}${$generics(node)} = ${$type(node.type, {ext: true})}`
+    )
   }
-
-  function $function(node) {
-    return node.signatures.map(signature => {
-      return `function ${node.name}${$generics(signature)}${$arguments(signature)}: ${$type(signature.type)}`
+  function $function(node, {exported} = {}) {
+    const signatures = $signatures(node.signatures || node.type.declaration.signatures)
+    return signatures.map((signature) => {
+      return $comment(signature.comment) + (exported ? 'export ' : '') + `function ${node.name}${signature}`
     })
   }
 
   function $constructor(node) {
-    return node.signatures.map(signature => {
+    return node.signatures.map((signature) => {
       if (signature.name === 'new __type') {
-        return `new ${$arguments(signature)}: ${$type(signature.type)}`
+        return $comment(signature.comment) + `new ${$arguments(signature)}: ${$type(signature.type)}`
       } else {
-        return `${$flags(signature)} constructor${$arguments(signature)}`
+        return $comment(signature.comment) + `${$flags(signature)} constructor${$arguments(signature)}`
       }
     })
   }
-
-  function $accessor(node) {
+  function $accessor(node, parent) {
     const signatures = []
     if (node.getSignature) {
-      signatures.push(`${$flags(node.getSignature.flags)} get ${node.name}(): ${$type(node.getSignature.type)}`)
+      const getter = node.getSignature
+      signatures.push(
+        $comment(getter.comment) + `${$flags(getter.flags)} get ${node.name}(): ${$type(getter.type, {parent})}`,
+      )
     }
     if (node.setSignature) {
-      signatures.push(`${$flags(node.setSignature.flags)} set ${node.name}${$arguments(node.setSignature)}`)
+      const setter = node.setSignature
+      signatures.push(
+        $comment(setter.comment) + `${$flags(setter.flags)} set ${node.name}${$arguments(setter, {parent})}`,
+      )
     }
     return signatures
   }
-
   function $method(node, parent) {
-    const signatures = node.signatures || node.type.declaration.signatures
-
-    function spreadType(type, parent) {
-      const parsedType = $type(type, parent)
-      return parsedType.type === 'union'
-        ? parsedType.types.reduce((types, type) => types.concat(spreadType(type, parsedType)), [])
-        : [parsedType]
-    }
-
-    return signatures
-      .reduce((signatures, signature) => {
-        if (!signature.parameters || signature.parameters.length === 0) return signatures.concat(signature)
-
-        const params = signature.parameters
-          .map(param => {
-            const paramTypes = spreadType(param.type, parent)
-
-            return paramTypes.map(type => ({...param, type}))
-          })
-          .reduce((paramsA, paramsB) => {
-            return paramsA.reduce((params, paramA) => params.concat(paramsB.map(paramB => [].concat(paramA, paramB))), [])
-          })
-          .map(params => {
-            return Array.isArray(params) ? params : [params]
-          })
-
-        return signatures.concat(params.map(parameters => ({...signature, parameters})))
-      }, [])
-      .map(signature => {
-        return `${$flags(node.flags)} ${node.name}${$generics(signature)}${$arguments(signature, parent)}: ${$type(signature.type, parent)}`
-      })
+    const signatures = $signatures(node.signatures || node.type.declaration.signatures, parent)
+    return signatures.map((signature) => {
+      return $comment(signature.comment) + `${$flags(node.flags)} ${node.name}${signature}`
+    })
   }
-
   function $property(node, parent) {
-    const type = $type(node.type, parent)
+    const type = $type(node.type, {parent})
     if (type.type === 'reflection' && type.declaration.signatures) return $method(node, parent)
-    return `${$flags(node.flags)} ${node.name}${node.flags.isOptional ? '?' : ''}: ${type}`
+    return $comment(node.comment) + `${$flags(node.flags)} ${node.name}${node.flags.isOptional ? '?' : ''}: ${type}`
   }
 
   function $flags(flags) {
-    return [
+    const modifiers = [
       flags.isPrivate ? 'private' : '',
       flags.isProtected ? 'protected' : '',
       flags.isAbstract ? 'abstract' : '',
       flags.isStatic ? 'static' : '',
       flags.isReadonly ? 'readonly' : '',
-    ].filter(flag => Boolean(flag)).join(' ')
+    ]
+    return modifiers.filter((flag) => Boolean(flag)).join(' ')
   }
-
   function $generics(node) {
     const generics = node.typeParameter || node.typeParameters
     if (!generics) return ''
 
-    const types = generics.map(param => {
-      return `${param.name} ${param.type ? `extends ${$type(param.type)}` : ''} ${param.default ? `= ${$type(param.default)}` : ''}`
+    const types = generics.map((param) => {
+      const extendedType = param.type ? $type(param.type) : null
+      const extendsExpression = extendedType && !extendedType.unknown ? `extends ${extendedType}` : ''
+      return `${param.name} ${extendsExpression} ${param.default ? `= ${$type(param.default)}` : ''}`
     })
 
     return `<${types.join(', ')}>`
   }
-
   function $arguments(node, parent) {
     if (!node.parameters) return '()'
 
-    const args = node.parameters.map(param => {
-      return `${param.flags.isRest ? '...' : ''}${param.name}${param.flags.isOptional ? '?' : ''}: ${$type(param.type, parent)}`
+    const args = node.parameters.map((param) => {
+      const paramType = $type(param.type, {parent})
+      return `${param.flags.isRest ? '...' : ''}${param.name}${param.flags.isOptional ? '?' : ''}: ${paramType}`
     })
 
     return `(${args.join(', ')})`
   }
 
-  function $type(type, parent = {}) {
-    const state = {_type: type, replacer: type.replacer || parent.replacer, toString}
+  function $comment(comment) {
+    if (!comment || comment.tags.length === 0) return ''
+    return `/**\n${comment.tags.map((tag) => ` * @${tag.tagName} ${tag.text}`).join('\n')}\n */\n`
+  }
+  function $signatures(signatures, parent) {
+    return signatures
+      .reduce((signatures, signature) => {
+        if (!signature.parameters || signature.parameters.length === 0) return signatures.concat(signature)
 
-    if (state.replacer) {
-      const replacedType = state.replacer(state._type)
-      if (replacedType) {
-        state._type = replacedType
-        state.replacer = null
-      }
+        const overloadSignatures = signature.parameters
+          .map((param) => {
+            const types = $type(param.type, {parent, reflection: param}).spread()
+            return types.map((type) => ({...param, type}))
+          })
+          .reduce((paramsA, paramsB) => {
+            return paramsA.reduce((params, paramA) => {
+              return params.concat(paramsB.map((paramB) => [].concat(paramA, paramB)))
+            }, [])
+          })
+          .map((params) => (Array.isArray(params) ? params : [params]))
+          .map((parameters) => ({...signature, parameters}))
+
+        return signatures.concat(overloadSignatures)
+      }, [])
+      .map((signature) => ({...signature, toString: () => toString(signature)}))
+
+    function toString(signature) {
+      const type = $type(signature.type, {parent, reflection: signature.parent})
+      return `${$generics(signature)}${$arguments(signature, parent)}: ${type}`
     }
-
-    if (state._type.type === 'reference' && !state._type.reflection) {
-      const {unknown, type, replacer} = convertType(state)
-      if (unknown) {
-        state.unknown = unknown
-      } else {
-        if (type) state._type = type
-        if (replacer) state.replacer = replacer
-      }
-    }
-
-    return new Proxy(state._type, {
-      get(target, key) {
-        if (key in state) return Reflect.get(state, key)
-        return Reflect.get(target, key)
-      },
+  }
+  function $type(type, {parent = {}, reflection, ext} = {}) {
+    const state = {_type: type, _replacer: parent._replacer || type._replacer, spread, toString}
+    const wrapper = new Proxy(state, {
+      get: (target, key) => Reflect.get(key in target ? target : target._type, key),
     })
 
-    function convertType(state) {
-      const target = state._type._target
-      const typeArguments = state._type.typeArguments
-      const declaration = target.declarations.find(decl => decl.kind === ts.SyntaxKind.TypeAliasDeclaration)
-      if (!declaration) return {unknown: true}
-      if (declaration.parent.path.includes('node_modules/typescript')) return {builtin: true}
-      const originalReplacer = state.replacer
-      const newReplacer =
-        declaration.typeParameters && declaration.typeParameters.length > 0
-          ? type => typeArguments.find((_, index) => type.name === declaration.typeParameters[index].name.escapedText)
-          : null
-
-      return {
-        type: context.converter.convertType(context, declaration.type),
-        replacer(type) {
-          const replacedType = newReplacer && newReplacer(type)
-          return originalReplacer ? originalReplacer(replacedType || type) : replacedType
-        },
+    if (reflection) {
+      const symbol = project.reflectionIdToSymbolMap.get(reflection.id)
+      if (symbol) {
+        wrapper._type = context.converter.convertType(context, symbol.declarations[0].type)
       }
+    }
+
+    if (wrapper.type === 'reference' && wrapper._replacer) {
+      const replacedType = wrapper._replacer(wrapper)
+      if (replacedType) {
+        wrapper._type = replacedType
+        wrapper._replacer = null
+      }
+    }
+
+    if (wrapper.type === 'reference' && !wrapper.reflection) {
+      const {unknown, type, replacer} = convert(wrapper)
+      if (unknown) wrapper.unknown = unknown
+      if (type) wrapper._type = type
+      if (replacer) wrapper._replacer = replacer
+    }
+
+    return wrapper
+
+    function convert(typeReference) {
+      if (!ext) {
+        const inheritedType = project.children.find((child) => {
+          if (child.kind === ReflectionKind.Class) {
+            return child.extendedTypes && child.extendedTypes.some((extendedType) => typeReference.equals(extendedType))
+          } else if (child.kind === ReflectionKind.TypeAlias) {
+            return typeReference.equals(child.type)
+          }
+        })
+        if (inheritedType) return {type: {type: 'unknown', name: inheritedType.name}}
+      }
+      const typeDeclaration = typeReference._target.declarations.find(ts.isTypeAliasDeclaration)
+      if (!typeDeclaration) {
+        const [declaration] = typeReference._target.declarations
+        if (declaration.parent.path) {
+          const moduleName = externals.find((name) => declaration.parent.path.includes(`node_modules/${name}`))
+          if (moduleName) return {type: {type: 'unknown', name: `import('${moduleName}').${typeReference.name}`}}
+        }
+        return {unknown: true}
+      }
+      if (typeDeclaration.parent.path.includes('node_modules/typescript')) return {builtin: true}
+      return {
+        type: context.converter.convertType(context, typeDeclaration.type),
+        replacer: typeReference.typeArguments
+          ? $replacer(typeReference, typeDeclaration, typeReference._replacer)
+          : null,
+      }
+    }
+
+    function spread(parent = wrapper) {
+      return parent.type === 'union'
+        ? parent.types.reduce((types, type) => types.concat(spread($type(type, {parent}))), [])
+        : [parent]
     }
 
     function toString() {
-      if (state._type.type === 'literal') return `${JSON.stringify(state._type.value)}`
-      if (state._type.type === 'array') return `(${$type(state._type.elementType, state)})[]`
-      if (state._type.type === 'intersection') return `(${state._type.types.map(type => $type(type, state)).join('&')})`
-      if (state._type.type === 'union') return `(${state._type.types.map(type => $type(type, state)).join('|')})`
-      if (state._type.type === 'reflection') {
+      const parent = wrapper
+      if (wrapper.type === 'literal') return `${JSON.stringify(wrapper.value)}`
+      if (wrapper.type === 'array') return `(${$type(wrapper.elementType, {parent})})[]`
+      if (wrapper.type === 'intersection') return `(${wrapper.types.map((type) => $type(type, {parent})).join('&')})`
+      if (wrapper.type === 'union') return `(${wrapper.types.map((type) => $type(type, {parent})).join('|')})`
+      if (wrapper.type === 'predicate') return `${wrapper.name} is (${$type(wrapper.targetType, {parent})})`
+      if (wrapper.type === 'reflection') {
         const parts = []
-        if (state._type.declaration.children) {
-          const members = state._type.declaration.children.reduce((members, member) => {
-            if (member.kind === ReflectionKind.Property) return members.concat($property(member, state))
-            else if (member.kind === ReflectionKind.Accessor) return members.concat($accessor(member, state))
-            else if (member.kind === ReflectionKind.Method) return members.concat($method(member, state))
-            else if (member.kind === ReflectionKind.Constructor) return members.concat($constructor(member, state))
+        if (wrapper.declaration.children) {
+          const members = wrapper.declaration.children.reduce((members, member) => {
+            if (member.kind === ReflectionKind.Property) return members.concat($property(member, parent))
+            else if (member.kind === ReflectionKind.Accessor) return members.concat($accessor(member, parent))
+            else if (member.kind === ReflectionKind.Method) return members.concat($method(member, parent))
+            else if (member.kind === ReflectionKind.Constructor) return members.concat($constructor(member, parent))
           }, [])
           parts.push(...members)
         }
-        if (state._type.declaration.signatures) {
-          const signatures = state._type.declaration.signatures.map(signature => {
-            return `${$arguments(signature, state)}: ${$type(signature.type, state)}`
-          })
-          parts.push(...signatures)
+        if (wrapper.declaration.signatures) {
+          parts.push(...$signatures(wrapper.declaration.signatures, parent))
         }
-        if (state._type.declaration.indexSignature) {
-          const signature = state._type.declaration.indexSignature
+        if (wrapper.declaration.indexSignature) {
+          const signature = wrapper.declaration.indexSignature
           parts.push(
-            `[${signature.parameters[0].name}: ${signature.parameters[0].type}]: ${$type(signature.type, state)}`,
+            `[${signature.parameters[0].name}: ${signature.parameters[0].type}]: ${$type(signature.type, {parent})}`,
           )
         }
         return `{${parts.join('; ')}}`
       }
 
-      const name = state._type.reflection ? state._type.reflection.name : state._type.name
+      const name = wrapper.reflection ? wrapper.reflection.name : wrapper.name
 
-      if (state._type.typeArguments && state._type.typeArguments.length > 0) {
-        return `${name}<${state._type.typeArguments.map(type => $type(type, state)).join(', ')}>`
+      if (wrapper.typeArguments && wrapper.typeArguments.length > 0) {
+        return `${name}<${wrapper.typeArguments.map((type) => $type(type, {parent})).join(', ')}>`
       } else {
         return name
       }
+    }
+  }
+  function $replacer(typeReference, typeDeclaration, parent) {
+    if (!typeReference.typeArguments) return null
+    replace.sequence = parent && parent.sequence ? [...parent.sequence] : []
+    replace.sequence.unshift({
+      typeArguments: typeReference.typeArguments,
+      typeParameters: typeDeclaration.typeParameters,
+    })
+
+    return replace
+
+    function replace(type) {
+      const replacedType = replace.sequence.reduce((replacedType, {typeArguments, typeParameters}) => {
+        return typeArguments.find((_, index) => type.name === typeParameters[index].name.escapedText) || replacedType
+      }, type)
+      return replacedType !== type ? replacedType : null
     }
   }
 }

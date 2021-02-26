@@ -31,7 +31,7 @@
   "dependencies": {
     "prettier": "^2.1.2",
     "typedoc": "^0.20.28",
-    "typescript": "^4.1.5",
+    "typescript": "^4.1.0",
     "yargs": "^16.2.0"
   },
   "peerDependencies": {
@@ -49,7 +49,7 @@
     "mocha": "^8.0.1"
   },
   "scripts": {
-    "lint": "eslint '**/*.ts'",
+    "lint": "eslint '**/*.js'",
     "preversion": "bongo preversion",
     "version": "bongo version",
     "postversion": "bongo postversion",

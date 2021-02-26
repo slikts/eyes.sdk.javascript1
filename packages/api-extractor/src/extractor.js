@@ -4,7 +4,7 @@ const typedoc = require('typedoc')
 const prettier = require('prettier')
 const dts = require('./dts')
 
-function build({entry, out, tsconfig}) {
+function build({entry, out, tsconfig, externals}) {
   const cwd = process.cwd()
   const td = new typedoc.Application()
   td.options.addReader(new typedoc.TSConfigReader())
@@ -20,13 +20,13 @@ function build({entry, out, tsconfig}) {
   })
 
   let context = null
-  td.converter.on(typedoc.Converter.EVENT_CREATE_PARAMETER, ctx => {
-    context = ctx
+  td.converter.on(typedoc.Converter.EVENT_CREATE_DECLARATION, (ctx) => {
+    context = ctx.withScope()
   })
 
   const project = td.convert()
 
-  const string = dts(project, context)
+  const string = dts({project, context, externals})
 
   fs.writeFileSync(
     path.resolve(cwd, out),
