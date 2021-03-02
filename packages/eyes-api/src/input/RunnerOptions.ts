@@ -13,10 +13,12 @@ export class RunnerOptionsFluent {
     return this
   }
 
+  /** @internal */
   toJSON(): RunnerOptions {
     return utils.general.toJSON(this, {testConcurrency: '_testConcurrency'})
   }
 
+  /** @internal */
   toString(): string {
     return utils.general.toString(this)
   }

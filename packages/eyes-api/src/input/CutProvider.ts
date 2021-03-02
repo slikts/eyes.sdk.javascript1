@@ -94,6 +94,7 @@ export class CutProviderData implements Required<CutProviderRegion & CutProvider
     }
   }
 
+  /** @internal */
   toJSON(): CutProvider {
     if (!utils.types.isNull(this._width)) {
       return utils.general.toJSON(this, ['width', 'height', 'x', 'y'])
@@ -102,6 +103,7 @@ export class CutProviderData implements Required<CutProviderRegion & CutProvider
     }
   }
 
+  /** @internal */
   toString(): string {
     return utils.general.toString(this)
   }

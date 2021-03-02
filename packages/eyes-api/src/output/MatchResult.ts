@@ -43,10 +43,12 @@ export class MatchResultData implements Required<MatchResult> {
     this.windowId = windowId
   }
 
+  /** @internal */
   toJSON(): MatchResult {
     return utils.general.toJSON(this, ['asExpected', 'windowId'])
   }
 
+  /** @internal */
   toString() {
     return utils.general.toString(this)
   }

@@ -143,10 +143,12 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     if (!utils.types.isNull(settings.timeout)) this.timeout(settings.timeout)
   }
 
+  /** @internal */
   isFrameReference(value: any): value is FrameReference<TSelector, TElement> {
     return utils.types.isNumber(value) || utils.types.isString(value) || this.isElementReference(value)
   }
 
+  /** @internal */
   isRegionReference(value: any): value is RegionReference<TSelector, TElement> {
     return (
       utils.types.has(value, ['x', 'y', 'width', 'height']) ||
@@ -155,6 +157,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     )
   }
 
+  /** @internal */
   isElementReference(value: any): value is ElementReference<TSelector, TElement> {
     return this._spec.isElement(value) || this._spec.isSelector(value)
   }

@@ -122,6 +122,7 @@ export class StepInfoData implements Required<StepInfo> {
     this.renderId = renderId
   }
 
+  /** @internal */
   toJSON(): StepInfo {
     return utils.general.toJSON(this, [
       'name',
@@ -134,6 +135,7 @@ export class StepInfoData implements Required<StepInfo> {
     ])
   }
 
+  /** @internal */
   toString() {
     return utils.general.toString(this)
   }

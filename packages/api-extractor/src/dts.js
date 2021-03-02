@@ -57,6 +57,7 @@ function dts({project, context, externals = []}) {
     return (
       $comment(node.comment) +
       (exported ? 'export ' : '') +
+      (node.flags.isAbstract ? 'abstract ' : '') +
       `class ${node.name}${$generics(node)} ${extendsExpression} ${implementsExpression} {${members.join('\n')}}`
     )
   }

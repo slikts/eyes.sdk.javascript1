@@ -482,6 +482,7 @@ export class TestResultsData implements Required<TestResults> {
     return this._status === TestResultsStatus.Passed
   }
 
+  /** @internal */
   toJSON(): TestResults {
     return utils.general.toJSON(this, [
       'id',
@@ -516,6 +517,7 @@ export class TestResultsData implements Required<TestResults> {
     ])
   }
 
+  /** @internal */
   toString() {
     return utils.general.toString(this)
   }

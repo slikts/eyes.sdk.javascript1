@@ -41,10 +41,12 @@ export class SessionUrlsData implements Required<SessionUrls> {
     this.session = session
   }
 
+  /** @internal */
   toJSON(): SessionUrls {
     return utils.general.toJSON(this, ['batch', 'session'])
   }
 
+  /** @internal */
   toString() {
     return utils.general.toString(this)
   }

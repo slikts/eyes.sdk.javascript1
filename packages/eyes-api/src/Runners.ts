@@ -2,19 +2,19 @@ import * as utils from '@applitools/utils'
 import {Eyes} from './Eyes'
 import {RunnerOptions, RunnerOptionsFluent} from './input/RunnerOptions'
 
-export type RunnerConfig<TType extends 'vg' | 'classic' = 'vg' | 'classic'> = {
+export type RunnerConfiguration<TType extends 'vg' | 'classic' = 'vg' | 'classic'> = {
   type: TType
   concurrency?: TType extends 'vg' ? number : never
   legacy?: TType extends 'vg' ? boolean : never
 }
 
 export abstract class EyesRunner {
-  private _make: (config: RunnerConfig) => (...args: any[]) => unknown
+  private _make: (config: RunnerConfiguration) => (...args: any[]) => unknown
   private _open: (...args: any[]) => unknown
   private _eyes: Eyes[] = []
 
   /** @internal */
-  abstract get config(): RunnerConfig
+  abstract get config(): RunnerConfiguration
 
   /** @internal */
   attach(eyes: Eyes, init: (...args: any) => any) {
@@ -63,7 +63,7 @@ export class VisualGridRunner extends EyesRunner {
   }
 
   /** @internal */
-  get config(): RunnerConfig<'vg'> {
+  get config(): RunnerConfiguration<'vg'> {
     return {
       type: 'vg',
       concurrency: this._testConcurrency || this._legacyConcurrency,
@@ -88,7 +88,7 @@ export class VisualGridRunner extends EyesRunner {
 
 export class ClassicRunner extends EyesRunner {
   /** @internal */
-  get config(): RunnerConfig<'classic'> {
+  get config(): RunnerConfiguration<'classic'> {
     return {type: 'classic'}
   }
 }

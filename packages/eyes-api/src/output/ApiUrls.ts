@@ -89,6 +89,7 @@ export class ApiUrlsData implements Required<ApiUrls> {
     this.diffImage = diffImage
   }
 
+  /** @internal */
   toJSON(): ApiUrls {
     return utils.general.toJSON(this, [
       'baselineImage',
@@ -99,6 +100,7 @@ export class ApiUrlsData implements Required<ApiUrls> {
     ])
   }
 
+  /** @internal */
   toString() {
     return utils.general.toString(this)
   }

@@ -76,10 +76,12 @@ export class RenderingInfoData {
     return utils.general.jwtDecode(this._accessToken) as {sub: string; exp: number; iss: string}
   }
 
+  /** @internal */
   toJSON(): RenderingInfo {
     return utils.general.toJSON(this, ['accessToken', 'serviceUrl', 'resultsUrl', 'stitchingServiceUrl'])
   }
 
+  /** @internal */
   toString() {
     return utils.general.toString(this)
   }

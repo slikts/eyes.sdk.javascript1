@@ -80,6 +80,11 @@ export {
 
 // #region OUTPUT
 
+export {ValidationInfo as ValidationInfoPlain, ValidationInfoData as ValidationInfo} from './src/output/validationInfo'
+export {
+  ValidationResult as ValidationResultPlain,
+  ValidationResultData as ValidationResult,
+} from './src/output/ValidationResult'
 export {ApiUrls as ApiUrlsPlain, ApiUrlsData as ApiUrls} from './src/output/ApiUrls'
 export {AppUrls as AppUrlsPlain, AppUrlsData as AppUrls} from './src/output/AppUrls'
 export {SessionUrls as SessionUrlsPlain, SessionUrlsData as SessionUrls} from './src/output/SessionUrls'
@@ -89,5 +94,6 @@ export {MatchResult as MatchResultPlain, MatchResultData as MatchResult} from '.
 
 // #endregion
 
+export {closeBatch, BatchClose} from './src/BatchClose'
 export {EyesRunner, ClassicRunner, VisualGridRunner} from './src/Runners'
 export {Eyes} from './src/Eyes'

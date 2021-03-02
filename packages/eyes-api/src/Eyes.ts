@@ -10,27 +10,50 @@ import {RectangleSize} from './input/RectangleSize'
 import {Region} from './input/Region'
 import {MatchResult, MatchResultData} from './output/MatchResult'
 import {TestResults, TestResultsData} from './output/TestResults'
-import {EyesRunner, RunnerConfig, ClassicRunner} from './Runners'
+import {RunnerConfiguration, EyesRunner, ClassicRunner} from './Runners'
 
-/** @internal */
+type ExtractTextRegion<TElement = unknown, TSelector = unknown> = {
+  target: Region | TElement | TSelector
+  hint?: string
+  minMatch?: number
+  language?: string
+}
+
+type ExtractTextRegionsSettings<TPattern extends string = string> = {
+  patterns: TPattern[]
+  ignoreCase?: boolean
+  firstOnly?: boolean
+  language?: string
+}
+
+type LocateSettings<TLocator extends string = string> = {
+  locatorNames: TLocator[]
+  firstOnly: boolean
+}
+
 type EyesCommands<TElement = unknown, TSelector = unknown> = {
-  locate: <TLocatorName extends string>(settings: {
-    locatorNames: TLocatorName[]
-    firstOnly: boolean
-  }) => Promise<{[key in TLocatorName]: Region[]}>
   check: (settings?: CheckSettings<TElement, TSelector>) => Promise<MatchResult>
+  extractText: (regions: ExtractTextRegion<TElement, TSelector>[]) => Promise<string[]>
+  extractTextRegions: <TPattern extends string>(
+    settings: ExtractTextRegionsSettings<TPattern>,
+  ) => Promise<{[key in TPattern]: string[]}>
+  locate: <TLocator extends string>(settings: LocateSettings<TLocator>) => Promise<{[key in TLocator]: Region[]}>
   close: () => Promise<TestResults>
   abort: () => Promise<TestResults>
 }
 
-/** @internal */
 type EyesSpec<TDriver = unknown, TElement = unknown, TSelector = unknown> = {
   isDriver(value: any): value is TDriver
   isElement(value: any): value is TElement
   isSelector(value: any): value is TSelector
-  makeEyes(config?: RunnerConfig): (driver: TDriver, config: Configuration) => EyesCommands<TElement, TSelector>
+  makeEyes(
+    config?: RunnerConfiguration,
+  ): {
+    open: (driver: TDriver, config: Configuration) => EyesCommands<TElement, TSelector>
+    logger: {verbose(message: string): void}
+  }
   setViewportSize(driver: TDriver, viewportSize: RectangleSize): Promise<void>
-  // closeBatch(...args: any[]): Promise<any>
+  closeBatch(options: {batchId: string; serverUrl?: string; apiKey?: string; proxy?: ProxySettings}): Promise<void>
 }
 
 export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {

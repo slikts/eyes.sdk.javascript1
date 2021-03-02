@@ -41,10 +41,12 @@ export class AppUrlsData implements Required<AppUrls> {
     this.stepEditor = stepEditor
   }
 
+  /** @internal */
   toJSON(): AppUrls {
     return utils.general.toJSON(this, ['step', 'stepEditor'])
   }
 
+  /** @internal */
   toString() {
     return utils.general.toString(this)
   }

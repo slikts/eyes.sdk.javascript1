@@ -121,10 +121,12 @@ export class RunningSessionData implements Required<RunningSession> {
     this.renderingInfo = renderingInfo
   }
 
+  /** @internal */
   toJSON(): RunningSession {
     return utils.general.toJSON(this, ['id', 'sessionId', 'batchId', 'baselineId', 'url', 'isNew', 'renderingInfo'])
   }
 
+  /** @internal */
   toString() {
     return utils.general.toString(this)
   }
