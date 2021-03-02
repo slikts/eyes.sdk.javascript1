@@ -1,22 +1,22 @@
 import * as utils from '@applitools/utils'
 
-type CropSettingsRect = {
+type CutProviderRect = {
   top: number
   right: number
   bottom: number
   left: number
 }
 
-type CropSettingsRegion = {
+type CutProviderRegion = {
   width: number
   height: number
   x: number
   y: number
 }
 
-export type CropSettings = CropSettingsRect | CropSettingsRegion
+export type CutProvider = CutProviderRect | CutProviderRegion
 
-export default class CropSettingsData implements Required<CropSettingsRect & CropSettingsRegion> {
+export class CutProviderData implements Required<CutProviderRegion & CutProviderRect> {
   private _top: number
   private _right: number
   private _bottom: number
@@ -27,11 +27,11 @@ export default class CropSettingsData implements Required<CropSettingsRect & Cro
   private _x: number
   private _y: number
 
-  constructor(settings: CropSettings)
+  constructor(settings: CutProvider)
   constructor(top: number, bottom: number, left: number, right: number)
-  constructor(settingsOrTop: CropSettings | number, bottom?: number, left?: number, right?: number) {
+  constructor(settingsOrTop: CutProvider | number, bottom?: number, left?: number, right?: number) {
     if (utils.types.isNumber(settingsOrTop)) {
-      return new CropSettingsData({top: settingsOrTop, bottom, left, right})
+      return new CutProviderData({top: settingsOrTop, bottom, left, right})
     }
 
     const settings = settingsOrTop
@@ -74,27 +74,27 @@ export default class CropSettingsData implements Required<CropSettingsRect & Cro
     return this._y
   }
 
-  scale(scaleRatio: number): CropSettingsData {
+  scale(scaleRatio: number): CutProviderData {
     if (!utils.types.isNull(this._top)) {
-      return new CropSettingsData({
+      return new CutProviderData({
         top: this._top * scaleRatio,
         right: this._right * scaleRatio,
         bottom: this._bottom * scaleRatio,
         left: this._left * scaleRatio,
       })
     } else if (!utils.types.isNull(this._width)) {
-      return new CropSettingsData({
+      return new CutProviderData({
         width: this._width * scaleRatio,
         height: this._height * scaleRatio,
         x: this._x * scaleRatio,
         y: this._y * scaleRatio,
       })
     } else {
-      return new CropSettingsData({top: 0, right: 0, bottom: 0, left: 0})
+      return new CutProviderData({top: 0, right: 0, bottom: 0, left: 0})
     }
   }
 
-  toJSON(): CropSettings {
+  toJSON(): CutProvider {
     if (!utils.types.isNull(this._width)) {
       return utils.general.toJSON(this, ['width', 'height', 'x', 'y'])
     } else {
@@ -107,15 +107,15 @@ export default class CropSettingsData implements Required<CropSettingsRect & Cro
   }
 }
 
-export class FixedCropSettingsData extends CropSettingsData {}
+export class FixedCutProviderData extends CutProviderData {}
 
-export class UnscaledCropSettingsData extends CropSettingsData {
+export class UnscaledCutProviderData extends CutProviderData {
   scale() {
-    return new UnscaledCropSettingsData(this)
+    return new UnscaledCutProviderData(this)
   }
 }
 
-export class NullCropSettingsData extends CropSettingsData {
+export class NullCropSettingsData extends CutProviderData {
   constructor() {
     super({top: 0, right: 0, bottom: 0, left: 0})
   }

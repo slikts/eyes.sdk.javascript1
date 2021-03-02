@@ -64,7 +64,7 @@
     "lint": "eslint '**/*.ts'",
     "render": "node ../sdk-shared/scripts/render.js",
     "build": "tsc && yarn build:types",
-    "build:types": "api-extractor ./index.ts --out ./index.d.ts",
+    "build:types": "api-extractor ./index.ts --out ./index.d.ts --externals playwright",
     "test": "yarn test:it",
     "test:it": "mocha --no-timeouts ./test/it/*.spec.js",
     "test:coverage": "APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-playwright' APPLITOOLS_BATCH_ID=$(uuidgen) XUNIT_FILE=coverage-test-report.xml mocha --config .mocharc.cvg.js",

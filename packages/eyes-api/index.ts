@@ -13,16 +13,13 @@ export {default as ScreenOrientation} from './src/enums/ScreenOrientation'
 export {default as StitchMode} from './src/enums/StitchMode'
 export {default as SessionType} from './src/enums/SessionType'
 export {default as TestResultsStatus} from './src/enums/TestResultsStatus'
+export {default as CorsIframeHandle} from './src/enums/CorsIframeHandle'
+export {default as FailureReports} from './src/enums/FailureReports'
 
 // #endregion
 
 // #region INPUT
 
-export {
-  CheckSettings as CheckSettingsPlain,
-  CheckSettingsFluent as CheckSettings,
-  Target,
-} from './src/input/CheckSettings'
 export {
   GeneralConfiguration as GeneralConfigurationPlain,
   OpenConfiguration as OpenConfigurationPlain,
@@ -57,10 +54,27 @@ export {Location as LocationPlain, LocationData as Location} from './src/input/L
 export {RectangleSize as RectangleSizePlain, RectangleSizeData as RectangleSize} from './src/input/RectangleSize'
 export {Region as RegionPlain, RegionData as Region} from './src/input/Region'
 export {
+  CutProvider as CutProviderPlain,
+  CutProviderData as CutProvider,
+  FixedCutProviderData as FixedCutProvide,
+  UnscaledCutProviderData as UnscaledCutProvider,
+} from './src/input/CutProvider'
+export {
+  SessionEventHandler as SessionEventHandlerPlain,
+  SessionEventHandlerData as SessionEventHandler,
+  RemoteSessionEventHandlerData as RemoteSessionEventHandler,
+} from './src/input/SessionEventHandler'
+
+export {
   RunnerOptions as RunnerOptionsPlain,
   RunnerOptionsFluent,
   RunnerOptionsFluentInit as RunnerOptions,
 } from './src/input/RunnerOptions'
+export {
+  CheckSettings as CheckSettingsPlain,
+  CheckSettingsFluent as CheckSettings,
+  Target,
+} from './src/input/CheckSettings'
 
 // #endregion
 
