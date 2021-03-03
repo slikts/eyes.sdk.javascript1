@@ -20,5 +20,22 @@
   "web_accessible_resources": [
     "assets/pageScripts.js"
   ],
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "assets/content.js"
+      ],
+      "match_about_blank": true,
+      "all_frames": true
+    }
+  ],
+  "background": {
+    "scripts": [
+      "assets/background.js"
+    ]
+  },
   "content_security_policy": "script-src 'self'; object-src 'self'"
 }
