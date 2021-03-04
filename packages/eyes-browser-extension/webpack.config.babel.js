@@ -20,11 +20,19 @@ export default {
   resolve: {
     extensions: ['.js', '.json'],
     fallback: {
-      process: false,
-      fs: false,
-      url: false,
+      assert: require.resolve('assert/'),
+      buffer: require.resolve('buffer/'),
       child_process: false,
+      crypto: require.resolve('crypto-browserify'),
+      fs: false,
       module: false,
+      os: require.resolve('os-browserify/browser'),
+      path: require.resolve('path-browserify'),
+      process: require.resolve('process'),
+      stream: require.resolve('stream-browserify'),
+      url: false,
+      util: require.resolve('util/'),
+      zlib: require.resolve('browserify-zlib'),
     },
   },
   module: {
@@ -34,51 +42,24 @@ export default {
         use: 'null-loader',
       },
       {
-        // "oneOf" will traverse all following loaders until one will
-        // match the requirements. When no loader matches it will fall
-        // back to the "file" loader at the end of the loader list.
-        oneOf: [
-          // "url" loader works just like "file" loader but it also embeds
-          // assets smaller than specified size as data URLs to avoid requests.
-          {
-            test: [/\.bmp$/, /\.gif$/, /\.jpe?g$/, /\.png$/],
-            loader: 'url-loader',
-            options: {
-              limit: 10000,
-              name: 'media/[name].[hash:8].[ext]',
-            },
-          },
-          // Process JS with Babel.
-          {
-            test: /\.js$/,
-            include: [path.resolve(__dirname, 'src')],
-            use: [
-              {
-                loader: 'babel-loader',
-                options: {
-                  compact: true,
-                },
-              },
-            ],
-          },
-        ],
+        test: /yaml/,
+        use: 'null-loader',
       },
     ],
   },
   plugins: [
-    //new webpack.NamedModulesPlugin(),
-    // Copy non-umd assets to vendor
     new CopyWebpackPlugin({
       patterns: [
         { from: 'manifest.json', to: '../' },
         { from: 'icons', to: '../icons' },
       ]
     }),
-    // Moment.js is an extremely popular library that bundles large locale files
-    // by default due to how Webpack interprets its code. This is a practical
-    // solution that requires the user to opt into importing specific locales.
-    // https://github.com/jmblog/how-to-optimize-momentjs-with-webpack
-    // You can remove this if you don't use Moment.js:
-    new webpack.IgnorePlugin(/^\.\/locale$/, /moment$/),
+    new webpack.DefinePlugin({
+      'process.env': {}
+    }),
+    new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+      process: ['process'],
+    }),
   ],
 }

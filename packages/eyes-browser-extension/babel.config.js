@@ -1,14 +1,6 @@
 module.exports = {
   presets: [
-    [
-      '@babel/preset-env',
-      {
-        targets: {
-          chrome: '67',
-          firefox: '59',
-        },
-      },
-    ],
+    '@babel/preset-env',
   ],
   plugins: [
     '@babel/plugin-proposal-class-properties',
