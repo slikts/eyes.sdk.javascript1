@@ -1,6 +1,6 @@
 import {makeSDK} from '@applitools/eyes-sdk-core'
+import * as spec from './spec-driver'
 const VisualGridClient = require('@applitools/visual-grid-client')
-const spec = require('./spec-driver')
 const {version} = require('../package.json')
 
 export default makeSDK({

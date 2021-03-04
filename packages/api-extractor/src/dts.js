@@ -129,7 +129,7 @@ function dts({project, context, externals = []}) {
   function $property(node, parent) {
     const type = $type(node.type, {parent})
     if (type.type === 'reflection' && type.declaration.signatures) return $method(node, parent)
-    return $comment(node.comment) + `${$flags(node.flags)} ${node.name}${node.flags.isOptional ? '?' : ''}: ${type}`
+    return $comment(node.comment) + `${$flags(node.flags)} '${node.name}'${node.flags.isOptional ? '?' : ''}: ${type}`
   }
 
   function $flags(flags) {
@@ -240,9 +240,22 @@ function dts({project, context, externals = []}) {
       const typeDeclaration = typeReference._target.declarations.find(ts.isTypeAliasDeclaration)
       if (!typeDeclaration) {
         const [declaration] = typeReference._target.declarations
-        if (declaration.parent.path) {
-          const moduleName = externals.find((name) => declaration.parent.path.includes(`node_modules/${name}`))
-          if (moduleName) return {type: {type: 'unknown', name: `import('${moduleName}').${typeReference.name}`}}
+        const source = declaration.getSourceFile()
+        if (source) {
+          console.log(typeReference.name, source.path)
+          const moduleName = externals.find((name) => {
+            return source.path.includes(`node_modules/${name}`) || source.path.includes(`node_modules/@types/${name}`)
+          })
+          const typeName = typeReference._target.escapedName || typeReference.name
+          if (moduleName) {
+            return {
+              type: {
+                type: 'unknown',
+                name: `import('${moduleName}').${typeName}`,
+                typeArguments: typeReference.typeArguments,
+              },
+            }
+          }
         }
         return {unknown: true}
       }
@@ -268,6 +281,11 @@ function dts({project, context, externals = []}) {
       if (wrapper.type === 'intersection') return `(${wrapper.types.map((type) => $type(type, {parent})).join('&')})`
       if (wrapper.type === 'union') return `(${wrapper.types.map((type) => $type(type, {parent})).join('|')})`
       if (wrapper.type === 'predicate') return `${wrapper.name} is (${$type(wrapper.targetType, {parent})})`
+      if (wrapper.type === 'mapped') {
+        const parameterType = $type(wrapper.parameterType, {parent})
+        const templateType = $type(wrapper.templateType, {parent})
+        return `{[${wrapper.parameter} in ${parameterType}]: ${templateType}}`
+      }
       if (wrapper.type === 'reflection') {
         const parts = []
         if (wrapper.declaration.children) {

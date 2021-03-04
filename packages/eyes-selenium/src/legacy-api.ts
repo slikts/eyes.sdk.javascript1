@@ -1,4 +1,6 @@
-function withLegacyDriverAPI(driver) {
+// @ts-nocheck
+
+export function withLegacyDriverAPI(driver) {
   const api = {
     get remoteWebDriver() {
       return driver
@@ -72,5 +74,3 @@ function withLegacyDriverAPI(driver) {
     },
   })
 }
-
-exports.withLegacyDriverAPI = withLegacyDriverAPI

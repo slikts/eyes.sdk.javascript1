@@ -10,7 +10,6 @@
     "preserveConstEnums": true,
     "downlevelIteration": true,
     "stripInternal": true,
-    "experimentalDecorators": false,
-    "esModuleInterop": true
+    "experimentalDecorators": false
   },
 }

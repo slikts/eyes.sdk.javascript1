@@ -1,10 +1,10 @@
-const {EyesSDK} = require('@applitools/eyes-sdk-core')
+import {makeSDK} from '@applitools/eyes-sdk-core'
+import * as spec from './spec-driver'
 const VisualGridClient = require('@applitools/visual-grid-client')
-const spec = require('./spec-driver')
 const {version} = require('../package.json')
 
-module.exports = EyesSDK({
-  name: 'eyes.puppeteer',
+export default makeSDK({
+  name: 'eyes.webdriverio',
   version,
   spec,
   VisualGridClient,

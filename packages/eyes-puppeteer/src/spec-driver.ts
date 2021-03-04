@@ -1,41 +1,45 @@
-const {TypeUtils} = require('@applitools/eyes-sdk-core')
+import * as utils from '@applitools/utils'
+import type {ElementHandle, Frame, JSHandle, Page} from 'puppeteer'
+
+export type Driver = Page
+export type Element = ElementHandle
+export type Context = Frame
+export type Selector = string
 
 // #region HELPERS
 
-async function handleToObject(handle) {
-  const [_, type] = handle.toString().split('@')
+async function handleToObject(handle: JSHandle): Promise<any> {
+  const [, type] = handle.toString().split('@')
   if (type === 'array') {
     const map = await handle.getProperties()
     return Promise.all(Array.from(map.values(), handleToObject))
   } else if (type === 'object') {
     const map = await handle.getProperties()
-    const chunks = await Promise.all(
-      Array.from(map, async ([key, handle]) => ({[key]: await handleToObject(handle)})),
-    )
-    return Object.assign(...chunks)
+    const chunks = await Promise.all(Array.from(map, async ([key, handle]) => ({[key]: await handleToObject(handle)})))
+    return chunks.length > 0 ? Object.assign(...(chunks as [any])) : {}
   } else if (type === 'node') {
     return handle.asElement()
   } else {
     return handle.jsonValue()
   }
 }
-function transformSelector(selector) {
-  if (TypeUtils.has(selector, ['type', 'selector'])) return `${selector.selector}`
+function transformSelector(selector: any): string {
+  if (utils.types.has(selector, ['type', 'selector'])) return `${selector.selector}`
   return selector
 }
-function serializeArgs(args) {
-  const elements = []
+function serializeArgs(args: any[]) {
+  const elements: Element[] = []
   const argsWithElementMarkers = args.map(serializeArg)
 
   return {argsWithElementMarkers, elements}
 
-  function serializeArg(arg) {
+  function serializeArg(arg: any): any {
     if (isElement(arg)) {
       elements.push(arg)
       return {isElement: true}
-    } else if (TypeUtils.isArray(arg)) {
+    } else if (utils.types.isArray(arg)) {
       return arg.map(serializeArg)
-    } else if (TypeUtils.isObject(arg)) {
+    } else if (utils.types.isObject(arg)) {
       return Object.entries(arg).reduce((object, [key, value]) => {
         return Object.assign(object, {[key]: serializeArg(value)})
       }, {})
@@ -53,7 +57,8 @@ function serializeArgs(args) {
 //    of the arguments in a serialized structure, deserialize them, and call the script,
 //    and pass the arguments as originally intended
 async function scriptRunner() {
-  function deserializeArg(arg) {
+  /*eslint prefer-rest-params: "off", prefer-spread: "off"*/
+  function deserializeArg(arg: any): any {
     if (!arg) {
       return arg
     } else if (arg.isElement) {
@@ -71,17 +76,11 @@ async function scriptRunner() {
   const args = Array.from(arguments)
   const elements = args.slice(1)
   let script = args[0].script
-  script = new Function(
-    script.startsWith('function') ? `return (${script}).apply(null, arguments)` : script,
-  )
+  script = new Function(script.startsWith('function') ? `return (${script}).apply(null, arguments)` : script)
   const deserializedArgs = args[0].argsWithElementMarkers.map(deserializeArg)
   return script.apply(null, deserializedArgs)
 }
-async function findElementByXpath(frame, selector) {
-  const result = await frame.$x(selector)
-  return result[0]
-}
-function isXpath(selector) {
+function isXpath(selector: Selector): boolean {
   return selector.startsWith('//') || selector.startsWith('..')
 }
 
@@ -89,20 +88,20 @@ function isXpath(selector) {
 
 // #region UTILITY
 
-function isDriver(page) {
+export function isDriver(page: any): page is Driver {
   return page.constructor.name === 'Page'
 }
-function isElement(element) {
+export function isElement(element: any): element is Element {
   if (!element) return false
   return element.constructor.name === 'ElementHandle'
 }
-function isSelector(selector) {
-  return TypeUtils.has(selector, ['type', 'selector']) || TypeUtils.isString(selector)
+export function isSelector(selector: any): selector is Selector {
+  return utils.types.isString(selector) || utils.types.has(selector, ['type', 'selector'])
 }
-function extractContext(page) {
-  return page.constructor.name === 'Page' ? page.mainFrame() : page
+export function extractContext(page: Page | Context): Context {
+  return isDriver(page) ? page.mainFrame() : page
 }
-function isStaleElementError(err) {
+export function isStaleElementError(err: any): boolean {
   return (
     err &&
     err.message &&
@@ -110,28 +109,26 @@ function isStaleElementError(err) {
       err.message.includes('JSHandles can be evaluated only in the context they were created'))
   )
 }
-async function isEqualElements(frame, element1, element2) {
-  return frame
-    .evaluate((element1, element2) => element1 === element2, element1, element2)
-    .catch(() => false)
+export async function isEqualElements(frame: Context, element1: Element, element2: Element): Promise<boolean> {
+  return frame.evaluate((element1, element2) => element1 === element2, element1, element2).catch(() => false)
 }
 
 // #endregion
 
 // #region COMMANDS
 
-async function executeScript(frame, script, ...args) {
+export async function executeScript(
+  frame: Context,
+  script: ((...args: any) => any) | string,
+  ...args: any[]
+): Promise<any> {
   // a function is not serializable, so we pass it as a string instead
-  script = TypeUtils.isString(script) ? script : script.toString()
+  script = utils.types.isString(script) ? script : script.toString()
   const {argsWithElementMarkers, elements} = serializeArgs(args)
-  const result = await frame.evaluateHandle(
-    scriptRunner,
-    {script, argsWithElementMarkers},
-    ...elements,
-  )
+  const result = await frame.evaluateHandle(scriptRunner, {script, argsWithElementMarkers}, ...elements)
   return await handleToObject(result)
 }
-async function mainContext(frame) {
+export async function mainContext(frame: Context): Promise<Context> {
   frame = extractContext(frame)
   let mainFrame = frame
   while (mainFrame.parentFrame()) {
@@ -139,76 +136,74 @@ async function mainContext(frame) {
   }
   return mainFrame
 }
-async function parentContext(frame) {
+export async function parentContext(frame: Context): Promise<Context> {
   frame = extractContext(frame)
   return frame.parentFrame()
 }
-async function childContext(_frame, element) {
+export async function childContext(_frame: Context, element: Element): Promise<Context> {
   return element.contentFrame()
 }
-async function findElement(frame, selector) {
+export async function findElement(frame: Context, selector: Selector): Promise<Element> {
   selector = transformSelector(selector)
-  return isXpath(selector) ? findElementByXpath(selector) : frame.$(selector)
+  return isXpath(selector) ? frame.$x(selector).then(elements => elements[0]) : frame.$(selector)
 }
-async function findElements(frame, selector) {
+export async function findElements(frame: Context, selector: Selector): Promise<Element[]> {
   selector = transformSelector(selector)
   return isXpath(selector) ? frame.$x(selector) : frame.$$(selector)
 }
-async function getElementRect(_frame, element) {
+export async function getElementRect(
+  _frame: Context,
+  element: Element,
+): Promise<{x: number; y: number; width: number; height: number}> {
   const {x, y, width, height} = await element.boundingBox()
   return {x: Math.round(x), y: Math.round(y), width: Math.round(width), height: Math.round(height)}
 }
-async function getViewportSize(page) {
+export async function getViewportSize(page: Driver): Promise<{width: number; height: number}> {
   return page.viewport()
 }
-async function setViewportSize(page, size = {}) {
+export async function setViewportSize(page: Driver, size: {width: number; height: number}): Promise<void> {
   await page.setViewport(size)
   await new Promise(res => setTimeout(res, 100))
 }
-async function getTitle(page) {
+export async function getTitle(page: Driver): Promise<string> {
   return page.title()
 }
-async function getUrl(page) {
+export async function getUrl(page: Driver): Promise<string> {
   return page.url()
 }
-async function getDriverInfo(_page) {
-  return {
-    // isStateless: true,
-  }
+export async function visit(page: Driver, url: string): Promise<void> {
+  await page.goto(url)
 }
-async function visit(page, url) {
-  return page.goto(url)
-}
-async function takeScreenshot(page) {
+export async function takeScreenshot(page: Driver): Promise<string> {
   return page.screenshot()
 }
-async function click(frame, selector) {
+export async function click(frame: Context, selector: Selector): Promise<void> {
   return frame.click(transformSelector(selector))
 }
-async function type(_frame, element, keys) {
+export async function type(_frame: Context, element: Element, keys: string): Promise<void> {
   return element.type(keys)
 }
-async function waitUntilDisplayed(frame, selector) {
-  return frame.waitForSelector(transformSelector(selector))
+export async function waitUntilDisplayed(frame: Context, selector: Selector): Promise<void> {
+  await frame.waitForSelector(transformSelector(selector))
 }
-async function scrollIntoView(frame, element, align = false) {
+export async function scrollIntoView(frame: Context, element: Element, align = false): Promise<void> {
   if (isSelector(element)) {
     element = await findElement(frame, element)
   }
   await frame.evaluate((element, align) => element.scrollIntoView(align), element, align)
 }
-async function hover(frame, element, {x = 0, y = 0} = {}) {
+export async function hover(frame: Context, element: Element): Promise<void> {
   if (isSelector(element)) {
     element = await findElement(frame, element)
   }
-  await element.hover({position: {x, y}})
+  await element.hover()
 }
 
 // #endregion
 
 // #region BUILD
 
-async function build(env) {
+export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
   const puppeteer = require('puppeteer')
   env = {
     ...env,
@@ -231,33 +226,3 @@ async function build(env) {
 }
 
 // #endregion
-
-// exports.isStateless = isStateless
-exports.isDriver = isDriver
-exports.isElement = isElement
-exports.isSelector = isSelector
-exports.extractContext = extractContext
-exports.isStaleElementError = isStaleElementError
-exports.isEqualElements = isEqualElements
-
-exports.executeScript = executeScript
-exports.mainContext = mainContext
-exports.parentContext = parentContext
-exports.childContext = childContext
-exports.findElement = findElement
-exports.findElements = findElements
-exports.getElementRect = getElementRect
-exports.getViewportSize = getViewportSize
-exports.setViewportSize = setViewportSize
-exports.getTitle = getTitle
-exports.getUrl = getUrl
-exports.getDriverInfo = getDriverInfo
-exports.visit = visit
-exports.takeScreenshot = takeScreenshot
-exports.click = click
-exports.type = type
-exports.waitUntilDisplayed = waitUntilDisplayed
-exports.scrollIntoView = scrollIntoView
-exports.hover = hover
-
-exports.build = build

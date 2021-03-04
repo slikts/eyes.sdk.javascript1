@@ -46,12 +46,8 @@ type EyesSpec<TDriver = unknown, TElement = unknown, TSelector = unknown> = {
   isDriver(value: any): value is TDriver
   isElement(value: any): value is TElement
   isSelector(value: any): value is TSelector
-  makeEyes(
-    config?: RunnerConfiguration,
-  ): {
-    open: (driver: TDriver, config: Configuration) => EyesCommands<TElement, TSelector>
-    logger: {verbose(message: string): void}
-  }
+  makeEyes(config?: RunnerConfiguration): (driver: TDriver, config: Configuration) => EyesCommands<TElement, TSelector>
+  // makeLogger(config: LoggerConfiguration): unknown
   setViewportSize(driver: TDriver, viewportSize: RectangleSize): Promise<void>
   closeBatch(options: {batchId: string; serverUrl?: string; apiKey?: string; proxy?: ProxySettings}): Promise<void>
 }
@@ -205,6 +201,20 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     return new MatchResultData(result)
   }
 
+  async extractText(regions: ExtractTextRegion<TElement, TSelector>[]): Promise<string[]> {
+    return this._commands.extractText(regions)
+  }
+
+  async extractTextRegions<TPattern extends string>(
+    settings: ExtractTextRegionsSettings<TPattern>,
+  ): Promise<{[key in TPattern]: string[]}> {
+    return this._commands.extractTextRegions(settings)
+  }
+
+  async locate<TLocator extends string>(settings: LocateSettings<TLocator>): Promise<{[key in TLocator]: Region[]}> {
+    return this._commands.locate(settings)
+  }
+
   async close(throwErr = true): Promise<TestResultsData> {
     const result = await this._commands.close()
     // TODO throw error `throwErr` is true and `results` include error response
@@ -219,10 +229,6 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   async closeBatch() {
     // await this._spec.closeBatch()
   }
-
-  // async locate(visualLocatorSettings: any) {
-
-  // }
 
   // async getViewportSize() : Promise<RectangleSizeData> {
   //   return this._commands

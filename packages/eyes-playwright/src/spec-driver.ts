@@ -24,8 +24,7 @@ async function handleToObject(handle: JSHandle): Promise<any> {
     return handle.jsonValue()
   }
 }
-
-function transformSelector(selector: any) {
+function transformSelector(selector: any): string {
   if (utils.types.has(selector, ['type', 'selector'])) {
     if (selector.type === 'css') return `css=${selector.selector}`
     else if (selector.type === 'xpath') return `xpath=${selector.selector}`
@@ -81,10 +80,10 @@ export async function parentContext(frame: Context): Promise<Context> {
 export async function childContext(_frame: Context, element: Element): Promise<Context> {
   return element.contentFrame()
 }
-export async function findElement(frame: Context, selector: Element): Promise<Element> {
+export async function findElement(frame: Context, selector: Selector): Promise<Element> {
   return frame.$(transformSelector(selector))
 }
-export async function findElements(frame: Context, selector: Element): Promise<Element[]> {
+export async function findElements(frame: Context, selector: Selector): Promise<Element[]> {
   return frame.$$(transformSelector(selector))
 }
 export async function getElementRect(
@@ -97,7 +96,7 @@ export async function getElementRect(
 export async function getViewportSize(page: Driver): Promise<{width: number; height: number}> {
   return page.viewportSize()
 }
-export async function setViewportSize(page: Driver, size?: {width: number; height: number}): Promise<void> {
+export async function setViewportSize(page: Driver, size: {width: number; height: number}): Promise<void> {
   return page.setViewportSize(size)
 }
 export async function getTitle(page: Driver): Promise<string> {
@@ -105,11 +104,6 @@ export async function getTitle(page: Driver): Promise<string> {
 }
 export async function getUrl(page: Driver): Promise<string> {
   return page.url()
-}
-export async function getDriverInfo(): Promise<any> {
-  return {
-    // isStateless: true,
-  }
 }
 export async function visit(page: Driver, url: string): Promise<void> {
   await page.goto(url)

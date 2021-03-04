@@ -1,118 +1,58 @@
-'use strict'
-const {TypeUtils} = require('@applitools/eyes-sdk-core')
+// @ts-nocheck
+import * as utils from '@applitools/utils'
+import type {Driver, Element} from './spec-driver'
 
-class LegacySelector {
-  /**
-   * @param {string} value - selector itself
-   * @param {string} using - selector type
-   */
-  constructor(value, using = 'css selector') {
-    this._value = value
-    this._using = using
+export class LegacySelector {
+  static css(css: string): LegacySelector {
+    return new LegacySelector(css)
   }
-  /**
-   * @return {string} selector
-   */
-  get value() {
-    return this._value
+  static cssSelector(css: string): LegacySelector {
+    return LegacySelector.css(css)
   }
-  /**
-   * @return {string} selector type
-   */
-  get using() {
-    return this._using
-  }
-  /**
-   * Create css selector
-   * @param {string} cssSelector - selector string
-   * @return {LegacySelector} selector instance
-   */
-  static css(cssSelector) {
-    return new LegacySelector(cssSelector)
-  }
-  /**
-   * @alias css
-   */
-  static cssSelector(cssSelector) {
-    return LegacySelector.css(cssSelector)
-  }
-  /**
-   * Create css selector by id
-   * @param {string} id - element id
-   * @return {LegacySelector} selector instance
-   */
-  static id(id) {
+  static id(id: string): LegacySelector {
     return new LegacySelector(`*[id="${id}"]`)
   }
-  /**
-   * Create css selector by class
-   * @param {string} className - element class
-   * @return {LegacySelector} selector instance
-   */
-  static className(className) {
+  static className(className: string): LegacySelector {
     return new LegacySelector(`.${className}`)
   }
-  /**
-   * Create css selector by attribute an its value
-   * @param {string} attributeName - attribute name
-   * @param {string} value - attribute value
-   * @return {LegacySelector} selector instance
-   */
-  static attributeValue(attributeName, value) {
-    return new LegacySelector(`*[${attributeName}="${value}"]`)
+  static attributeValue(attr: string, value: string): LegacySelector {
+    return new LegacySelector(`*[${attr}="${value}"]`)
   }
-  /**
-   * Create css selector by name attribute
-   * @param {string} name - name attribute value
-   * @return {LegacySelector} selector instance
-   */
-  static name(name) {
+  // @ts-ignore
+  static name(name: string): LegacySelector {
     return LegacySelector.attributeValue('name', name)
   }
-  /**
-   * Create css selector by tag name
-   * @param {string} tagName - element tag name
-   * @return {LegacySelector} selector instance
-   */
-  static tagName(tagName) {
+  static tagName(tagName: string): LegacySelector {
     return new LegacySelector(tagName)
   }
-  /**
-   * Create xpath selector
-   * @param {string} xpath - xpath string
-   * @return {LegacySelector} selector instance
-   */
-  static xpath(xpath) {
+  static xpath(xpath: string): LegacySelector {
     return new LegacySelector(xpath, 'xpath')
   }
-  /**
-   * @alias xpath
-   */
-  static xPath(xpath) {
+  static xPath(xpath: string): LegacySelector {
     return LegacySelector.xpath(xpath)
   }
-  /**
-   * @override
-   */
-  toString() {
+
+  constructor(readonly value: string, readonly using: string = 'css selector') {}
+
+  toString(): string {
     return `${this.using}:${this.value}`
   }
 }
 
-function withLegacyDriverAPI(browser) {
+export function withLegacyDriverAPI(browser: Driver): Driver {
   const api = {
     get remoteWebDriver() {
       return browser
     },
     async executeScript(script, ...args) {
-      if (TypeUtils.isFunction(script) || args.length > 1 || !TypeUtils.isArray(args[0])) {
+      if (utils.types.isFunction(script) || args.length > 1 || !utils.types.isArray(args[0])) {
         return browser.execute(script, ...args)
       } else {
         return browser.executeScript(script, args[0])
       }
     },
     async executeAsyncScript(script, ...args) {
-      if (TypeUtils.isFunction(script) || args.length > 1 || !TypeUtils.isArray(args[0])) {
+      if (utils.types.isFunction(script) || args.length > 1 || !utils.types.isArray(args[0])) {
         return browser.executeAsync(script, ...args)
       } else {
         return browser.executeAsyncScript(script, args[0])
@@ -120,7 +60,7 @@ function withLegacyDriverAPI(browser) {
     },
     async findElement(usingOrLocator, value) {
       if (usingOrLocator instanceof LegacySelector) {
-        const element = await browser.$(usingOrLocator.toString())
+        const element: any = await browser.$(usingOrLocator.toString())
         return !element.error ? withLegacyElementAPI(element, this) : null
       } else {
         return browser.findElement(usingOrLocator, value)
@@ -216,9 +156,10 @@ function withLegacyDriverAPI(browser) {
       return Reflect.get(target, key)
     },
   })
+  // @ts-ignore-end
 }
 
-function withLegacyElementAPI(element, driver) {
+export function withLegacyElementAPI(element: Element, driver: Driver): Element {
   const api = {
     get element() {
       return element
@@ -266,6 +207,3 @@ function withLegacyElementAPI(element, driver) {
   })
 }
 
-exports.LegacySelector = LegacySelector
-exports.withLegacyDriverAPI = withLegacyDriverAPI
-exports.withLegacyElementAPI = withLegacyElementAPI

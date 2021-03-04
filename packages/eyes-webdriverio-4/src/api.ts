@@ -1,10 +1,11 @@
 import * as api from '@applitools/eyes-api'
-import * as spec from './spec-driver.selenium4'
+import * as spec from './spec-driver'
 import sdk from './sdk'
-import type {Driver, Element, Selector} from './spec-driver.selenium4'
+import type {Driver, Element, Selector} from './spec-driver'
 
 export {Driver, Element, Selector}
 
+export {LegacySelector as By} from './legacy-api'
 export * from '@applitools/eyes-api'
 
 export type CheckSettingsPlain = api.CheckSettingsPlain<Element, Selector>

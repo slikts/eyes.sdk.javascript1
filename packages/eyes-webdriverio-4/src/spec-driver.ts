@@ -1,19 +1,30 @@
-const {TypeUtils} = require('@applitools/eyes-sdk-core')
-const {LegacySelector, withLegacyDriverAPI} = require('./legacy-api')
+import * as utils from '@applitools/utils'
+import {LegacySelector, withLegacyDriverAPI} from './legacy-api'
+import type {Client as WDIOBrowser, Element as WDIOElement, RawResult} from 'webdriverio'
+
+export type Driver = WDIOBrowser<void>
+export type Element =
+  | WDIOElement
+  | {ELEMENT: string}
+  | {'element-6066-11e4-a52e-4f735466cecf': string}
+  | RawResult<WDIOElement>
+export type Selector = LegacySelector | string
 
 // #region HELPERS
 
 const LEGACY_ELEMENT_ID = 'ELEMENT'
 const ELEMENT_ID = 'element-6066-11e4-a52e-4f735466cecf'
 
-function extractElementId(element) {
-  return element.elementId || element[ELEMENT_ID] || element[LEGACY_ELEMENT_ID]
+function extractElementId(element: Element): string {
+  if (utils.types.has(element, 'elementId')) return element.elementId
+  else if (utils.types.has(element, ELEMENT_ID)) return element[ELEMENT_ID]
+  else if (utils.types.has(element, LEGACY_ELEMENT_ID)) return element[LEGACY_ELEMENT_ID]
 }
 
-function transformSelector(selector) {
+function transformSelector(selector: Selector) {
   if (selector instanceof LegacySelector) {
     return selector.toString()
-  } else if (TypeUtils.has(selector, ['type', 'selector'])) {
+  } else if (utils.types.has(selector, ['type', 'selector'])) {
     if (selector.type === 'css') return `css selector:${selector.selector}`
     else if (selector.type === 'xpath') return `xpath:${selector.selector}`
     else return `${selector.type}:${selector.selector}`
@@ -25,37 +36,37 @@ function transformSelector(selector) {
 
 // #region UTILITY
 
-function isDriver(browser) {
+export function isDriver(browser: any): browser is Driver {
   return Boolean(browser.getPrototype && browser.desiredCapabilities && browser.requestHandler)
 }
-function isElement(element) {
+export function isElement(element: any): element is Element {
   if (!element) return false
   return element.value
     ? Boolean(element.value[ELEMENT_ID] || element.value[LEGACY_ELEMENT_ID])
     : Boolean(element[ELEMENT_ID] || element[LEGACY_ELEMENT_ID])
 }
-function isSelector(selector) {
+export function isSelector(selector: any): selector is Selector {
   return (
-    TypeUtils.isString(selector) ||
-    TypeUtils.has(selector, ['type', 'selector']) ||
+    utils.types.isString(selector) ||
+    utils.types.has(selector, ['type', 'selector']) ||
     selector instanceof LegacySelector
   )
 }
-function transformElement(element) {
-  const elementId = extractElementId(element.value ? element.value : element)
+export function transformElement(element: Element): Element {
+  const elementId = extractElementId(utils.types.has(element, 'value') ? element.value : element)
   return {[ELEMENT_ID]: elementId, [LEGACY_ELEMENT_ID]: elementId}
 }
-function extractSelector(element) {
-  return element.selector
+export function extractSelector(element: Element): Selector {
+  return utils.types.has(element, 'selector') ? element.selector as string : null
 }
-function isStaleElementError(error, selector) {
+export function isStaleElementError(error: any, selector: Selector): boolean {
   if (!error) return false
   const errOrResult = error.originalError || error
   return errOrResult instanceof Error
-    ? errOrResult.seleniumStack && errOrResult.seleniumStack.type === 'StaleElementReference'
+    ? (errOrResult as any).seleniumStack && (errOrResult as any).seleniumStack.type === 'StaleElementReference'
     : errOrResult.value && errOrResult.selector && errOrResult.selector === selector
 }
-function isEqualElements(_browser, element1, element2) {
+export function isEqualElements(_browser: Driver, element1: Element, element2: Element): boolean {
   if (!element1 || !element2) return false
   const elementId1 = extractElementId(element1)
   const elementId2 = extractElementId(element2)
@@ -66,38 +77,38 @@ function isEqualElements(_browser, element1, element2) {
 
 // #region COMMANDS
 
-async function executeScript(browser, script, ...args) {
+export async function executeScript(browser: Driver, script: ((...args: any) => any) | string, ...args: any[]): Promise<any> {
   const {value} = await browser.execute(script, ...args)
   return value
 }
-async function mainContext(browser) {
+export async function mainContext(browser: Driver): Promise<void> {
   await browser.frame(null)
 }
-async function parentContext(browser) {
+export async function parentContext(browser: Driver): Promise<void> {
   await browser.frameParent()
 }
-async function childContext(browser, element) {
+export async function childContext(browser: Driver, element: Element): Promise<any> {
   await browser.frame(element)
 }
-async function findElement(browser, selector) {
+export async function findElement(browser: Driver, selector: Selector): Promise<Element> {
   const {value} = await browser.element(transformSelector(selector))
   return value
 }
-async function findElements(browser, selector) {
+export async function findElements(browser: Driver, selector: Selector): Promise<Element[]> {
   const {value} = await browser.elements(transformSelector(selector))
   return value
 }
-async function getElementRect(browser, element) {
+export async function getElementRect(browser: Driver, element: Element): Promise<{x: number; y: number; width: number; height: number}> {
   const {value} = await browser.elementIdRect(extractElementId(element))
   return value
 }
-async function getWindowRect(browser) {
-  const {value: location} = await browser.windowHandlePosition()
-  const {value: size} = await browser.windowHandleSize()
+export async function getWindowRect(browser: Driver): Promise<{x: number; y: number; width: number; height: number}> {
+  const {value: location} = await browser.windowHandlePosition() as {value: {x: number, y: number}}
+  const {value: size} = await browser.windowHandleSize() as {value: {width: number, height: number}}
   return {x: location.x, y: location.y, width: size.width, height: size.height}
 }
-async function setWindowRect(browser, rect = {}) {
-  const {x = null, y = null, width = null, height = null} = rect
+export async function setWindowRect(browser: Driver, rect: {x?: number; y?: number; width?: number; height?: number}): Promise<void> {
+  const {x = null, y = null, width = null, height = null} = rect || {}
   if (x !== null && y !== null) {
     await browser.windowHandlePosition({x, y})
   }
@@ -105,13 +116,13 @@ async function setWindowRect(browser, rect = {}) {
     await browser.windowHandleSize({width, height})
   }
 }
-async function getOrientation(browser) {
-  const orientation = await browser.getOrientation()
+export async function getOrientation(browser: Driver): Promise<string> {
+  const orientation = await browser.getOrientation() as unknown as string
   return orientation.toLowerCase()
 }
-async function getDriverInfo(browser) {
+export async function getDriverInfo(browser: Driver): Promise<any> {
   return {
-    sessionId: browser.requestHandler.sessionID || browser.sessionId,
+    sessionId: (browser as any).requestHandler.sessionID || browser.sessionId,
     isMobile: browser.isMobile,
     isNative: browser.isMobile && !browser.desiredCapabilities.browserName,
     deviceName: browser.desiredCapabilities.deviceName,
@@ -125,34 +136,34 @@ async function getDriverInfo(browser) {
     browserVersion: browser.desiredCapabilities.browserVersion,
   }
 }
-async function getTitle(browser) {
+export async function getTitle(browser: Driver): Promise<string> {
   return browser.getTitle()
 }
-async function getUrl(browser) {
+export async function getUrl(browser: Driver): Promise<string> {
   return browser.getUrl()
 }
-async function visit(browser, url) {
-  return browser.url(url)
+export async function visit(browser: Driver, url: string): Promise<void> {
+  await browser.url(url)
 }
-async function takeScreenshot(driver) {
+export async function takeScreenshot(driver: Driver): Promise<Buffer> {
   return driver.saveScreenshot()
 }
-async function click(browser, element) {
+export async function click(browser: Driver, element: Element | Selector): Promise<void> {
   if (isSelector(element)) element = await findElement(browser, element)
   await browser.elementIdClick(extractElementId(element))
 }
-async function type(browser, element, keys) {
+export async function type(browser: Driver, element: Element, keys: string): Promise<void> {
   if (isSelector(element)) browser.setValue(transformSelector(element), keys)
   else browser.elementIdValue(extractElementId(element), keys)
 }
-async function waitUntilDisplayed(browser, selector, timeout) {
-  return browser.waitForVisible(selector, timeout)
+export async function waitUntilDisplayed(browser: Driver, selector: Selector, timeout: number): Promise<void>  {
+  await browser.waitForVisible(selector as string, timeout)
 }
-async function scrollIntoView(browser, element, align = false) {
+export async function scrollIntoView(browser: Driver, element: Element | Selector, align = false): Promise<void>  {
   if (isSelector(element)) element = await findElement(browser, element)
   await browser.execute('arguments[0].scrollIntoView(arguments[1])', element, align)
 }
-async function hover(browser, element, {x, y} = {}) {
+export async function hover(browser: Driver, element: Element, {x = 0, y = 0} = {}): Promise<void>  {
   if (isSelector(element)) element = await findElement(browser, element)
   await browser.moveTo(extractElementId(element), x, y)
 }
@@ -161,11 +172,11 @@ async function hover(browser, element, {x, y} = {}) {
 
 // #region TESTING
 
-const browserOptionsNames = {
+const browserOptionsNames: Record<string, string> = {
   chrome: 'goog:chromeOptions',
   firefox: 'moz:firefoxOptions',
 }
-async function build(env) {
+export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
   const webdriverio = require('webdriverio')
   const chromedriver = require('chromedriver')
   const {testSetup} = require('@applitools/sdk-shared')
@@ -228,41 +239,6 @@ async function build(env) {
 
 // #region LEGACY API
 
-function wrapDriver(browser) {
-  return withLegacyDriverAPI(browser)
-}
+export const wrapDriver = withLegacyDriverAPI
 
 // #endregion
-
-exports.isDriver = isDriver
-exports.isElement = isElement
-exports.isSelector = isSelector
-exports.transformElement = transformElement
-exports.extractSelector = extractSelector
-exports.isEqualElements = isEqualElements
-exports.isStaleElementError = isStaleElementError
-
-exports.executeScript = executeScript
-exports.mainContext = mainContext
-exports.parentContext = parentContext
-exports.childContext = childContext
-exports.findElement = findElement
-exports.findElements = findElements
-exports.getElementRect = getElementRect
-exports.getWindowRect = getWindowRect
-exports.setWindowRect = setWindowRect
-exports.getOrientation = getOrientation
-exports.getDriverInfo = getDriverInfo
-exports.getTitle = getTitle
-exports.getUrl = getUrl
-exports.visit = visit
-exports.takeScreenshot = takeScreenshot
-exports.click = click
-exports.type = type
-exports.waitUntilDisplayed = waitUntilDisplayed
-exports.scrollIntoView = scrollIntoView
-exports.hover = hover
-
-exports.build = build
-
-exports.wrapDriver = wrapDriver
