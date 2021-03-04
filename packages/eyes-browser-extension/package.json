@@ -13,6 +13,7 @@
   "license": "ISC",
   "devDependencies": {
     "@applitools/eyes-sdk-core": "^12.15.0",
+    "@applitools/visual-grid-client": "^15.6.0",
     "@babel/core": "^7.13.8",
     "@babel/plugin-proposal-class-properties": "^7.5.5",
     "@babel/plugin-proposal-object-rest-spread": "^7.6.2",
