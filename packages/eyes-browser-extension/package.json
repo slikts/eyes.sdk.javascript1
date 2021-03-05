@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "mocha --no-timeouts test/e2e",
     "build": "yarn build:page && webpack",
     "build:page": "webpack --config webpack.config.page.babel.js"
   },
@@ -25,16 +25,22 @@
     "browser-process-hrtime": "^1.0.0",
     "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",
+    "chromedriver": "^89.0.0",
     "copy-webpack-plugin": "^7.0.0",
     "crypto-browserify": "^3.12.0",
     "null-loader": "^4.0.1",
     "os-browserify": "^0.3.0",
     "path-browserify": "^1.0.1",
     "process": "^0.11.10",
+    "selenium-webdriver": "^4.0.0-beta.1",
     "stream-browserify": "^3.0.0",
     "util": "^0.12.3",
+    "uuid": "^8.3.2",
     "webextension-polyfill": "^0.7.0",
     "webpack": "^5.24.2",
     "webpack-cli": "^4.5.0"
+  },
+  "dependencies": {
+    "mocha": "^8.3.0"
   }
 }
