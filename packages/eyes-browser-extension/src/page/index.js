@@ -23,6 +23,23 @@ function ping() {
   return p.then(result => result)
 }
 
+function open(params) {
+  const id = uuidv4()
+  const p = new Promise((res, rej) => {
+    window.__eyes.promises[id] = {res, rej}
+  })
+  window.postMessage(
+    {
+      direction: 'from-page',
+      command: 'open',
+      params,
+      id,
+    },
+    '*'
+  )
+  return p.then(result => result)
+}
+
 window.addEventListener('message', event => {
   console.log(`page: ${JSON.stringify(event)}`)
   if (event.data && event.data.direction === 'from-background-script' && event.data.id) {
@@ -35,5 +52,5 @@ window.__eyes = {
   ping,
   promises: {},
   executeScript,
+  open,
 }
-
