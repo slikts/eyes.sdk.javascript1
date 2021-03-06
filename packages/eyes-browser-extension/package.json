@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --no-timeouts test/e2e",
+    "test": "yarn build && mocha --no-timeouts test/e2e",
     "build": "yarn build:page && webpack",
     "build:page": "webpack --config webpack.config.page.babel.js"
   },
