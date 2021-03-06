@@ -1,5 +1,12 @@
 const {v4: uuidv4} = require('uuid')
 
+function executeScript(script, args = []) {
+  const fn = new Function(
+    script.startsWith('function') ? `return (${script}).apply(null, arguments)` : script,
+  )
+  return fn.apply(null, args)
+}
+
 function ping() {
   const id = uuidv4()
   const p = new Promise((res, rej) => {
@@ -27,5 +34,6 @@ window.addEventListener('message', event => {
 window.__eyes = {
   ping,
   promises: {},
+  executeScript,
 }
 
