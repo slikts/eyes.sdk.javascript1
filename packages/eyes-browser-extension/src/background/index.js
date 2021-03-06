@@ -12,9 +12,9 @@ const {EyesFactory: Eyes} = EyesSDK({
 //const eyes = new Eyes()
 
 browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  if (message.direction === 'from-page' && message.command === 'ping') {
-    const r = {result: 'pong', ...message}
-    console.log(`background script: ${JSON.stringify(r)}`)
-    return sendResponse(r)
+  if (message.direction === 'from-page' && message.id && message.command === 'ping') {
+    const result = {result: 'pong', direction: 'from-background-script', id: message.id}
+    console.log(`background script: ${JSON.stringify(result)}`)
+    return sendResponse(result)
   }
 })

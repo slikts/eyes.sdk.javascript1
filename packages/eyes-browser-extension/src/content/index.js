@@ -9,13 +9,7 @@ window.addEventListener('message', async event => {
   if (event.data && event.data.direction === 'from-page') {
     const result = await browser.runtime.sendMessage(event.data)
     console.log(`content script: received result from background script ${JSON.stringify(event.data)}`)
-    const payload = {
-      direction: 'from-content-script',
-      id: result.id,
-      result: result.result,
-    }
-    console.log(`content script: payload for page ${JSON.stringify(payload)}`)
     console.log('sending message to page')
-    window.postMessage(payload, '*')
+    window.postMessage(result, '*')
   }
 })

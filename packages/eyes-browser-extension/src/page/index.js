@@ -18,7 +18,7 @@ function ping() {
 
 window.addEventListener('message', event => {
   console.log(`page: ${JSON.stringify(event)}`)
-  if (event.data && event.data.direction === 'from-content-script' && event.data.id) {
+  if (event.data && event.data.direction === 'from-background-script' && event.data.id) {
     window.__eyes.promises[event.data.id].res(event.data.result)
     delete window.__eyes.promises[event.data.id]
   }
