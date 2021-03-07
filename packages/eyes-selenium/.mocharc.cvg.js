@@ -15,7 +15,7 @@ module.exports = {
     'node_modules/@applitools/sdk-shared/coverage-tests/custom/**/*.spec.js',
   ],
   parallel: true,
-  jobs: 5,
+  jobs: 65,
   timeout: 0,
   reporter: 'spec-xunit-file',
   require: ['./test/util/version-alias.js', '@applitools/sdk-shared/coverage-tests/util/mocha-hooks.js'],
