@@ -6,7 +6,6 @@ describe('hello world', () => {
   let driver
   before(async () => {
     const extensionPath = path.join(process.cwd(), 'build')
-    console.log(extensionPath)
     const caps = {
       browserName: 'chrome',
       'goog:chromeOptions': {
@@ -33,7 +32,11 @@ describe('hello world', () => {
     const result = await driver.executeScript('return window.__eyes.executeScript("return arguments[0]", [9001])')
     assert.deepStrictEqual(result, 9001)
   })
-  it('eyes.open', async () => {
+  it('works w/ embedded eval invoked from background script', async () => {
+    const result = await driver.executeScript('return window.__eyes.executeScriptRoundTrip("return arguments[0]", [9001])')
+    assert.deepStrictEqual(result, 9001)
+  })
+  it.skip('eyes.open', async () => {
     const result = await driver.executeScript('return window.__eyes.open({appName: "blah", testName: "blah"})')
     console.log(result)
   })
