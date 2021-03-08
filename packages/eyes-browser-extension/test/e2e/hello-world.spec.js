@@ -42,4 +42,38 @@ describe('hello world', () => {
     )
     assert.ok(result)
   })
+  it('eyes.close', async () => {
+    const eyesId = await driver.executeScript(
+      `return window.__eyes.open({appName: "blah", testName: "blah", apiKey: "${process.env.APPLITOOLS_API_KEY}", showLogs: true})`
+    )
+    const result = await driver.executeScript(
+      `return window.__eyes.close({eyesId: '${eyesId}', throwException: false})`
+    )
+    assert.ok(result)
+  })
+  it('eyes.abort', async () => {
+    const eyesId = await driver.executeScript(
+      `return window.__eyes.open({appName: "blah", testName: "blah", apiKey: "${process.env.APPLITOOLS_API_KEY}", showLogs: true})`
+    )
+    const result = await driver.executeScript(
+      `return window.__eyes.abort({eyesId: '${eyesId}'})`
+    )
+    assert.ok(result)
+  })
+  it.skip('eyes.check window (viewport)', async () => {})
+  it.only('eyes.check window (full page)', async () => {
+    const eyesId = await driver.executeScript(
+      `return window.__eyes.open({appName: "blah", testName: "blah", apiKey: "${process.env.APPLITOOLS_API_KEY}", showLogs: true})`
+    )
+    await driver.executeScript(
+      `return window.__eyes.check({eyesId: '${eyesId}', checkSettings: {target: 'window', fully: true}})`
+    )
+    const result = await driver.executeScript(
+      `return window.__eyes.close({eyesId: '${eyesId}', throwException: false})`
+    )
+    assert.ok(result)
+  })
+  it.skip('eyes.check window (element)', async () => {})
+  it.skip('eyes.check window (element fully)', async () => {})
+  it.skip('eyes.close w/ throw exception', async () => {})
 })

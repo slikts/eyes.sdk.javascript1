@@ -36,6 +36,18 @@ function open(params) {
   return doCommand('open', params)
 }
 
+function close(params) {
+  return doCommand('close', params)
+}
+
+function abort(params) {
+  return doCommand('abort', params)
+}
+
+function check(params) {
+  return doCommand('check', params)
+}
+
 window.addEventListener('message', event => {
   if (event.data && event.data.direction === 'from-background-script' && event.data.id) {
     if (event.data.command === 'executeScript') {
@@ -57,6 +69,9 @@ window.addEventListener('message', event => {
 })
 
 window.__eyes = {
+  abort,
+  check,
+  close,
   ping,
   promises: {},
   executeScript,
