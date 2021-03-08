@@ -7,7 +7,7 @@ function executeScript(script, args = []) {
   return fn.apply(null, args)
 }
 
-function ping() {
+function doCommand(name, options = {}) {
   const id = uuidv4()
   const p = new Promise((res, rej) => {
     window.__eyes.promises[id] = {res, rej}
@@ -15,47 +15,25 @@ function ping() {
   window.postMessage(
     {
       direction: 'from-page',
-      command: 'ping',
+      command: name,
       id,
+      ...options,
     },
     '*'
   )
   return p.then(result => result)
 }
 
-function open(params) {
-  const id = uuidv4()
-  const p = new Promise((res, rej) => {
-    window.__eyes.promises[id] = {res, rej}
-  })
-  window.postMessage(
-    {
-      direction: 'from-page',
-      command: 'open',
-      params,
-      id,
-    },
-    '*'
-  )
-  return p.then(result => result)
+function ping() {
+  return doCommand('ping')
 }
 
 function executeScriptRoundTrip(script, args) {
-  const id = uuidv4()
-  const p = new Promise((res, rej) => {
-    window.__eyes.promises[id] = {res, rej}
-  })
-  window.postMessage(
-    {
-      direction: 'from-page',
-      command: 'executeScriptRoundTrip',
-      script,
-      args,
-      id,
-    },
-    '*'
-  )
-  return p.then(result => result)
+  return doCommand('executeScriptRoundTrip', {script, args})
+}
+
+function open(params) {
+  return doCommand('open', params)
 }
 
 window.addEventListener('message', event => {
