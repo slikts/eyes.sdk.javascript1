@@ -1,10 +1,11 @@
 const browser = require('webextension-polyfill')
 process.hrtime = require('browser-process-hrtime')
-const {EyesSDK} = require('@applitools/eyes-sdk-core')
+const {EyesSDK, Logger, VisualGridRunner} = require('@applitools/eyes-sdk-core')
 const VisualGridClient = require('@applitools/visual-grid-client')
 const {version} = require('../../package.json')
+const {v4: uuidv4} = require('uuid')
 
-async function executeScript(script, args) {
+async function executeScript(_driver, script, args) {
   const tabs = await browser.tabs.query({
     currentWindow: true,
     active: true
@@ -26,8 +27,20 @@ const {EyesFactory: Eyes} = EyesSDK({
   name: 'eyes.browser-extension',
   version,
   spec: {
-    isDriver: () => true,
     executeScript,
+    isDriver: () => true,
+    isElement: () => true,
+    isEqualElements: (_driver, element1, element2) => true,
+    isSelector: () => true,
+    mainContext: () => true,
+    parentContext: () => true,
+    childContext: () => true,
+    findElement: () => true,
+    findElements: () => true,
+    getViewportSize: () => {
+      return {width: 1024, height: 768}
+    },
+    setViewportSize: () => true,
   },
   VisualGridClient,
 })
@@ -38,7 +51,7 @@ browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
   if (message.direction === 'from-page' && message.id) {
     switch (message.command) {
       case 'executeScriptRoundTrip':
-        executeScript(message.script, message.args).then(result => {
+        executeScript({}, message.script, message.args).then(result => {
           return sendResponse({
             direction: 'from-background-script',
             id: message.id,
@@ -51,8 +64,12 @@ browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         return sendResponse(result)
       case 'open':
         const eyesId = uuidv4()
-        eyes[eyesId] = new Eyes()
-        eyes.open({}, message.params.appName, message.params.testName).then(result => {
+        eyes[eyesId] = new Eyes(new VisualGridRunner())
+        eyes[eyesId].logger = new Logger(message.showLogs)
+        const config = eyes[eyesId].getConfiguration()
+        config.setApiKey(message.apiKey)
+        eyes[eyesId].setConfiguration(config)
+        eyes[eyesId].open({}, message.appName, message.testName).then(result => {
           return sendResponse({
             direction: 'from-background-script',
             id: message.id,

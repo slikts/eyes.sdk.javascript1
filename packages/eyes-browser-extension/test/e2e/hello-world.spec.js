@@ -36,8 +36,10 @@ describe('hello world', () => {
     const result = await driver.executeScript('return window.__eyes.executeScriptRoundTrip("return arguments[0]", [9001])')
     assert.deepStrictEqual(result, 9001)
   })
-  it.skip('eyes.open', async () => {
-    const result = await driver.executeScript('return window.__eyes.open({appName: "blah", testName: "blah"})')
-    console.log(result)
+  it('eyes.open', async () => {
+    const result = await driver.executeScript(
+      `return window.__eyes.open({appName: "blah", testName: "blah", apiKey: "${process.env.APPLITOOLS_API_KEY}", showLogs: true})`
+    )
+    assert.ok(result)
   })
 })
