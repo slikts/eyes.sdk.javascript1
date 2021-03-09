@@ -21,7 +21,7 @@ function doCommand(name, options = {}) {
     },
     '*'
   )
-  return p.then(result => result)
+  return p
 }
 
 function ping() {
