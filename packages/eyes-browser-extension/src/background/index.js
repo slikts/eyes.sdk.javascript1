@@ -1,13 +1,15 @@
 const browser = require('webextension-polyfill')
 process.hrtime = require('browser-process-hrtime')
-const {EyesSDK, Logger, VisualGridRunner} = require('@applitools/eyes-sdk-core')
+const {EyesSDK, Logger, VisualGridRunner, _TypeUtils} = require('@applitools/eyes-sdk-core')
 const VisualGridClient = require('@applitools/visual-grid-client')
 const {version} = require('../../package.json')
 const {v4: uuidv4} = require('uuid')
 
+//function transformSelector(selector) {
+//  if (TypeUtils.has(selector, ['type', 'selector'])) return `${selector.selector}`
+//  return selector
+//}
 async function executeScript(_driver, script, args) {
-  if (!script) return
-  console.log(`executeScript arguments: ${JSON.stringify(arguments)}`)
   const tabs = await browser.tabs.query({
     currentWindow: true,
     active: true
@@ -22,7 +24,6 @@ async function executeScript(_driver, script, args) {
       args
     }
   )
-  console.log(`executeScript result: ${JSON.stringify(result)}`)
   return result
 }
 
@@ -87,20 +88,19 @@ const eyes = {}
 // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/onMessage#sending_an_asynchronous_response_using_sendresponse
 // Although, I think we can just return a promise (seeing warnings about this approach getting deprecated soon)
 browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
+  function sendMessage(sendResponse, message, result) {
+    return sendResponse({direction: 'from-background-script', id: message.id, result})
+  }
+  const reply = sendMessage.bind(undefined, sendResponse, message)
   if (message.direction === 'from-page' && message.id) {
     switch (message.command) {
       case 'executeScriptRoundTrip':
         executeScript({}, message.script, message.args).then(result => {
-          return sendResponse({
-            direction: 'from-background-script',
-            id: message.id,
-            result,
-          })
+          return reply(result)
         })
         return true
       case 'ping':
-        const result = {result: 'pong', direction: 'from-background-script', id: message.id}
-        return sendResponse(result)
+        return reply('pong')
       case 'open':
         const eyesId = uuidv4()
         eyes[eyesId] = new Eyes(new VisualGridRunner())
@@ -109,39 +109,23 @@ browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         config.setApiKey(message.apiKey)
         eyes[eyesId].setConfiguration(config)
         eyes[eyesId].open({}, message.appName, message.testName).then(result => {
-          return sendResponse({
-            direction: 'from-background-script',
-            id: message.id,
-            result: eyesId,
-          })
+          return reply(eyesId)
         })
         return true
       case 'close':
         eyes[message.eyesId].close(message.throwException).then(result => {
-          sendResponse({
-            direction: 'from-background-script',
-            id: message.id,
-            result,
-          })
+          return reply(result)
         })
         return true
       case 'abort':
         eyes[message.eyesId].abort().then(result => {
-          return sendResponse({
-            direction: 'from-background-script',
-            id: message.id,
-            result: true,
-          })
+          return reply(true)
         })
         return true
       case 'check':
         console.log(`checkSettings: ${JSON.stringify(message.checkSettings)}`)
         eyes[message.eyesId].check(message.checkSettings).then(result => {
-          return sendResponse({
-            direction: 'from-background-script',
-            id: message.id,
-            result: true,
-          })
+          return reply(true)
         })
         return true
     }
