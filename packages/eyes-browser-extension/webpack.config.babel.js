@@ -5,6 +5,7 @@ import CopyWebpackPlugin from 'copy-webpack-plugin'
 const isProduction = process.env.NODE_ENV === 'production'
 
 export default {
+  mode: isProduction ? 'production' : 'development',
   context: path.resolve(__dirname, 'src'),
   devtool: isProduction ? 'source-map' : false,
   entry: {
