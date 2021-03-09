@@ -7,6 +7,9 @@ describe('hello world', () => {
   before(async () => {
     const extensionPath = path.join(process.cwd(), 'build')
     const caps = {
+      timeouts: {
+        script: 60000,
+      },
       browserName: 'chrome',
       'goog:chromeOptions': {
         args: [
@@ -61,10 +64,11 @@ describe('hello world', () => {
     assert.ok(result)
   })
   it.skip('eyes.check window (viewport)', async () => {})
-  it.only('eyes.check window (full page)', async () => {
+  it.skip('eyes.check window (full page)', async () => {
     const eyesId = await driver.executeScript(
       `return window.__eyes.open({appName: "blah", testName: "blah", apiKey: "${process.env.APPLITOOLS_API_KEY}", showLogs: true})`
     )
+    //await new Promise(res => setTimeout(res, 20000))
     await driver.executeScript(
       `return window.__eyes.check({eyesId: '${eyesId}', checkSettings: {target: 'window', fully: true}})`
     )
