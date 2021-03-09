@@ -57,7 +57,7 @@ window.addEventListener('message', event => {
           id: event.data.id,
           direction: 'from-page',
           command: 'executeScript',
-          result,
+          result: JSON.stringify(result),
         },
         '*'
       )

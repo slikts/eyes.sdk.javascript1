@@ -10,21 +10,38 @@ const {v4: uuidv4} = require('uuid')
 //  return selector
 //}
 async function executeScript(_driver, script, args) {
-  const tabs = await browser.tabs.query({
-    currentWindow: true,
-    active: true
+  // NOTE:
+  // To enable debugging (e.g., to let this function run when devtools is open)
+  // we can't just query for the tabs, because of a bug in Chromium:
+  // https://bugs.chromium.org/p/chromium/issues/detail?id=462939
+  // The workaround is to get the tabs as part of a lookup with the window id.
+  // From there we can find the tab id.
+  // (adapted from: https://stackoverflow.com/a/63886442/1359405)
+  const p = new Promise(resolve => {
+    chrome.windows.getCurrent(w => {
+      chrome.tabs.query(
+        {
+          windowId: w.id,
+        },
+        tabs => {
+          // TODO: revisit, since it won't support tests that open a new window
+          const activeTab = tabs[0]
+          resolve(activeTab.id)
+        }
+      )
+    })
   })
-  const {id: activeTab} = tabs[0]
+  const tabId = await p
   const result = await browser.tabs.sendMessage(
-    activeTab,
+    tabId,
     {
       direction: 'from-background-script',
       command: 'executeScript',
-      script, 
+      script: typeof script === 'function' ? script.toString() : script, 
       args
     }
   )
-  return result
+  if (result) return JSON.parse(result)
 }
 
 const {EyesFactory: Eyes} = EyesSDK({
@@ -122,7 +139,7 @@ browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
         })
         return true
       case 'check':
-        console.log(`checkSettings: ${JSON.stringify(message.checkSettings)}`)
+        debugger
         eyes[message.eyesId].check(message.checkSettings).then(result => {
           return reply(true)
         })
