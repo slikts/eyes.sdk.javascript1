@@ -88,10 +88,9 @@ const eyes = {}
 // https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/API/runtime/onMessage#sending_an_asynchronous_response_using_sendresponse
 // Although, I think we can just return a promise (seeing warnings about this approach getting deprecated soon)
 browser.runtime.onMessage.addListener((message, _sender, sendResponse) => {
-  function sendMessage(sendResponse, message, result) {
+  const reply = result => {
     return sendResponse({direction: 'from-background-script', id: message.id, result})
   }
-  const reply = sendMessage.bind(undefined, sendResponse, message)
   if (message.direction === 'from-page' && message.id) {
     switch (message.command) {
       case 'executeScriptRoundTrip':
