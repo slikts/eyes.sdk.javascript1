@@ -80,7 +80,7 @@ export {
 
 // #region OUTPUT
 
-export {ValidationInfo as ValidationInfoPlain, ValidationInfoData as ValidationInfo} from './src/output/validationInfo'
+export {ValidationInfo as ValidationInfoPlain, ValidationInfoData as ValidationInfo} from './src/output/ValidationInfo'
 export {
   ValidationResult as ValidationResultPlain,
   ValidationResultData as ValidationResult,
