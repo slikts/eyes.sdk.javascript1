@@ -1,14 +1,14 @@
 import * as utils from '@applitools/utils'
-import type {ElementHandle, Frame, JSHandle, Page} from 'puppeteer'
+import type * as Puppeteer from 'puppeteer'
 
-export type Driver = Page
-export type Element = ElementHandle
-export type Context = Frame
-export type Selector = string
+export type Driver = Puppeteer.Page
+export type Element = Puppeteer.ElementHandle
+export type Context = Puppeteer.Frame
+export type Selector = string | {type: string; selector: string}
 
 // #region HELPERS
 
-async function handleToObject(handle: JSHandle): Promise<any> {
+async function handleToObject(handle: Puppeteer.JSHandle): Promise<any> {
   const [, type] = handle.toString().split('@')
   if (type === 'array') {
     const map = await handle.getProperties()
@@ -27,11 +27,14 @@ function transformSelector(selector: any): string {
   if (utils.types.has(selector, ['type', 'selector'])) return `${selector.selector}`
   return selector
 }
+function isXpath(selector: string): boolean {
+  return selector.startsWith('//') || selector.startsWith('..')
+}
 function serializeArgs(args: any[]) {
   const elements: Element[] = []
   const argsWithElementMarkers = args.map(serializeArg)
 
-  return {argsWithElementMarkers, elements}
+  return [argsWithElementMarkers, ...elements]
 
   function serializeArg(arg: any): any {
     if (isElement(arg)) {
@@ -56,8 +59,11 @@ function serializeArgs(args: any[]) {
 //    own argument. To account for this, we use a wrapper function to receive all
 //    of the arguments in a serialized structure, deserialize them, and call the script,
 //    and pass the arguments as originally intended
-async function scriptRunner() {
+function scriptRunner(script: string, argsWithElementMarkers: any[], ...elements: HTMLElement[]) {
   /*eslint prefer-rest-params: "off", prefer-spread: "off"*/
+  const func = new Function(script.startsWith('function') ? `return (${script}).apply(null, arguments)` : script)
+  return func.apply(null, argsWithElementMarkers.map(deserializeArg))
+
   function deserializeArg(arg: any): any {
     if (!arg) {
       return arg
@@ -73,15 +79,6 @@ async function scriptRunner() {
       return arg
     }
   }
-  const args = Array.from(arguments)
-  const elements = args.slice(1)
-  let script = args[0].script
-  script = new Function(script.startsWith('function') ? `return (${script}).apply(null, arguments)` : script)
-  const deserializedArgs = args[0].argsWithElementMarkers.map(deserializeArg)
-  return script.apply(null, deserializedArgs)
-}
-function isXpath(selector: Selector): boolean {
-  return selector.startsWith('//') || selector.startsWith('..')
 }
 
 // #endregion
@@ -98,7 +95,7 @@ export function isElement(element: any): element is Element {
 export function isSelector(selector: any): selector is Selector {
   return utils.types.isString(selector) || utils.types.has(selector, ['type', 'selector'])
 }
-export function extractContext(page: Page | Context): Context {
+export function extractContext(page: Driver | Context): Context {
   return isDriver(page) ? page.mainFrame() : page
 }
 export function isStaleElementError(err: any): boolean {
@@ -124,8 +121,7 @@ export async function executeScript(
 ): Promise<any> {
   // a function is not serializable, so we pass it as a string instead
   script = utils.types.isString(script) ? script : script.toString()
-  const {argsWithElementMarkers, elements} = serializeArgs(args)
-  const result = await frame.evaluateHandle(scriptRunner, {script, argsWithElementMarkers}, ...elements)
+  const result = await frame.evaluateHandle(scriptRunner, script, ...serializeArgs(args))
   return await handleToObject(result)
 }
 export async function mainContext(frame: Context): Promise<Context> {
@@ -177,26 +173,24 @@ export async function visit(page: Driver, url: string): Promise<void> {
 export async function takeScreenshot(page: Driver): Promise<string> {
   return page.screenshot()
 }
-export async function click(frame: Context, selector: Selector): Promise<void> {
-  return frame.click(transformSelector(selector))
+export async function click(frame: Context, element: Element | Selector): Promise<void> {
+  if (isSelector(element)) element = await findElement(frame, element)
+  await element.click()
 }
-export async function type(_frame: Context, element: Element, keys: string): Promise<void> {
+export async function type(frame: Context, element: Element | Selector, keys: string): Promise<void> {
+  if (isSelector(element)) element = await findElement(frame, element)
   return element.type(keys)
+}
+export async function hover(frame: Context, element: Element | Selector): Promise<void> {
+  if (isSelector(element)) element = await findElement(frame, element)
+  await element.hover()
+}
+export async function scrollIntoView(frame: Context, element: Element | Selector, align = false): Promise<void> {
+  if (isSelector(element)) element = await findElement(frame, element)
+  await frame.evaluate((element, align) => element.scrollIntoView(align), element, align)
 }
 export async function waitUntilDisplayed(frame: Context, selector: Selector): Promise<void> {
   await frame.waitForSelector(transformSelector(selector))
-}
-export async function scrollIntoView(frame: Context, element: Element, align = false): Promise<void> {
-  if (isSelector(element)) {
-    element = await findElement(frame, element)
-  }
-  await frame.evaluate((element, align) => element.scrollIntoView(align), element, align)
-}
-export async function hover(frame: Context, element: Element): Promise<void> {
-  if (isSelector(element)) {
-    element = await findElement(frame, element)
-  }
-  await element.hover()
 }
 
 // #endregion

@@ -30,7 +30,6 @@
     "lib": "./src",
     "test": "./test"
   },
-  "types": "./index.d.ts",
   "main": "./dist/index.js",
   "dependencies": {
     "@applitools/eyes-api": "link:../eyes-api",
@@ -61,12 +60,13 @@
     "typescript": "^4.1.5"
   },
   "scripts": {
-    "lint": "eslint '**/*.ts'",
+    "lint": "eslint '**/*.ts' '**/*.js'",
     "render": "node ../sdk-shared/scripts/render.js",
-    "build": "tsc && yarn build:types",
+    "build": "yarn build:dist && yarn build:types",
+    "build:dist": "tsc",
     "build:types": "api-extractor ./index.ts --out ./index.d.ts --externals playwright",
     "test": "yarn test:it",
-    "test:it": "mocha --no-timeouts ./test/it/*.spec.js",
+    "test:it": "yarn build:dist && mocha --no-timeouts ./test/it/*.spec.js",
     "test:coverage": "APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-playwright' APPLITOOLS_BATCH_ID=$(uuidgen) XUNIT_FILE=coverage-test-report.xml mocha --config .mocharc.cvg.js",
     "coverage:generate": "coverage-tests generate node_modules/@applitools/sdk-shared/coverage-tests/generic/index.js --name 'eyes-playwright'",
     "coverage:report": "coverage-tests report node_modules/@applitools/sdk-shared/coverage-tests/generic/index.js --name 'eyes-playwright'",

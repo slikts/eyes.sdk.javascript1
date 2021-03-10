@@ -1,10 +1,9 @@
 import * as utils from '@applitools/utils'
 import {LegacySelector, withLegacyDriverAPI} from './legacy-api'
-import type {BrowserObject as WDIOBrowser, Element as WDIOElement} from 'webdriverio'
 
-export type Driver = WDIOBrowser
-export type Element = WDIOElement | {ELEMENT: string} | {'element-6066-11e4-a52e-4f735466cecf': string}
-export type Selector = LegacySelector | string
+export type Driver = WebdriverIO.BrowserObject
+export type Element = WebdriverIO.Element | {ELEMENT: string} | {'element-6066-11e4-a52e-4f735466cecf': string}
+export type Selector = string | Function | LegacySelector | {type: string; selector: string}
 
 // #region HELPERS
 
@@ -16,8 +15,7 @@ function extractElementId(element: Element): string {
   else if (utils.types.has(element, ELEMENT_ID)) return element[ELEMENT_ID]
   else if (utils.types.has(element, LEGACY_ELEMENT_ID)) return element[LEGACY_ELEMENT_ID]
 }
-
-function transformSelector(selector: Selector): string {
+function transformSelector(selector: Selector): string | Function {
   if (selector instanceof LegacySelector) {
     return selector.toString()
   } else if (utils.types.has(selector, ['type', 'selector'])) {
@@ -27,11 +25,11 @@ function transformSelector(selector: Selector): string {
   }
   return selector
 }
-function serializeArgs(args: any[]) {
+function serializeArgs(args: any[]): [any[], ...Element[]] {
   const elements: Element[] = []
   const argsWithElementMarkers = args.map(serializeArg)
 
-  return {argsWithElementMarkers, elements}
+  return [argsWithElementMarkers, ...elements]
 
   function serializeArg(arg: any): any {
     if (isElement(arg)) {
@@ -56,7 +54,11 @@ function serializeArgs(args: any[]) {
 //    own argument. To account for this, we use a wrapper function to receive all
 //    of the arguments in a serialized structure, deserialize them, and call the script,
 //    and pass the arguments as originally intended
-async function scriptRunner() {
+function scriptRunner(script: string, argsWithElementMarkers: any[], ...elements: HTMLElement[]) {
+  /*eslint prefer-rest-params: "off", prefer-spread: "off"*/
+  const func = new Function(script.startsWith('function') ? `return (${script}).apply(null, arguments)` : script)
+  return func.apply(null, argsWithElementMarkers.map(deserializeArg))
+
   function deserializeArg(arg: any): any {
     if (!arg) {
       return arg
@@ -72,14 +74,6 @@ async function scriptRunner() {
       return arg
     }
   }
-  const args = Array.from(arguments)
-  const elements = args.slice(1)
-  let script = args[0].script
-  script = new Function(
-    script.startsWith('function') ? `return (${script}).apply(null, arguments)` : script,
-  )
-  const deserializedArgs = args[0].argsWithElementMarkers.map(deserializeArg)
-  return script.apply(null, deserializedArgs)
 }
 
 // #endregion
@@ -117,9 +111,11 @@ export async function isEqualElements(browser: Driver, element1: Element, elemen
   // NOTE: wdio wraps puppeteer and generate ids by itself just incrementing a counter
   // NOTE: appium for ios could return different ids for same element
   if (browser.isDevTools || browser.isIOS) {
-    return browser
-      .execute((element1, element2) => element1 === element2, element1, element2)
-      .catch(() => false)
+    try {
+      return await browser.execute((element1, element2) => element1 === element2, element1, element2)
+    } catch (err) {
+      return false
+    }
   }
   if (!element1 || !element2) return false
   const elementId1 = extractElementId(element1)
@@ -134,8 +130,7 @@ export async function isEqualElements(browser: Driver, element1: Element, elemen
 export async function executeScript(browser: Driver, script: ((...args: any) => any) | string, ...args: any[]): Promise<any>  {
   if (browser.isDevTools) {
     script = utils.types.isString(script) ? script : script.toString()
-    const {argsWithElementMarkers, elements} = serializeArgs(args)
-    return browser.execute(scriptRunner, {script, argsWithElementMarkers}, ...elements)
+    return browser.execute(scriptRunner, script, ...serializeArgs(args))
   } else {
     return browser.execute(script, ...args)
   }
@@ -154,7 +149,7 @@ export async function childContext(browser: Driver, element: Element): Promise<D
 }
 export async function findElement(browser: Driver, selector: Selector): Promise<Element> {
   const element = await browser.$(transformSelector(selector))
-  return !(element as any).error ? element : null
+  return !utils.types.has(element, 'error') ? element : null
 }
 export async function findElements(browser: Driver, selector: Selector): Promise<Element[]> {
   const elements = await browser.$$(transformSelector(selector))
@@ -162,8 +157,8 @@ export async function findElements(browser: Driver, selector: Selector): Promise
 }
 export async function getElementRect(browser: Driver, element: Element): Promise<{x: number; y: number; width: number; height: number}> {
   const extendedElement = await browser.$(element)
-  if (utils.types.isFunction((extendedElement as any).getRect)) {
-    return (extendedElement as any).getRect()
+  if (utils.types.isFunction(extendedElement, 'getRect')) {
+    return extendedElement.getRect()
   } else {
     const rect = {x: 0, y: 0, width: 0, height: 0}
     if (utils.types.isFunction(extendedElement.getLocation)) {
@@ -242,28 +237,32 @@ export async function takeScreenshot(driver: Driver): Promise<string> {
 }
 export async function click(browser: Driver, element: Element | Selector): Promise<void> {
   if (isSelector(element)) element = await findElement(browser, element)
-  await (element as WebdriverIO.Element).click()
+  element = await browser.$(element)
+  await element.click()
 }
 export async function type(browser: Driver, element: Element | Selector, keys: string): Promise<void> {
   if (isSelector(element)) element = await findElement(browser, element)
-  await (element as WebdriverIO.Element).setValue(keys)
-}
-export async function waitUntilDisplayed(browser: Driver, selector: Selector, timeout: number): Promise<void> {
-  const element = await findElement(browser, selector)
-  await (element as WebdriverIO.Element).waitForDisplayed({timeout})
-}
-export async function scrollIntoView(browser: Driver, element: Element | Selector, align = false): Promise<void> {
-  if (isSelector(element)) element = await findElement(browser, element)
-  await (element as WebdriverIO.Element).scrollIntoView(align)
+  element = await browser.$(element)
+  await element.setValue(keys)
 }
 export async function hover(browser: Driver, element: Element | Selector, {x = 0, y = 0} = {}): Promise<any> {
   if (isSelector(element)) element = await findElement(browser, element)
+  element = await browser.$(element)
   // NOTE: WDIO6 changed the signature of moveTo method
   if (process.env.APPLITOOLS_WDIO_MAJOR_VERSION === '5') {
-    await ((element as WebdriverIO.Element).moveTo as any)(x, y)
+    await (element.moveTo as any)(x, y)
   } else {
-    await (element as WebdriverIO.Element).moveTo({xOffset: x, yOffset: y})
+    await (element.moveTo as any)({xOffset: x, yOffset: y})
   }
+}
+export async function scrollIntoView(browser: Driver, element: Element | Selector, align = false): Promise<void> {
+  if (isSelector(element)) element = await findElement(browser, element)
+  element = await browser.$(element)
+  await element.scrollIntoView(align)
+}
+export async function waitUntilDisplayed(browser: Driver, selector: Selector, timeout: number): Promise<void> {
+  const element = await findElement(browser, selector) as any
+  await element.waitForDisplayed({timeout})
 }
 
 // #endregion

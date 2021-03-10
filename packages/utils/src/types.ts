@@ -30,7 +30,10 @@ export function isObject(value: any): value is Record<PropertyKey, any> {
   return typeof value === 'object' && value !== null
 }
 
-export function isFunction(value: any): value is (...args: any[]) => any {
+export function isFunction(value: any): value is (...args: any[]) => any
+export function isFunction<TKey extends PropertyKey>(value: any, key: TKey): value is {[key in TKey]: (...args: any[]) => any}
+export function isFunction<TKey extends PropertyKey>(value: any, key?: TKey): boolean {
+  if (key && has(value, key)) return typeof value[key] === 'function'
   return typeof value === 'function'
 }
 

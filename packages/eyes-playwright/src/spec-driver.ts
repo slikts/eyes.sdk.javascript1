@@ -1,15 +1,14 @@
 import * as utils from '@applitools/utils'
+import type * as Playwright from 'playwright'
 
-import type {ElementHandle, Frame, JSHandle, LaunchOptions, Page} from 'playwright'
-
-export type Driver = Page
-export type Element = ElementHandle
-export type Context = Frame
-export type Selector = string
+export type Driver = Playwright.Page
+export type Element = Playwright.ElementHandle
+export type Context = Playwright.Frame
+export type Selector = string | {type: string; selector: string}
 
 // #region HELPERS
 
-async function handleToObject(handle: JSHandle): Promise<any> {
+async function handleToObject(handle: Playwright.JSHandle): Promise<any> {
   const [, type] = handle.toString().split('@')
   if (type === 'array') {
     const map = await handle.getProperties()
@@ -46,7 +45,7 @@ export function isElement(element: any): element is Element {
 export function isSelector(selector: any): selector is Selector {
   return utils.types.isString(selector) || utils.types.has(selector, ['type', 'selector'])
 }
-export function extractContext(page: Page | Context): Context {
+export function extractContext(page: Driver | Context): Context {
   return isDriver(page) ? page.mainFrame() : page
 }
 export function isStaleElementError(err: any): boolean {
@@ -111,34 +110,32 @@ export async function visit(page: Driver, url: string): Promise<void> {
 export async function takeScreenshot(page: Driver): Promise<Buffer> {
   return page.screenshot()
 }
-export async function click(frame: Context, selector: Selector): Promise<void> {
-  await frame.click(transformSelector(selector))
+export async function click(frame: Context, element: Element | Selector): Promise<void> {
+  if (isSelector(element)) element = await findElement(frame, element)
+  await element.click()
 }
-export async function type(_frame: Context, element: Element, keys: string): Promise<void> {
+export async function type(frame: Context, element: Element | Selector, keys: string): Promise<void> {
+  if (isSelector(element)) element = await findElement(frame, element)
   await element.type(keys)
 }
-export async function waitUntilDisplayed(frame: Context, selector: Selector): Promise<void> {
-  await frame.waitForSelector(transformSelector(selector))
+export async function hover(frame: Context, element: Element | Selector, {x = 0, y = 0} = {}): Promise<void> {
+  if (isSelector(element)) element = await findElement(frame, element)
+  await element.hover({position: {x, y}})
 }
-export async function scrollIntoView(frame: Context, element: Element, align = false): Promise<void> {
-  if (isSelector(element)) {
-    element = await findElement(frame, element)
-  }
+export async function scrollIntoView(frame: Context, element: Element | Selector, align = false): Promise<void> {
+  if (isSelector(element)) element = await findElement(frame, element)
   // @ts-ignore
   await frame.evaluate(([element, align]) => element.scrollIntoView(align), [element, align])
 }
-export async function hover(frame: Context, element: Element, {x = 0, y = 0} = {}): Promise<void> {
-  if (isSelector(element)) {
-    element = await findElement(frame, element)
-  }
-  await element.hover({position: {x, y}})
+export async function waitUntilDisplayed(frame: Context, selector: Selector): Promise<void> {
+  await frame.waitForSelector(transformSelector(selector))
 }
 
 // #endregion
 
 // #region BUILD
 
-const browserNames: Record<string, unknown> = {
+const browserNames: Record<string, string> = {
   chrome: 'chromium',
   safari: 'webkit',
   firefox: 'firefox',
@@ -150,7 +147,7 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
   const launcher = playwright[browserNames[browser] || browser]
   if (!launcher) throw new Error(`Browser "${browser}" is not supported.`)
   if (attach) throw new Error(`Attaching to the existed browser doesn't supported by playwright`)
-  const options: LaunchOptions = {
+  const options: any = {
     args,
     headless,
     ignoreDefaultArgs: ['--hide-scrollbars'],
@@ -167,7 +164,7 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
       url.searchParams.set('ignoreDefaultArgs', options.ignoreDefaultArgs.join(','))
     }
     url.searchParams.set('headless', options.headless)
-    options.args.forEach(arg => url.searchParams.set(...arg.split('=')))
+    options.args.forEach((arg: string) => url.searchParams.set(...arg.split('=')))
     driver = await launcher.connect({wsEndpoint: url.href})
   } else {
     driver = await launcher.launch(options)

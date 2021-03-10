@@ -5,7 +5,8 @@
     "dist/",
     "logs",
     "tmp/",
-    "types/"
+    "types/",
+    "generic/"
   ],
   "env": {
     "node": true
