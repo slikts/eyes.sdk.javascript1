@@ -242,7 +242,6 @@ function dts({project, context, externals = []}) {
         const [declaration] = typeReference._target.declarations
         const source = declaration.getSourceFile()
         if (source) {
-          console.log(typeReference.name, source.path)
           const moduleName = externals.find((name) => {
             return source.path.includes(`node_modules/${name}`) || source.path.includes(`node_modules/@types/${name}`)
           })
