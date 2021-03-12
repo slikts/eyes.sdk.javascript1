@@ -13,9 +13,21 @@ const sdk = makeSDK({
 
 export * from '@applitools/eyes-api'
 
-export {LegacySelector as By} from './legacy-api'
+export {By} from './legacy'
 
 export {Driver, Element, Selector}
+
+export class Eyes extends api.Eyes<Driver, Element, Selector> {
+  protected readonly _spec = {...sdk, ...spec}
+}
+
+export type ClassicConfigurationPlain = api.ClassicConfigurationPlain<Element, Selector>
+
+export type ConfigurationPlain = api.ConfigurationPlain<Element, Selector>
+
+export class Configuration extends api.Configuration<Element, Selector> {
+  protected readonly _spec = spec
+}
 
 export type CheckSettingsPlain = api.CheckSettingsPlain<Element, Selector>
 
@@ -29,8 +41,4 @@ export const closeBatch = api.closeBatch(sdk)
 
 export class BatchClose extends api.BatchClose {
   protected readonly _spec = sdk
-}
-
-export class Eyes extends api.Eyes<Driver, Element, Selector> {
-  protected readonly _spec = {...sdk, ...spec}
 }

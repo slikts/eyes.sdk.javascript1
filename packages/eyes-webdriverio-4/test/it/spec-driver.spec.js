@@ -1,6 +1,6 @@
 const assert = require('assert')
-const spec = require('../../src/spec-driver')
-const {By} = require('../../index')
+const spec = require('../../dist/src/spec-driver')
+const {By} = require('../../dist/src/legacy')
 
 describe('spec driver', async () => {
   let browser, destroyBrowser
@@ -18,26 +18,14 @@ describe('spec driver', async () => {
 
     it('isDriver(driver)', isDriver({expected: true}))
     it('isDriver(wrong)', isDriver({input: {}, expected: false}))
-    it(
-      'isElement(element)',
-      isElement({input: () => browser.element('div').then(({value}) => value), expected: true}),
-    )
-    it(
-      'isElement(response-element)',
-      isElement({input: () => browser.element('div'), expected: true}),
-    )
+    it('isElement(element)', isElement({input: () => browser.element('div').then(({value}) => value), expected: true}))
+    it('isElement(response-element)', isElement({input: () => browser.element('div'), expected: true}))
     it('isElement(wrong)', isElement({input: () => ({}), expected: false}))
     it('isSelector(string)', isSelector({input: 'div', expected: true}))
     it('isSelector(by)', isSelector({input: By.xpath('//div'), expected: true}))
     it('isSelector(wrong)', isSelector({input: {}, expected: false}))
-    it(
-      'transformElement(element)',
-      transformElement({input: () => browser.element('div').then(({value}) => value)}),
-    )
-    it(
-      'transformElement(response-element)',
-      transformElement({input: () => browser.element('div')}),
-    )
+    it('transformElement(element)', transformElement({input: () => browser.element('div').then(({value}) => value)}))
+    it('transformElement(response-element)', transformElement({input: () => browser.element('div')}))
     it(
       'isEqualElements(element, element)',
       isEqualElements({
@@ -62,10 +50,7 @@ describe('spec driver', async () => {
         expected: undefined,
       }),
     )
-    it(
-      'extractSelector(response-element)',
-      extractSelector({input: () => browser.element('div'), expected: 'div'}),
-    )
+    it('extractSelector(response-element)', extractSelector({input: () => browser.element('div'), expected: 'div'}))
     it('executeScript(strings, ...args)', executeScript())
     it('findElement(string)', findElement({input: '#overflowing-div'}))
     it('findElements(string)', findElements({input: 'div'}))
@@ -289,8 +274,7 @@ describe('spec driver', async () => {
   }
   function findElement({input, expected} = {}) {
     return async () => {
-      const result =
-        expected !== undefined ? expected : await browser.element(input).then(({value}) => value)
+      const result = expected !== undefined ? expected : await browser.element(input).then(({value}) => value)
       const element = await spec.findElement(browser, input)
       if (element !== result) {
         assert.ok(await spec.isEqualElements(browser, element, result))
@@ -299,8 +283,7 @@ describe('spec driver', async () => {
   }
   function findElements({input, expected} = {}) {
     return async () => {
-      const result =
-        expected !== undefined ? expected : await browser.elements(input).then(({value}) => value)
+      const result = expected !== undefined ? expected : await browser.elements(input).then(({value}) => value)
       const elements = await spec.findElements(browser, input)
       assert.strictEqual(elements.length, result.length)
       for (const [index, element] of elements.entries()) {

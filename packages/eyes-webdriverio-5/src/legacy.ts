@@ -2,34 +2,34 @@
 import * as utils from '@applitools/utils'
 import type {Driver, Element} from './spec-driver'
 
-export class LegacySelector {
-  static css(css: string): LegacySelector {
-    return new LegacySelector(css)
+export class By {
+  static css(css: string): By {
+    return new By(css)
   }
-  static cssSelector(css: string): LegacySelector {
-    return LegacySelector.css(css)
+  static cssSelector(css: string): By {
+    return By.css(css)
   }
-  static id(id: string): LegacySelector {
-    return new LegacySelector(`*[id="${id}"]`)
+  static id(id: string): By {
+    return new By(`*[id="${id}"]`)
   }
-  static className(className: string): LegacySelector {
-    return new LegacySelector(`.${className}`)
+  static className(className: string): By {
+    return new By(`.${className}`)
   }
-  static attributeValue(attr: string, value: string): LegacySelector {
-    return new LegacySelector(`*[${attr}="${value}"]`)
+  static attributeValue(attr: string, value: string): By {
+    return new By(`*[${attr}="${value}"]`)
   }
   // @ts-ignore
-  static name(name: string): LegacySelector {
-    return LegacySelector.attributeValue('name', name)
+  static name(name: string): By {
+    return By.attributeValue('name', name)
   }
-  static tagName(tagName: string): LegacySelector {
-    return new LegacySelector(tagName)
+  static tagName(tagName: string): By {
+    return new By(tagName)
   }
-  static xpath(xpath: string): LegacySelector {
-    return new LegacySelector(xpath, 'xpath')
+  static xpath(xpath: string): By {
+    return new By(xpath, 'xpath')
   }
-  static xPath(xpath: string): LegacySelector {
-    return LegacySelector.xpath(xpath)
+  static xPath(xpath: string): By {
+    return By.xpath(xpath)
   }
 
   constructor(readonly value: string, readonly using: string = 'css selector') {}
@@ -39,7 +39,7 @@ export class LegacySelector {
   }
 }
 
-export function withLegacyDriverAPI(browser: Driver): Driver {
+export function wrapDriver(browser: Driver): Driver {
   const api = {
     get remoteWebDriver() {
       return browser
@@ -59,68 +59,68 @@ export function withLegacyDriverAPI(browser: Driver): Driver {
       }
     },
     async findElement(usingOrLocator, value) {
-      if (usingOrLocator instanceof LegacySelector) {
+      if (usingOrLocator instanceof By) {
         const element: any = await browser.$(usingOrLocator.toString())
-        return !element.error ? withLegacyElementAPI(element, this) : null
+        return !element.error ? wrapElement(element, this) : null
       } else {
         return browser.findElement(usingOrLocator, value)
       }
     },
     async findElements(usingOrLocator, value) {
-      if (usingOrLocator instanceof LegacySelector) {
+      if (usingOrLocator instanceof By) {
         const elements = await browser.$$(usingOrLocator.toString())
-        return Array.from(elements, element => withLegacyElementAPI(element, this))
+        return Array.from(elements, element => wrapElement(element, this))
       } else {
         return browser.findElements(usingOrLocator, value)
       }
     },
     async findElementById(id) {
-      return this.findElement(LegacySelector.id(id))
+      return this.findElement(By.id(id))
     },
     async findElementsById(id) {
-      return this.findElements(LegacySelector.id(id))
+      return this.findElements(By.id(id))
     },
     async findElementByName(name) {
-      return this.findElement(LegacySelector.name(name))
+      return this.findElement(By.name(name))
     },
     async findElementsByName(name) {
-      return this.findElements(LegacySelector.name(name))
+      return this.findElements(By.name(name))
     },
     async findElementByCssSelector(cssSelector) {
-      return this.findElement(LegacySelector.cssSelector(cssSelector))
+      return this.findElement(By.cssSelector(cssSelector))
     },
     async findElementsByCssSelector(cssSelector) {
-      return this.findElements(LegacySelector.cssSelector(cssSelector))
+      return this.findElements(By.cssSelector(cssSelector))
     },
-    async findElementByClassName(_className) {
+    async findElementByClassName() {
       throw new TypeError('findElementByClassName method is not implemented!')
     },
-    async findElementsByClassName(_className) {
+    async findElementsByClassName() {
       throw new TypeError('findElementsByClassName method is not implemented!')
     },
-    async findElementByLinkText(_linkText) {
+    async findElementByLinkText() {
       throw new TypeError('findElementByLinkText method is not implemented!')
     },
-    async findElementsByLinkText(_linkText) {
+    async findElementsByLinkText() {
       throw new TypeError('findElementsByLinkText method is not implemented!')
     },
-    async findElementByPartialLinkText(_partialLinkText) {
+    async findElementByPartialLinkText() {
       throw new TypeError('findElementByPartialLinkText method is not implemented!')
     },
-    async findElementsByPartialLinkText(_partialLinkText) {
+    async findElementsByPartialLinkText() {
       throw new TypeError('findElementsByPartialLinkText method is not implemented!')
     },
     async findElementByTagName(tagName) {
-      return this.findElement(LegacySelector.tagName(tagName))
+      return this.findElement(By.tagName(tagName))
     },
     async findElementsByTagName(tagName) {
-      return this.findElements(LegacySelector.tagName(tagName))
+      return this.findElements(By.tagName(tagName))
     },
     async findElementByXPath(xpath) {
-      return this.findElement(LegacySelector.xPath(xpath))
+      return this.findElement(By.xPath(xpath))
     },
     async findElementsByXPath(xpath) {
-      return this.findElements(LegacySelector.xPath(xpath))
+      return this.findElements(By.xPath(xpath))
     },
     switchTo() {
       return {
@@ -156,10 +156,9 @@ export function withLegacyDriverAPI(browser: Driver): Driver {
       return Reflect.get(target, key)
     },
   })
-  // @ts-ignore-end
 }
 
-export function withLegacyElementAPI(element: Element, driver: Driver): Element {
+export function wrapElement(element: Element, driver: Driver): Element {
   const api = {
     get element() {
       return element
@@ -178,16 +177,12 @@ export function withLegacyElementAPI(element: Element, driver: Driver): Element 
     },
     async findElement(locator) {
       const extendedParentElement = await this.$(this)
-      const element = await extendedParentElement.$(
-        locator instanceof LegacySelector ? locator.toString() : locator,
-      )
-      return !element.error ? withLegacyElementAPI(element, driver) : null
+      const element = await extendedParentElement.$(locator instanceof By ? locator.toString() : locator)
+      return !element.error ? wrapElement(element, driver) : null
     },
     async findElements(locator) {
-      const elements = await this.$$(
-        locator instanceof LegacySelector ? locator.toString() : locator,
-      )
-      return Array.from(elements, element => withLegacyElementAPI(element, driver))
+      const elements = await this.$$(locator instanceof By ? locator.toString() : locator)
+      return Array.from(elements, element => wrapElement(element, driver))
     },
     async sendKeys(keysToSend) {
       await driver.elementClick(this.elementId)
@@ -206,4 +201,3 @@ export function withLegacyElementAPI(element: Element, driver: Driver): Element 
     },
   })
 }
-

@@ -10,6 +10,7 @@
     "preserveConstEnums": true,
     "downlevelIteration": true,
     "stripInternal": true,
-    "experimentalDecorators": false
+    "experimentalDecorators": false,
+    "resolveJsonModule": true
   },
 }

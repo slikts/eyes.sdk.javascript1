@@ -31,9 +31,11 @@
     "test": "./test"
   },
   "main": "./dist/index.js",
+  "types": "./index.d.ts",
   "dependencies": {
     "@applitools/eyes-api": "link:../eyes-api",
     "@applitools/eyes-sdk-core": "12.14.2",
+    "@applitools/utils": "^1.0.1",
     "@applitools/visual-grid-client": "15.5.14"
   },
   "peerDependencies": {
@@ -64,9 +66,9 @@
     "render": "node ../sdk-shared/scripts/render.js",
     "build": "yarn build:dist && yarn build:types",
     "build:dist": "tsc",
-    "build:types": "api-extractor ./index.ts --out ./index.d.ts --externals playwright",
-    "test": "yarn test:it",
-    "test:it": "yarn build:dist && mocha --no-timeouts ./test/it/*.spec.js",
+    "build:types": "api-extractor ./index.ts --out ./index.d.ts --external-modules playwright",
+    "test": "yarn build:dist && yarn test:it",
+    "test:it": "mocha --no-timeouts ./test/it/*.spec.js",
     "test:coverage": "APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-playwright' APPLITOOLS_BATCH_ID=$(uuidgen) XUNIT_FILE=coverage-test-report.xml mocha --config .mocharc.cvg.js",
     "coverage:generate": "coverage-tests generate node_modules/@applitools/sdk-shared/coverage-tests/generic/index.js --name 'eyes-playwright'",
     "coverage:report": "coverage-tests report node_modules/@applitools/sdk-shared/coverage-tests/generic/index.js --name 'eyes-playwright'",

@@ -1,7 +1,7 @@
 const ts = require('typescript')
 const {ReflectionKind} = require('typedoc')
 
-function dts({project, context, externals = []}) {
+function dts({project, context, externalModules = [], externalGlobals = []}) {
   const exports = project.children.reduce((exports, child) => {
     if (child.kind === ReflectionKind.Class) {
       return exports.concat($class(child, {exported: true}))
@@ -115,7 +115,7 @@ function dts({project, context, externals = []}) {
     if (node.setSignature) {
       const setter = node.setSignature
       signatures.push(
-        $comment(setter.comment) + `${$flags(setter.flags)} set ${node.name}${$arguments(setter, {parent})}`,
+        $comment(setter.comment) + `${$flags(setter.flags)} set ${node.name}${$arguments(setter, parent)}`,
       )
     }
     return signatures
@@ -217,7 +217,11 @@ function dts({project, context, externals = []}) {
       }
     }
 
-    if (wrapper.type === 'reference' && !wrapper.reflection) {
+    if (
+      wrapper.type === 'reference' &&
+      !wrapper.reflection &&
+      !externalGlobals.some((name) => new RegExp(`^${name}(\\.|$)`).test(wrapper.name))
+    ) {
       const {unknown, type, replacer} = convert(wrapper)
       if (unknown) wrapper.unknown = unknown
       if (type) wrapper._type = type
@@ -237,34 +241,38 @@ function dts({project, context, externals = []}) {
         })
         if (inheritedType) return {type: {type: 'unknown', name: inheritedType.name}}
       }
-      const typeDeclaration = typeReference._target.declarations.find(ts.isTypeAliasDeclaration)
-      if (!typeDeclaration) {
-        const [declaration] = typeReference._target.declarations
-        const source = declaration.getSourceFile()
-        if (source) {
-          const moduleName = externals.find((name) => {
-            return source.path.includes(`node_modules/${name}`) || source.path.includes(`node_modules/@types/${name}`)
-          })
-          const typeName = typeReference._target.escapedName || typeReference.name
-          if (moduleName) {
-            return {
-              type: {
-                type: 'unknown',
-                name: `import('${moduleName}').${typeName}`,
-                typeArguments: typeReference.typeArguments,
-              },
-            }
+
+      const [declaration] = typeReference._target.declarations
+      const source = declaration.getSourceFile()
+      if (source) {
+        const moduleName = externalModules.find((name) => {
+          return source.path.includes(`node_modules/${name}`) || source.path.includes(`node_modules/@types/${name}`)
+        })
+        const typeName = typeReference._target.escapedName || typeReference.name
+        if (moduleName) {
+          return {
+            type: {
+              type: 'unknown',
+              name: `import('${moduleName}').${typeName}`,
+              typeArguments: typeReference.typeArguments,
+            },
           }
         }
-        return {unknown: true}
       }
-      if (typeDeclaration.parent.path.includes('node_modules/typescript')) return {builtin: true}
-      return {
-        type: context.converter.convertType(context, typeDeclaration.type),
-        replacer: typeReference.typeArguments
-          ? $replacer(typeReference, typeDeclaration, typeReference._replacer)
-          : null,
+
+      const typeDeclaration = typeReference._target.declarations.find(ts.isTypeAliasDeclaration)
+      if (typeDeclaration) {
+        const source = typeDeclaration.getSourceFile()
+        if (source && source.path.includes('node_modules/typescript')) return {builtin: true}
+        return {
+          type: context.converter.convertType(context, typeDeclaration.type),
+          replacer: typeReference.typeArguments
+            ? $replacer(typeReference, typeDeclaration, typeReference._replacer)
+            : null,
+        }
       }
+
+      return {unknown: true}
     }
 
     function spread(parent = wrapper) {

@@ -1,27 +1,23 @@
 import * as utils from '@applitools/utils'
-import {withLegacyDriverAPI} from './legacy-api'
-import type * as Selenium from 'selenium-webdriver'
+import type * as Protractor from 'protractor'
 
-export type Driver = Selenium.WebDriver
-export type Element = Selenium.WebElement
-export type Selector = Selenium.Locator | string | {type: string; selector: string}
+export type Driver = Protractor.ProtractorBrowser
+export type Element = Protractor.WebElement | Protractor.ElementFinder
+export type Selector = Protractor.Locator | {using: string; value: string} | string | {type: string; selector: string}
 
 // #region HELPERS
 
 const byHash = ['className', 'css', 'id', 'js', 'linkText', 'name', 'partialLinkText', 'tagName', 'xpath']
 
 function extractElementId(element: Element): Promise<string> {
-  return element.getId()
+  return element.getId() as Promise<string>
 }
-
-function transformSelector(selector: Selector): Selenium.Locator {
-  const {By} = require('selenium-webdriver')
+function transformSelector(selector: Selector): Protractor.Locator {
   if (utils.types.isString(selector)) {
     return {css: selector}
   } else if (utils.types.has(selector, ['type', 'selector'])) {
     if (selector.type === 'css') return {css: selector.selector}
     else if (selector.type === 'xpath') return {xpath: selector.selector}
-    else return new By(selector.type, selector.selector)
   }
   return selector
 }
@@ -31,19 +27,34 @@ function transformSelector(selector: Selector): Selenium.Locator {
 // #region UTILITY
 
 export function isDriver(driver: any): driver is Driver {
-  return utils.types.instanceOf(driver, 'WebDriver')
+  return utils.types.instanceOf<Driver>(driver, 'ProtractorBrowser')
 }
 export function isElement(element: any): element is Element {
-  return utils.types.instanceOf(element, 'WebElement')
+  return (
+    utils.types.instanceOf<Protractor.WebElement>(element, 'WebElement') ||
+    utils.types.instanceOf<Protractor.ElementFinder>(element, 'ElementFinder')
+  )
 }
 export function isSelector(selector: any): selector is Selector {
   if (!selector) return false
   return (
+    utils.types.isString(selector) ||
     utils.types.has(selector, ['type', 'selector']) ||
     utils.types.has(selector, ['using', 'value']) ||
     Object.keys(selector).some(key => byHash.includes(key)) ||
-    utils.types.isString(selector)
+    utils.types.isFunction(selector.findElementsOverride)
   )
+}
+export function transformDriver(driver: Driver): Driver {
+  const {CommandName} = require('protractor')
+
+  CommandName.SWITCH_TO_PARENT_FRAME = 'switchToParentFrame'
+  driver.getExecutor().defineCommand(CommandName.SWITCH_TO_PARENT_FRAME, 'POST', '/session/:sessionId/frame/parent')
+  return driver
+}
+export function transformElement(element: Element): Element {
+  if (!utils.types.instanceOf<Protractor.ElementFinder>(element, 'ElementFinder')) return element
+  return element.getWebElement()
 }
 export function isStaleElementError(error: any): boolean {
   if (!error) return false
@@ -73,7 +84,9 @@ export async function mainContext(driver: Driver): Promise<Driver> {
   return driver
 }
 export async function parentContext(driver: Driver): Promise<Driver> {
-  await driver.switchTo().parentFrame()
+  const {Command, CommandName} = require('protractor')
+
+  await driver.schedule(new Command(CommandName.SWITCH_TO_PARENT_FRAME), '')
   return driver
 }
 export async function childContext(driver: Driver, element: Element): Promise<Driver> {
@@ -82,39 +95,36 @@ export async function childContext(driver: Driver, element: Element): Promise<Dr
 }
 export async function findElement(driver: Driver, selector: Selector): Promise<Element> {
   try {
-    if (utils.types.isString(selector)) {
-      selector = {css: selector}
-    }
     return await driver.findElement(transformSelector(selector))
   } catch (err) {
     if (err.name === 'NoSuchElementError') return null
     else throw err
   }
 }
-export async function findElements(driver: Driver, selector: Selector): Promise<Element[]> {
-  if (utils.types.isString(selector)) {
-    selector = {css: selector}
-  }
+export async function findElements(driver: Driver, selector: Selector): Promise<Element> {
   return driver.findElements(transformSelector(selector))
 }
 export async function getElementRect(
   _driver: Driver,
   element: Element,
 ): Promise<{x: number; y: number; width: number; height: number}> {
-  return element.getRect()
+  const {x, y} = await element.getLocation()
+  const {width, height} = await element.getSize()
+  return {x, y, width, height}
 }
 export async function getWindowRect(driver: Driver): Promise<{x: number; y: number; width: number; height: number}> {
-  try {
-    return await driver.manage().window().getRect()
-  } catch (err) {
-    // workaround for Appium
-    const cmd = require('selenium-webdriver/lib/command')
-
-    return driver.execute(new cmd.Command(cmd.Name.GET_WINDOW_SIZE).setParameter('windowHandle', 'current'))
-  }
+  const {x, y} = await driver.manage().window().getPosition()
+  const {width, height} = await driver.manage().window().getSize()
+  return {x, y, width, height}
 }
 export async function setWindowRect(driver: Driver, rect?: {x?: number; y?: number; width?: number; height?: number}) {
-  await driver.manage().window().setRect(rect)
+  const {x = null, y = null, width = null, height = null} = rect || {}
+  if (x !== null && y !== null) {
+    await driver.manage().window().setPosition(x, y)
+  }
+  if (width !== null && height !== null) {
+    await driver.manage().window().setSize(width, height)
+  }
 }
 export async function getOrientation(driver: Driver): Promise<string> {
   const capabilities = await driver.getCapabilities()
@@ -133,7 +143,6 @@ export async function getDriverInfo(driver: Driver): Promise<any> {
   const browserName = capabilities.get('browserName')
   const browserVersion = capabilities.get('browserVersion')
   const isMobile = ['android', 'ios'].includes(platformName && platformName.toLowerCase())
-
   return {
     sessionId,
     isMobile,
@@ -158,34 +167,28 @@ export async function takeScreenshot(driver: Driver): Promise<string> {
   return driver.takeScreenshot()
 }
 export async function click(driver: Driver, element: Element | Selector): Promise<void> {
-  if (isSelector(element)) {
-    element = await findElement(driver, element)
-  }
-  await element.click()
-}
-export async function type(driver: Driver, element: Element | Selector, keys: string): Promise<void> {
-  if (isSelector(element)) {
-    element = await findElement(driver, element)
-  }
-  await element.sendKeys(keys)
-}
-export async function waitUntilDisplayed(driver: Driver, selector: Selector, timeout: number): Promise<void> {
-  const {until} = require('selenium-webdriver')
-
-  const element = await findElement(driver, selector)
-  await driver.wait(until.elementIsVisible(element), timeout)
-}
-export async function scrollIntoView(driver: Driver, element: Element | Selector, align = false): Promise<void> {
-  if (isSelector(element)) {
-    element = await findElement(driver, element)
-  }
-  await driver.executeScript('arguments[0].scrollIntoView(arguments[1])', element, align)
+  if (isSelector(element)) element = await findElement(driver, element)
+  await (element as Element).click()
 }
 export async function hover(driver: Driver, element: Element | Selector, {x = 0, y = 0} = {}) {
-  if (isSelector(element)) {
-    element = await findElement(driver, element)
-  }
-  await driver.actions().move({origin: element, x, y}).perform()
+  if (isSelector(element)) element = await findElement(driver, element)
+  await driver
+    .actions()
+    .mouseMove(element as Element, {x, y})
+    .perform()
+}
+export async function type(driver: Driver, element: Element | Selector, keys: string): Promise<void> {
+  if (isSelector(element)) element = await findElement(driver, element)
+  await (element as Element).sendKeys(keys)
+}
+export async function scrollIntoView(driver: Driver, element: Element | Selector, align = false): Promise<void> {
+  if (isSelector(element)) element = await findElement(driver, element)
+  await driver.executeScript('arguments[0].scrollIntoView(arguments[1])', element, align)
+}
+export async function waitUntilDisplayed(driver: Driver, selector: Selector, timeout: number): Promise<void> {
+  const {until} = require('protractor')
+  const element = await findElement(driver, selector)
+  await driver.wait(until.elementIsVisible(element), timeout)
 }
 
 // #endregion
@@ -197,10 +200,21 @@ const browserOptionsNames: Record<string, string> = {
   firefox: 'moz:firefoxOptions',
 }
 export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
-  const {Builder} = require('selenium-webdriver')
+  const {Builder, Runner} = require('protractor')
   const {testSetup} = require('@applitools/sdk-shared')
 
-  const {browser = '', capabilities, url, attach, proxy, configurable = true, args = [], headless} = testSetup.Env(env)
+  const {
+    browser = '',
+    capabilities,
+    url,
+    attach,
+    proxy,
+    configurable = true,
+    args = [],
+    headless,
+    logLevel = 'silent',
+  } = testSetup.Env({...env, legacy: true})
+
   const desiredCapabilities = {browserName: browser, ...capabilities}
   if (configurable) {
     const browserOptionsName = browserOptionsNames[browser || desiredCapabilities.browserName]
@@ -210,7 +224,6 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
       if (headless) browserOptions.args.push('headless')
       if (attach) {
         browserOptions.debuggerAddress = attach === true ? 'localhost:9222' : attach
-        if (browser !== 'firefox') browserOptions.w3c = false
       }
       desiredCapabilities[browserOptionsName] = browserOptions
     }
@@ -226,14 +239,16 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
       noProxy: proxy.bypass,
     })
   }
-  const driver = await builder.build()
+  const runner = new Runner({
+    seleniumWebDriver: builder.build(),
+    logLevel: logLevel.toUpperCase(),
+    allScriptsTimeout: 60000,
+    getPageTimeout: 10000,
+  })
+  const driver = await runner.createBrowser().ready
+  driver.by = driver.constructor.By
+  driver.waitForAngularEnabled(false)
   return [driver, () => driver.quit()]
 }
-
-// #endregion
-
-// #region LEGACY API
-
-export const wrapDriver = withLegacyDriverAPI
 
 // #endregion

@@ -1,6 +1,6 @@
 // @ts-nocheck
 
-export function withLegacyDriverAPI(driver) {
+export function wrapDriver(driver) {
   const api = {
     get remoteWebDriver() {
       return driver

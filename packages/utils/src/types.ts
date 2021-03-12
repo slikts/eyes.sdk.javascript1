@@ -62,10 +62,9 @@ export function has<TKey extends PropertyKey>(
   return true
 }
 
-// eslint-disable-next-line @typescript-eslint/ban-types
-export function instanceOf(value: any, ctorName: string): boolean
+export function instanceOf<TCtor>(value: any, ctorName: string): value is TCtor
 export function instanceOf<TCtor extends Function>(value: any, ctor: TCtor): value is TCtor['prototype']
-export function instanceOf<TCtor extends Function>(value: any, ctorOrName: TCtor | string): boolean {
+export function instanceOf(value: any, ctorOrName: Function | string): boolean {
   if (!isString(ctorOrName)) return value instanceof ctorOrName
   let proto = Object.getPrototypeOf(value)
   while (proto) {

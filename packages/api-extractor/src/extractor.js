@@ -4,7 +4,7 @@ const typedoc = require('typedoc')
 const prettier = require('prettier')
 const dts = require('./dts')
 
-function build({entry, out, tsconfig, externals}) {
+function build({entry, out, tsconfig, externalModules, externalGlobals}) {
   const cwd = process.cwd()
   const td = new typedoc.Application()
   td.options.addReader(new typedoc.TSConfigReader())
@@ -26,7 +26,7 @@ function build({entry, out, tsconfig, externals}) {
 
   const project = td.convert()
 
-  const string = dts({project, context, externals})
+  const string = dts({project, context, externalModules, externalGlobals})
 
   fs.writeFileSync(
     path.resolve(cwd, out),

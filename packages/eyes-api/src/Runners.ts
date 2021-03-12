@@ -29,7 +29,7 @@ export abstract class EyesRunner {
     return this._open(...args)
   }
 
-  async getAllTestResults(throwErr: boolean): Promise<any> {
+  async getAllTestResults(throwErr = false): Promise<any> {
     if (this._eyes.length > 0) {
       const results = await Promise.all(
         this._eyes.map(eyes => {

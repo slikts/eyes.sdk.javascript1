@@ -1,9 +1,11 @@
 import * as utils from '@applitools/utils'
-import {LegacySelector, withLegacyDriverAPI} from './legacy-api'
+import * as legacy from './legacy'
 
-export type Driver = WebdriverIO.BrowserObject
+/* eslint {"@typescript-eslint/ban-types": ["error", {"types": {"Function": false}}] } */
+
+export type Driver = WebdriverIO.BrowserObject | WebdriverIO.MultiRemoteBrowserObject
 export type Element = WebdriverIO.Element | {ELEMENT: string} | {'element-6066-11e4-a52e-4f735466cecf': string}
-export type Selector = string | Function | LegacySelector | {type: string; selector: string}
+export type Selector = string | Function | legacy.By | {type: string; selector: string}
 
 // #region HELPERS
 
@@ -16,7 +18,7 @@ function extractElementId(element: Element): string {
   else if (utils.types.has(element, LEGACY_ELEMENT_ID)) return element[LEGACY_ELEMENT_ID]
 }
 function transformSelector(selector: Selector): string | Function {
-  if (selector instanceof LegacySelector) {
+  if (selector instanceof legacy.By) {
     return selector.toString()
   } else if (utils.types.has(selector, ['type', 'selector'])) {
     if (selector.type === 'css') return `css selector:${selector.selector}`
@@ -92,7 +94,7 @@ export function isSelector(selector: any): selector is Selector {
     utils.types.isString(selector) ||
     utils.types.isFunction(selector) ||
     utils.types.has(selector, ['type', 'selector']) ||
-    selector instanceof LegacySelector
+    selector instanceof legacy.By
   )
 }
 export function transformElement(element: Element): Element {
@@ -127,7 +129,11 @@ export async function isEqualElements(browser: Driver, element1: Element, elemen
 
 // #region COMMANDS
 
-export async function executeScript(browser: Driver, script: ((...args: any) => any) | string, ...args: any[]): Promise<any>  {
+export async function executeScript(
+  browser: Driver,
+  script: ((...args: any) => any) | string,
+  ...args: any[]
+): Promise<any> {
   if (browser.isDevTools) {
     script = utils.types.isString(script) ? script : script.toString()
     return browser.execute(scriptRunner, script, ...serializeArgs(args))
@@ -155,7 +161,10 @@ export async function findElements(browser: Driver, selector: Selector): Promise
   const elements = await browser.$$(transformSelector(selector))
   return Array.from(elements)
 }
-export async function getElementRect(browser: Driver, element: Element): Promise<{x: number; y: number; width: number; height: number}> {
+export async function getElementRect(
+  browser: Driver,
+  element: Element,
+): Promise<{x: number; y: number; width: number; height: number}> {
   const extendedElement = await browser.$(element)
   if (utils.types.isFunction(extendedElement, 'getRect')) {
     return extendedElement.getRect()
@@ -192,7 +201,10 @@ export async function getWindowRect(browser: Driver): Promise<{x: number; y: num
     return rect
   }
 }
-export async function setWindowRect(browser: Driver, rect: {x?: number; y?: number; width?: number; height?: number}): Promise<void> {
+export async function setWindowRect(
+  browser: Driver,
+  rect: {x?: number; y?: number; width?: number; height?: number},
+): Promise<void> {
   const {x = null, y = null, width = null, height = null} = rect || {}
   if (utils.types.isFunction(browser.setWindowRect)) {
     await browser.setWindowRect(x, y, width, height)
@@ -261,7 +273,7 @@ export async function scrollIntoView(browser: Driver, element: Element | Selecto
   await element.scrollIntoView(align)
 }
 export async function waitUntilDisplayed(browser: Driver, selector: Selector, timeout: number): Promise<void> {
-  const element = await findElement(browser, selector) as any
+  const element = (await findElement(browser, selector)) as any
   await element.waitForDisplayed({timeout})
 }
 
@@ -343,6 +355,6 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
 
 // #region LEGACY API
 
-export const wrapDriver = withLegacyDriverAPI
+export const wrapDriver = legacy.wrapDriver
 
 // #endregion

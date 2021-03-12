@@ -1,7 +1,11 @@
 if (!process.env.APPLITOOLS_WDIO_MAJOR_VERSION) {
-  const {version} = require('webdriverio/package.json')
-  const [major] = version.split('.', 1)
-  process.env.APPLITOOLS_WDIO_MAJOR_VERSION = major
+  try {
+    const {version} = require('webdriverio/package.json')
+    const [major] = version.split('.', 1)
+    process.env.APPLITOOLS_WDIO_MAJOR_VERSION = major
+  } catch {
+    // NOTE: ignore error
+  }
 }
 
 export * from './src/api'

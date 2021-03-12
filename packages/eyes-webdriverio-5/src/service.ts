@@ -1,7 +1,11 @@
-import {makeSDK} from '@applitools/eyes-sdk-core'
-import * as spec from './spec-driver'
-import {version} from '../package.json'
-import type {Driver, Element, Selector} from './spec-driver'
+import {Eyes, VisualGridRunner} from './api'
+import type {ConfigurationPlain, TestResults} from './api'
+
+type EyesServiceConfiguration = ConfigurationPlain & {
+  useVisualGrid?: boolean
+  concurrency?: number
+  eyes?: ConfigurationPlain
+}
 
 if (!process.env.APPLITOOLS_WDIO_MAJOR_VERSION) {
   const {version} = require('webdriverio/package.json')
@@ -9,61 +13,48 @@ if (!process.env.APPLITOOLS_WDIO_MAJOR_VERSION) {
   process.env.APPLITOOLS_WDIO_MAJOR_VERSION = major
 }
 
-const sdk = makeSDK({
-  name: 'eyes-webdriverio-service',
-  version,
-  spec,
-  VisualGridClient: require('@applitools/visual-grid-client'),
-})
-
 const DEFAULT_VIEWPORT = {width: 800, height: 600}
 
-export class EyesService {
-  private _open: (driver: Driver, configurations: null) => Driver
-  private _commands: any
-  private _config: ConfigurationPlain
+export = class EyesService {
+  private _eyes: Eyes
   private _appName: string
-  private _scrollRootElement: Element
   private _testResults: TestResults
 
-  constructor({useVisualGrid, concurrency, ...config}: {useVisualGrid?: boolean; concurrency?: number, eyes?: {}}) {
-    const wdioVersion = Number(process.env.APPLITOOLS_WDIO_MAJOR_VERSION)
-    this._config = Number.isNaN(wdioVersion) || wdioVersion >= 6 ? {...config} : {...config.eyes}
-    if (!useVisualGrid) this._config.hideScrollbars(true)
+  constructor({useVisualGrid, concurrency, eyes, ...config}: EyesServiceConfiguration) {
+    const wdioMajorVersion = Number(process.env.APPLITOOLS_WDIO_MAJOR_VERSION)
+    config = wdioMajorVersion < 6 ? {...eyes} : config
 
-    this._open = sdk.makeEyes({type: useVisualGrid ? 'vg' : 'classic', concurrency})
+    if (!useVisualGrid) config.hideScrollbars = true
+
+    this._eyes = new Eyes(useVisualGrid ? new VisualGridRunner({testConcurrency: concurrency}) : null, config)
   }
   beforeSession(config: Record<string, unknown>) {
-    this._eyes.setConfiguration(this._config)
-    this._appName = this._eyes.getConfiguration().getAppName()
+    this._appName = this._eyes.configuration.appName
     if (config.enableEyesLogs) {
-      this._eyes.setLogHandler(new ConsoleLogHandler(true))
+      // this._eyes.configuration.LOG_HANDLER(new ConsoleLogHandler(true))
     }
   }
   before() {
-    global.browser.addCommand(
-      'eyesCheck',
-      async (title, checkSettings = {fully: true}) => {
-        await this._eyesOpen()
-        return this._eyes.check(title, checkSettings)
-      },
-    )
+    global.browser.addCommand('eyesCheck', async (title, checkSettings = {fully: true}) => {
+      await this._eyesOpen()
+      return this._eyes.check(title, checkSettings)
+    })
 
     // deprecated, alias of eyesCheck
-    global.browser.addCommand('eyesCheckWindow', async (title, checkSettings) => {
-      return global.browser.eyesCheck(title, checkSettings)
+    global.browser.addCommand('eyesCheckWindow', async (...args) => {
+      return (global.browser as any).eyesCheck(...args)
     })
 
     global.browser.addCommand('eyesSetScrollRootElement', element => {
-      this._scrollRootElement = element
+      this._eyes.getConfiguration().setScrollRootElement(element)
     })
 
     global.browser.addCommand('eyesAddProperty', (key, value) => {
-      return this._eyes.addProperty(key, value)
+      this._eyes.getConfiguration().addProperty(key, value)
     })
 
     global.browser.addCommand('eyesClearProperties', () => {
-      return this._eyes.clearProperties()
+      this._eyes.getConfiguration().clearProperties()
     })
 
     global.browser.addCommand('eyesGetTestResults', async () => {
@@ -77,7 +68,7 @@ export class EyesService {
     })
 
     global.browser.addCommand('eyesGetIsOpen', () => {
-      return this._eyes.isOpen
+      return this._eyes.getIsOpen()
     })
 
     global.browser.addCommand('eyesGetConfiguration', () => {
@@ -104,41 +95,24 @@ export class EyesService {
   afterTest() {
     // the next line is required because if we set an element in one test, then the following test
     // will say that the element is not attached to the page (because different browsers are used)
-    this._eyes._scrollRootElement = undefined
+    this._eyes.getConfiguration().setScrollRootElement(null)
     global.browser.call(() => this._eyesClose())
   }
   after() {
     global.browser.call(() => this._eyes.runner.getAllTestResults(false))
-    global.browser.call(() => this._commands.abort())
+    global.browser.call(() => this._eyes.abort())
   }
 
   async _eyesOpen() {
-    if (!this._commands) {
+    if (!this._eyes.isOpen) {
       this._testResults = null
-      this._commands = await this._open(global.browser, this._config)
-    }
-
-    if (this._scrollRootElement) {
-      await this._eyes.setScrollRootElement(this._scrollRootElement)
-      this._scrollRootElement = undefined
+      await this._eyes.open(global.browser)
     }
   }
 
   async _eyesClose() {
-    if (this._commands) {
-      this._testResults = await this._commands.close(false)
-      this._commands = null
+    if (this._eyes.isOpen) {
+      this._testResults = await this._eyes.close(false)
     }
   }
-}
-
-function getServiceConfig(config: any): ConfigurationPlain {
-  let major = 6
-  try {
-    const {version} = require('webdriverio/package.json')
-    major = Number(version.split('.', 1)[0])
-    if (Number.isNaN(major)) major = 6
-  } catch (err) {}
-
-  return major >= 6 ? config : config.eyes
 }

@@ -15,6 +15,11 @@ import {ImageMatchSettings, ImageMatchSettingsData} from './ImageMatchSettings'
 
 type RenderInfo = DesktopBrowserInfo | ChromeEmulationInfo | IOSDeviceInfo
 
+type ConfigurationSpec<TElement, TSelector> = {
+  isElement(element: any): element is TElement
+  isSelector(selector: any): selector is TSelector
+}
+
 export type GeneralConfiguration = {
   showLogs?: boolean
   agentId?: string
@@ -59,12 +64,13 @@ export type CheckConfiguration = {
   forceFullPageScreenshot?: boolean
 }
 
-export type ClassicConfiguration = {
+export type ClassicConfiguration<TElement = unknown, TSelector = unknown> = {
   waitBeforeScreenshots?: number
   stitchMode?: StitchMode
   hideScrollbars?: boolean
   hideCaret?: boolean
   stitchOverlap?: number
+  scrollRootElement?: TElement | TSelector
 }
 
 export type VGConfiguration = {
@@ -75,13 +81,16 @@ export type VGConfiguration = {
   disableBrowserFetching?: boolean
 }
 
-export type Configuration = GeneralConfiguration &
+export type Configuration<TElement = unknown, TSelector = unknown> = GeneralConfiguration &
   OpenConfiguration &
   CheckConfiguration &
-  ClassicConfiguration &
+  ClassicConfiguration<TElement, TSelector> &
   VGConfiguration
 
-export class ConfigurationData implements Required<Configuration> {
+export class ConfigurationData<TElement = unknown, TSelector = unknown>
+  implements Required<Configuration<TElement, TSelector>> {
+  protected readonly _spec: ConfigurationSpec<TElement, TSelector>
+
   private _showLogs: boolean
   private _appName: string
   private _testName: string
@@ -121,6 +130,7 @@ export class ConfigurationData implements Required<Configuration> {
   private _hideScrollbars: boolean
   private _hideCaret: boolean
   private _stitchOverlap: number
+  private _scrollRootElement: TElement | TSelector
   private _concurrentSessions: number
   private _browsersInfo: RenderInfo[]
   private _visualGridOptions: {[key: string]: any}
@@ -138,6 +148,7 @@ export class ConfigurationData implements Required<Configuration> {
     }
   }
 
+  /** @internal */
   get general(): GeneralConfiguration {
     return utils.general.toJSON(this, [
       'showLogs',
@@ -151,6 +162,7 @@ export class ConfigurationData implements Required<Configuration> {
     ])
   }
 
+  /** @internal */
   get open(): OpenConfiguration {
     return utils.general.toJSON(this, [
       'appName',
@@ -180,10 +192,12 @@ export class ConfigurationData implements Required<Configuration> {
     ])
   }
 
+  /** @internal */
   get check(): CheckConfiguration {
     return utils.general.toJSON(this, ['sendDom', 'matchTimeout', 'forceFullPageScreenshot'])
   }
 
+  /** @internal */
   get classic(): ClassicConfiguration {
     return utils.general.toJSON(this, [
       'waitBeforeScreenshots',
@@ -194,6 +208,7 @@ export class ConfigurationData implements Required<Configuration> {
     ])
   }
 
+  /** @internal */
   get vg(): VGConfiguration {
     return utils.general.toJSON(this, [
       'concurrentSessions',
@@ -463,6 +478,10 @@ export class ConfigurationData implements Required<Configuration> {
       ? new PropertyDataData({name: propOrName, value})
       : new PropertyDataData(propOrName)
     this._properties.push(prop)
+    return this
+  }
+  clearProperties(): this {
+    this.properties = []
     return this
   }
 
@@ -845,6 +864,25 @@ export class ConfigurationData implements Required<Configuration> {
     return this
   }
 
+  get scrollRootElement(): TElement | TSelector {
+    return this._scrollRootElement
+  }
+  set scrollRootElement(scrollRootElement: TElement | TSelector) {
+    utils.guard.custom(scrollRootElement, value => this._spec.isElement(value) || this._spec.isSelector(value), {
+      name: 'scrollRootElement',
+      message: 'must be element or selector',
+      strict: false,
+    })
+    this._scrollRootElement = scrollRootElement
+  }
+  getScrollRootElement(): TElement | TSelector {
+    return this._scrollRootElement
+  }
+  setScrollRootElement(scrollRootElement: TElement | TSelector): this {
+    this.scrollRootElement = scrollRootElement
+    return this
+  }
+
   get concurrentSessions(): number {
     return this._concurrentSessions
   }
@@ -1013,6 +1051,7 @@ export class ConfigurationData implements Required<Configuration> {
       'hideScrollbars',
       'hideCaret',
       'stitchOverlap',
+      'scrollRootElement',
       'concurrentSessions',
       'browsersInfo',
       'visualGridOptions',

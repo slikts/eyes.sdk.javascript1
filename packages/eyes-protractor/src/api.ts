@@ -5,8 +5,8 @@ import {version} from '../package.json'
 import type {Driver, Element, Selector} from './spec-driver'
 
 const sdk = makeSDK({
-  name: 'eyes.selenium',
-  version: `${version}--${process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION}`,
+  name: 'eyes-protractor',
+  version: `${version}`,
   spec,
   VisualGridClient: require('@applitools/visual-grid-client'),
 })

@@ -55,7 +55,7 @@ type EyesSpec<TDriver = unknown, TElement = unknown, TSelector = unknown> = {
 export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   protected readonly _spec: EyesSpec<TDriver, TElement, TSelector>
 
-  private _config: ConfigurationData
+  private _config: ConfigurationData<TElement, TSelector>
   private _runner: EyesRunner
   private _driver: TDriver
   private _commands: EyesCommands<TElement, TSelector>
@@ -64,18 +64,21 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     await this.prototype._spec.setViewportSize(driver, viewportSize)
   }
 
-  constructor(runner?: EyesRunner, config?: Configuration)
-  constructor(config?: Configuration, runner?: EyesRunner)
-  constructor(runnerOrConfig?: EyesRunner | Configuration, configOrRunner?: Configuration | EyesRunner) {
+  constructor(runner?: EyesRunner, config?: Configuration<TElement, TSelector>)
+  constructor(config?: Configuration<TElement, TSelector>, runner?: EyesRunner)
+  constructor(
+    runnerOrConfig?: EyesRunner | Configuration<TElement, TSelector>,
+    configOrRunner?: Configuration<TElement, TSelector> | EyesRunner,
+  ) {
     if (utils.types.instanceOf(runnerOrConfig, EyesRunner)) {
       this._runner = runnerOrConfig
-      this._config = new ConfigurationData(configOrRunner as Configuration)
+      this._config = new ConfigurationData(configOrRunner as Configuration<TElement, TSelector>)
     } else if (utils.types.instanceOf(configOrRunner, EyesRunner)) {
       this._runner = configOrRunner
-      this._config = new ConfigurationData(runnerOrConfig as Configuration)
+      this._config = new ConfigurationData(runnerOrConfig as Configuration<TElement, TSelector>)
     } else {
       this._runner = new ClassicRunner()
-      this._config = new ConfigurationData(runnerOrConfig as Configuration)
+      this._config = new ConfigurationData(runnerOrConfig as Configuration<TElement, TSelector>)
     }
     this._runner.attach(this, config => this._spec.makeEyes(config))
   }
@@ -94,17 +97,24 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     return this._driver
   }
 
-  get configuration(): Configuration {
+  get configuration(): Configuration<TElement, TSelector> {
     return this._config
   }
-  set configuration(config: Configuration) {
+  set configuration(config: Configuration<TElement, TSelector>) {
     this._config = new ConfigurationData(config)
   }
-  getConfiguration(): ConfigurationData {
+  getConfiguration(): ConfigurationData<TElement, TSelector> {
     return this._config
   }
-  setConfiguration(config: Configuration) {
+  setConfiguration(config: Configuration<TElement, TSelector>) {
     this._config = new ConfigurationData(config)
+  }
+
+  get isOpen(): boolean {
+    return Boolean(this._commands)
+  }
+  getIsOpen(): boolean {
+    return this.isOpen
   }
 
   async open(driver: TDriver, config?: OpenConfiguration): Promise<TDriver>
@@ -272,14 +282,14 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   //   this._scaleRatio = scaleRatio
   // }
 
-  // getScrollRootElement() : TElement|TSelector {
-  //   return this._scrollRootElement
-  // }
-  // setScrollRootElement(scrollRootElement: TElement|TSelector) {
-  //   this._scrollRootElement = scrollRootElement
-  // }
-
   // #region CONFIG
+
+  getScrollRootElement(): TElement | TSelector {
+    return this._config.getScrollRootElement()
+  }
+  setScrollRootElement(scrollRootElement: TElement | TSelector) {
+    this._config.setScrollRootElement(scrollRootElement)
+  }
 
   addProperty(name: string, value: string) {
     return this._config.addProperty(name, value)

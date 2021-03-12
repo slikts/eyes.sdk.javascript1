@@ -1,14 +1,8 @@
 const assert = require('assert')
-const spec = require('../../src/spec-driver')
+const spec = require('../../dist/src/spec-driver')
 const {By} = require('selenium-webdriver')
 
-before(function() {
-  if (process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION !== '3') {
-    this.skip()
-  }
-})
-
-describe('spec driver @selenium3', async () => {
+describe('spec driver', async () => {
   let driver, destroyDriver
   const url = 'https://applitools.github.io/demo/TestPages/FramesTestPage/'
 
@@ -25,10 +19,7 @@ describe('spec driver @selenium3', async () => {
 
     it('isDriver(driver)', isDriver({expected: true}))
     it('isDriver(wrong)', isDriver({input: {}, expected: false}))
-    it(
-      'isElement(element)',
-      isElement({input: () => driver.findElement(By.css('div')), expected: true}),
-    )
+    it('isElement(element)', isElement({input: () => driver.findElement(By.css('div')), expected: true}))
     it('isElement(wrong)', isElement({input: () => ({}), expected: false}))
     it('isSelector(string)', isSelector({input: 'div', expected: true}))
     it('isSelector(by)', isSelector({input: By.xpath('//div'), expected: true}))
@@ -36,10 +27,7 @@ describe('spec driver @selenium3', async () => {
     it(
       'isEqualElements(element, element)',
       isEqualElements({
-        input: () =>
-          driver
-            .findElement(By.css('div'))
-            .then(element => ({element1: element, element2: element})),
+        input: () => driver.findElement(By.css('div')).then(element => ({element1: element, element2: element})),
         expected: true,
       }),
     )
@@ -54,10 +42,10 @@ describe('spec driver @selenium3', async () => {
       }),
     )
     it('executeScript(strings, ...args)', executeScript())
-    it('findElement(string)', findElement({input: By.css('#overflowing-div')}))
+    it('findElement(string)', findElement({input: By.id('overflowing-div')}))
     it('findElements(string)', findElements({input: By.css('div')}))
-    it('findElement(non-existent)', findElement({input: 'non-existent', expected: null}))
-    it('findElements(non-existent)', findElements({input: 'non-existent', expected: []}))
+    it('findElement(non-existent)', findElement({input: By.css('non-existent'), expected: null}))
+    it('findElements(non-existent)', findElements({input: By.css('non-existent'), expected: []}))
     it('mainContext()', mainContext())
     it('parentContext()', parentContext())
     it('childContext(element)', childContext())
@@ -66,7 +54,7 @@ describe('spec driver @selenium3', async () => {
     it('getUrl()', getUrl())
     it('visit()', visit())
     it('isMobile()', isMobile({expected: false}))
-    it('getPlatformName()', getPlatformName({expected: 'Linux'}))
+    it('getPlatformName()', getPlatformName({expected: 'linux'}))
   })
 
   describe('onscreen desktop (@webdriver)', async () => {
@@ -104,7 +92,7 @@ describe('spec driver @selenium3', async () => {
 
   describe('legacy driver (@webdriver)', async () => {
     before(async () => {
-      ;[driver, destroyDriver] = await spec.build({browser: 'ie-11'})
+      ;[driver, destroyDriver] = await spec.build({browser: 'ie-11', legacy: true})
     })
 
     after(async () => {
@@ -117,7 +105,6 @@ describe('spec driver @selenium3', async () => {
       setWindowRect({
         input: {x: 0, y: 0, width: 510, height: 511},
         expected: {x: 0, y: 0, width: 510, height: 511},
-        legacy: true,
       }),
     )
     it(
@@ -125,7 +112,6 @@ describe('spec driver @selenium3', async () => {
       setWindowRect({
         input: {x: 11, y: 12},
         expected: {x: 11, y: 12, width: 510, height: 511},
-        legacy: true,
       }),
     )
     it(
@@ -133,7 +119,6 @@ describe('spec driver @selenium3', async () => {
       setWindowRect({
         input: {width: 551, height: 552},
         expected: {x: 11, y: 12, width: 551, height: 552},
-        legacy: true,
       }),
     )
     it('getPlatformName()', getPlatformName({expected: 'WINDOWS'}))
@@ -269,19 +254,10 @@ describe('spec driver @selenium3', async () => {
     return async () => {
       let rect
       if (driver.manage().window().getRect) {
-        rect = await driver
-          .manage()
-          .window()
-          .getRect()
+        rect = await driver.manage().window().getRect()
       } else {
-        const {x, y} = await driver
-          .manage()
-          .window()
-          .getPosition()
-        const {width, height} = await driver
-          .manage()
-          .window()
-          .getSize()
+        const {x, y} = await driver.manage().window().getPosition()
+        const {width, height} = await driver.manage().window().getSize()
         rect = {x, y, width, height}
       }
       const result = await spec.getWindowRect(driver)
@@ -293,19 +269,10 @@ describe('spec driver @selenium3', async () => {
       await spec.setWindowRect(driver, input)
       let rect
       if (driver.manage().window().getRect) {
-        rect = await driver
-          .manage()
-          .window()
-          .getRect()
+        rect = await driver.manage().window().getRect()
       } else {
-        const {x, y} = await driver
-          .manage()
-          .window()
-          .getPosition()
-        const {width, height} = await driver
-          .manage()
-          .window()
-          .getSize()
+        const {x, y} = await driver.manage().window().getPosition()
+        const {width, height} = await driver.manage().window().getSize()
         rect = {x, y, width, height}
       }
       assert.deepStrictEqual(rect, expected)

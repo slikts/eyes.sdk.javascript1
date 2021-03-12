@@ -1,4 +1,4 @@
-const {EyesService} = require('../..')
+const EyesService = require('../../dist/src/service')
 const {testSetup} = require('@applitools/sdk-shared')
 
 exports.config = {

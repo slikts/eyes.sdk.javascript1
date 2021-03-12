@@ -1,7 +1,7 @@
 const assert = require('assert')
 const os = require('os')
-const spec = require('../../src/spec-driver')
-const {By} = require('../../index')
+const spec = require('../../dist/src/spec-driver')
+const {By} = require('../../dist/src/legacy')
 
 describe('spec driver', async () => {
   let browser, destroyBrowser
@@ -19,20 +19,14 @@ describe('spec driver', async () => {
 
     it('isDriver(driver)', isDriver({expected: true}))
     it('isDriver(wrong)', isDriver({input: {}, expected: false}))
-    it(
-      'isElement(element)',
-      isElement({input: () => browser.findElement('css selector', 'div'), expected: true}),
-    )
+    it('isElement(element)', isElement({input: () => browser.findElement('css selector', 'div'), expected: true}))
     it('isElement(extended-element)', isElement({input: () => browser.$('div'), expected: true}))
     it('isElement(wrong)', isElement({input: () => ({}), expected: false}))
     it('isSelector(string)', isSelector({input: 'div', expected: true}))
-    it('isSelector(function)', isSelector({input: () => {}, expected: true}))
+    it('isSelector(function)', isSelector({input: () => void 0, expected: true}))
     it('isSelector(by)', isSelector({input: By.xpath('//div'), expected: true}))
     it('isSelector(wrong)', isSelector({input: {}, expected: false}))
-    it(
-      'transformElement(element)',
-      transformElement({input: () => browser.findElement('css selector', 'div')}),
-    )
+    it('transformElement(element)', transformElement({input: () => browser.findElement('css selector', 'div')}))
     it('transformElement(extended-element)', transformElement({input: () => browser.$('div')}))
     it(
       'isEqualElements(element, element)',
@@ -55,17 +49,14 @@ describe('spec driver', async () => {
         expected: undefined,
       }),
     )
-    it(
-      'extractSelector(extended-element)',
-      extractSelector({input: () => browser.$('div'), expected: 'div'}),
-    )
+    it('extractSelector(extended-element)', extractSelector({input: () => browser.$('div'), expected: 'div'}))
     it('executeScript(strings, ...args)', executeScript())
     it('findElement(string)', findElement({input: '#overflowing-div'}))
     it('findElements(string)', findElements({input: 'div'}))
     it(
       'findElement(function)',
       findElement({
-        input: function() {
+        input: function () {
           return this.document.getElementById('overflowing-div')
         },
       }),
@@ -73,7 +64,7 @@ describe('spec driver', async () => {
     it(
       'findElements(function)',
       findElements({
-        input: function() {
+        input: function () {
           return this.document.querySelectorAll('div')
         },
       }),
@@ -211,20 +202,14 @@ describe('spec driver', async () => {
 
     it('isDriver(driver)', isDriver({expected: true}))
     it('isDriver(wrong)', isDriver({input: {}, expected: false}))
-    it(
-      'isElement(element)',
-      isElement({input: () => browser.findElement('css selector', 'div'), expected: true}),
-    )
+    it('isElement(element)', isElement({input: () => browser.findElement('css selector', 'div'), expected: true}))
     it('isElement(extended-element)', isElement({input: () => browser.$('div'), expected: true}))
     it('isElement(wrong)', isElement({input: () => ({}), expected: false}))
     it('isSelector(string)', isSelector({input: 'div', expected: true}))
-    it('isSelector(function)', isSelector({input: () => {}, expected: true}))
+    it('isSelector(function)', isSelector({input: () => void 0, expected: true}))
     it('isSelector(by)', isSelector({input: By.xpath('//div'), expected: true}))
     it('isSelector(wrong)', isSelector({input: {}, expected: false}))
-    it(
-      'transformElement(element)',
-      transformElement({input: () => browser.findElement('css selector', 'div')}),
-    )
+    it('transformElement(element)', transformElement({input: () => browser.findElement('css selector', 'div')}))
     it('transformElement(extended-element)', transformElement({input: () => browser.$('div')}))
     it(
       'extractSelector(element)',
@@ -233,10 +218,7 @@ describe('spec driver', async () => {
         expected: undefined,
       }),
     )
-    it(
-      'extractSelector(extended-element)',
-      extractSelector({input: () => browser.$('div'), expected: 'div'}),
-    )
+    it('extractSelector(extended-element)', extractSelector({input: () => browser.$('div'), expected: 'div'}))
     it('executeScript(strings, ...args)', executeScript())
     it('mainContext()', mainContext())
     it('parentContext()', parentContext())
@@ -246,7 +228,7 @@ describe('spec driver', async () => {
     it(
       'findElement(function)',
       findElement({
-        input: function() {
+        input: function () {
           return this.document.getElementById('overflowing-div')
         },
       }),
@@ -254,7 +236,7 @@ describe('spec driver', async () => {
     it(
       'findElements(function)',
       findElements({
-        input: function() {
+        input: function () {
           return this.document.querySelectorAll('div')
         },
       }),
@@ -313,8 +295,7 @@ describe('spec driver', async () => {
   function transformElement({input}) {
     return async () => {
       const element = await input()
-      const elementId =
-        element.elementId || element['element-6066-11e4-a52e-4f735466cecf'] || element.ELEMENT
+      const elementId = element.elementId || element['element-6066-11e4-a52e-4f735466cecf'] || element.ELEMENT
       const result = spec.transformElement(element)
       assert.deepStrictEqual(result, {
         ELEMENT: elementId,

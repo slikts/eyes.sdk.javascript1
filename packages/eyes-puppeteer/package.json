@@ -30,10 +30,12 @@
     "lib": "./src",
     "test": "./test"
   },
-  "main": "./index.js",
+  "main": "./dist/index.js",
+  "types": "./index.d.ts",
   "dependencies": {
     "@applitools/eyes-api": "link:../eyes-api",
     "@applitools/eyes-sdk-core": "12.14.2",
+    "@applitools/utils": "^1.0.1",
     "@applitools/visual-grid-client": "15.5.14"
   },
   "peerDependencies": {
@@ -64,9 +66,9 @@
     "render": "node ../sdk-shared/scripts/render.js",
     "build": "yarn build:dist && yarn build:types",
     "build:dist": "tsc",
-    "build:types": "api-extractor ./index.ts --out ./index.d.ts --externals puppeteer",
-    "test": "yarn test:it",
-    "test:it": "yarn build:dist && mocha --exit --no-timeouts ./test/it/*.spec.js",
+    "build:types": "api-extractor ./index.ts --out ./index.d.ts --external-modules puppeteer",
+    "test": "yarn build:dist && yarn test:it",
+    "test:it": "mocha --exit --no-timeouts ./test/it/*.spec.js",
     "test:coverage": "APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-puppeteer' APPLITOOLS_BATCH_ID=$(uuidgen) XUNIT_FILE=coverage-test-report.xml mocha --exit --config .mocharc.cvg.js",
     "test:it:local": "yarn run:docker yarn mocha --exit --no-timeouts ./test/it/*.spec.js",
     "test:coverage:local": "yarn run:docker yarn mocha --exit --config .mocharc.cvg.js",

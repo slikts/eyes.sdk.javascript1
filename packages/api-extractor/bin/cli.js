@@ -21,8 +21,13 @@ const {argv} = yargs
     type: 'string',
     default: './tsconfig.json',
   })
-  .option('externals', {
+  .option('external-modules', {
     description: 'name of modules to import types instead of inline them',
+    type: 'array',
+    default: [],
+  })
+  .option('external-globals', {
+    description: 'name of global accessible types/namespaces to keep instead instead of inline them',
     type: 'array',
     default: [],
   })
