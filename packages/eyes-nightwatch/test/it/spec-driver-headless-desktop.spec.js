@@ -16,7 +16,7 @@ describe('spec driver', () => {
     it('isDriver(driver)', function (driver) {
       return assert.ok(spec.isDriver(driver))
     })
-    it('isDriver(wrong)', function (_driver) {
+    it('isDriver(wrong)', function () {
       return assert.ok(!spec.isDriver({}))
     })
     it('isElement(elementResult)', async function (driver) {
@@ -27,18 +27,18 @@ describe('spec driver', () => {
       const {value: element} = await driver.element('css selector', 'div')
       assert.ok(spec.isElement(element))
     })
-    it('isElement(wrong)', function (_driver) {
+    it('isElement(wrong)', function () {
       spec.isElement({})
     })
     // NOTE: Nightwatch separates the strategy from the selector - so it's always 2 values
     // e.g., using 'css selector', with 'div'
-    it('isSelector(string)', function (_driver) {
+    it('isSelector(string)', function () {
       assert.ok(spec.isSelector('div'))
     })
-    it('isSelector({type, selector})', function (_driver) {
+    it('isSelector({type, selector})', function () {
       assert.ok(spec.isSelector({type: 'css', selector: 'div'}))
     })
-    it('isSelector(wrong)', function (_driver) {
+    it('isSelector(wrong)', function () {
       assert.ok(!spec.isSelector())
     })
     it('isEqualElements(element, element)', async function (driver) {
@@ -204,8 +204,8 @@ describe('spec driver', () => {
       const {value: element} = await driver.element('css selector', '#overflowing-div')
       const elementId = element.ELEMENT || element['element-6066-11e4-a52e-4f735466cecf']
       await driver.refresh()
-      const error = await new Promise((resolve) => {
-        driver.elementIdClick(elementId, (err, _result) => {
+      const error = await new Promise(resolve => {
+        driver.elementIdClick(elementId, err => {
           resolve(err)
         })
       })
@@ -215,8 +215,8 @@ describe('spec driver', () => {
       const {value: element} = await driver.element('css selector', '#overflowing-div')
       const elementId = element.ELEMENT || element['element-6066-11e4-a52e-4f735466cecf']
       await driver.refresh()
-      const error = await new Promise((resolve) => {
-        driver.elementIdClick(elementId, (err, _result) => {
+      const error = await new Promise(resolve => {
+        driver.elementIdClick(elementId, err => {
           resolve(new EyesError('bla', err))
         })
       })

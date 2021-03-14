@@ -74,7 +74,7 @@
     "selenium-webdriver": ">=3.6.0"
   },
   "scripts": {
-    "lint": "eslint . --ext .js",
+    "lint": "eslint '**/*.ts' '**/*.js'",
     "render": "node ../sdk-shared/scripts/render.js",
     "capture-dom": "node ../sdk-shared/scripts/capture-dom.js",
     "build": "yarn build:dist && yarn build:types",

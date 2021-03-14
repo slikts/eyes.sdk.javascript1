@@ -5,7 +5,7 @@
   "main": "./dist/index.js",
   "types": "./index.d.ts",
   "scripts": {
-    "lint": "eslint '**/*.js'",
+    "lint": "eslint '**/*.ts' '**/*.js'",
     "render": "node ../sdk-shared/scripts/render.js",
     "build": "yarn build:dist && yarn build:types",
     "build:dist": "tsc",

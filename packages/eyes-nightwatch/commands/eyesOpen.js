@@ -8,9 +8,7 @@ module.exports = class EyesOpen extends Events {
 
     let eyes = this.client.api.globals.__eyes
     if (!eyes) {
-      const runner = config.useVisualGrid
-        ? new VisualGridRunner({testConcurrency: config.concurrency})
-        : undefined
+      const runner = config.useVisualGrid ? new VisualGridRunner({testConcurrency: config.concurrency}) : undefined
       this.client.api.globals.__eyes = eyes = new Eyes(runner)
     }
 

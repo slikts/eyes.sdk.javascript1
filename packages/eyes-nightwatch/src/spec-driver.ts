@@ -2,8 +2,14 @@ import * as utils from '@applitools/utils'
 import type * as Nightwatch from 'nightwatch'
 
 export type Driver = Nightwatch.NightwatchAPI
-export type Element = {ELEMENT: string} | {'element-6066-11e4-a52e-4f735466cecf': string} | Nightwatch.NightwatchTypedCallbackResult<{ELEMENT: string} | {'element-6066-11e4-a52e-4f735466cecf': string}>
-export type Selector = {locateStrategy: Nightwatch.LocateStrategy; selector: 'string'} | string | {type: string; selector: string}
+export type Element =
+  | {ELEMENT: string}
+  | {'element-6066-11e4-a52e-4f735466cecf': string}
+  | Nightwatch.NightwatchTypedCallbackResult<{ELEMENT: string} | {'element-6066-11e4-a52e-4f735466cecf': string}>
+export type Selector =
+  | {locateStrategy: Nightwatch.LocateStrategy; selector: 'string'}
+  | string
+  | {type: string; selector: string}
 
 //// #region HELPERS
 
@@ -26,14 +32,24 @@ function transformSelector(selector: Selector): [Nightwatch.LocateStrategy, stri
   // else if (isNative) return ['id', selector]
 }
 function call<
-  TCommand extends keyof {[TCommand in keyof Driver as Driver[TCommand] extends (...args: [...infer TArgs, (...args: any[]) => any]) => any ? TCommand : never]: void},
-  TResult = Driver[TCommand] extends (...args: [...infer TArgs, (result: Nightwatch.NightwatchCallbackResult<infer TResult>) => any]) => any ? TResult : void,
+  TCommand extends keyof {
+    [TCommand in keyof Driver as Driver[TCommand] extends (...args: [...infer TArgs, (...args: any[]) => any]) => any
+      ? TCommand
+      : never]: void
+  },
+  TResult = Driver[TCommand] extends (
+    ...args: [...infer TArgs, (result: Nightwatch.NightwatchCallbackResult<infer TResult>) => any]
+  ) => any
+    ? TResult
+    : void
 >(driver: Driver, command: TCommand, ...args: any[]): Promise<TResult> {
-  return new Promise<TResult>((resolve, reject) => (driver[command] as any)(...args, (result: Nightwatch.NightwatchCallbackResult<TResult>) => {
-    if (!result.value) resolve(result as any)
-    else if (!result.status) resolve(result.value as TResult)
-    else reject(result.value)
-  }))
+  return new Promise<TResult>((resolve, reject) =>
+    (driver[command] as any)(...args, (result: Nightwatch.NightwatchCallbackResult<TResult>) => {
+      if (!result.value) resolve(result as any)
+      else if (!result.status) resolve(result.value as TResult)
+      else reject(result.value)
+    }),
+  )
 }
 
 // #endregion
@@ -49,7 +65,11 @@ export function isElement(element: any): element is Element {
 }
 export function isSelector(selector: any): selector is Selector {
   if (!selector) return false
-  return utils.types.has(selector, ['locateStrategy', 'selector']) || utils.types.isString(selector) || utils.types.has(selector, ['type', 'selector'])
+  return (
+    utils.types.has(selector, ['locateStrategy', 'selector']) ||
+    utils.types.isString(selector) ||
+    utils.types.has(selector, ['type', 'selector'])
+  )
 }
 export function transformElement(element: Element): Element {
   const elementId = extractElementId(element)
@@ -140,7 +160,7 @@ export async function setWindowRect(
 }
 export async function getOrientation(driver: Driver): Promise<string> {
   const capabilities = driver.options.desiredCapabilities as Record<string, any>
-  const orientation = (capabilities.orientation || capabilities.deviceOrientation)
+  const orientation = capabilities.orientation || capabilities.deviceOrientation
   return orientation ? orientation.toLowerCase() : 'portrait'
 }
 export async function getDriverInfo(driver: Driver): Promise<any> {
@@ -149,9 +169,7 @@ export async function getDriverInfo(driver: Driver): Promise<any> {
   const browserName = capabilities.browserName
   const deviceName = capabilities.device ? capabilities.device : capabilities.deviceName
   const platformName = capabilities.platformName || capabilities.platform
-  const platformVersion = capabilities.osVersion
-    ? capabilities.osVersion
-    : capabilities.platformVersion
+  const platformVersion = capabilities.osVersion ? capabilities.osVersion : capabilities.platformVersion
   const isMobile = ['android', 'ios'].includes(platformName && platformName.toLowerCase())
   const isNative = isMobile && !browserName
   return {
@@ -189,7 +207,7 @@ export async function type(driver: Driver, element: Element | Selector, keys: st
   if (isSelector(element)) element = await findElement(driver, element)
   await driver.elementIdValue(extractElementId(element), keys)
 }
-export async function scrollIntoView(driver: Driver, element: Element | Selector): Promise<void>  {
+export async function scrollIntoView(driver: Driver, element: Element | Selector): Promise<void> {
   if (isSelector(element)) element = await findElement(driver, element)
   // NOTE: moveTo will scroll the element into view, but it also moves the mouse
   // cursor to the element. This might have unintended side effects.
@@ -242,9 +260,7 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
   conf.test_settings.default.desiredCapabilities = Object.assign(
     {},
     testSetupConfig.capabilities,
-    createBrowserOptions(testSetupConfig.browser, [
-      testSetupConfig.headless ? '--headless' : '//--headless',
-    ]),
+    createBrowserOptions(testSetupConfig.browser, [testSetupConfig.headless ? '--headless' : '//--headless']),
   )
   const host = testSetupConfig.url.host
   const port = testSetupConfig.url.port

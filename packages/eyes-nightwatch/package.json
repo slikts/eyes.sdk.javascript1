@@ -70,7 +70,7 @@
   "scripts": {
     "nightwatch": "nightwatch --config test/nightwatch.conf.js",
     "nw": "yarn nightwatch",
-    "lint": "eslint . --ext .js",
+    "lint": "eslint '**/*.ts' '**/*.js'",
     "render": "node ../sdk-shared/scripts/render.js",
     "build": "yarn build:dist && yarn build:types",
     "build:dist": "tsc",

@@ -70,7 +70,7 @@
     "protractor": ">=5.4.4"
   },
   "scripts": {
-    "lint": "eslint . --ext .js",
+    "lint": "eslint '**/*.ts' '**/*.js'",
     "render": "node ../sdk-shared/scripts/render.js",
     "build": "yarn build:dist && yarn build:types",
     "build:dist": "tsc",
