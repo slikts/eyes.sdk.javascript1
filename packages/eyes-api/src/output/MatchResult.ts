@@ -19,7 +19,7 @@ export class MatchResultData implements Required<MatchResult> {
     return this._asExpected
   }
   set asExpected(asExpected: boolean) {
-    utils.guard.isBoolean(asExpected, {name: 'asExpected'})
+    utils.guard.isBoolean(asExpected, {name: 'asExpected', strict: false})
     this._asExpected = asExpected
   }
   getAsExpected(): boolean {
@@ -33,7 +33,7 @@ export class MatchResultData implements Required<MatchResult> {
     return this._windowId
   }
   set windowId(windowId: number) {
-    utils.guard.isNumber(windowId, {name: 'windowId'})
+    utils.guard.isNumber(windowId, {name: 'windowId', strict: false})
     this._windowId = windowId
   }
   getWindowId(): number {

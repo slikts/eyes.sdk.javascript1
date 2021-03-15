@@ -140,9 +140,10 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
 
   constructor(config?: Configuration) {
     if (!config) return this
+    if (config instanceof ConfigurationData) config = config.toJSON()
     const self = this as any
     for (const [key, value] of Object.entries(config)) {
-      if (key in this && !key.startsWith('_')) {
+      if (key in this && value !== undefined) {
         self[key] = value
       }
     }

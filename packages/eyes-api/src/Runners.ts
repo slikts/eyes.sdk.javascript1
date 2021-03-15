@@ -10,7 +10,7 @@ export type RunnerConfiguration<TType extends 'vg' | 'classic' = 'vg' | 'classic
 
 export abstract class EyesRunner {
   private _make: (config: RunnerConfiguration) => (...args: any[]) => unknown
-  private _open: (...args: any[]) => unknown
+  private _controller: any
   private _eyes: Eyes[] = []
 
   /** @internal */
@@ -24,21 +24,13 @@ export abstract class EyesRunner {
 
   /** @internal */
   open(...args: any[]): unknown {
-    if (!this._open) this._open = this._make(this.config)
+    if (!this._controller) this._controller = this._make(this.config)
 
-    return this._open(...args)
+    return this._controller.open(...args)
   }
 
   async getAllTestResults(throwErr = false): Promise<any> {
-    if (this._eyes.length > 0) {
-      const results = await Promise.all(
-        this._eyes.map(eyes => {
-          return eyes.closeBatch().then(() => eyes.close())
-        }),
-      )
-
-      return results
-    }
+    return this._controller.getResults()
   }
 }
 

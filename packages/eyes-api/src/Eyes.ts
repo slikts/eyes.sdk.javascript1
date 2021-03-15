@@ -32,21 +32,26 @@ type LocateSettings<TLocator extends string = string> = {
 }
 
 type EyesCommands<TElement = unknown, TSelector = unknown> = {
-  check: (settings?: CheckSettings<TElement, TSelector>) => Promise<MatchResult>
-  extractText: (regions: ExtractTextRegion<TElement, TSelector>[]) => Promise<string[]>
-  extractTextRegions: <TPattern extends string>(
+  check(settings?: CheckSettings<TElement, TSelector>): Promise<MatchResult>
+  extractText(regions: ExtractTextRegion<TElement, TSelector>[]): Promise<string[]>
+  extractTextRegions<TPattern extends string>(
     settings: ExtractTextRegionsSettings<TPattern>,
-  ) => Promise<{[key in TPattern]: string[]}>
-  locate: <TLocator extends string>(settings: LocateSettings<TLocator>) => Promise<{[key in TLocator]: Region[]}>
-  close: () => Promise<TestResults>
-  abort: () => Promise<TestResults>
+  ): Promise<{[key in TPattern]: string[]}>
+  locate<TLocator extends string>(settings: LocateSettings<TLocator>): Promise<{[key in TLocator]: Region[]}>
+  close(): Promise<TestResults>
+  abort(): Promise<TestResults>
+}
+
+type EyesController<TDriver = unknown, TElement = unknown, TSelector = unknown> = {
+  open: (driver: TDriver, config: Configuration) => Promise<EyesCommands<TElement, TSelector>>
+  getResults: (driver: TDriver, config: Configuration) => Promise<EyesCommands<TElement, TSelector>>
 }
 
 type EyesSpec<TDriver = unknown, TElement = unknown, TSelector = unknown> = {
   isDriver(value: any): value is TDriver
   isElement(value: any): value is TElement
   isSelector(value: any): value is TSelector
-  makeEyes(config?: RunnerConfiguration): (driver: TDriver, config: Configuration) => EyesCommands<TElement, TSelector>
+  makeEyes(config?: RunnerConfiguration): EyesController<TDriver, TElement, TSelector>
   // makeLogger(config: LoggerConfiguration): unknown
   setViewportSize(driver: TDriver, viewportSize: RectangleSize): Promise<void>
   closeBatch(options: {batchId: string; serverUrl?: string; apiKey?: string; proxy?: ProxySettings}): Promise<void>
@@ -226,13 +231,17 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   }
 
   async close(throwErr = true): Promise<TestResultsData> {
+    if (!this.isOpen) return null
     const result = await this._commands.close()
+    this._commands = null
     // TODO throw error `throwErr` is true and `results` include error response
     return new TestResultsData(result)
   }
 
   async abort(): Promise<TestResultsData> {
+    if (!this.isOpen) return null
     const result = await this._commands.abort()
+    this._commands = null
     return new TestResultsData(result)
   }
 

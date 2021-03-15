@@ -1,6 +1,4 @@
 const EyesService = require('../../../dist/src/service')
-
-console.log(EyesService)
 const assert = require('assert')
 
 describe('EyesService', () => {

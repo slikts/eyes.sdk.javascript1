@@ -47,4 +47,14 @@ export class RectangleSizeData implements Required<RectangleSize> {
   setHeight(height: number) {
     this.height = height
   }
+
+  /** @internal */
+  toJSON(): RectangleSize {
+    return utils.general.toJSON(this, ['width', 'height'])
+  }
+
+  /** @internal */
+  toString() {
+    return utils.general.toString(this)
+  }
 }
