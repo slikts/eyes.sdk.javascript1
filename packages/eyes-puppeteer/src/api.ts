@@ -17,6 +17,7 @@ export {Driver, Element, Selector}
 
 export class Eyes extends api.Eyes<Driver, Element, Selector> {
   protected readonly _spec = {...sdk, ...spec}
+  static setViewportSize: (driver: Driver, viewportSize: api.RectangleSize) => Promise<void>
 }
 
 export type ClassicConfigurationPlain = api.ClassicConfigurationPlain<Element, Selector>
