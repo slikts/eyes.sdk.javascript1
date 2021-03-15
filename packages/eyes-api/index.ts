@@ -56,7 +56,7 @@ export {Region as RegionPlain, RegionData as Region} from './src/input/Region'
 export {
   CutProvider as CutProviderPlain,
   CutProviderData as CutProvider,
-  FixedCutProviderData as FixedCutProvide,
+  FixedCutProviderData as FixedCutProvider,
   UnscaledCutProviderData as UnscaledCutProvider,
 } from './src/input/CutProvider'
 export {
