@@ -78,8 +78,11 @@ export class TestResultsData implements Required<TestResults> {
   private _noneMatches: number
   private _url: string
 
-  constructor(results?: TestResults) {
+  private readonly _deleteTestResults: (result: TestResults) => Promise<void>
+
+  constructor(results?: TestResults, deleteTestResults?: (result: TestResults) => Promise<void>) {
     if (!results) return this
+    this._deleteTestResults = deleteTestResults
     const self = this as any
     for (const [key, value] of Object.entries(results)) {
       if (key in this && !key.startsWith('_')) {
@@ -480,6 +483,14 @@ export class TestResultsData implements Required<TestResults> {
 
   isPassed(): boolean {
     return this._status === TestResultsStatus.Passed
+  }
+
+  async delete(): Promise<void> {
+    return this._deleteTestResults(this.toJSON())
+  }
+  /** @deprecated */
+  async deleteSession(): Promise<void> {
+    await this.delete()
   }
 
   /** @internal */

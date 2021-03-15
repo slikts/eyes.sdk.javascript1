@@ -2,6 +2,7 @@ import * as utils from '@applitools/utils'
 import SessionType from './enums/SessionType'
 import StitchMode from './enums/StitchMode'
 import MatchLevel from './enums/MatchLevel'
+import TestResultsStatus from './enums/TestResultsStatus'
 import {CheckSettings, CheckSettingsFluent} from './input/CheckSettings'
 import {ProxySettings, ProxySettingsData} from './input/ProxySettings'
 import {Configuration, OpenConfiguration, ConfigurationData} from './input/Configuration'
@@ -11,6 +12,9 @@ import {Region} from './input/Region'
 import {MatchResult, MatchResultData} from './output/MatchResult'
 import {TestResults, TestResultsData} from './output/TestResults'
 import {RunnerConfiguration, EyesRunner, ClassicRunner} from './Runners'
+import NewTestError from './errors/NewTestError'
+import DiffsFoundError from './errors/DiffsFoundError'
+import TestFailedError from './errors/TestFailedError'
 
 type ExtractTextRegion<TElement = unknown, TSelector = unknown> = {
   target: Region | TElement | TSelector
@@ -55,6 +59,7 @@ type EyesSpec<TDriver = unknown, TElement = unknown, TSelector = unknown> = {
   // makeLogger(config: LoggerConfiguration): unknown
   setViewportSize(driver: TDriver, viewportSize: RectangleSize): Promise<void>
   closeBatch(options: {batchId: string; serverUrl?: string; apiKey?: string; proxy?: ProxySettings}): Promise<void>
+  deleteTestResults(results: TestResults): Promise<void>
 }
 
 export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
@@ -65,7 +70,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   private _driver: TDriver
   private _commands: EyesCommands<TElement, TSelector>
 
-  static async setViewportSize<TDriver>(driver: TDriver, viewportSize: RectangleSize) {
+  static async setViewportSize(driver: unknown, viewportSize: RectangleSize) {
     await this.prototype._spec.setViewportSize(driver, viewportSize)
   }
 
@@ -232,17 +237,28 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
 
   async close(throwErr = true): Promise<TestResultsData> {
     if (!this.isOpen) return null
-    const result = await this._commands.close()
+    const results = new TestResultsData(await this._commands.close(), results => this._spec.deleteTestResults(results))
     this._commands = null
-    // TODO throw error `throwErr` is true and `results` include error response
-    return new TestResultsData(result)
+    if (throwErr) {
+      const testName = `Test '${this._config.testName}' of '${this._config.appName}'`
+      if (results.status === TestResultsStatus.Unresolved) {
+        if (results.isNew) {
+          throw new NewTestError(`${testName}! Please approve the new baseline at ${results.url}`, results)
+        } else {
+          throw new DiffsFoundError(`${testName} detected differences! See details at: ${results.url}`, results)
+        }
+      } else if (results.status === TestResultsStatus.Failed) {
+        throw new TestFailedError(`${testName} is failed! See details at ${results.url}`, results)
+      }
+    }
+    return results
   }
 
   async abort(): Promise<TestResultsData> {
     if (!this.isOpen) return null
-    const result = await this._commands.abort()
+    const results = new TestResultsData(await this._commands.abort(), )
     this._commands = null
-    return new TestResultsData(result)
+    return results
   }
 
   async closeBatch() {

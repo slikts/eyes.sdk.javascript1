@@ -370,34 +370,6 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     }
     return this
   }
-  /** @deprecated */
-  accessibility(region: AccessibilityRegionReference<TElement, TSelector>): this
-  /** @deprecated */
-  accessibility(region: RegionReference<TElement, TSelector>, type?: AccessibilityRegionType): this
-  accessibility(
-    region: AccessibilityRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector>,
-    type?: AccessibilityRegionType,
-  ): this {
-    return this.accessibilityRegion(region as RegionReference<TElement, TSelector>, type)
-  }
-  /** @deprecated */
-  accessibilities(
-    ...regions: (AccessibilityRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector>)[]
-  ): this
-  /** @deprecated */
-  accessibilities(type: AccessibilityRegionType, ...regions: RegionReference<TElement, TSelector>[]): this
-  accessibilities(
-    regionOrType:
-      | AccessibilityRegionReference<TElement, TSelector>
-      | RegionReference<TElement, TSelector>
-      | AccessibilityRegionType,
-    ...regions: (AccessibilityRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector>)[]
-  ): this {
-    return this.accessibilityRegions(
-      regionOrType as AccessibilityRegionType,
-      ...(regions as RegionReference<TElement, TSelector>[]),
-    )
-  }
 
   scrollRootElement(scrollRootElement: ElementReference<TElement, TSelector>): this {
     utils.guard.custom(scrollRootElement, value => this.isElementReference(value), {
