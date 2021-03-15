@@ -46,7 +46,9 @@ export class VisualGridRunner extends EyesRunner {
   private _testConcurrency: number
   private _legacyConcurrency: number
 
-  constructor(options: RunnerOptions | RunnerOptionsFluent)
+  constructor(options: RunnerOptions)
+  /** @deprecated */
+  constructor(options: RunnerOptionsFluent)
   /** @deprecated */
   constructor(legacyConcurrency: number)
   constructor(optionsOrLegacyConcurrency: RunnerOptions | RunnerOptionsFluent | number) {
