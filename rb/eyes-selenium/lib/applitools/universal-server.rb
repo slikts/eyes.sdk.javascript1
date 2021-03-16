@@ -1,6 +1,7 @@
 require('open-uri')
 require('socket')
 require('digest')
+require('fileutils')
 
 module Applitools
   module UniversalServer
@@ -14,6 +15,7 @@ module Applitools
       create_server_directory
       puts "[eyes-selenium] Downloading Eyes universal server from #{uri}"
       File.write(filepath, URI.open(uri).read)
+      FileUtils.chmod('+x', filepath)
       puts "[eyes-selenium] Download complete. Server placed in #{filepath}"
     end
 
