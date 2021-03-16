@@ -1,0 +1,8 @@
+{
+  "scripts": {
+    "build": "coverage-tests generate ./spec/coverage/index.js --pascalizeTests --emitSkipped false"
+  },
+  "devDependencies": {
+    "@applitools/sdk-coverage-tests": "^2.3.8"
+  }
+}

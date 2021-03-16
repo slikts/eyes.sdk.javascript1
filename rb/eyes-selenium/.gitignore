@@ -58,3 +58,7 @@ build-iPhoneSimulator/
 # .rubocop-https?--*v
 #
 .bin/
+
+# node
+node_modules
+spec/coverage/generic
