@@ -4,9 +4,9 @@ The goal: provide a way for test automation tools without the concept of a "driv
 
 With a browser extension we can expose a set of Eyes commands (e.g., open, check, close) in the application under test (AUT) which can be invoked with a JavaScript executor in a given browser automation tool, and store/retrieve any state as needed.
 
-For security purposes, browser extensions have layers to them. And we end up needing all of them for this extension.
+For security purposes, browser extensions have layers to them -- and we end up using all of them in this extension.
 
-First, there's the AUT. With browser extensions we can load a JavaScript file into any page (this is how we expose commands to the user -- a.k.a. pageScripts). Aside from exposing an interface here, we also perform JS evaluation here as part of the SDK spec that we implement in the background script. This enables to get unfettered access to the page with dom-snapshot.
+First, there's the AUT. With browser extensions we can load a JavaScript file into any page (this is how we expose commands to the user -- a.k.a. pageScripts). Aside from exposing an interface here, we also perform JS evaluation here as part of the SDK spec that we implement in the background script. This enables unfettered access to the page with dom-snapshot.
 
 Next, there's the content script. There's a lot that can be said about content scripts which has been better said [here](https://developer.mozilla.org/en-US/docs/Mozilla/Add-ons/WebExtensions/Content_scripts). Basically, in a content script we have access to the page (albeit limited) and we can communicate with the background script. We largely use the content script as a communication bus between the page scripts we inject into the AUT and the background script.
 
@@ -39,7 +39,7 @@ In the more complicated case:
 12. passes the result to the page which
 13. resolves to the user
 
-The current approach taken is to webpack `eyes-sdk-core` and require it inside of the background script.
+The current approach taken is to webpack `eyes-sdk-core` and use it, along with a spec-driver, inside of the background script.
 
 ## Build
 
@@ -47,7 +47,7 @@ There’s a build script that webpacks everything and outputs it into a build di
 
 You can then load this artifact into the browser as a developer extension ([link](https://developer.chrome.com/extensions/getstarted#unpacked)). You can also do incremental builds by appending the `--watch` argument (e.g., `yarn build --watch`). 
 
-__NOTE: There are two build scripts - one for the page scripts and another for the extension. Depending on where you make a code change, an incremental build might not contain your change.__
+__NOTE: There are two build scripts. One for the page scripts and another for the extension. Depending on where you make a code change, an incremental build might not contain your change since `--watch` only applies to the last `webpack` command. When in doubt, run without `--watch`.__
 
 ## Test
 
