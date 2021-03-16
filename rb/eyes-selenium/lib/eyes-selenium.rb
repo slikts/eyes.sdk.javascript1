@@ -4,6 +4,7 @@ require('applitools/refer')
 require('applitools/selenium/spec-driver')
 require('applitools/universal-server')
 require('applitools/version')
+require('ostruct')
 
 module Applitools
   module Selenium
@@ -15,6 +16,14 @@ module Applitools
         @socket = ::Applitools::Socket.new
         @q = EM::Queue.new
         prepare_socket
+      end
+
+      def configuration
+        @config ||= OpenStruct.new
+      end
+
+      def configure
+        yield(configuration)
       end
 
       def open(driver, config)

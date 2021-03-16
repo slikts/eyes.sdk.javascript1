@@ -17,6 +17,15 @@ describe('e2e') do
   after(:each) do
     @driver.quit
   end
+  describe('configuration') do
+    it('works') do
+      eyes = ::Applitools::Selenium::Eyes.new
+      eyes.configure do |config|
+        config.blah = 'blah'
+      end
+      expect(eyes.configuration.blah).to eql('blah')
+    end
+  end
   describe('classic') do
     it('check window viewport') do
       eyes = ::Applitools::Selenium::Eyes.new
