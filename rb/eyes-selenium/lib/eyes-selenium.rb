@@ -108,11 +108,11 @@ module Applitools
                 result = ::Applitools::Selenium::SpecDriver.findElements(@refer.deref(params[:context]), params[:selector])
                 result.each {|element| @refer.ref(element)}
               })
-              @socket.command('Driver.getViewportSize', ->(params) {
-                ::Applitools::Selenium::SpecDriver.getViewportSize(@refer.deref(params[:driver]))
+              @socket.command('Driver.getWindowRect', ->(params) {
+                ::Applitools::Selenium::SpecDriver.getWindowRect(@refer.deref(params[:driver]))
               })
-              @socket.command('Driver.setViewportSize', ->(params) {
-                ::Applitools::Selenium::SpecDriver.setViewportSize(@refer.deref(params[:driver]), params[:size])
+              @socket.command('Driver.setWindowRect', ->(params) {
+                ::Applitools::Selenium::SpecDriver.setWindowRect(@refer.deref(params[:driver]), params[:rect])
               })
               @socket.command('Driver.getTitle', ->(params) {
                 ::Applitools::Selenium::SpecDriver.getTitle(@refer.deref(params[:driver]))

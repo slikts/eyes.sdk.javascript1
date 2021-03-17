@@ -127,39 +127,18 @@ describe('onscreen desktop') do
     @driver.quit
   end
   it('getWindowRect') do
-    rect = @driver.manage.window.rect
+    rect = @driver.manage.window.rect.to_h
     result = ::Applitools::Selenium::SpecDriver.getWindowRect(@driver)
     expect(result).to eq(rect)
   end
   it('setWindowRect') do
     input = {x: 50, y: 50, width: 510, height: 511}
-    expected = {x: 50, y: 50, width: 510, height: 511}
     ::Applitools::Selenium::SpecDriver.setWindowRect(@driver, input)
     rect = @driver.manage.window.rect
-    expect(rect.height).to eq(expected[:height])
-    expect(rect.width).to eq(expected[:width])
-    expect(rect.x).to eq(expected[:x])
-    expect(rect.y).to eq(expected[:y]) 
-  end
-  it('setWindowRect({x, y})') do
-    input = {x: 100, y: 100}
-    expected = {x: 100, y: 100, width: 510, height: 511}
-    ::Applitools::Selenium::SpecDriver.setWindowRect(@driver, input)
-    rect = @driver.manage.window.rect
-    expect(rect.height).to eq(expected[:height])
-    expect(rect.width).to eq(expected[:width])
-    expect(rect.x).to eq(expected[:x])
-    expect(rect.y).to eq(expected[:y]) 
-  end
-  it('setWindowRect({width, height})') do
-    input = {width: 551, height: 552}
-    expected = {x: 100, y: 100, width: 551, height: 552}
-    ::Applitools::Selenium::SpecDriver.setWindowRect(@driver, input)
-    rect = @driver.manage.window.rect
-    expect(rect.height).to eq(expected[:height])
-    expect(rect.width).to eq(expected[:width])
-    expect(rect.x).to eq(expected[:x])
-    expect(rect.y).to eq(expected[:y]) 
+    expect(rect.height).to eq(input[:height])
+    expect(rect.width).to eq(input[:width])
+    expect(rect.x).to eq(input[:x])
+    expect(rect.y).to eq(input[:y]) 
   end
 end
 

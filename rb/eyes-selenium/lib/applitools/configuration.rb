@@ -17,7 +17,8 @@ module Applitools
     private
 
       def transform_config_keys(config)
-        result = config.map do |k,v|
+        config.map do |k,v|
+          v = v.to_socket_output if v.respond_to?(:to_socket_output)
           if k.to_s.include?('_')
             key = k.to_s.split('_').map(&:capitalize).join 
             key[0] = key[0].downcase
@@ -26,8 +27,6 @@ module Applitools
             [k, v]
           end
         end.to_h
-        result.delete(:viewportSize)
-        result
       end
   end # Configuration
 end # Applitools

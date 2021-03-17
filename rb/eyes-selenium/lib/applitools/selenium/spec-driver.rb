@@ -41,7 +41,7 @@ module Applitools
       end
 
       def getWindowRect(driver)
-        driver.manage.window.rect
+        driver.manage.window.rect.to_h
       end
 
       def setWindowRect(driver, rect)
