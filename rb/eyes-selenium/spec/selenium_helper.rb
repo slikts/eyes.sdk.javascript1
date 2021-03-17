@@ -42,6 +42,7 @@ RSpec.configure do |config|
     end
     @eyes = ::Applitools::Selenium::Eyes.new
     @eyes.configure do |config|
+      config.apiKey = ENV['APPLITOOLS_API_KEY']
       config.vg = !!args[:is_visual_grid]
       config.branchName = args[:branch_name] || 'master'
     end
