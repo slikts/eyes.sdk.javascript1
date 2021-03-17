@@ -6,11 +6,13 @@ require('applitools/universal-server')
 require('applitools/version')
 require('applitools/rectangle-size')
 require('applitools/selenium/target')
-require('ostruct')
+require('applitools/configuration')
 
 module Applitools
   module Selenium
     class Eyes
+      include ::Applitools::Configuration
+
       def initialize
         @eyes = nil
         @driverRef = nil
@@ -20,20 +22,11 @@ module Applitools
         prepare_socket
       end
 
-      def configuration
-        @config ||= OpenStruct.new
-      end
-
-      def configure
-        yield(configuration)
-      end
-
       def open(driver, config = nil)
-        _config = config || transform_config_keys(@config.to_h)
         _driver = driver.is_a?(Hash) && !!driver[:driver] ? driver[:driver] : driver
         @eyes = await(->(cb) {
           @driverRef = @refer.ref(_driver)
-          @socket.request('Eyes.open', {driver: @driverRef, config: _config}, cb)
+          @socket.request('Eyes.open', {driver: @driverRef, config: config || configuration.to_h}, cb)
         })
         _driver
       end
@@ -64,23 +57,6 @@ module Applitools
       end
 
       private 
-
-        def transform_config_keys(config)
-          puts 'hey'
-          config_copy = config.dup
-          if (config.key?(:app_name))
-            config_copy[:appName] = config[:app_name]
-            config_copy.delete(:app_name)
-          end
-          if (config.key?(:test_name))
-            config_copy[:testName] = config[:test_name] 
-            config_copy.delete(:test_name)
-          end
-          if (config.key?(:viewport_size))
-            config_copy.delete(:viewport_size)
-          end
-          config_copy
-        end
 
         def await(function)
           resolved = false

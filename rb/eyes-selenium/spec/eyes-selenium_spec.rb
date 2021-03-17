@@ -23,7 +23,7 @@ describe('e2e') do
       eyes.configure do |config|
         config.blah = 'blah'
       end
-      expect(eyes.configuration.blah).to eql('blah')
+      expect(eyes.configuration[:blah]).to eql('blah')
     end
   end
   describe('classic') do

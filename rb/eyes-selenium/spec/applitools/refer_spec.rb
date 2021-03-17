@@ -1,7 +1,8 @@
 require_relative('../../lib/applitools/refer')
 require_relative('../spec_helper')
 
-describe 'refer' do before(:each) do
+describe 'refer' do
+  before(:each) do
     @refer = ::Applitools::Refer.new
   end
   it('should store an entry') do
