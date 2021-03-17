@@ -53,5 +53,12 @@ describe('e2e') do
       eyes.check({isFully: true})
       eyes.close(true)
     end
+    it('check region') do
+      pending('needs debugging to sort out why it errors')
+      eyes = ::Applitools::Selenium::Eyes.new
+      eyes.open(@driver, {appName: 'eyes-selenium.rb', testName: 'vg, check region', vg: true, batch: @batch})
+      eyes.check({target: 'region', region: 'h1'})
+      eyes.close(true)
+    end
   end
 end
