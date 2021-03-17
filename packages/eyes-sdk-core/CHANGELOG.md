@@ -3,6 +3,50 @@
 ## Unreleased
 
 
+## 12.16.2 - 2021/3/16
+
+- fix setViewportSize
+- fix setViewportSize
+## 12.16.1 - 2021/3/15
+
+- updated to @applitools/dom-snapshot@4.4.14 (from 4.4.13)
+
+## 12.16.0 - 2021/3/15
+
+- support enablePatterns & useDom configuration options in checkSettings when running on the visual grid ([Trello](https://trello.com/c/QCK2xDlS))
+- updated to @applitools/dom-snapshot@4.4.13 (from 4.4.12)
+
+## 12.15.2 - 2021/3/11
+
+- updated to @applitools/snippets@2.1.3 (from 2.1.2)
+
+## 12.15.1 - 2021/3/11
+
+- updated to @applitools/dom-snapshot@4.4.12 (from 4.4.11)
+- updated to @applitools/snippets@2.1.2 (from 2.1.1)
+
+## 12.15.0 - 2021/2/26
+
+- add config flag to disable git merge base ([Trello](https://trello.com/c/d390Si2t))
+
+## 12.14.11 - 2021/2/23
+
+- fix bug when setting the viewport size that prevented retries from working correctly and presented the user with an incorrect error message ([Trello](https://trello.com/c/xNCZNfPi))
+
+## 12.14.10 - 2021/2/18
+
+- updated to @applitools/screenshoter@3.0.5 (from 3.0.4)
+
+## 12.14.9 - 2021/2/16
+
+- handle contexts with no elements
+- updated to @applitools/screenshoter@3.0.4 (from 3.0.3)
+
+## 12.14.8 - 2021/2/4
+
+- add support for custom batch properties
+- updated to @applitools/dom-snapshot@4.4.11 (from 4.4.10)
+
 ## 12.14.7 - 2021/2/1
 
 - fix stale SRE fix from version 12.14.3 when running mobile native apps

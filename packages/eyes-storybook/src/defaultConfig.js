@@ -1,7 +1,7 @@
 'use strict';
 
 module.exports = {
-  concurrency: 10,
+  testConcurrency: 5,
   storybookPort: 9000,
   storybookHost: 'localhost',
   storybookConfigDir: '.storybook',
@@ -16,4 +16,5 @@ module.exports = {
   exitcode: true,
   readStoriesTimeout: 60000,
   reloadPagePerStory: false,
+  include: undefined,
 };

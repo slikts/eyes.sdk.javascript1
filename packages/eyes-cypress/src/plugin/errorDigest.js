@@ -1,5 +1,12 @@
 'use strict';
-const chalk = require('chalk');
+
+const colors = {
+  green: '\x1b[32m',
+  red: '\x1b[31m',
+  teal: '\x1b[38;5;86m',
+  orange: '\x1b[38;5;214m',
+  reset: '\x1b[0m',
+};
 
 const formatByStatus = {
   Passed: {
@@ -13,7 +20,7 @@ const formatByStatus = {
     title: tests => `Errors - ${tests} tests`,
   },
   Unresolved: {
-    color: 'yellow',
+    color: 'orange',
     symbol: '\u26A0',
     title: tests => `Diffs detected - ${tests} tests`,
   },
@@ -23,36 +30,41 @@ function errorDigest({passed, failed, diffs, logger, isInteractive}) {
   logger.log('errorDigest: diff errors', diffs);
   logger.log('errorDigest: test errors', failed);
 
-  const testLink = diffs.length ? `\n${indent()}See details at: ${diffs[0].getUrl()}` : '';
+  const testResultsUrl = diffs.length ? colorify(diffs[0].getUrl(), 'teal') : '';
+  const testResultsPrefix = testResultsUrl ? 'See details at:' : '';
+  const footer = testResultsUrl
+    ? `\n${indent()}${colorify(testResultsPrefix)} ${testResultsUrl}`
+    : '';
   return (
-    'Eyes-Cypress detected diffs or errors during execution of visual tests:' +
+    colorify('Eyes-Cypress detected diffs or errors during execution of visual tests.') +
+    colorify(` ${testResultsPrefix} ${testResultsUrl}`) +
     testResultsToString(passed, 'Passed') +
     testResultsToString(diffs, 'Unresolved') +
     testResultsToString(failed, 'Failed') +
-    `${testLink}`
+    footer +
+    '\n\n'
   );
 
   function testResultsToString(testResultsArr, category) {
-    const {color, title, symbol} = formatByStatus[category];
+    const {color, title, symbol, chalkFunction} = formatByStatus[category];
     const results = testResultsArr.reduce((acc, testResults) => {
       if (!testResults.isEmpty) {
         const error = hasError(testResults) ? stringifyError(testResults) : undefined;
         acc.push(
-          `${colorify(symbol, color)} ${colorify(
-            error || stringifyTestResults(testResults),
-            'reset',
-          )}`,
+          `${colorify(symbol, color)} ${colorify(error || stringifyTestResults(testResults))}`,
         );
       }
       return acc;
     }, []);
 
-    const coloredTitle = results.length ? colorify(title(results.length), color) : '';
+    const coloredTitle = results.length
+      ? colorify(title(results.length), color, chalkFunction)
+      : '';
     return testResultsSection(coloredTitle, results);
   }
 
-  function colorify(msg, color) {
-    return isInteractive ? msg : chalk[color](msg);
+  function colorify(msg, color = 'reset') {
+    return isInteractive ? msg : `${colors[color]}${msg}${colors.reset}`;
   }
 }
 

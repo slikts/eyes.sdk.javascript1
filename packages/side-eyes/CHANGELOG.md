@@ -2,11 +2,18 @@
 
 ## Unreleased
 
+
+## 1.12.1 - 2021/3/11
+
+- fix error that was preventing classic stitch mode from capturing a screenshot ([Trello](https://trello.com/c/6oVADkSf))
+
+## 1.12.0 - 2021/2/23
+
+- add support for iOS simulators
 - chore: add husky
 - updated to @applitools/dom-capture@7.2.6 (from 7.2.4)
 - updated to @applitools/dom-snapshot@4.0.0 (from 3.6.2)
 - updated to @applitools/visual-grid-client@14.6.0 (from 14.5.7)
-
 
 ## 1.11.2 - 2020/7/8
 

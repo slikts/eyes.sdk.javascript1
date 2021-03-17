@@ -134,6 +134,7 @@ describe('eyesStorybook', () => {
 
     expect(results.map(e => e.title).sort()).to.eql(expectedTitles.sort());
     results = flatten(results.map(r => r.resultsOrErr));
+
     expect(results.some(x => x instanceof Error)).to.be.false;
     expect(results).to.have.length(expectedResults.length);
 
@@ -145,7 +146,9 @@ describe('eyesStorybook', () => {
       const session = await fetch(sessionUrl).then(r => r.json());
       const {scenarioIdOrName} = session.startInfo;
       const [componentName, state] = scenarioIdOrName.split(':').map(s => s.trim());
+
       expect(session.startInfo.defaultMatchSettings.ignoreDisplacements).to.be.true;
+
       expect(session.startInfo.properties).to.eql([
         {name: 'Component name', value: componentName},
         {name: 'State', value: state.replace(/ \[.+\]$/, '')}, // strip off variation
@@ -171,6 +174,7 @@ describe('eyesStorybook', () => {
           coordinatesType: 'SCREENSHOT_AS_IS',
         },
       ]);
+
       expect(imageMatchSettings.floating).to.eql(floating);
       expect(imageMatchSettings.accessibility).to.eql(accessibility);
     }
@@ -186,5 +190,72 @@ describe('eyesStorybook', () => {
 - Done 0 stories out of 19
 ✔ Done 19 stories out of 19
 `);
+  });
+
+  it('sends parentBranchBaselineSavedBefore when branchName and parentBranchName are specified, and there is a merge-base time for them', async () => {
+    const {stream} = testStream();
+    const configPath = path.resolve(
+      __dirname,
+      '../fixtures/applitools-ignore-git-merge-base.config.js',
+    );
+    const defaultConfig = {waitBeforeScreenshots: 50};
+    const config = generateConfig({argv: {conf: configPath}, defaultConfig, externalConfigParams});
+
+    // this is the important part, because it's not `true` then `parentBranchBaselineSavedBefore` should be sent in `startInfo`
+    delete config.ignoreGitMergeBase;
+
+    let results = await eyesStorybook({
+      config: {
+        serverUrl,
+        storybookUrl: 'http://localhost:9001',
+        ...config,
+      },
+      logger,
+      performance,
+      timeItAsync,
+      outputStream: stream,
+    });
+    results = flatten(results.map(r => r.resultsOrErr));
+    for (const testResults of results) {
+      const sessionUrl = `${serverUrl}/api/sessions/batches/${encodeURIComponent(
+        testResults.getBatchId(),
+      )}/${encodeURIComponent(testResults.getId())}`;
+
+      const session = await fetch(sessionUrl).then(r => r.json());
+      expect(session.startInfo.parentBranchBaselineSavedBefore).to.match(
+        /\d{4}-\d{2}-\d{2}T\d{2}\:\d{2}:\d{2}\+\d{2}\:\d{2}/,
+      );
+    }
+  });
+
+  it('handles ignoreGitMergeBase', async () => {
+    const {stream} = testStream();
+    const configPath = path.resolve(
+      __dirname,
+      '../fixtures/applitools-ignore-git-merge-base.config.js',
+    );
+    const defaultConfig = {waitBeforeScreenshots: 50};
+    const config = generateConfig({argv: {conf: configPath}, defaultConfig, externalConfigParams});
+
+    let results = await eyesStorybook({
+      config: {
+        serverUrl,
+        storybookUrl: 'http://localhost:9001',
+        ...config,
+      },
+      logger,
+      performance,
+      timeItAsync,
+      outputStream: stream,
+    });
+    results = flatten(results.map(r => r.resultsOrErr));
+    for (const testResults of results) {
+      const sessionUrl = `${serverUrl}/api/sessions/batches/${encodeURIComponent(
+        testResults.getBatchId(),
+      )}/${encodeURIComponent(testResults.getId())}`;
+
+      const session = await fetch(sessionUrl).then(r => r.json());
+      expect(session.startInfo.parentBranchBaselineSavedBefore).to.be.undefined;
+    }
   });
 });

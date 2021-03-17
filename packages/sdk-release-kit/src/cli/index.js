@@ -64,7 +64,7 @@ yargs
     await gitAdd('CHANGELOG.md')
   })
   .command(
-    ['postversion, post-version'],
+    ['postversion'],
     'Supportive steps to after a package has been versioned',
     {
       recipient: {alias: 'r', type: 'string'},

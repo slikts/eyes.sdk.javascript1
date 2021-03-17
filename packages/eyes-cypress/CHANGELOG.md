@@ -3,6 +3,32 @@
 ## Unreleased
 
 
+## 3.20.3 - 2021/3/15
+
+- updated to @applitools/dom-snapshot@4.4.13 (from 4.4.11)
+
+## 3.20.2 - 2021/3/7
+
+- use snaptdout as dev dependency
+
+## 3.20.1 - 2021/3/3
+
+- fix footer message formatting in test results
+
+## 3.20.0 - 2021/3/2
+
+- use global cypress hooks with `experimentalRunEvents` flag
+- updated to @applitools/visual-grid-client@15.6.0 (from 15.5.22)
+
+## 3.19.1 - 2021/2/24
+
+- fix device emulation condition
+
+## 3.19.0 - 2021/2/22
+
+- fix remove timeout
+- updated to @applitools/visual-grid-client@15.5.22 (from 15.5.20)
+
 ## 3.18.7 - 2021/2/2
 
 - fix documentation about setup of Applitools configuration
