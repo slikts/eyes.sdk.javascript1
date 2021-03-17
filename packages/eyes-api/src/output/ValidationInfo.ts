@@ -1,10 +1,12 @@
 import * as utils from '@applitools/utils'
 
+/** @undocumented */
 export type ValidationInfo = {
   validationId: number
   tag: string
 }
 
+/** @undocumented */
 export class ValidationInfoData implements Required<ValidationInfo> {
   private _validationId: number
   private _tag: string

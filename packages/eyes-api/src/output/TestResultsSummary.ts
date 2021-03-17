@@ -51,7 +51,6 @@ export class TestResultsSummaryData implements TestResultsSummary {
     return this._results
   }
 
-  /** @internal */
   [Symbol.iterator](): Iterator<TestResultsContainerData> {
     return this._results[Symbol.iterator]()
   }

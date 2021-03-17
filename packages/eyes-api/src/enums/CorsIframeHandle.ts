@@ -1,3 +1,4 @@
+/** @undocumented */
 enum CorsIframeHandle {
   BLANK = 'BLANK',
   KEEP = 'KEEP',

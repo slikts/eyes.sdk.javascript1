@@ -1,3 +1,4 @@
+/** @undocumented */
 export type ExactMatchSettings = {
   minDiffIntensity: number
   minDiffWidth: number
@@ -5,6 +6,7 @@ export type ExactMatchSettings = {
   matchThreshold: number
 }
 
+/** @undocumented */
 export class ExactMatchSettingsData implements Required<ExactMatchSettings> {
   private _minDiffIntensity: number
   private _minDiffWidth: number

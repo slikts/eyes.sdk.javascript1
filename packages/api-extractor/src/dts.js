@@ -32,6 +32,9 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
     return $comment(node.comment) + (exported ? 'export ' : '') + `enum ${node.name} {${members.join(', ')}}`
   }
   function $class(node, {exported} = {}) {
+    if (node.name === 'TestResultsSummary') {
+      console.log(node.children)
+    }
     const extendedType = node.extendedTypes ? $type(node.extendedTypes[0], {ext: true}) : null
     const extendsExpression = extendedType && !extendedType.unknown ? `extends ${extendedType}` : ''
     const implementedTypes = node.implementedTypes

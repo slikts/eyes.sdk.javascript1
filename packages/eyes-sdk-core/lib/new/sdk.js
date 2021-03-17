@@ -1,16 +1,20 @@
 const EyesSDK = require('../sdk/EyesSDK')
 
 const makeMakeEyes = require('./make-eyes')
+const makeGetViewportSize = require('./get-viewport-size')
 const makeSetViewportSize = require('./set-viewport-size')
 const makeCloseBatches = require('./close-batches')
+const makeDeleteTestResults = require('./delete-test-results')
 
 function makeSdk(options) {
   const sdk = EyesSDK(options)
 
   return {
     makeEyes: makeMakeEyes(sdk),
+    getViewportSize: makeGetViewportSize(sdk),
     setViewportSize: makeSetViewportSize(sdk),
     closeBatches: makeCloseBatches(sdk),
+    deleteTestResults: makeDeleteTestResults(sdk),
   }
 }
 

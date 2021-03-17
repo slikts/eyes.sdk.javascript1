@@ -3,9 +3,9 @@ import {TestResults, TestResultsData} from '../output/TestResults'
 
 export default class TestFailedError extends EyesError {
   private _testResults: TestResultsData
-  constructor(message: string, testResults: TestResults) {
+  constructor(message: string, testResults?: TestResults) {
     super(message)
-    this._testResults = new TestResultsData(testResults)
+    if (testResults) this._testResults = new TestResultsData(testResults)
   }
 
   get testResults(): TestResults {

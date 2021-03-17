@@ -3,18 +3,23 @@ import SessionType from './enums/SessionType'
 import StitchMode from './enums/StitchMode'
 import MatchLevel from './enums/MatchLevel'
 import TestResultsStatus from './enums/TestResultsStatus'
+import NewTestError from './errors/NewTestError'
+import DiffsFoundError from './errors/DiffsFoundError'
+import TestFailedError from './errors/TestFailedError'
 import {CheckSettings, CheckSettingsFluent} from './input/CheckSettings'
 import {ProxySettings, ProxySettingsData} from './input/ProxySettings'
 import {Configuration, OpenConfiguration, ConfigurationData} from './input/Configuration'
 import {BatchInfo, BatchInfoData} from './input/BatchInfo'
-import {RectangleSize} from './input/RectangleSize'
+import {RectangleSize, RectangleSizeData} from './input/RectangleSize'
 import {Region} from './input/Region'
+import {CutProviderData} from './input/CutProvider'
+import {SessionEventHandler, SessionEventHandlers, RemoteSessionEventHandler} from './SessionEventHandlers'
 import {MatchResult, MatchResultData} from './output/MatchResult'
 import {TestResults, TestResultsData} from './output/TestResults'
+import {TestResultsSummary} from './output/TestResultsSummary'
+import {ValidationInfo} from './output/ValidationInfo'
+import {ValidationResult} from './output/ValidationResult'
 import {RunnerConfiguration, EyesRunner, ClassicRunner} from './Runners'
-import NewTestError from './errors/NewTestError'
-import DiffsFoundError from './errors/DiffsFoundError'
-import TestFailedError from './errors/TestFailedError'
 
 type ExtractTextRegion<TElement = unknown, TSelector = unknown> = {
   target: Region | TElement | TSelector
@@ -47,8 +52,12 @@ type EyesCommands<TElement = unknown, TSelector = unknown> = {
 }
 
 type EyesController<TDriver = unknown, TElement = unknown, TSelector = unknown> = {
-  open: (driver: TDriver, config: Configuration) => Promise<EyesCommands<TElement, TSelector>>
-  getResults: (driver: TDriver, config: Configuration) => Promise<EyesCommands<TElement, TSelector>>
+  open: (
+    driver: TDriver,
+    config: Configuration,
+    on?: (event: string, data?: Record<string, any>) => any,
+  ) => Promise<EyesCommands<TElement, TSelector>>
+  getResults: () => Promise<TestResultsSummary>
 }
 
 type EyesSpec<TDriver = unknown, TElement = unknown, TSelector = unknown> = {
@@ -57,6 +66,7 @@ type EyesSpec<TDriver = unknown, TElement = unknown, TSelector = unknown> = {
   isSelector(value: any): value is TSelector
   makeEyes(config?: RunnerConfiguration): EyesController<TDriver, TElement, TSelector>
   // makeLogger(config: LoggerConfiguration): unknown
+  getViewportSize(driver: TDriver): Promise<RectangleSize>
   setViewportSize(driver: TDriver, viewportSize: RectangleSize): Promise<void>
   closeBatch(options: {batchId: string; serverUrl?: string; apiKey?: string; proxy?: ProxySettings}): Promise<void>
   deleteTestResults(results: TestResults): Promise<void>
@@ -69,6 +79,8 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   private _runner: EyesRunner
   private _driver: TDriver
   private _commands: EyesCommands<TElement, TSelector>
+  private _events: Map<string, Set<(...args: any[]) => any>> = new Map()
+  private _handlers: SessionEventHandlers = new SessionEventHandlers()
 
   static async setViewportSize(driver: unknown, viewportSize: RectangleSize) {
     await this.prototype._spec.setViewportSize(driver, viewportSize)
@@ -91,6 +103,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
       this._config = new ConfigurationData(runnerOrConfig as Configuration<TElement, TSelector>)
     }
     this._runner.attach(this, config => this._spec.makeEyes(config))
+    this._handlers.attach(this)
   }
 
   get runner() {
@@ -127,6 +140,43 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     return this.isOpen
   }
 
+  on(handler: (event: string, data?: Record<string, any>) => any): () => void
+  on(event: 'initStarted', handler: () => any): () => void
+  on(event: 'initEnded', handler: () => any): () => void
+  on(event: 'setSizeWillStart', handler: (data: {viewportSize: RectangleSize}) => any): () => void
+  on(event: 'setSizeEnded', handler: () => any): () => void
+  on(event: 'testStarted', handler: (data: {sessionId: string}) => any): () => void
+  on(event: 'testEnded', handler: (data: {sessionId: string; testResults: TestResults}) => any): () => void
+  on(
+    event: 'validationWillStart',
+    handler: (data: {sessionId: string; validationInfo: ValidationInfo}) => any,
+  ): () => void
+  on(
+    event: 'validationWillStart',
+    handler: (data: {sessionId: string; validationId: number; validationResult: ValidationResult}) => any,
+  ): () => void
+  on(event: string | ((...args: any[]) => any), handler?: (...args: any[]) => any): () => void {
+    if (utils.types.isFunction(event)) [handler, event] = [event, '*']
+
+    let handlers = this._events.get(event)
+    if (!handlers) {
+      handlers = new Set()
+      this._events.set(event, handlers)
+    }
+    handlers.add(handler)
+    return () => handlers.delete(handler)
+  }
+
+  off(event: string): void
+  off(handler: (...args: any[]) => any): void
+  off(eventOrHandler: string | ((...args: any[]) => any)): void {
+    if (utils.types.isString(eventOrHandler)) {
+      this._events.delete(eventOrHandler)
+    } else {
+      this._events.forEach(handlers => handlers.delete(eventOrHandler))
+    }
+  }
+
   async open(driver: TDriver, config?: OpenConfiguration): Promise<TDriver>
   async open(
     driver: TDriver,
@@ -155,26 +205,31 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     if (utils.types.isString(sessionType)) config.sessionType = sessionType
 
     this._driver = driver
-    this._commands = (await this._runner.open(driver, config)) as EyesCommands<TElement, TSelector>
+    this._commands = await this._runner.open(driver, config, (name: string, data?: Record<string, any>) => {
+      const globalHandlers = this._events.get('*')
+      if (globalHandlers) globalHandlers.forEach(async handler => handler(name, data))
+      const namedHandlers = this._events.get(name)
+      if (namedHandlers) namedHandlers.forEach(async handler => handler(data))
+    })
 
     return this._driver
   }
 
   /** @deprecated */
-  async checkWindow(name?: string, timeout?: number, isFully = true) {
-    return this.check({name, timeout, isFully})
+  async checkWindow(name?: string, timeout?: number, fully = true) {
+    return this.check({name, timeout, fully})
   }
   /** @deprecated */
   async checkFrame(element: TElement | TSelector | string | number, timeout?: number, name?: string) {
-    return this.check({name, frames: [element], timeout, isFully: true})
+    return this.check({name, frames: [element], timeout, fully: true})
   }
   /** @deprecated */
   async checkElement(element: TElement, timeout?: number, name?: string) {
-    return this.check({name, region: element, timeout, isFully: true})
+    return this.check({name, region: element, timeout, fully: true})
   }
   /** @deprecated */
   async checkElementBy(selector: TSelector, timeout?: number, name?: string) {
-    return this.check({name, region: selector, timeout, isFully: true})
+    return this.check({name, region: selector, timeout, fully: true})
   }
   /** @deprecated */
   async checkRegion(region?: Region, name?: string, timeout?: number) {
@@ -185,8 +240,8 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     return this.check({name, region: element, timeout})
   }
   /** @deprecated */
-  async checkRegionBy(selector: TSelector, name?: string, timeout?: number, isFully = false) {
-    return this.check({name, region: selector, timeout, isFully})
+  async checkRegionBy(selector: TSelector, name?: string, timeout?: number, fully = false) {
+    return this.check({name, region: selector, timeout, fully})
   }
   /** @deprecated */
   async checkRegionInFrame(
@@ -194,9 +249,9 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     selector: TSelector,
     timeout?: number,
     name?: string,
-    isFully = false,
+    fully = false,
   ) {
-    return this.check({name, region: selector, frames: [frame], timeout, isFully})
+    return this.check({name, region: selector, frames: [frame], timeout, fully})
   }
   async check(name: string, checkSettings: CheckSettingsFluent<TElement, TSelector>): Promise<MatchResultData>
   async check(checkSettings?: CheckSettings<TElement, TSelector>): Promise<MatchResultData>
@@ -253,67 +308,95 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     }
     return results
   }
+  /** @deprecated */
+  async closeAsync(): Promise<void> {
+    await this.close(false)
+  }
 
   async abort(): Promise<TestResultsData> {
     if (!this.isOpen) return null
-    const results = new TestResultsData(await this._commands.abort(), )
+    const results = new TestResultsData(await this._commands.abort(), results => this._spec.deleteTestResults(results))
     this._commands = null
     return results
   }
-
-  async closeBatch() {
-    // await this._spec.closeBatch()
+  /** @deprecated */
+  async abortAsync(): Promise<void> {
+    await this.abort()
+  }
+  /** @deprecated */
+  async abortIfNotClosed(): Promise<TestResults> {
+    return this.abort()
   }
 
-  // async getViewportSize() : Promise<RectangleSizeData> {
-  //   return this._commands
-  // }
-  // async setViewportSize(viewportSize: RectangleSize|RectangleSizeData) : Promise<void> {
-  //   await this._commands
-  // }
-
-  // getRotation() : number {
-  //   return this._rotation
-  // }
-  // setRotation(rotation: number) {
-  //   this._rotation = rotation
-  // }
-
-  // getDebugScreenshotsPrefix() {
-  //   // return this._debugScreenshotsProvider.getPrefix()
-  // }
-  // setDebugScreenshotsPrefix(debugScreenshotsPrefix: boolean) {
-  //   // this._debugScreenshotsProvider.setPrefix(prefix)
-  // }
-
-  // setDebugScreenshotsPath(debugScreenshotsPath: string) {
-  //   // this._debugScreenshotsProvider.setPath(pathToSave)
-  // }
-  // getDebugScreenshotsPath() {
-  //   // return this._debugScreenshotsProvider.getPath()
-  // }
-
-  // getSaveDebugScreenshots() : boolean {
-  //   return this._saveDebugScreenshots
-  // }
-  // setSaveDebugScreenshots(saveDebugScreenshots: boolean) {
-  //   this._saveDebugScreenshots = saveDebugScreenshots
-  // }
-
-  // getScaleRatio() : number {
-  //   return this._scaleRatio
-  // }
-  // setScaleRatio(scaleRatio: number) {
-  //   this._scaleRatio = scaleRatio
-  // }
-
   // #region CONFIG
+
+  async getViewportSize(): Promise<RectangleSizeData> {
+    return this._config.getViewportSize() || new RectangleSizeData(await this._spec.getViewportSize(this._driver))
+  }
+  async setViewportSize(viewportSize: RectangleSize): Promise<void> {
+    utils.guard.notNull(viewportSize, {name: 'viewportSize'})
+
+    if (!this._driver) {
+      this._config.setViewportSize(viewportSize)
+    } else {
+      try {
+        await this._spec.setViewportSize(this._driver, viewportSize)
+        this._config.setViewportSize(viewportSize)
+      } catch (err) {
+        this._config.setViewportSize(await this._spec.getViewportSize(this._driver))
+        throw new TestFailedError('Failed to set the viewport size')
+      }
+    }
+  }
 
   getScrollRootElement(): TElement | TSelector {
     return this._config.getScrollRootElement()
   }
   setScrollRootElement(scrollRootElement: TElement | TSelector) {
     this._config.setScrollRootElement(scrollRootElement)
+  }
+
+  setCutProvider(cutProvider: CutProviderData) {
+    this._config.setCut(cutProvider)
+  }
+  setImageCut(cutProvider: CutProviderData) {
+    this.setCutProvider(cutProvider)
+  }
+  getIsCutProviderExplicitlySet() {
+    return Boolean(this._config.getCut())
+  }
+
+  getRotation(): number {
+    return this._config.getRotation()
+  }
+  setRotation(rotation: number) {
+    this._config.setRotation(rotation)
+  }
+
+  getScaleRatio(): number {
+    return this._config.getScaleRatio()
+  }
+  setScaleRatio(scaleRatio: number) {
+    this._config.setScaleRatio(scaleRatio)
+  }
+
+  getSaveDebugScreenshots(): boolean {
+    return this._config.getSaveDebugScreenshots()
+  }
+  setSaveDebugScreenshots(save: boolean) {
+    this._config.setSaveDebugScreenshots(save)
+  }
+  getDebugScreenshotsPath() {
+    return this._config.getDebugScreenshotsPath()
+  }
+  setDebugScreenshotsPath(path: string) {
+    this._config.setDebugScreenshotsPath(path)
+  }
+  getDebugScreenshotsPrefix() {
+    return this._config.getDebugScreenshotsPrefix()
+  }
+  setDebugScreenshotsPrefix(prefix: string) {
+    this._config.setDebugScreenshotsPrefix(prefix)
   }
 
   addProperty(name: string, value: string) {
@@ -372,7 +455,6 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   setBaselineName(baselineName: string) {
     this.setBaselineEnvName(baselineName)
   }
-
   getBaselineEnvName(): string {
     return this._config.getBaselineEnvName()
   }
@@ -541,6 +623,43 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   }
   setStitchOverlap(stitchOverlap: number) {
     this._config.setStitchOverlap(stitchOverlap)
+  }
+
+  /**
+   * @undocumented
+   * @deprecated
+   */
+  getSessionEventHandlers(): SessionEventHandlers {
+    return this._handlers
+  }
+  /**
+   * @undocumented
+   * @deprecated
+   */
+  addSessionEventHandler(handler: SessionEventHandler) {
+    if (handler instanceof RemoteSessionEventHandler) {
+      this._config.setRemoteEvents(handler.toJSON())
+    } else {
+      this._handlers.addEventHandler(handler)
+    }
+  }
+  /**
+   * @undocumented
+   * @deprecated
+   */
+  removeSessionEventHandler(handler: SessionEventHandler) {
+    if (handler instanceof RemoteSessionEventHandler) {
+      this._config.setRemoteEvents(null)
+    } else {
+      this._handlers.removeEventHandler(handler)
+    }
+  }
+  /**
+   * @undocumented
+   * @deprecated
+   */
+  clearSessionEventHandlers() {
+    return this._handlers.clearEventHandlers()
   }
 
   // #endregion

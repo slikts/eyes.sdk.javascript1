@@ -1,6 +1,7 @@
 import * as utils from '@applitools/utils'
 import {Region, RegionData} from './Region'
 
+/** @undocumented */
 export type FloatingMatchSettings = {
   region: Region
   maxUpOffset?: number
@@ -9,6 +10,7 @@ export type FloatingMatchSettings = {
   maxRightOffset?: number
 }
 
+/** @undocumented */
 export class FloatingMatchSettingsData implements Required<FloatingMatchSettings> {
   private _region: RegionData
   private _maxUpOffset: number

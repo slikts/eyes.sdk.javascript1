@@ -1,9 +1,11 @@
 import * as utils from '@applitools/utils'
 
+/** @undocumented */
 export type ValidationResult = {
   asExpected: boolean
 }
 
+/** @undocumented */
 export class ValidationResultData implements Required<ValidationResult> {
   private _asExpected: boolean
 

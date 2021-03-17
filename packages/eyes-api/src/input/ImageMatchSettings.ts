@@ -8,6 +8,7 @@ import {AccessibilityMatchSettings, AccessibilityMatchSettingsData} from './Acce
 import {Region, RegionData} from './Region'
 import {AccessibilitySettings} from './AccessibilitySettings'
 
+/** @undocumented */
 export type ImageMatchSettings = {
   exact?: ExactMatchSettings
   matchLevel?: MatchLevel
@@ -30,6 +31,7 @@ export type ImageMatchSettings = {
   accessibilitySettings?: AccessibilitySettings
 }
 
+/** @undocumented */
 export class ImageMatchSettingsData implements Required<ImageMatchSettings> {
   private _exact: ExactMatchSettingsData
   private _matchLevel: MatchLevel = MatchLevel.Strict

@@ -1,6 +1,7 @@
 import * as utils from '@applitools/utils'
-import {Eyes} from './Eyes'
 import {RunnerOptions, RunnerOptionsFluent} from './input/RunnerOptions'
+import {TestResultsSummaryData} from './output/TestResultsSummary'
+import type {Eyes} from './Eyes'
 
 export type RunnerConfiguration<TType extends 'vg' | 'classic' = 'vg' | 'classic'> = {
   type: TType
@@ -23,14 +24,20 @@ export abstract class EyesRunner {
   }
 
   /** @internal */
-  open(...args: any[]): unknown {
+  async open(...args: any[]): Promise<any> {
     if (!this._controller) this._controller = this._make(this.config)
 
     return this._controller.open(...args)
   }
 
-  async getAllTestResults(throwErr = false): Promise<any> {
-    return this._controller.getResults()
+  async getAllTestResults(throwErr = false): Promise<TestResultsSummaryData> {
+    const results = await this._controller.getResults()
+    if (throwErr) {
+      for (const result of results) {
+        if (result.exception) throw result.exception
+      }
+    }
+    return new TestResultsSummaryData(results)
   }
 }
 

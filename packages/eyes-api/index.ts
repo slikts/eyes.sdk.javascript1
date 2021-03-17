@@ -57,13 +57,9 @@ export {
   CutProvider as CutProviderPlain,
   CutProviderData as CutProvider,
   FixedCutProviderData as FixedCutProvider,
-  UnscaledCutProviderData as UnscaledCutProvider,
+  UnscaledFixedCutProviderData as UnscaledFixedCutProvider,
 } from './src/input/CutProvider'
-export {
-  SessionEventHandler as SessionEventHandlerPlain,
-  SessionEventHandlerData as SessionEventHandler,
-  RemoteSessionEventHandlerData as RemoteSessionEventHandler,
-} from './src/input/SessionEventHandler'
+export {SessionEventHandler, SessionEventHandlers, RemoteSessionEventHandler} from './src/SessionEventHandlers'
 
 export {
   RunnerOptions as RunnerOptionsPlain,
@@ -90,6 +86,14 @@ export {AppUrls as AppUrlsPlain, AppUrlsData as AppUrls} from './src/output/AppU
 export {SessionUrls as SessionUrlsPlain, SessionUrlsData as SessionUrls} from './src/output/SessionUrls'
 export {StepInfo as StepInfoPlain, StepInfoData as StepInfo} from './src/output/StepInfo'
 export {TestResults as TestResultsPlain, TestResultsData as TestResults} from './src/output/TestResults'
+export {
+  TestResultsContainer as TestResultsContainerPlain,
+  TestResultsContainerData as TestResultsContainer,
+} from './src/output/TestResultsContainer'
+export {
+  TestResultsSummary as TestResultsSummaryPlain,
+  TestResultsSummaryData as TestResultsSummary,
+} from './src/output/TestResultsSummary'
 export {MatchResult as MatchResultPlain, MatchResultData as MatchResult} from './src/output/MatchResult'
 
 // #endregion

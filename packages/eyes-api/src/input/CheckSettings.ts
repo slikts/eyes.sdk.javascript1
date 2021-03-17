@@ -37,7 +37,7 @@ export type CheckSettings<TElement, TSelector> = {
   region?: RegionReference<TElement, TSelector>
   frames?: (ContextReference<TElement, TSelector> | FrameReference<TElement, TSelector>)[]
   scrollRootElement?: ElementReference<TElement, TSelector>
-  isFully?: boolean
+  fully?: boolean
   matchLevel?: MatchLevel
   useDom?: boolean
   sendDom?: boolean
@@ -101,7 +101,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
       })
     }
     if (settings.scrollRootElement) this.scrollRootElement(settings.scrollRootElement)
-    if (!utils.types.isNull(settings.isFully)) this.fully(settings.isFully)
+    if (!utils.types.isNull(settings.fully)) this.fully(settings.fully)
     if (settings.matchLevel) this.matchLevel(settings.matchLevel)
     if (!utils.types.isNull(settings.useDom)) this.useDom(settings.useDom)
     if (!utils.types.isNull(settings.sendDom)) this.sendDom(settings.sendDom)
@@ -383,9 +383,9 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     return this
   }
 
-  fully(isFully = true): this {
-    utils.guard.isBoolean(isFully, {name: 'isFully'})
-    this._settings.isFully = isFully
+  fully(fully = true): this {
+    utils.guard.isBoolean(fully, {name: 'fully'})
+    this._settings.fully = fully
     return this
   }
 

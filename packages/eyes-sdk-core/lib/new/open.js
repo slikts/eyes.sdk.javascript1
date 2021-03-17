@@ -1,18 +1,60 @@
+const FixedCutProvider = require('../cropping/FixedCutProvider')
+const SessionEventHandler = require('../events/SessionEventHandler')
+const RemoteSessionEventHandler = require('../events/RemoteSessionEventHandler')
+
 const makeCheck = require('./check')
 const makeLocate = require('./locate')
+const makeExtractText = require('./extract-text')
+const makeExtractTextRegions = require('./extract-text-regions')
 const makeClose = require('./close')
 const makeAbort = require('./abort')
 
 function makeOpen({sdk, runner}) {
-  return async function open(driver, config) {
+  return async function open(driver, config, listener) {
     const eyes = new sdk.EyesFactory(runner)
     eyes.setConfiguration(config)
-    eyes.setScrollRootElement(config.scrollRootElement)
+    if (config.scrollRootElement) eyes.setScrollRootElement(config.scrollRootElement)
+    if (config.cut && config.cut.top !== undefined) {
+      eyes.setCutProvider(
+        new FixedCutProvider(config.cut.top, config.cut.bottom, config.cut.left, config.cut.right),
+      )
+    }
+    if (config.rotation) eyes.setRotation(config.rotation)
+    if (config.scaleRatio) eyes.setScaleRatio(config.scaleRatio)
+    if (config.saveDebugScreenshots) {
+      eyes.setSaveDebugScreenshots(config.saveDebugScreenshots.save)
+      if (config.saveDebugScreenshots.path) {
+        eyes.setDebugScreenshotsPath(config.saveDebugScreenshots.path)
+      }
+      if (config.saveDebugScreenshots.prefix) {
+        eyes.setDebugScreenshotsPrefix(config.saveDebugScreenshots.prefix)
+      }
+    }
+    if (config.remoteEvents) {
+      const remoteSessionEventHandler = new RemoteSessionEventHandler(
+        config.remoteEvents.serverUrl,
+        config.remoteEvents.accessKey,
+      )
+      if (config.remoteEvents.timeout !== undefined) {
+        remoteSessionEventHandler.setTimeout(config.remoteEvents.timeout)
+      }
+      eyes.addSessionEventHandler(remoteSessionEventHandler)
+    }
+    if (listener) {
+      const sessionEventHandler = new SessionEventHandler()
+      for (const event of Object.keys(sessionEventHandler)) {
+        sessionEventHandler[event] = (...args) => listener(event, ...args)
+      }
+      eyes.addSessionEventHandler(sessionEventHandler)
+    }
+
     await eyes.open(driver, config.appName, config.testName)
 
     return {
       check: makeCheck({eyes}),
       locate: makeLocate({eyes}),
+      extractText: makeExtractText({eyes}),
+      extractTextRegions: makeExtractTextRegions({eyes}),
       close: makeClose({eyes}),
       abort: makeAbort({eyes}),
     }

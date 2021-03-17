@@ -7,6 +7,7 @@ import DeviceName from '../enums/DeviceName'
 import ScreenOrientation from '../enums/ScreenOrientation'
 import {AccessibilitySettings} from './AccessibilitySettings'
 import {DesktopBrowserInfo, ChromeEmulationInfo, IOSDeviceInfo} from './RenderInfo'
+import {CutProvider} from './CutProvider'
 import {RectangleSize, RectangleSizeData} from './RectangleSize'
 import {ProxySettings, ProxySettingsData} from './ProxySettings'
 import {BatchInfo, BatchInfoData} from './BatchInfo'
@@ -21,14 +22,20 @@ type ConfigurationSpec<TElement, TSelector> = {
 }
 
 export type GeneralConfiguration = {
+  /** @undocumented */
   showLogs?: boolean
+  saveDebugScreenshots?: {save: boolean; path?: string; prefix?: string}
   agentId?: string
   apiKey?: string
   serverUrl?: string
   proxy?: ProxySettings
-  connectionTimeout?: number
-  removeSession?: boolean
   isDisabled?: boolean
+  /** @undocumented */
+  connectionTimeout?: number
+  /** @undocumented */
+  removeSession?: boolean
+  /** @undocumented */
+  remoteEvents?: {serverUrl: string; accessKey?: string; timeout?: number}
 }
 
 export type OpenConfiguration = {
@@ -55,6 +62,7 @@ export type OpenConfiguration = {
   saveFailedTests?: boolean
   saveNewTests?: boolean
   saveDiffs?: boolean
+  /** @undocumented */
   dontCloseBatches?: boolean
 }
 
@@ -71,9 +79,13 @@ export type ClassicConfiguration<TElement = unknown, TSelector = unknown> = {
   hideCaret?: boolean
   stitchOverlap?: number
   scrollRootElement?: TElement | TSelector
+  cut?: CutProvider
+  rotation?: number
+  scaleRatio?: number
 }
 
 export type VGConfiguration = {
+  /** @undocumented */
   concurrentSessions?: number
   browsersInfo?: RenderInfo[]
   visualGridOptions?: Record<string, any>
@@ -92,6 +104,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   protected readonly _spec: ConfigurationSpec<TElement, TSelector>
 
   private _showLogs: boolean
+  private _saveDebugScreenshots: {save: boolean; path?: string; prefix?: string}
   private _appName: string
   private _testName: string
   private _displayName: string
@@ -105,6 +118,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   private _proxy: ProxySettingsData
   private _connectionTimeout: number
   private _removeSession: boolean
+  private _remoteEvents: {serverUrl: string; accessKey?: string; timeout?: number}
   private _batch: BatchInfoData
   private _properties: PropertyDataData[]
   private _baselineEnvName: string
@@ -131,6 +145,9 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   private _hideCaret: boolean
   private _stitchOverlap: number
   private _scrollRootElement: TElement | TSelector
+  private _cut: CutProvider
+  private _rotation: number
+  private _scaleRatio: number
   private _concurrentSessions: number
   private _browsersInfo: RenderInfo[]
   private _visualGridOptions: {[key: string]: any}
@@ -150,21 +167,23 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   /** @internal */
-  get general(): GeneralConfiguration {
+  get general(): Required<GeneralConfiguration> {
     return utils.general.toJSON(this, [
       'showLogs',
+      'saveDebugScreenshots',
       'agentId',
       'apiKey',
       'serverUrl',
       'proxy',
+      'isDisabled',
       'connectionTimeout',
       'removeSession',
-      'isDisabled',
+      'remoteEvents',
     ])
   }
 
   /** @internal */
-  get open(): OpenConfiguration {
+  get open(): Required<OpenConfiguration> {
     return utils.general.toJSON(this, [
       'appName',
       'testName',
@@ -194,23 +213,27 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   /** @internal */
-  get check(): CheckConfiguration {
+  get check(): Required<CheckConfiguration> {
     return utils.general.toJSON(this, ['sendDom', 'matchTimeout', 'forceFullPageScreenshot'])
   }
 
   /** @internal */
-  get classic(): ClassicConfiguration {
+  get classic(): Required<ClassicConfiguration<TElement, TSelector>> {
     return utils.general.toJSON(this, [
       'waitBeforeScreenshots',
       'stitchMode',
       'hideScrollbars',
       'hideCaret',
       'stitchOverlap',
+      'scrollRootElement',
+      'cut',
+      'rotation',
+      'scaleRatio',
     ])
   }
 
   /** @internal */
-  get vg(): VGConfiguration {
+  get vg(): Required<VGConfiguration> {
     return utils.general.toJSON(this, [
       'concurrentSessions',
       'browsersInfo',
@@ -220,18 +243,50 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     ])
   }
 
+  /** @undocumented */
   get showLogs(): boolean {
     return this._showLogs
   }
+  /** @undocumented */
   set showLogs(showLogs: boolean) {
     utils.guard.isBoolean(showLogs, {name: 'showLogs'})
     this._showLogs = showLogs
   }
+  /** @undocumented */
   getShowLogs(): boolean {
     return this._showLogs
   }
+  /** @undocumented */
   setShowLogs(showLogs: boolean): this {
     this.showLogs = showLogs
+    return this
+  }
+
+  get saveDebugScreenshots(): {save: boolean; path?: string; prefix?: string} {
+    return this._saveDebugScreenshots
+  }
+  set saveDebugScreenshots(saveDebugScreenshots: {save: boolean; path?: string; prefix?: string}) {
+    this._saveDebugScreenshots = saveDebugScreenshots
+  }
+  getSaveDebugScreenshots(): boolean {
+    return this._saveDebugScreenshots ? this._saveDebugScreenshots.save : false
+  }
+  setSaveDebugScreenshots(save: boolean): this {
+    this.saveDebugScreenshots = {...this.saveDebugScreenshots, save}
+    return this
+  }
+  getDebugScreenshotsPath(): string {
+    return this._saveDebugScreenshots && this._saveDebugScreenshots.path
+  }
+  setDebugScreenshotsPath(path: string): this {
+    this.saveDebugScreenshots = {...this.saveDebugScreenshots, path}
+    return this
+  }
+  getDebugScreenshotsPrefix(): string {
+    return this._saveDebugScreenshots && this._saveDebugScreenshots.prefix
+  }
+  setDebugScreenshotsPrefix(prefix: string): this {
+    this.saveDebugScreenshots = {...this.saveDebugScreenshots, prefix}
     return this
   }
 
@@ -413,33 +468,55 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     return this
   }
 
+  /** @undocumented */
   get connectionTimeout(): number {
     return this._connectionTimeout
   }
+  /** @undocumented */
   set connectionTimeout(connectionTimeout: number) {
     utils.guard.isInteger(connectionTimeout, {name: 'connectionTimeout', gte: 0})
     this._connectionTimeout = connectionTimeout
   }
+  /** @undocumented */
   getConnectionTimeout(): number {
     return this._connectionTimeout
   }
+  /** @undocumented */
   setConnectionTimeout(connectionTimeout: number): this {
     this.connectionTimeout = connectionTimeout
     return this
   }
 
+  /** @undocumented */
   get removeSession(): boolean {
     return this._removeSession
   }
+  /** @undocumented */
   set removeSession(removeSession: boolean) {
     utils.guard.isBoolean(removeSession, {name: 'removeSession'})
     this._removeSession = removeSession
   }
+  /** @undocumented */
   getRemoveSession(): boolean {
     return this._removeSession
   }
+  /** @undocumented */
   setRemoveSession(removeSession: boolean): this {
     this.removeSession = removeSession
+    return this
+  }
+
+  get remoteEvents(): {serverUrl: string; accessKey?: string; timeout?: number} {
+    return this._remoteEvents
+  }
+  set remoteEvents(remoteEvents: {serverUrl: string; accessKey?: string; timeout?: number}) {
+    this._remoteEvents = remoteEvents
+  }
+  getRemoteEvents(): {serverUrl: string; accessKey?: string; timeout?: number} {
+    return this._remoteEvents
+  }
+  setRemoteEvents(remoteEvents: {serverUrl: string; accessKey?: string; timeout?: number}): this {
+    this.remoteEvents = remoteEvents
     return this
   }
 
@@ -884,15 +961,63 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     return this
   }
 
+  get cut(): CutProvider {
+    return this._cut
+  }
+  set cut(cut: CutProvider) {
+    this._cut = cut
+  }
+  getCut(): CutProvider {
+    return this._cut
+  }
+  setCut(cut: CutProvider): this {
+    this.cut = cut
+    return this
+  }
+
+  get rotation(): number {
+    return this._rotation
+  }
+  set rotation(rotation: number) {
+    utils.guard.isInteger(rotation, {name: 'rotation', strict: false})
+    this._rotation = rotation
+  }
+  getRotation(): number {
+    return this._rotation
+  }
+  setRotation(rotation: number): this {
+    this.rotation = rotation
+    return this
+  }
+
+  get scaleRatio(): number {
+    return this._scaleRatio
+  }
+  set scaleRatio(scaleRatio: number) {
+    utils.guard.isNumber(scaleRatio, {name: 'scaleRatio', strict: false})
+    this._scaleRatio = scaleRatio
+  }
+  getScaleRatio(): number {
+    return this._scaleRatio
+  }
+  setScaleRatio(scaleRatio: number): this {
+    this.scaleRatio = scaleRatio
+    return this
+  }
+
+  /** @undocumented */
   get concurrentSessions(): number {
     return this._concurrentSessions
   }
+  /** @undocumented */
   set concurrentSessions(concurrentSessions: number) {
     this._concurrentSessions = concurrentSessions
   }
+  /** @undocumented */
   getConcurrentSessions(): number {
     return this._concurrentSessions
   }
+  /** @undocumented */
   setConcurrentSessions(concurrentSessions: number): this {
     this.concurrentSessions = concurrentSessions
     return this
@@ -996,24 +1121,29 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     return this
   }
 
+  /** @undocumented */
   get dontCloseBatches(): boolean {
     return this._dontCloseBatches
   }
+  /** @undocumented */
   set dontCloseBatches(dontCloseBatches: boolean) {
     this._dontCloseBatches = dontCloseBatches
   }
+  /** @undocumented */
   getDontCloseBatches(): boolean {
     return this.dontCloseBatches
   }
+  /** @undocumented */
   setDontCloseBatches(dontCloseBatches: boolean): this {
     this.dontCloseBatches = dontCloseBatches
     return this
   }
 
   /** @internal */
-  toJSON(): Configuration {
+  toJSON(): Required<Configuration<TElement, TSelector>> {
     return utils.general.toJSON(this, [
       'showLogs',
+      'saveDebugScreenshots',
       'appName',
       'testName',
       'displayName',
@@ -1027,6 +1157,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
       'proxy',
       'connectionTimeout',
       'removeSession',
+      'remoteEvents',
       'batch',
       'properties',
       'baselineEnvName',
@@ -1053,6 +1184,9 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
       'hideCaret',
       'stitchOverlap',
       'scrollRootElement',
+      'cut',
+      'rotation',
+      'scaleRatio',
       'concurrentSessions',
       'browsersInfo',
       'visualGridOptions',

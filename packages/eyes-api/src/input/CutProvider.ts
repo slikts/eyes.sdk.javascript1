@@ -111,9 +111,10 @@ export class CutProviderData implements Required<CutProviderRegion & CutProvider
 
 export class FixedCutProviderData extends CutProviderData {}
 
-export class UnscaledCutProviderData extends CutProviderData {
+/** @undocumented */
+export class UnscaledFixedCutProviderData extends CutProviderData {
   scale() {
-    return new UnscaledCutProviderData(this)
+    return new UnscaledFixedCutProviderData(this)
   }
 }
 
