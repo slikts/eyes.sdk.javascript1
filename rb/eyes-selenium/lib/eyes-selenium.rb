@@ -4,6 +4,8 @@ require('applitools/refer')
 require('applitools/selenium/spec-driver')
 require('applitools/universal-server')
 require('applitools/version')
+require('applitools/rectangle-size')
+require('applitools/selenium/target')
 require('ostruct')
 
 module Applitools
@@ -26,11 +28,14 @@ module Applitools
         yield(configuration)
       end
 
-      def open(driver, config)
+      def open(driver, config = nil)
+        _config = config || transform_config_keys(@config.to_h)
+        _driver = driver.is_a?(Hash) && !!driver[:driver] ? driver[:driver] : driver
         @eyes = await(->(cb) {
-          @driverRef = @refer.ref(driver)
-          @socket.request('Eyes.open', {driver: @driverRef, config: config}, cb)
+          @driverRef = @refer.ref(_driver)
+          @socket.request('Eyes.open', {driver: @driverRef, config: _config}, cb)
         })
+        _driver
       end
 
       def check(checkSettings)
@@ -59,6 +64,23 @@ module Applitools
       end
 
       private 
+
+        def transform_config_keys(config)
+          puts 'hey'
+          config_copy = config.dup
+          if (config.key?(:app_name))
+            config_copy[:appName] = config[:app_name]
+            config_copy.delete(:app_name)
+          end
+          if (config.key?(:test_name))
+            config_copy[:testName] = config[:test_name] 
+            config_copy.delete(:test_name)
+          end
+          if (config.key?(:viewport_size))
+            config_copy.delete(:viewport_size)
+          end
+          config_copy
+        end
 
         def await(function)
           resolved = false
