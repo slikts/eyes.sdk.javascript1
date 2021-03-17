@@ -90,7 +90,7 @@ export class ApiUrlsData implements Required<ApiUrls> {
   }
 
   /** @internal */
-  toJSON(): ApiUrls {
+  toJSON(): Required<ApiUrls> {
     return utils.general.toJSON(this, [
       'baselineImage',
       'currentImage',
@@ -101,7 +101,7 @@ export class ApiUrlsData implements Required<ApiUrls> {
   }
 
   /** @internal */
-  toString() {
+  toString(): string {
     return utils.general.toString(this)
   }
 }

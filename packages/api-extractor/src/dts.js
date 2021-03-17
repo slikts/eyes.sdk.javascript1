@@ -27,9 +27,9 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
   }
   function $enum(node, {exported} = {}) {
     const members = node.children.map(member => {
-      return `${member.name} ${member.defaultValue ? `= ${member.defaultValue}` : ''}`
+      return $comment(member.comment) + `${member.name} ${member.defaultValue ? `= ${member.defaultValue}` : ''}`
     })
-    return $comment(node.comment) + (exported ? 'export ' : '') + `enum ${node.name} {${members.join(', ')}}`
+    return $comment(node.comment) + (exported ? 'export ' : '') + `enum ${node.name} {${members.join(',\n')}}`
   }
   function $class(node, {exported} = {}) {
     const extendedType = node.extendedTypes ? $type(node.extendedTypes[0], {ext: true}) : null
@@ -167,7 +167,9 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
 
   function $comment(comment) {
     if (!comment || comment.tags.length === 0) return ''
-    return `/**\n${comment.tags.map(tag => ` * @${tag.tagName} ${tag.text}`).join('\n')}\n */\n`
+    const tags = comment.tags.map(tag => `@${tag.tagName} ${/[^\s\n\r\t]/.test(tag.text) ? tag.text : ''}`)
+    if (tags.length === 1) return `/** ${tags[0]}*/\n`
+    return `/**\n${tags.map(tag => ` * ${tag}`).join('\n')}\n */\n`
   }
   function $signatures(signatures, parent) {
     return signatures

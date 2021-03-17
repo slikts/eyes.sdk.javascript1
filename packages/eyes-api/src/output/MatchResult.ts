@@ -44,12 +44,12 @@ export class MatchResultData implements Required<MatchResult> {
   }
 
   /** @internal */
-  toJSON(): MatchResult {
+  toJSON(): Required<MatchResult> {
     return utils.general.toJSON(this, ['asExpected', 'windowId'])
   }
 
   /** @internal */
-  toString() {
+  toString(): string {
     return utils.general.toString(this)
   }
 }

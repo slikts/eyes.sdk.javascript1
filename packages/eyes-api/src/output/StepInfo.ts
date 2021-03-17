@@ -123,7 +123,7 @@ export class StepInfoData implements Required<StepInfo> {
   }
 
   /** @internal */
-  toJSON(): StepInfo {
+  toJSON(): Required<StepInfo> {
     return utils.general.toJSON(this, [
       'name',
       'isDifferent',
@@ -136,7 +136,7 @@ export class StepInfoData implements Required<StepInfo> {
   }
 
   /** @internal */
-  toString() {
+  toString(): string {
     return utils.general.toString(this)
   }
 }

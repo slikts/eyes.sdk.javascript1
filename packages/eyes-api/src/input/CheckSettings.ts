@@ -505,7 +505,11 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
 
   /** @internal */
   toJSON(): CheckSettings<TElement, TSelector> {
-    // TODO create a plain object
-    return {}
+    return this._settings
+  }
+
+  /** @internal */
+  toString(): string {
+    return utils.general.toString(this)
   }
 }

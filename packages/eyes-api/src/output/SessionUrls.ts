@@ -42,12 +42,12 @@ export class SessionUrlsData implements Required<SessionUrls> {
   }
 
   /** @internal */
-  toJSON(): SessionUrls {
+  toJSON(): Required<SessionUrls> {
     return utils.general.toJSON(this, ['batch', 'session'])
   }
 
   /** @internal */
-  toString() {
+  toString(): string {
     return utils.general.toString(this)
   }
 }

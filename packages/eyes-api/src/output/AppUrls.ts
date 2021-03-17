@@ -42,12 +42,12 @@ export class AppUrlsData implements Required<AppUrls> {
   }
 
   /** @internal */
-  toJSON(): AppUrls {
+  toJSON(): Required<AppUrls> {
     return utils.general.toJSON(this, ['step', 'stepEditor'])
   }
 
   /** @internal */
-  toString() {
+  toString(): string {
     return utils.general.toString(this)
   }
 }

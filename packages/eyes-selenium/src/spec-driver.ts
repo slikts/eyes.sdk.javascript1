@@ -4,7 +4,7 @@ import type * as Selenium from 'selenium-webdriver'
 
 export type Driver = Selenium.WebDriver
 export type Element = Selenium.WebElement
-export type Selector = Selenium.Locator | {using: string; value: 'string'} | string | {type: string; selector: string}
+export type Selector = Selenium.Locator | {using: string; value: string} | string | {type: string; selector: string}
 
 // #region HELPERS
 

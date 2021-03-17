@@ -494,10 +494,11 @@ export class TestResultsData implements Required<TestResults> {
   }
 
   /** @internal */
-  toJSON(): TestResults {
+  toJSON(): Required<TestResults> {
     return utils.general.toJSON(this, [
       'id',
       'name',
+      'secretToken',
       'status',
       'appName',
       'batchName',

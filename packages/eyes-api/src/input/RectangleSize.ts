@@ -49,7 +49,7 @@ export class RectangleSizeData implements Required<RectangleSize> {
   }
 
   /** @internal */
-  toJSON(): RectangleSize {
+  toJSON(): Required<RectangleSize> {
     return utils.general.toJSON(this, ['width', 'height'])
   }
 

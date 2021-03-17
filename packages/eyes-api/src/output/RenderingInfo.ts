@@ -77,12 +77,12 @@ export class RenderingInfoData {
   }
 
   /** @internal */
-  toJSON(): RenderingInfo {
+  toJSON(): Required<RenderingInfo> {
     return utils.general.toJSON(this, ['accessToken', 'serviceUrl', 'resultsUrl', 'stitchingServiceUrl'])
   }
 
   /** @internal */
-  toString() {
+  toString(): string {
     return utils.general.toString(this)
   }
 }

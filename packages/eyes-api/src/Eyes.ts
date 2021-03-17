@@ -140,17 +140,26 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     return this.isOpen
   }
 
+  /** @undocumented */
   on(handler: (event: string, data?: Record<string, any>) => any): () => void
+  /** @undocumented */
   on(event: 'initStarted', handler: () => any): () => void
+  /** @undocumented */
   on(event: 'initEnded', handler: () => any): () => void
+  /** @undocumented */
   on(event: 'setSizeWillStart', handler: (data: {viewportSize: RectangleSize}) => any): () => void
+  /** @undocumented */
   on(event: 'setSizeEnded', handler: () => any): () => void
+  /** @undocumented */
   on(event: 'testStarted', handler: (data: {sessionId: string}) => any): () => void
+  /** @undocumented */
   on(event: 'testEnded', handler: (data: {sessionId: string; testResults: TestResults}) => any): () => void
+  /** @undocumented */
   on(
     event: 'validationWillStart',
     handler: (data: {sessionId: string; validationInfo: ValidationInfo}) => any,
   ): () => void
+  /** @undocumented */
   on(
     event: 'validationWillStart',
     handler: (data: {sessionId: string; validationId: number; validationResult: ValidationResult}) => any,
@@ -167,7 +176,9 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     return () => handlers.delete(handler)
   }
 
+  /** @undocumented */
   off(event: string): void
+  /** @undocumented */
   off(handler: (...args: any[]) => any): void
   off(eventOrHandler: string | ((...args: any[]) => any)): void {
     if (utils.types.isString(eventOrHandler)) {

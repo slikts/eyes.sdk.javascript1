@@ -95,7 +95,7 @@ export class CutProviderData implements Required<CutProviderRegion & CutProvider
   }
 
   /** @internal */
-  toJSON(): CutProvider {
+  toJSON(): Required<CutProvider> {
     if (!utils.types.isNull(this._width)) {
       return utils.general.toJSON(this, ['width', 'height', 'x', 'y'])
     } else {
