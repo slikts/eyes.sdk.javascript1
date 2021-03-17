@@ -26,19 +26,16 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
     return $comment(node.comment) + (exported ? 'export ' : '') + `const ${node.name}: ${$type(node.type)}`
   }
   function $enum(node, {exported} = {}) {
-    const members = node.children.map((member) => {
+    const members = node.children.map(member => {
       return `${member.name} ${member.defaultValue ? `= ${member.defaultValue}` : ''}`
     })
     return $comment(node.comment) + (exported ? 'export ' : '') + `enum ${node.name} {${members.join(', ')}}`
   }
   function $class(node, {exported} = {}) {
-    if (node.name === 'TestResultsSummary') {
-      console.log(node.children)
-    }
     const extendedType = node.extendedTypes ? $type(node.extendedTypes[0], {ext: true}) : null
     const extendsExpression = extendedType && !extendedType.unknown ? `extends ${extendedType}` : ''
     const implementedTypes = node.implementedTypes
-      ? node.implementedTypes.map((type) => $type(type)).filter((type) => !type.unknown)
+      ? node.implementedTypes.map(type => $type(type)).filter(type => !type.unknown)
       : []
     const implementsExpression = implementedTypes.length ? `implements ${implementedTypes.join(', ')}` : ''
 
@@ -66,7 +63,7 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
   }
   function $interface(node, {exported} = {}) {
     const extendedTypes = node.extendedTypes
-      ? node.extendedTypes.map((type) => $type(type, {ext: true})).filter((type) => !type.unknown)
+      ? node.extendedTypes.map(type => $type(type, {ext: true})).filter(type => !type.unknown)
       : []
     const extendsExpression = extendedTypes ? `extends ${extendedTypes.join(', ')}` : ''
 
@@ -93,13 +90,13 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
   }
   function $function(node, {exported} = {}) {
     const signatures = $signatures(node.signatures || node.type.declaration.signatures)
-    return signatures.map((signature) => {
+    return signatures.map(signature => {
       return $comment(signature.comment) + (exported ? 'export ' : '') + `function ${node.name}${signature}`
     })
   }
 
   function $constructor(node) {
-    return node.signatures.map((signature) => {
+    return node.signatures.map(signature => {
       if (signature.name === 'new __type') {
         return $comment(signature.comment) + `new ${$arguments(signature)}: ${$type(signature.type)}`
       } else {
@@ -125,7 +122,7 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
   }
   function $method(node, parent) {
     const signatures = $signatures(node.signatures || node.type.declaration.signatures, parent)
-    return signatures.map((signature) => {
+    return signatures.map(signature => {
       return $comment(signature.comment) + `${$flags(node.flags)} ${node.name}${signature}`
     })
   }
@@ -143,13 +140,13 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
       flags.isStatic ? 'static' : '',
       flags.isReadonly ? 'readonly' : '',
     ]
-    return modifiers.filter((flag) => Boolean(flag)).join(' ')
+    return modifiers.filter(flag => Boolean(flag)).join(' ')
   }
   function $generics(node) {
     const generics = node.typeParameter || node.typeParameters
     if (!generics) return ''
 
-    const types = generics.map((param) => {
+    const types = generics.map(param => {
       const extendedType = param.type ? $type(param.type) : null
       const extendsExpression = extendedType && !extendedType.unknown ? `extends ${extendedType}` : ''
       return `${param.name} ${extendsExpression} ${param.default ? `= ${$type(param.default)}` : ''}`
@@ -160,7 +157,7 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
   function $arguments(node, parent) {
     if (!node.parameters) return '()'
 
-    const args = node.parameters.map((param) => {
+    const args = node.parameters.map(param => {
       const paramType = $type(param.type, {parent})
       return `${param.flags.isRest ? '...' : ''}${param.name}${param.flags.isOptional ? '?' : ''}: ${paramType}`
     })
@@ -170,7 +167,7 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
 
   function $comment(comment) {
     if (!comment || comment.tags.length === 0) return ''
-    return `/**\n${comment.tags.map((tag) => ` * @${tag.tagName} ${tag.text}`).join('\n')}\n */\n`
+    return `/**\n${comment.tags.map(tag => ` * @${tag.tagName} ${tag.text}`).join('\n')}\n */\n`
   }
   function $signatures(signatures, parent) {
     return signatures
@@ -178,21 +175,21 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
         if (!signature.parameters || signature.parameters.length === 0) return signatures.concat(signature)
 
         const overloadSignatures = signature.parameters
-          .map((param) => {
+          .map(param => {
             const types = $type(param.type, {parent, reflection: param}).spread()
-            return types.map((type) => ({...param, type}))
+            return types.map(type => ({...param, type}))
           })
           .reduce((paramsA, paramsB) => {
             return paramsA.reduce((params, paramA) => {
-              return params.concat(paramsB.map((paramB) => [].concat(paramA, paramB)))
+              return params.concat(paramsB.map(paramB => [].concat(paramA, paramB)))
             }, [])
           })
-          .map((params) => (Array.isArray(params) ? params : [params]))
-          .map((parameters) => ({...signature, parameters}))
+          .map(params => (Array.isArray(params) ? params : [params]))
+          .map(parameters => ({...signature, parameters}))
 
         return signatures.concat(overloadSignatures)
       }, [])
-      .map((signature) => ({...signature, toString: () => toString(signature)}))
+      .map(signature => ({...signature, toString: () => toString(signature)}))
 
     function toString(signature) {
       const type = $type(signature.type, {parent, reflection: signature.parent})
@@ -223,7 +220,7 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
     if (
       wrapper.type === 'reference' &&
       !wrapper.reflection &&
-      !externalGlobals.some((name) => new RegExp(`^${name}(\\.|$)`).test(wrapper.name))
+      !externalGlobals.some(name => new RegExp(`^${name}(\\.|$)`).test(wrapper.name))
     ) {
       const {unknown, type, replacer} = convert(wrapper)
       if (unknown) wrapper.unknown = unknown
@@ -235,9 +232,9 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
 
     function convert(typeReference) {
       if (!ext) {
-        const inheritedType = project.children.find((child) => {
+        const inheritedType = project.children.find(child => {
           if (child.kind === ReflectionKind.Class) {
-            return child.extendedTypes && child.extendedTypes.some((extendedType) => typeReference.equals(extendedType))
+            return child.extendedTypes && child.extendedTypes.some(extendedType => typeReference.equals(extendedType))
           } else if (child.kind === ReflectionKind.TypeAlias) {
             return typeReference.equals(child.type)
           }
@@ -248,7 +245,7 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
       const [declaration] = typeReference._target.declarations
       const source = declaration.getSourceFile()
       if (source) {
-        const moduleName = externalModules.find((name) => {
+        const moduleName = externalModules.find(name => {
           return source.path.includes(`node_modules/${name}`) || source.path.includes(`node_modules/@types/${name}`)
         })
         const typeName = typeReference._target.escapedName || typeReference.name
@@ -288,8 +285,8 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
       const parent = wrapper
       if (wrapper.type === 'literal') return `${JSON.stringify(wrapper.value)}`
       if (wrapper.type === 'array') return `(${$type(wrapper.elementType, {parent})})[]`
-      if (wrapper.type === 'intersection') return `(${wrapper.types.map((type) => $type(type, {parent})).join('&')})`
-      if (wrapper.type === 'union') return `(${wrapper.types.map((type) => $type(type, {parent})).join('|')})`
+      if (wrapper.type === 'intersection') return `(${wrapper.types.map(type => $type(type, {parent})).join('&')})`
+      if (wrapper.type === 'union') return `${wrapper.types.map(type => $type(type, {parent})).join('|')}`
       if (wrapper.type === 'predicate') return `${wrapper.name} is (${$type(wrapper.targetType, {parent})})`
       if (wrapper.type === 'mapped') {
         const parameterType = $type(wrapper.parameterType, {parent})
@@ -322,7 +319,7 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
       const name = wrapper.reflection ? wrapper.reflection.name : wrapper.name
 
       if (wrapper.typeArguments && wrapper.typeArguments.length > 0) {
-        return `${name}<${wrapper.typeArguments.map((type) => $type(type, {parent})).join(', ')}>`
+        return `${name}<${wrapper.typeArguments.map(type => $type(type, {parent})).join(', ')}>`
       } else {
         return name
       }

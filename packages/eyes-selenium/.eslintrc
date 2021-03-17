@@ -6,7 +6,8 @@
     "logs",
     "tmp/",
     "types/",
-    "test/generic/"
+    "test/generic/",
+    "*.d.ts"
   ],
   "env": {
     "node": true

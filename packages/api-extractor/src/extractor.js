@@ -20,7 +20,7 @@ function build({entry, out, tsconfig, externalModules, externalGlobals}) {
   })
 
   let context = null
-  td.converter.on(typedoc.Converter.EVENT_CREATE_DECLARATION, (ctx) => {
+  td.converter.on(typedoc.Converter.EVENT_CREATE_DECLARATION, ctx => {
     context = ctx.withScope()
   })
 
@@ -34,7 +34,7 @@ function build({entry, out, tsconfig, externalModules, externalGlobals}) {
       parser: 'typescript',
       printWidth: 120,
       singleQuote: true,
-      semi: false,
+      semi: true,
       bracketSpacing: false,
       trailingComma: 'all',
     }),
