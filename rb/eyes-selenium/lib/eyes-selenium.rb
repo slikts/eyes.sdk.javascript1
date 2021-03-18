@@ -106,7 +106,7 @@ module Applitools
               })
               @socket.command('Driver.findElements', ->(params) {
                 result = ::Applitools::Selenium::SpecDriver.findElements(@refer.deref(params[:context]), params[:selector])
-                result.each {|element| @refer.ref(element)}
+                result.map {|element| @refer.ref(element)}
               })
               @socket.command('Driver.getWindowRect', ->(params) {
                 ::Applitools::Selenium::SpecDriver.getWindowRect(@refer.deref(params[:driver]))
