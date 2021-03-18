@@ -57,13 +57,17 @@ describe 'refer' do
     expect(@refer.store.keys.include?(modifiedParentRef.values.first)).to eq(false)
   end
   it('should deref all relevant parts of a given collection') do
+    # shallow collection w/o a ref
     input = [{:chunkByteLength=>262144000, :serializeResources=>true, :compressResources=>false, :skipResources=>[], :removeReverseProxyURLPrefixes=>false}]
     expect(@refer.deref_all(input)).to eq(input)
-    input = [@refer.ref({:a => 'a'})]
-    result = @refer.deref_all(input)
-    expect(result.first.values.first).to eq(input.first.values.first)
-    input = [[[],[]]]
-    expect(@refer.deref_all(input)).to eq(input)
+    # shallow collection with a ref
+    actual = [@refer.ref({:a => 'a'})]
+    expected = [{:a => 'a'}]
+    expect(@refer.deref_all(actual)).to eq(expected)
+    # simulates what setElementMarkers snippet sends in executeScript
+    actual = [[[@refer.ref({:b => 'b'})],[]]]
+    expected = [[[{:b => 'b'}],[]]]
+    expect(@refer.deref_all(actual)).to eq(expected)
   end
   it('should ref all relevant parts of a given collection') do
     input = [{:a => 'a'}, {:b => 'b'}]
