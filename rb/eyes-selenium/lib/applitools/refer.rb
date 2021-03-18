@@ -42,15 +42,14 @@ module Applitools
     end
 
     def deref_all(input)
-      args = input.first
-      if (isRef(args))
-        [deref(args)]
-      elsif (args.is_a?(Array))
-        [args.map {|arg| isRef(arg) ? deref(arg) : deref_all(arg)}]
-      elsif (args.is_a?(Hash))
+      if (isRef(input))
+        deref(input)
+      elsif (input.is_a?(Array))
+        input.map {|arg| isRef(arg) ? deref(arg) : deref_all(arg)}
+      elsif (input.is_a?(Hash))
         r = {}
-        args.each_pair {|k,v| r[k] = isRef(v) ? deref(v) : v}
-        [r]
+        input.each_pair {|k,v| r[k] = isRef(v) ? deref(v) : v}
+        r
       else
         input
       end

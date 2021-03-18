@@ -68,6 +68,26 @@ describe 'refer' do
     actual = [[[@refer.ref({:b => 'b'})],[]]]
     expected = [[[{:b => 'b'}],[]]]
     expect(@refer.deref_all(actual)).to eq(expected)
+    # simulates what setElementStyleProperties snippet sends in executeScript
+    actual = [
+      [
+        @refer.ref({:blah => 'blah'}),
+        {
+          "overflow": "hidden"
+        }
+      ]
+    ]
+    expected = [
+      [
+        {
+          :blah => 'blah'
+        },
+        {
+          "overflow": "hidden"
+        }
+      ]
+    ]
+    expect(@refer.deref_all(actual)).to eq(expected)
   end
   it('should ref all relevant parts of a given collection') do
     input = [{:a => 'a'}, {:b => 'b'}]
