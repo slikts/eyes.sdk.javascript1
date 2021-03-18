@@ -4,7 +4,7 @@ module Applitools
       extend self
 
       def region(by, what)
-        {:target => 'region', :region => what}
+        {:region => {:type => by, :selector => what}}
       end
 
     end # Applitools
