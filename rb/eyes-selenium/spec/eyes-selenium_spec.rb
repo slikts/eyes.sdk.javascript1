@@ -39,6 +39,12 @@ describe('e2e') do
       eyes.check({isFully: true})
       eyes.close(true)
     end
+    it('check region') do
+      eyes = ::Applitools::Selenium::Eyes.new
+      eyes.open(@driver, {appName: 'eyes-selenium.rb', testName: 'classic, check region', vg: false, batch: @batch})
+      eyes.check({region: {type: 'css', selector: 'body > h1'}})
+      eyes.close(true)
+    end
   end
   describe('vg') do
     it('check window viewport') do
