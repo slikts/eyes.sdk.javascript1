@@ -31,9 +31,10 @@ module Applitools
         _driver
       end
 
-      def check(checkSettings)
+      def check(check_settings)
+        _check_settings = check_settings.respond_to?(:to_socket_output) ? check_settings.to_socket_output : check_settings
         await(->(cb) {
-          @socket.request('Eyes.check', {eyes: @eyes, checkSettings: checkSettings}, cb)
+          @socket.request('Eyes.check', {eyes: @eyes, checkSettings: _check_settings}, cb)
         })
       end
 
