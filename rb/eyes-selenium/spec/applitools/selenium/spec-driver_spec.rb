@@ -34,6 +34,9 @@ describe 'spec-driver' do
     result = ::Applitools::Selenium::SpecDriver.executeScript(@driver, 'return arguments', args)
     expect(result).to eq(expected.first)
   end
+  it('executeScript error handling') do
+    expect { ::Applitools::Selenium::SpecDriver.executeScript(@driver, 'console.log(a.a)') }.to raise_error(Selenium::WebDriver::Error::JavascriptError)
+  end
   it('mainContext') do
     begin
       mainDocument = @driver.find_element(:css, 'html')
@@ -91,6 +94,11 @@ describe 'spec-driver' do
   it('findElements') do
     expected = @driver.find_elements(:css, 'div')
     actual = ::Applitools::Selenium::SpecDriver.findElements(@driver, 'div')
+    expect(::Applitools::Selenium::SpecDriver.isEqualElements(@driver, expected, actual)).to eq(true)
+  end
+  it('findElements eyes-selectors') do
+    expected = @driver.find_elements(:css, 'div')
+    actual = ::Applitools::Selenium::SpecDriver.findElements(@driver, {type: 'css', selector: 'div'})
     expect(::Applitools::Selenium::SpecDriver.isEqualElements(@driver, expected, actual)).to eq(true)
   end
   it('getTitle') do

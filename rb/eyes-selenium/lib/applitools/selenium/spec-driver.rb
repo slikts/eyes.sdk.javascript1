@@ -11,13 +11,11 @@ module Applitools
         element1.hash == element2.hash
       end
 
-      def executeScript(driver, script, args)
-        begin
-          _script = script.start_with?('return') ? script : "return (#{script}).apply(null, arguments)"
-          driver.execute_script(_script, *args)
-        rescue => error
-          error.message
-        end
+      def executeScript(driver, script, args = [])
+        driver.execute_script(
+          script.start_with?('return') ? script : "return (#{script}).apply(null, arguments)",
+          *args
+        )
       end
 
       def mainContext(driver)
