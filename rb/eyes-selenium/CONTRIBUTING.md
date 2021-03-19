@@ -8,7 +8,7 @@ As part of the install, a copy of the universal SDK server gets downloaded local
 
 If you want to see the server output when running your tests, start it in a new terminal window. Its binary is saved to a `.bin` directory and the filename is based on the platform you're using. So for Mac, to launch the server it would be `.bin/app-macos`.
 
-## Test
+## Testing
 
 To run the tests you can use the test watcher. It's called Guard.
 
@@ -16,7 +16,7 @@ To launch it, run `bundle exec guard` and then press `Enter`. It will run all of
 
 To run an individual test file you can invoke it with RSpec. E.g., `bundle exec rspec path/to/file`. Or you can run a series of test files by specifying a directory or a glob pattern. See the RSpec docs for more details ([link](https://relishapp.com/rspec/rspec-core/v/3-8/docs/command-line/pattern-option)).
 
-## Coverage Test
+## Coverage Tests
 
 Coverage tests are generated using JavaScript. Assuming you already have a Node runtime installed, run the following commands:
 
@@ -42,9 +42,9 @@ You can also prefix environment variables as needed as part of the run.
 APPLITOOLS_SHOW_LOGS=true APPLITOOLS_API_KEY=$APPLITOOLS_API_KEY_SDK bundle exec rspec spec/coverage/generic
 ```
 
-## Debug
+## Debugging
 
-To debug a Ruby application we use `pry`. It's a library which gives us the ability to set a breakpoint by statement (similar to how it's done in JavaScript).
+To debug the SDK we use `pry`. It's a library which gives us the ability to set a breakpoint by statement (similar to how it's done in JavaScript).
 
 The dependency is already installed, it just needs to be required. Then you set a breakpoint and run your script.
 
@@ -55,3 +55,4 @@ binding.pry # the breakpoint statement
 
 For more info, you can read the project readme of the pry gem being used ([link](https://github.com/deivid-rodriguez/pry-byebug#pry-byebug)).
 
+__NOTE: If you end up needing to debug the universal SDK server while working on this SDK, you can run the server [from its source](https://github.com/applitools/eyes.sdk.javascript1/tree/master/packages/eyes-universal) using [`ndb`](https://github.com/GoogleChromeLabs/ndb) after setting `debugger` keyword breakpoints as needed, and then running your Ruby script.__
