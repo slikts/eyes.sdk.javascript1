@@ -8,6 +8,7 @@ require('applitools/rectangle-size')
 require('applitools/selenium/target')
 require('applitools/configuration')
 require('applitools/region')
+require('ostruct')
 
 module Applitools
   module Selenium
@@ -80,7 +81,7 @@ module Applitools
       end
 
       def get_viewport_size
-        configuration.viewportSize
+        OpenStruct.new(configuration.viewportSize)
       end
 
       private 
