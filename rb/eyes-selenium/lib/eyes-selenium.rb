@@ -48,7 +48,12 @@ module Applitools
       end
 
       def check_frame(args)
-        check({frames: [args[:frame]]})
+        if (args[:frame][:css])
+          frame = {type: 'css', selector: args[:frame][:css]}
+        else
+          frame = args[:frame]
+        end
+        check({frames: [frame]})
       end
 
       alias_method :check_window, :check
