@@ -57,6 +57,7 @@ RSpec.configure do |config|
       config.stitch_mode = args[:stitch_mode] if args[:stitch_mode]
       config.hide_scrollbars = args[:hide_scrollbars] if args[:hide_scrollbars]
       config.browsers_info = args[:browsers_info] if args[:browsers_info]
+      config.default_match_settings = args[:default_match_settings] if args[:default_match_settings]
     end
   end
 end
