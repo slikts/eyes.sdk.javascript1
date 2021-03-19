@@ -1,7 +1,7 @@
 import * as utils from '@applitools/utils'
 import {ProxySettings} from './input/ProxySettings'
 
-type CloseBatchOptions = {
+type BatchCloseOptions = {
   batchIds: string[]
   serverUrl?: string
   apiKey?: string
@@ -9,13 +9,13 @@ type CloseBatchOptions = {
 }
 
 type BatchCloseSpec = {
-  closeBatch(options: CloseBatchOptions): Promise<void>
+  closeBatches(options: BatchCloseOptions): Promise<void>
 }
 
-export function closeBatch(spec: BatchCloseSpec): (options: CloseBatchOptions) => Promise<void> {
-  return (options: CloseBatchOptions) => {
+export function closeBatch(spec: BatchCloseSpec): (options: BatchCloseOptions) => Promise<void> {
+  return (options: BatchCloseOptions) => {
     utils.guard.notNull(options.batchIds, {name: 'options.batchIds'})
-    return spec.closeBatch({
+    return spec.closeBatches({
       batchIds: options.batchIds,
       serverUrl: options.serverUrl,
       apiKey: options.apiKey,
@@ -26,43 +26,39 @@ export function closeBatch(spec: BatchCloseSpec): (options: CloseBatchOptions) =
 
 export class BatchClose {
   protected readonly _spec: BatchCloseSpec
-  private _batchIds: string[]
-  private _serverUrl?: string
-  private _apiKey?: string
-  private _proxy?: ProxySettings
-  private _logger?: unknown
+  private _options: BatchCloseOptions = {batchIds: null}
 
-  constructor(logger?: unknown) {
-    this._logger = logger
+  static async close(options: BatchCloseOptions): Promise<void> {
+    utils.guard.notNull(options.batchIds, {name: 'options.batchIds'})
+    await this.prototype._spec.closeBatches(options)
   }
 
-  async close() {
-    utils.guard.notNull(this._batchIds, {name: 'batchIds'})
-    return this._spec.closeBatch({
-      batchIds: this._batchIds,
-      serverUrl: this._serverUrl,
-      apiKey: this._apiKey,
-      proxy: this._proxy,
-    })
+  constructor(options?: BatchCloseOptions) {
+    if (options) this._options = options
+  }
+
+  async close(): Promise<void> {
+    utils.guard.notNull(this._options.batchIds, {name: 'batchIds'})
+    await this._spec.closeBatches(this._options)
   }
 
   setBatchIds(batchIds: string[]): this {
-    this._batchIds = batchIds
+    this._options.batchIds = batchIds
     return this
   }
 
   setUrl(serverUrl: string): this {
-    this._serverUrl = serverUrl
+    this._options.serverUrl = serverUrl
     return this
   }
 
   setApiKey(apiKey: string): this {
-    this._apiKey = apiKey
+    this._options.apiKey = apiKey
     return this
   }
 
   setProxy(proxy: ProxySettings): this {
-    this._proxy = proxy
+    this._options.proxy = proxy
     return this
   }
 }
