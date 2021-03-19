@@ -31,7 +31,8 @@ describe('e2e') do
       eyes.configure do |config|
         config.viewport_size = size
       end
-      expect(eyes.get_viewport_size).to eql(size)
+      expect(eyes.get_viewport_size.width).to eql(800)
+      expect(eyes.get_viewport_size.height).to eql(600)
     end
   end
   describe('classic') do
