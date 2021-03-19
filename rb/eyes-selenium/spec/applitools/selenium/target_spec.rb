@@ -28,4 +28,7 @@ describe 'Target' do
   it('ignore region') do
     skip 'e.g., Target.ignore(Applitools::Region.new(50, 50, 100, 100))'
   end
+  it('accessibility') do
+    skip "Target.accessibility(:css, '.ignore', type: 'LargeText')"
+  end
 end
