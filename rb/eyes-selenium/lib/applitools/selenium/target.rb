@@ -44,8 +44,8 @@ module Applitools
       end
 
       def frame(input)
-        @target[:frame] = [] if !@target[:frame]
-        @target[:frame] << input
+        @target[:frames] = [] if !@target[:frames]
+        @target[:frames] << input
         self
       end
 

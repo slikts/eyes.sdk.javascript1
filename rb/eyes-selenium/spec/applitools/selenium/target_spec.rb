@@ -16,7 +16,7 @@ describe 'Target' do
   end
   it('frame') do
     result = ::Applitools::Selenium::Target.frame('blah')
-    expect(result.to_socket_output).to eql({:frame => ['blah']})
+    expect(result.to_socket_output).to eql({:frames => ['blah']})
   end
   it('window') do
     result = ::Applitools::Selenium::Target.window

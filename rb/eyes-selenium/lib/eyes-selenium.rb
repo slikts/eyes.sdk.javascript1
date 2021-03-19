@@ -36,6 +36,12 @@ module Applitools
       def check(check_settings)
         _check_settings = check_settings.respond_to?(:to_socket_output) ? check_settings.to_socket_output : check_settings
         _check_settings[:isFully] = true if (!_check_settings[:isFully])
+
+        if (_check_settings[:frames])
+          qualifier = ->(input) {::Applitools::Selenium::SpecDriver.isElement(input)}
+          _check_settings[:frames] = @refer.ref_all(_check_settings[:frames], qualifier)
+        end
+
         await(->(cb) {
           @socket.request('Eyes.check', {eyes: @eyes, checkSettings: _check_settings}, cb)
         })
