@@ -55,6 +55,7 @@ RSpec.configure do |config|
     @eyes.configure do |config|
       config.test_name = args[:baseline_name] if args[:baseline_name]
       config.stitch_mode = args[:stitch_mode] if args[:stitch_mode]
+      config.hide_scrollbars = args[:hide_scrollbars] if args[:hide_scrollbars]
     end
   end
 end
