@@ -7,6 +7,7 @@ require('applitools/version')
 require('applitools/rectangle-size')
 require('applitools/selenium/target')
 require('applitools/configuration')
+require('applitools/region')
 
 module Applitools
   module Selenium

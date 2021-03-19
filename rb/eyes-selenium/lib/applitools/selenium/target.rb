@@ -1,7 +1,7 @@
 module Applitools
   module Selenium
     class Target
-      def self.region(by, what)
+      def self.region(by, what = nil)
         new.region(by, what)
       end
 
@@ -14,14 +14,14 @@ module Applitools
       end
 
       def self.window
-        new
+        new.window
       end
 
       def self.ignore_displacements(toggle)
         new.ignore_displacements(toggle)
       end
 
-      def self.ignore(by, what)
+      def self.ignore(by, what = nil)
         new.ignore(by, what)
       end
 
@@ -30,7 +30,11 @@ module Applitools
       end
 
       def region(by, what)
-        @target[:region] = {:type => by.to_s, :selector => what}
+        if (!what && by.is_a?(::Applitools::Region))
+          @target[:region] = by.to_socket_output
+        else
+          @target[:region] = {:type => by.to_s, :selector => what}
+        end
         self
       end
 
@@ -50,9 +54,18 @@ module Applitools
         self
       end
 
-      def ignore(by, what)
+      def ignore(by, what = nil)
         @target[:ignoreRegions] = [] if !@target[:ignoreRegions]
-        @target[:ignoreRegions] << {type: by.to_s, selector: what}
+        if (!what && by.is_a?(::Applitools::Region))
+          @target[:ignoreRegions] << by.to_socket_output
+        else
+          @target[:ignoreRegions] << {type: by.to_s, selector: what}
+        end
+        self
+      end
+
+      def window
+        fully
         self
       end
 
