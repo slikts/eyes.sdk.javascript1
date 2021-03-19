@@ -35,13 +35,17 @@ module Applitools
 
       def check(check_settings)
         _check_settings = check_settings.respond_to?(:to_socket_output) ? check_settings.to_socket_output : check_settings
+        _check_settings[:isFully] = true if (!_check_settings[:isFully])
         await(->(cb) {
           @socket.request('Eyes.check', {eyes: @eyes, checkSettings: _check_settings}, cb)
         })
       end
 
+      def check_frame(args)
+        check({frames: [args[:frame]]})
+      end
+
       alias_method :check_window, :check
-      alias_method :check_frame, :check
       alias_method :check_region, :check
       alias_method :check_region_in_frame, :check
 
@@ -110,7 +114,7 @@ module Applitools
                 ::Applitools::Selenium::SpecDriver.parentContext(@refer.deref(params[:context]))
               })
               @socket.command('Driver.childContext', ->(params) {
-                ::Applitools::Selenium::SpecDriver.mainContext(@refer.deref(params[:context]), @refer.deref(params[:element]))
+                ::Applitools::Selenium::SpecDriver.childContext(@refer.deref(params[:context]), @refer.deref(params[:element]))
               })
               @socket.command('Driver.findElement', ->(params) {
                 result = ::Applitools::Selenium::SpecDriver.findElement(@refer.deref(params[:context]), params[:selector])
