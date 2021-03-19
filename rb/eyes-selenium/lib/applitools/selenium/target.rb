@@ -29,7 +29,7 @@ module Applitools
         @target = {}
       end
 
-      def region(by, what)
+      def region(by, what = nil)
         if (!what && by.is_a?(::Applitools::Region))
           @target[:region] = by.to_socket_output
         else
