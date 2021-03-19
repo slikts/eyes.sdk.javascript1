@@ -25,6 +25,14 @@ describe('e2e') do
       end
       expect(eyes.configuration[:blah]).to eql('blah')
     end
+    it('get_viewport_size') do
+      size = {width: 800, height: 600}
+      eyes = ::Applitools::Selenium::Eyes.new
+      eyes.configure do |config|
+        config.viewport_size = size
+      end
+      expect(eyes.get_viewport_size).to eql(size)
+    end
   end
   describe('classic') do
     it('check window viewport') do

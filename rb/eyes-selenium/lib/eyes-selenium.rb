@@ -12,6 +12,7 @@ module Applitools
   module Selenium
     class Eyes
       include ::Applitools::Configuration
+      attr_accessor :runner
 
       def initialize
         @eyes = nil
@@ -38,6 +39,10 @@ module Applitools
         })
       end
 
+      alias_method :check_window, :check
+      alias_method :check_frame, :check
+      alias_method :check_region_in_frame, :check
+
       def close(throw_exception = false)
         result = await(->(cb) {
           @socket.request('Eyes.close', {eyes: @eyes}, cb)
@@ -55,6 +60,10 @@ module Applitools
           @socket.request('Eyes.abort', {eyes: @eyes}, cb)
           @refer.destroy(@driverRef)
         })
+      end
+
+      def get_viewport_size
+        configuration.viewportSize
       end
 
       private 
