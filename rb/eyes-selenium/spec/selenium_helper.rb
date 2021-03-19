@@ -44,9 +44,9 @@ RSpec.configure do |config|
     @eyes = ::Applitools::Selenium::Eyes.new
     @eyes.runner = @runner
     @eyes.configure do |config|
-      config.apiKey = ENV['APPLITOOLS_API_KEY']
+      config.api_key = ENV['APPLITOOLS_API_KEY']
       config.vg = !!args[:is_visual_grid]
-      config.branchName = args[:branch_name] || 'master'
+      config.branch_name = args[:branch_name] || 'master'
     end
     @eyes
   end
@@ -54,6 +54,7 @@ RSpec.configure do |config|
   def eyes_config(args)
     @eyes.configure do |config|
       config.test_name = args[:baseline_name] if args[:baseline_name]
+      config.stitch_mode = args[:stitch_mode] if args[:stitch_mode]
     end
   end
 end
