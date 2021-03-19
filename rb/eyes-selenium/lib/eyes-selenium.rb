@@ -42,6 +42,7 @@ module Applitools
 
       alias_method :check_window, :check
       alias_method :check_frame, :check
+      alias_method :check_region, :check
       alias_method :check_region_in_frame, :check
 
       def close(throw_exception = false)
