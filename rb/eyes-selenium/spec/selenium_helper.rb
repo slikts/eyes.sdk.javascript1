@@ -1,3 +1,4 @@
+# NOTE: this file is only used in generated coverage tests
 require('logger')
 require('selenium-webdriver')
 require('eyes-selenium')
@@ -41,6 +42,7 @@ RSpec.configure do |config|
       end
     end
     @eyes = ::Applitools::Selenium::Eyes.new
+    @eyes.runner = @runner
     @eyes.configure do |config|
       config.apiKey = ENV['APPLITOOLS_API_KEY']
       config.vg = !!args[:is_visual_grid]
