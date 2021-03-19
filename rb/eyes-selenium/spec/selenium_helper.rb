@@ -56,6 +56,7 @@ RSpec.configure do |config|
       config.test_name = args[:baseline_name] if args[:baseline_name]
       config.stitch_mode = args[:stitch_mode] if args[:stitch_mode]
       config.hide_scrollbars = args[:hide_scrollbars] if args[:hide_scrollbars]
+      config.browsers_info = args[:browsers_info] if args[:browsers_info]
     end
   end
 end
