@@ -26,7 +26,7 @@ describe 'Target' do
     result = ::Applitools::Selenium::Target.ignore_displacements(true)
     expect(result.to_socket_output).to eql({ignoreDisplacements: true})
   end
-  it('ignore selector', :only) do
+  it('ignore selector') do
     result = ::Applitools::Selenium::Target.ignore(:css, '#overflowing-div')
     expect(result.to_socket_output).to eql({ignoreRegions: [{type: 'css', selector: '#overflowing-div'}]})
   end
