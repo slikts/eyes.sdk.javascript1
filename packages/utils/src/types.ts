@@ -1,3 +1,5 @@
+/* eslint {"@typescript-eslint/ban-types": ["error", {"types": {"Function": false}}]} */
+
 export function isNull(value: any): value is null | undefined {
   return value == null
 }
@@ -30,8 +32,20 @@ export function isObject(value: any): value is Record<PropertyKey, any> {
   return typeof value === 'object' && value !== null
 }
 
+export function isEmpty(value: Record<PropertyKey, unknown>): value is Record<PropertyKey, never>
+export function isEmpty(value: any[]): value is []
+export function isEmpty(value: string): value is ''
+export function isEmpty(value: any): boolean {
+  if (!value) return true
+  if (isObject(value)) return Object.keys(value).length === 0
+  return value.length === 0
+}
+
 export function isFunction(value: any): value is (...args: any[]) => any
-export function isFunction<TKey extends PropertyKey>(value: any, key: TKey): value is {[key in TKey]: (...args: any[]) => any}
+export function isFunction<TKey extends PropertyKey>(
+  value: any,
+  key: TKey,
+): value is {[key in TKey]: (...args: any[]) => any}
 export function isFunction<TKey extends PropertyKey>(value: any, key?: TKey): boolean {
   if (key && has(value, key)) return typeof value[key] === 'function'
   return typeof value === 'function'
