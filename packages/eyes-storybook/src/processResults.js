@@ -5,7 +5,7 @@ const {TestResultsError, TestResultsFormatter} = require('@applitools/eyes-sdk-c
 const uniq = require('./uniq');
 const concurrencyMsg = require('./concurrencyMsg');
 
-function processResults({results = [], totalTime, concurrency}) {
+function processResults({results = [], totalTime, testConcurrency}) {
   let outputStr = '\n';
   const formatter = new TestResultsFormatter();
 
@@ -78,7 +78,8 @@ function processResults({results = [], totalTime, concurrency}) {
     outputStr += `\n${seeDetailsStr}\nTotal time: ${Math.round(totalTime / 1000)} seconds\n`;
   }
 
-  if (concurrency == 10) {
+  if (Number(testConcurrency) === 5) {
+    // TODO require from core
     outputStr += `\n${concurrencyMsg}\n`;
   }
 

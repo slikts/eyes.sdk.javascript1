@@ -3,6 +3,30 @@
 ## Unreleased
 
 
+## 15.6.4 - 2021/3/22
+
+- updated to @applitools/eyes-sdk-core@12.16.3 (from 12.16.2)
+
+## 15.6.3 - 2021/3/17
+
+- updated to @applitools/jsdom@1.0.3 (from 1.0.2)
+
+## 15.6.2 - 2021/3/16
+
+- updated to @applitools/eyes-sdk-core@12.16.2 (from 12.16.1)
+
+## 15.6.1 - 2021/3/15
+
+- updated to @applitools/eyes-sdk-core@12.16.1 (from 12.15.0)
+
+## 15.6.0 - 2021/2/26
+
+- support `ignoreGitMergeBase`
+
+## 15.5.22 - 2021/2/18
+
+- updated to @applitools/eyes-sdk-core@12.14.10 (from 12.14.8)
+
 ## 15.5.21 - 2021/2/4
 
 - updated to @applitools/eyes-sdk-core@12.14.8 (from 12.14.7)

@@ -75,8 +75,8 @@ export = class EyesService {
       return this._eyes.getConfiguration()
     })
 
-    global.browser.addCommand('eyesGetAllTestResults', async () => {
-      return this._eyes.runner.getAllTestResults()
+    global.browser.addCommand('eyesGetAllTestResults', async (throwErr: boolean) => {
+      return this._eyes.runner.getAllTestResults(throwErr)
     })
   }
   beforeTest(test: Record<string, string>) {

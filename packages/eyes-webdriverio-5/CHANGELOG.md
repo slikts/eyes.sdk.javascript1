@@ -3,6 +3,17 @@
 ## Unreleased
 
 
+## 5.29.8 - 2021/3/22
+
+- updated to @applitools/eyes-sdk-core@12.16.3 (from 12.16.2)
+- updated to @applitools/visual-grid-client@15.6.4 (from 15.6.3)
+
+## 5.29.7 - 2021/3/17
+
+- Ability to pass `throwEx` to `browser.eyesGetAllTestResults` in Eyes service
+- updated to @applitools/eyes-sdk-core@12.16.2 (from 12.14.8)
+- updated to @applitools/visual-grid-client@15.6.3 (from 15.5.21)
+
 ## 5.29.6 - 2021/2/4
 
 - fix for WDIO 5 service that prevented grid runs without a testConcurrency specified from running ([Trello](https://trello.com/c/ijY0syDH))

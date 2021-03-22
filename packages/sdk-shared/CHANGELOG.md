@@ -2,7 +2,16 @@
 
 ## Unreleased
 
-- chore: add husky
+
+## 0.8.8 - 2021/3/15
+
+- skip baseline test
+- skip baseline test
+## 0.8.7 - 2021/3/14
+
+- use latest selenium chrome
+- add husky hooks
+- updated to @applitools/sdk-coverage-tests@2.3.8 (from 2.3.3)
 
 ## 0.8.5 - 2021/1/11
 
