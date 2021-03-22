@@ -10,10 +10,10 @@ export interface Logger extends Printer<Omit<FormatOptions, 'timestamp' | 'level
 }
 
 export interface Printer<TPrinterOptions> {
-  log(message: any, options: TPrinterOptions): void
-  warn(message: any, options: TPrinterOptions): void
-  error(message: any, options: TPrinterOptions): void
-  fatal(message: any, options: TPrinterOptions): void
+  log(message: any, options?: TPrinterOptions): void
+  warn(message: any, options?: TPrinterOptions): void
+  error(message: any, options?: TPrinterOptions): void
+  fatal(message: any, options?: TPrinterOptions): void
 }
 
 export type LoggerOptions = {
