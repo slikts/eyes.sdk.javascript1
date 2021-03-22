@@ -1,4 +1,3 @@
-import * as utils from '@applitools/utils'
 import {TestResults, TestResultsData} from './TestResults'
 
 export type TestResultsContainer = {
@@ -10,14 +9,10 @@ export class TestResultsContainerData implements Required<TestResultsContainer> 
   private _exception: Error
   private _testResults: TestResultsData
 
-  constructor(testResultsContainer: TestResultsContainer)
-  constructor(testResults: TestResults, exception: Error)
-  constructor(containerOrResults?: TestResultsContainer | TestResults, exception?: Error) {
-    if (!utils.types.has(containerOrResults, ['testResults', 'exception'])) {
-      return new TestResultsContainerData({testResults: containerOrResults, exception})
-    }
-    this._testResults = new TestResultsData(containerOrResults.testResults)
-    this._exception = containerOrResults.exception
+  /** @internal */
+  constructor(container: TestResultsContainer) {
+    this._testResults = new TestResultsData(container.testResults)
+    this._exception = container.exception
   }
 
   get testResults(): TestResults {

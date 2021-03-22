@@ -1,6 +1,6 @@
 import * as utils from '@applitools/utils'
 import logger, {Logger as ApplitoolsLogger} from '@applitools/logger'
-import {LogHandler} from './input/LogSettings'
+import {LogHandler, LogHandlerData} from './input/LogHandler'
 
 export class Logger {
   private _logger: ApplitoolsLogger
@@ -29,7 +29,7 @@ export class Logger {
   verbose(...messages: any[]) {
     if (!this._logger) {
       this._logger = logger({
-        handler: this._handler ? this._handler.toObject() : undefined,
+        handler: this._handler instanceof LogHandlerData ? this._handler.toJSON() : undefined,
         level: this._show ? 'info' : 'silent',
         label: this._label,
       })
@@ -40,7 +40,7 @@ export class Logger {
   log(...messages: any[]) {
     if (!this._logger) {
       this._logger = logger({
-        handler: this._handler ? this._handler.toObject() : undefined,
+        handler: this._handler instanceof LogHandlerData ? this._handler.toJSON() : undefined,
         level: this._show ? 'info' : 'silent',
         label: this._label,
       })

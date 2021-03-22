@@ -21,6 +21,7 @@ export class StepInfoData implements Required<StepInfo> {
   private _apiUrls: ApiUrlsData
   private _renderId: string[]
 
+  /** @internal */
   constructor(stepInfo?: StepInfo) {
     if (!stepInfo) return this
     const self = this as any

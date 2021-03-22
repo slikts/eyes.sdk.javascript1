@@ -118,7 +118,7 @@ export class UnscaledFixedCutProviderData extends CutProviderData {
   }
 }
 
-export class NullCropSettingsData extends CutProviderData {
+export class NullCutProviderData extends CutProviderData {
   constructor() {
     super({top: 0, right: 0, bottom: 0, left: 0})
   }

@@ -1,5 +1,3 @@
-import * as utils from '@applitools/utils'
-
 /** @undocumented */
 export type ValidationResult = {
   asExpected: boolean
@@ -9,13 +7,9 @@ export type ValidationResult = {
 export class ValidationResultData implements Required<ValidationResult> {
   private _asExpected: boolean
 
-  constructor(result: ValidationResult)
-  constructor(asExpected: boolean)
-  constructor(resultOrAsExpected: ValidationResult | boolean) {
-    if (utils.types.isBoolean(resultOrAsExpected)) {
-      return new ValidationResultData({asExpected: resultOrAsExpected})
-    }
-    this._asExpected = resultOrAsExpected.asExpected
+  /** @internal */
+  constructor(result: ValidationResult) {
+    this._asExpected = result.asExpected
   }
 
   get asExpected(): boolean {

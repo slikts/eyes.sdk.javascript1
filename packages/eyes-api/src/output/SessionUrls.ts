@@ -9,6 +9,7 @@ export class SessionUrlsData implements Required<SessionUrls> {
   private _batch: string
   private _session: string
 
+  /** @internal */
   constructor(sessionUrls?: SessionUrls) {
     if (!sessionUrls) return this
     this.batch = sessionUrls.batch

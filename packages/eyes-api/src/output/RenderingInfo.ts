@@ -13,6 +13,7 @@ export class RenderingInfoData {
   private _resultsUrl: string
   private _stitchingServiceUrl: string
 
+  /** @internal */
   constructor(renderingInfo: RenderingInfo) {
     this._serviceUrl = renderingInfo.serviceUrl
     this._accessToken = renderingInfo.accessToken

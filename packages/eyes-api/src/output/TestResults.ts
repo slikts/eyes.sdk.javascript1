@@ -80,6 +80,7 @@ export class TestResultsData implements Required<TestResults> {
 
   private readonly _deleteTestResults: (result: TestResults) => Promise<void>
 
+  /** @internal */
   constructor(results?: TestResults, deleteTestResults?: (result: TestResults) => Promise<void>) {
     if (!results) return this
     this._deleteTestResults = deleteTestResults

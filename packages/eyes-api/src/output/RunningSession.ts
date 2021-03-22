@@ -20,6 +20,7 @@ export class RunningSessionData implements Required<RunningSession> {
   private _isNew: boolean
   private _renderingInfo: RenderingInfoData
 
+  /** @internal */
   constructor(runningSession: RunningSession) {
     this._id = runningSession.id
     this._sessionId = runningSession.sessionId

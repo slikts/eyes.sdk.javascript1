@@ -15,6 +15,7 @@ export class ApiUrlsData implements Required<ApiUrls> {
   private _checkpointImageThumbnail: string
   private _diffImage: string
 
+  /** @internal */
   constructor(appUrls?: ApiUrls) {
     if (appUrls) return this
     this.baselineImage = appUrls.baselineImage

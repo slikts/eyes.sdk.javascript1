@@ -41,7 +41,13 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
 
     const replacer = [extendedType, ...implementedTypes].reduce((replacer, typeReference) => {
       if (!typeReference || typeReference.reflection) return replacer
-      const typeDeclaration = typeReference._target.declarations.find(ts.isClassDeclaration)
+      let typeDeclaration
+      try {
+        typeDeclaration = typeReference.declaration || typeReference._target.declarations.find(ts.isClassDeclaration)
+      } catch (err) {
+        console.log(typeReference)
+        throw err
+      }
       return typeDeclaration ? $replacer(typeReference, typeDeclaration, replacer) : replacer
     }, null)
 
@@ -129,7 +135,8 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
   function $property(node, parent) {
     const type = $type(node.type, {parent})
     if (type.type === 'reflection' && type.declaration.signatures) return $method(node, parent)
-    return $comment(node.comment) + `${$flags(node.flags)} '${node.name}'${node.flags.isOptional ? '?' : ''}: ${type}`
+    const name = !/^[a-zA-Z_$][0-9a-zA-Z_$]*$/.test(node.name) ? `'${node.name}'` : node.name
+    return $comment(node.comment) + `${$flags(node.flags)} ${name}${node.flags.isOptional ? '?' : ''}: ${type}`
   }
 
   function $flags(flags) {

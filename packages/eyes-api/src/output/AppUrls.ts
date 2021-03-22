@@ -9,6 +9,7 @@ export class AppUrlsData implements Required<AppUrls> {
   private _step: string
   private _stepEditor: string
 
+  /** @internal */
   constructor(appUrls?: AppUrls) {
     if (!appUrls) return this
     this.step = appUrls.step

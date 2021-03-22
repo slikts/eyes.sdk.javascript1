@@ -16,6 +16,7 @@ export class TestResultsSummaryData implements TestResultsSummary {
   private _missing = 0
   private _matches = 0
 
+  /** @internal */
   constructor(results: (TestResults | TestResultsContainer | Error)[]) {
     for (const result of results) {
       let container

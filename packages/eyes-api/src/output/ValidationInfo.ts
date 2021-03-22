@@ -1,5 +1,3 @@
-import * as utils from '@applitools/utils'
-
 /** @undocumented */
 export type ValidationInfo = {
   validationId: number
@@ -11,14 +9,10 @@ export class ValidationInfoData implements Required<ValidationInfo> {
   private _validationId: number
   private _tag: string
 
-  constructor(info: ValidationInfo)
-  constructor(validationId: number, tag: string)
-  constructor(infoOrValidationId: ValidationInfo | number, tag?: string) {
-    if (utils.types.isNumber(infoOrValidationId)) {
-      return new ValidationInfoData({validationId: infoOrValidationId, tag})
-    }
-    this._validationId = infoOrValidationId.validationId
-    this._tag = infoOrValidationId.tag
+  /** @internal */
+  constructor(info: ValidationInfo) {
+    this._validationId = info.validationId
+    this._tag = info.tag
   }
 
   get validationId(): number {

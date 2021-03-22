@@ -8,6 +8,8 @@ import ScreenOrientation from '../enums/ScreenOrientation'
 import {AccessibilitySettings} from './AccessibilitySettings'
 import {DesktopBrowserInfo, ChromeEmulationInfo, IOSDeviceInfo} from './RenderInfo'
 import {CutProvider} from './CutProvider'
+import {LogHandler} from './LogHandler'
+import {DebugScreenshotProvider} from './DebugScreenshotProvider'
 import {RectangleSize, RectangleSizeData} from './RectangleSize'
 import {ProxySettings, ProxySettingsData} from './ProxySettings'
 import {BatchInfo, BatchInfoData} from './BatchInfo'
@@ -23,8 +25,9 @@ type ConfigurationSpec<TElement, TSelector> = {
 
 export type GeneralConfiguration = {
   /** @undocumented */
-  showLogs?: boolean
-  saveDebugScreenshots?: {save: boolean; path?: string; prefix?: string}
+  logs?: {show: boolean; handler?: LogHandler}
+  /** @undocumented */
+  debugScreenshots?: DebugScreenshotProvider
   agentId?: string
   apiKey?: string
   serverUrl?: string
@@ -103,8 +106,8 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   implements Required<Configuration<TElement, TSelector>> {
   protected readonly _spec: ConfigurationSpec<TElement, TSelector>
 
-  private _showLogs: boolean
-  private _saveDebugScreenshots: {save: boolean; path?: string; prefix?: string}
+  private _logs: {show: boolean; handler: LogHandler}
+  private _debugScreenshots: DebugScreenshotProvider
   private _appName: string
   private _testName: string
   private _displayName: string
@@ -169,8 +172,8 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   /** @internal */
   get general(): Required<GeneralConfiguration> {
     return utils.general.toJSON(this, [
-      'showLogs',
-      'saveDebugScreenshots',
+      'logs',
+      'debugScreenshots',
       'agentId',
       'apiKey',
       'serverUrl',
@@ -244,49 +247,65 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   /** @undocumented */
-  get showLogs(): boolean {
-    return this._showLogs
+  get logs(): {show: boolean; handler: LogHandler} {
+    return this._logs
   }
   /** @undocumented */
-  set showLogs(showLogs: boolean) {
-    utils.guard.isBoolean(showLogs, {name: 'showLogs'})
-    this._showLogs = showLogs
+  set logs(logs: {show: boolean; handler: LogHandler}) {
+    this._logs = logs
   }
   /** @undocumented */
   getShowLogs(): boolean {
-    return this._showLogs
+    return this._logs ? this._logs.show : false
   }
   /** @undocumented */
-  setShowLogs(showLogs: boolean): this {
-    this.showLogs = showLogs
+  setShowLogs(show: boolean): this {
+    this.logs = {...this.logs, show}
+    return this
+  }
+  /** @undocumented */
+  getLogHandler(): LogHandler {
+    return this._logs ? this._logs.handler : null
+  }
+  /** @undocumented */
+  setLogHandler(handler: LogHandler): this {
+    this.logs = {...this.logs, handler}
     return this
   }
 
-  get saveDebugScreenshots(): {save: boolean; path?: string; prefix?: string} {
-    return this._saveDebugScreenshots
+  /** @undocumented */
+  get debugScreenshots(): DebugScreenshotProvider {
+    return this._debugScreenshots
   }
-  set saveDebugScreenshots(saveDebugScreenshots: {save: boolean; path?: string; prefix?: string}) {
-    this._saveDebugScreenshots = saveDebugScreenshots
+  /** @undocumented */
+  set debugScreenshots(debugScreenshots: DebugScreenshotProvider) {
+    this._debugScreenshots = debugScreenshots
   }
+  /** @undocumented */
   getSaveDebugScreenshots(): boolean {
-    return this._saveDebugScreenshots ? this._saveDebugScreenshots.save : false
+    return this._debugScreenshots ? this._debugScreenshots.save : false
   }
+  /** @undocumented */
   setSaveDebugScreenshots(save: boolean): this {
-    this.saveDebugScreenshots = {...this.saveDebugScreenshots, save}
+    this.debugScreenshots = {...this.debugScreenshots, save}
     return this
   }
+  /** @undocumented */
   getDebugScreenshotsPath(): string {
-    return this._saveDebugScreenshots && this._saveDebugScreenshots.path
+    return this._debugScreenshots && this._debugScreenshots.path
   }
+  /** @undocumented */
   setDebugScreenshotsPath(path: string): this {
-    this.saveDebugScreenshots = {...this.saveDebugScreenshots, path}
+    this.debugScreenshots = {...this.debugScreenshots, path}
     return this
   }
+  /** @undocumented */
   getDebugScreenshotsPrefix(): string {
-    return this._saveDebugScreenshots && this._saveDebugScreenshots.prefix
+    return this._debugScreenshots && this._debugScreenshots.prefix
   }
+  /** @undocumented */
   setDebugScreenshotsPrefix(prefix: string): this {
-    this.saveDebugScreenshots = {...this.saveDebugScreenshots, prefix}
+    this.debugScreenshots = {...this.debugScreenshots, prefix}
     return this
   }
 
@@ -1142,8 +1161,8 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   /** @internal */
   toJSON(): Required<Configuration<TElement, TSelector>> {
     return utils.general.toJSON(this, [
-      'showLogs',
-      'saveDebugScreenshots',
+      'logs',
+      'debugScreenshots',
       'appName',
       'testName',
       'displayName',

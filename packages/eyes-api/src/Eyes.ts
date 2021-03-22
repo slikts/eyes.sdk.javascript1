@@ -13,13 +13,15 @@ import {BatchInfo, BatchInfoData} from './input/BatchInfo'
 import {RectangleSize, RectangleSizeData} from './input/RectangleSize'
 import {Region} from './input/Region'
 import {CutProviderData} from './input/CutProvider'
-import {SessionEventHandler, SessionEventHandlers, RemoteSessionEventHandler} from './SessionEventHandlers'
+import {LogHandlerData, FileLogHandlerData, ConsoleLogHandlerData, NullLogHandlerData} from './input/LogHandler'
 import {MatchResult, MatchResultData} from './output/MatchResult'
 import {TestResults, TestResultsData} from './output/TestResults'
 import {TestResultsSummary} from './output/TestResultsSummary'
 import {ValidationInfo} from './output/ValidationInfo'
 import {ValidationResult} from './output/ValidationResult'
+import {SessionEventHandler, SessionEventHandlers, RemoteSessionEventHandler} from './SessionEventHandlers'
 import {RunnerConfiguration, EyesRunner, ClassicRunner} from './Runners'
+import {Logger} from './Logger'
 
 type ExtractTextRegion<TElement = unknown, TSelector = unknown> = {
   target: Region | TElement | TSelector
@@ -65,7 +67,6 @@ type EyesSpec<TDriver = unknown, TElement = unknown, TSelector = unknown> = {
   isElement(value: any): value is TElement
   isSelector(value: any): value is TSelector
   makeEyes(config?: RunnerConfiguration): EyesController<TDriver, TElement, TSelector>
-  // makeLogger(config: LoggerConfiguration): unknown
   getViewportSize(driver: TDriver): Promise<RectangleSize>
   setViewportSize(driver: TDriver, viewportSize: RectangleSize): Promise<void>
   closeBatch(options: {batchId: string; serverUrl?: string; apiKey?: string; proxy?: ProxySettings}): Promise<void>
@@ -75,6 +76,7 @@ type EyesSpec<TDriver = unknown, TElement = unknown, TSelector = unknown> = {
 export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   protected readonly _spec: EyesSpec<TDriver, TElement, TSelector>
 
+  private _logger: Logger
   private _config: ConfigurationData<TElement, TSelector>
   private _runner: EyesRunner
   private _driver: TDriver
@@ -104,6 +106,13 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     }
     this._runner.attach(this, config => this._spec.makeEyes(config))
     this._handlers.attach(this)
+  }
+
+  get logger() {
+    return this._logger
+  }
+  getLogger(): Logger {
+    return this._logger
   }
 
   get runner() {
@@ -365,6 +374,22 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   }
   setScrollRootElement(scrollRootElement: TElement | TSelector) {
     this._config.setScrollRootElement(scrollRootElement)
+  }
+
+  setLogHandler(handler: LogHandlerData) {
+    this._config.setLogHandler(handler)
+  }
+  getLogHandler(): LogHandlerData {
+    const handler = this._config.getLogHandler()
+    if (!handler) {
+      return new NullLogHandlerData()
+    } else if (!utils.types.has(handler, 'type')) {
+      return handler as LogHandlerData
+    } else if (handler.type === 'file') {
+      return new FileLogHandlerData(true, handler.filename, handler.append)
+    } else if (handler.type === 'console') {
+      return new ConsoleLogHandlerData(true)
+    }
   }
 
   setCutProvider(cutProvider: CutProviderData) {

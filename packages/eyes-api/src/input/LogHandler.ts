@@ -1,8 +1,11 @@
-import {ConsoleHandler, FileHandler, CustomHandler} from '@applitools/logger'
+import * as logger from '@applitools/logger'
 
-export type LogSettings = ConsoleHandler | FileHandler | CustomHandler
+export type LogHandler = CustomLogHandler | FileLogHandler | ConsoleLogHandler
+export type CustomLogHandler = logger.CustomHandler
+export type FileLogHandler = logger.FileHandler
+export type ConsoleLogHandler = logger.ConsoleHandler
 
-export abstract class LogHandler {
+export abstract class LogHandlerData implements CustomLogHandler {
   private _verbose: boolean
 
   constructor(verbose = false) {
@@ -22,6 +25,10 @@ export abstract class LogHandler {
     this.verbose = verbose
   }
 
+  log(message: string) {
+    this.onMessage(message)
+  }
+
   abstract onMessage(message: string): void
 
   abstract open(): void
@@ -29,7 +36,7 @@ export abstract class LogHandler {
   abstract close(): void
 
   /** @internal */
-  toObject(): LogSettings {
+  toJSON(): LogHandler {
     return {
       log: this.onMessage.bind(this),
       open: this.open.bind(this),
@@ -38,14 +45,15 @@ export abstract class LogHandler {
   }
 }
 
-export class FileLogHandler extends LogHandler {
-  private _filename: string
-  private _append: boolean
+export class FileLogHandlerData extends LogHandlerData implements FileLogHandler {
+  readonly type = 'file'
+  readonly filename: string
+  readonly append: boolean
 
   constructor(verbose?: boolean, filename = 'eyes.log', append = true) {
     super(verbose)
-    this._filename = filename
-    this._append = append
+    this.filename = filename
+    this.append = append
   }
 
   onMessage(): void {
@@ -60,12 +68,15 @@ export class FileLogHandler extends LogHandler {
     return undefined
   }
 
-  toObject(): LogSettings {
-    return {type: 'file', filename: this._filename, append: this._append}
+  /** @internal */
+  toJSON(): LogHandler {
+    return {type: this.type, filename: this.filename, append: this.append}
   }
 }
 
-export class ConsoleLogHandler extends LogHandler {
+export class ConsoleLogHandlerData extends LogHandlerData implements ConsoleLogHandler {
+  readonly type = 'console'
+
   onMessage(): void {
     return undefined
   }
@@ -78,12 +89,13 @@ export class ConsoleLogHandler extends LogHandler {
     return undefined
   }
 
-  toObject(): LogSettings {
-    return {type: 'console'}
+  /** @internal */
+  toJSON(): LogHandler {
+    return {type: this.type}
   }
 }
 
-export class NullLogHandler extends LogHandler {
+export class NullLogHandlerData extends LogHandlerData {
   onMessage(): void {
     return undefined
   }
@@ -96,7 +108,8 @@ export class NullLogHandler extends LogHandler {
     return undefined
   }
 
-  toObject(): LogSettings {
+  /** @internal */
+  toJSON(): LogHandler {
     return null
   }
 }

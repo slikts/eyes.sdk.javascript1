@@ -9,6 +9,7 @@ export class MatchResultData implements Required<MatchResult> {
   private _asExpected: boolean
   private _windowId: number
 
+  /** @internal */
   constructor(result?: MatchResult) {
     if (!result) return this
     this.asExpected = result.asExpected

@@ -86,6 +86,22 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
 
   private _settings: CheckSettings<TElement, TSelector> = {}
 
+  private _isFrameReference(value: any): value is FrameReference<TSelector, TElement> {
+    return utils.types.isNumber(value) || utils.types.isString(value) || this._isElementReference(value)
+  }
+
+  private _isRegionReference(value: any): value is RegionReference<TSelector, TElement> {
+    return (
+      utils.types.has(value, ['x', 'y', 'width', 'height']) ||
+      utils.types.has(value, ['left', 'top', 'width', 'height']) ||
+      this._isElementReference(value)
+    )
+  }
+
+  private _isElementReference(value: any): value is ElementReference<TSelector, TElement> {
+    return this._spec.isElement(value) || this._spec.isSelector(value)
+  }
+
   constructor(settings?: CheckSettings<TElement, TSelector>) {
     if (!settings) return this
     if (settings.name) this.name(settings.name)
@@ -143,25 +159,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     if (!utils.types.isNull(settings.timeout)) this.timeout(settings.timeout)
   }
 
-  /** @internal */
-  isFrameReference(value: any): value is FrameReference<TSelector, TElement> {
-    return utils.types.isNumber(value) || utils.types.isString(value) || this.isElementReference(value)
-  }
-
-  /** @internal */
-  isRegionReference(value: any): value is RegionReference<TSelector, TElement> {
-    return (
-      utils.types.has(value, ['x', 'y', 'width', 'height']) ||
-      utils.types.has(value, ['left', 'top', 'width', 'height']) ||
-      this.isElementReference(value)
-    )
-  }
-
-  /** @internal */
-  isElementReference(value: any): value is ElementReference<TSelector, TElement> {
-    return this._spec.isElement(value) || this._spec.isSelector(value)
-  }
-
+  /** @undocumented */
   name(name: string): this {
     utils.guard.isString(name, {name: 'name'})
     this._settings.name = name
@@ -172,7 +170,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
   }
 
   region(region: RegionReference<TElement, TSelector>): this {
-    utils.guard.custom(region, value => this.isRegionReference(value), {name: 'region'})
+    utils.guard.custom(region, value => this._isRegionReference(value), {name: 'region'})
     this._settings.region = region
     return this
   }
@@ -187,8 +185,8 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
       ? contextOrFrame
       : {frame: contextOrFrame, scrollRootElement}
     if (!this._settings.frames) this._settings.frames = []
-    utils.guard.custom(context.frame, value => this.isFrameReference(value), {name: 'frame'})
-    utils.guard.custom(context.scrollRootElement, value => this.isElementReference(value), {
+    utils.guard.custom(context.frame, value => this._isFrameReference(value), {name: 'frame'})
+    utils.guard.custom(context.scrollRootElement, value => this._isElementReference(value), {
       name: 'scrollRootElement',
       strict: false,
     })
@@ -262,7 +260,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     const floatingRegion = utils.types.has(region, 'region')
       ? region
       : {region, maxUpOffset, maxDownOffset, maxLeftOffset, maxRightOffset}
-    utils.guard.custom(floatingRegion.region, value => this.isRegionReference(value), {
+    utils.guard.custom(floatingRegion.region, value => this._isRegionReference(value), {
       name: 'region',
     })
     utils.guard.isNumber(floatingRegion.maxUpOffset, {name: 'region'})
@@ -337,7 +335,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     type?: AccessibilityRegionType,
   ): this {
     const accessibilityRegion = utils.types.has(region, 'region') ? region : {region, type}
-    utils.guard.custom(accessibilityRegion.region, value => this.isRegionReference(value), {
+    utils.guard.custom(accessibilityRegion.region, value => this._isRegionReference(value), {
       name: 'region',
     })
     utils.guard.isEnumValue(accessibilityRegion.type, AccessibilityRegionType, {
@@ -372,7 +370,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
   }
 
   scrollRootElement(scrollRootElement: ElementReference<TElement, TSelector>): this {
-    utils.guard.custom(scrollRootElement, value => this.isElementReference(value), {
+    utils.guard.custom(scrollRootElement, value => this._isElementReference(value), {
       name: 'scrollRootElement',
     })
     if (this._settings.frames && this._settings.frames.length > 0) {
