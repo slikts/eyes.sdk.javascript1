@@ -10,7 +10,7 @@ const makeClose = require('./close')
 const makeAbort = require('./abort')
 
 function makeOpen({sdk, runner}) {
-  return async function open(driver, config, listener) {
+  return async function open({driver, config, logger, on}) {
     const eyes = new sdk.EyesFactory(runner)
     eyes.setConfiguration(config)
     if (config.scrollRootElement) eyes.setScrollRootElement(config.scrollRootElement)
@@ -40,10 +40,10 @@ function makeOpen({sdk, runner}) {
       }
       eyes.addSessionEventHandler(remoteSessionEventHandler)
     }
-    if (listener) {
+    if (on) {
       const sessionEventHandler = new SessionEventHandler()
       for (const event of Object.keys(sessionEventHandler)) {
-        sessionEventHandler[event] = (...args) => listener(event, ...args)
+        sessionEventHandler[event] = (...args) => on(event, ...args)
       }
       eyes.addSessionEventHandler(sessionEventHandler)
     }

@@ -22,6 +22,10 @@
       "arrowParens": "avoid",
       "printWidth": 120
     }],
+    "@typescript-eslint/no-unused-vars": [
+      "error",
+      {"varsIgnorePattern": "^_", "args": "all", "argsIgnorePattern": "^_"}
+    ],
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "@typescript-eslint/no-explicit-any": "off"
   }

@@ -1,4 +1,5 @@
 import * as utils from '@applitools/utils'
+import * as logger from '@applitools/logger'
 import SessionType from './enums/SessionType'
 import StitchMode from './enums/StitchMode'
 import MatchLevel from './enums/MatchLevel'
@@ -54,11 +55,12 @@ type EyesCommands<TElement = unknown, TSelector = unknown> = {
 }
 
 type EyesController<TDriver = unknown, TElement = unknown, TSelector = unknown> = {
-  open: (
-    driver: TDriver,
-    config: Configuration,
-    on?: (event: string, data?: Record<string, any>) => any,
-  ) => Promise<EyesCommands<TElement, TSelector>>
+  open: (options: {
+    driver: TDriver
+    config?: Configuration
+    logger?: logger.Logger
+    on?: (event: string, data?: Record<string, any>) => any
+  }) => Promise<EyesCommands<TElement, TSelector>>
   getResults: () => Promise<TestResultsSummary>
 }
 
@@ -106,6 +108,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     }
     this._runner.attach(this, config => this._spec.makeEyes(config))
     this._handlers.attach(this)
+    this._logger = new Logger({...this._config.logs, label: 'Eyes API'})
   }
 
   get logger() {
@@ -225,11 +228,16 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     if (utils.types.isString(sessionType)) config.sessionType = sessionType
 
     this._driver = driver
-    this._commands = await this._runner.open(driver, config, (name: string, data?: Record<string, any>) => {
-      const globalHandlers = this._events.get('*')
-      if (globalHandlers) globalHandlers.forEach(async handler => handler(name, data))
-      const namedHandlers = this._events.get(name)
-      if (namedHandlers) namedHandlers.forEach(async handler => handler(data))
+    this._commands = await this._runner.open({
+      driver,
+      config,
+      logger: this._logger,
+      on: (name: string, data?: Record<string, any>) => {
+        const globalHandlers = this._events.get('*')
+        if (globalHandlers) globalHandlers.forEach(async handler => handler(name, data))
+        const namedHandlers = this._events.get(name)
+        if (namedHandlers) namedHandlers.forEach(async handler => handler(data))
+      },
     })
 
     return this._driver
