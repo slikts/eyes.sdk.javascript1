@@ -1,6 +1,6 @@
 {
   "name": "@applitools/logger",
-  "version": "1.0.0",
+  "version": "0.0.2",
   "description": "Applitools logger",
   "keywords": [
     "applitools",
@@ -24,10 +24,15 @@
     "lib": "./src",
     "test": "./test"
   },
+  "files": [
+    "src",
+    "index.js",
+    "index.d.ts"
+  ],
   "main": "./index.js",
   "types": "./index.d.ts",
   "dependencies": {
-    "@applitools/utils": "^1.0.1",
+    "@applitools/utils": "1.1.0",
     "chalk": "3.0.0"
   },
   "devDependencies": {
@@ -44,10 +49,10 @@
     "tunnel": false
   },
   "scripts": {
-    "lint": "eslint . --ext .js",
+    "lint": "eslint '**/*.js'",
     "test": "yarn test:e2e",
     "test:e2e": "mocha --no-timeouts \"test/e2e/**/*.spec.js\"",
-    "preversion": "bongo preversion --skip-verify-installed-versions && yarn test",
+    "preversion": "bongo preversion && yarn test",
     "version": "bongo version",
     "postversion": "bongo postversion --skip-release-notification",
     "deps": "bongo deps",
