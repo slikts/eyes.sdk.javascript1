@@ -58,10 +58,10 @@
     prettier "1.18.2"
     yargs "15.3.1"
 
-"@applitools/utils@^1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@applitools/utils/-/utils-1.0.1.tgz#13d4cc0d2a964c8cca838e8ba8306f1e4512a006"
-  integrity sha512-Zj+fmrCcExPp1KagDa6bIHS9L6WEdFBbjFgjweZTQoWGnW8dbvcC0OmoVxdbO5+hXN5qAnRVsVG9Cs6QdWqfvQ==
+"@applitools/utils@1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@applitools/utils/-/utils-1.1.0.tgz#6bdc8f9435c41b1aacde1fe517e2a9614626991b"
+  integrity sha512-1y7CjkULVv+Izij0ibSL0vbxFj7oZ1glSqSWGC7q1jlnvERZKZ6o4xWYzBKbALBOm2kZ5UiPdT3TxQAoRDyMJw==
 
 "@azure/abort-controller@^1.0.0":
   version "1.0.4"

@@ -52,7 +52,7 @@
     "build": "tsc",
     "preversion": "bongo preversion && yarn build",
     "version": "bongo version",
-    "postversion": "bongo postversion",
+    "postversion": "bongo postversion --skip-release-notification",
     "deps": "bongo deps",
     "prepublish:setup": "echo 'no setup'"
   },
