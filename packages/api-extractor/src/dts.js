@@ -129,7 +129,10 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
   function $method(node, parent) {
     const signatures = $signatures(node.signatures || node.type.declaration.signatures, parent)
     return signatures.map(signature => {
-      return $comment(signature.comment) + `${$flags(node.flags)} ${node.name}${signature}`
+      return (
+        $comment(signature.comment) +
+        `${$flags(node.flags)} ${node.name}${node.flags.isOptional ? '?' : ''}${signature}`
+      )
     })
   }
   function $property(node, parent) {

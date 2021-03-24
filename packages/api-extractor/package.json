@@ -1,6 +1,6 @@
 {
   "name": "@applitools/api-extractor",
-  "version": "0.1.0",
+  "version": "0.0.0",
   "description": "Ultimate api extractor for typescript project",
   "keywords": [
     "applitools",
@@ -24,17 +24,19 @@
     "lib": "./src",
     "test": "./test"
   },
+  "files": ["src", "bin", "index.js"],
   "bin": {
     "api-extractor": "./bin/cli.js"
   },
   "main": "./index.js",
   "dependencies": {
-    "prettier": "^2.1.2",
-    "typedoc": "^0.20.28",
-    "typescript": "^4.1.0",
-    "yargs": "^16.2.0"
+    "prettier": "2.2.1",
+    "typedoc": "0.20.33",
+    "typescript": "4.2.3",
+    "yargs": "16.2.0"
   },
   "devDependencies": {
+    "@applitools/sdk-release-kit": "0.13.0",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
     "@typescript-eslint/parser": "^4.15.1",
     "eslint": "^7.9.0",

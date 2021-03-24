@@ -43,6 +43,7 @@ export class Logger implements logger.Logger {
     }
   }
 
+  /** @internal */
   get console() {
     return this._logger.console
   }
