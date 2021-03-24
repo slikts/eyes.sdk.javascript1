@@ -1,6 +1,6 @@
 {
   "name": "@applitools/api-extractor",
-  "version": "0.0.0",
+  "version": "1.0.0",
   "description": "Ultimate api extractor for typescript project",
   "keywords": [
     "applitools",
@@ -24,7 +24,11 @@
     "lib": "./src",
     "test": "./test"
   },
-  "files": ["src", "bin", "index.js"],
+  "files": [
+    "src",
+    "bin",
+    "index.js"
+  ],
   "bin": {
     "api-extractor": "./bin/cli.js"
   },
