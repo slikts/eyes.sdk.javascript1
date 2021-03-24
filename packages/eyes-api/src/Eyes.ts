@@ -77,6 +77,7 @@ type EyesSpec<TDriver = unknown, TElement = unknown, TSelector = unknown> = {
 }
 
 export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
+  protected static readonly _spec: EyesSpec
   protected readonly _spec: EyesSpec<TDriver, TElement, TSelector>
 
   private _logger: Logger
@@ -88,7 +89,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   private _handlers: SessionEventHandlers = new SessionEventHandlers()
 
   static async setViewportSize(driver: unknown, viewportSize: RectangleSize) {
-    await this.prototype._spec.setViewportSize(driver, viewportSize)
+    await this._spec.setViewportSize(driver, viewportSize)
   }
 
   constructor(runner?: EyesRunner, config?: Configuration<TElement, TSelector>)
@@ -216,7 +217,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     viewportSize?: RectangleSize,
     sessionType?: SessionType,
   ): Promise<TDriver> {
-    const config = {...this._config.general, ...this._config.open}
+    const config = this._config.toJSON()
     if (utils.types.instanceOf(configOrAppName, ConfigurationData)) {
       Object.assign(config, configOrAppName.open)
     } else if (utils.types.isObject(configOrAppName)) {

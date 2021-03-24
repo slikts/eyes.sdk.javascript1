@@ -287,6 +287,9 @@ class CheckSettings {
     if (object.isFully) {
       settings.fully(object.isFully)
     }
+    if (object.fully) {
+      settings.fully(object.fully)
+    }
     if (object.visualGridOptions) {
       Object.entries(object.visualGridOptions).forEach(([key, value]) => {
         settings.visualGridOption(key, value)
