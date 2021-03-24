@@ -1,28 +1,18 @@
 const fs = require('fs').promises;
-const path = require('path')
-const exec = require('util').promisify(require('child_process').exec)
+const path = require('path');
 
-const skipList = ['eyes-universal-poc', 'eyes-leanft', 'eyes-images-legacy', 'eyes-sdk-core-legacy']
-
-const packageTemplate = `
-    - package-ecosystem: "npm"
-      directory: "/packages/_PACKAGE_"
-      schedule:
-        interval: "daily"`
-
-let template = `  version: 2\n  updates:`
+const skipList = ['eyes-universal-poc', 'eyes-leanft', 'eyes-images-legacy', 'eyes-sdk-core-legacy'];
+let template = `  version: 2\n  updates:`;
 
 ;(async () => {
-  try {
-    const {stdout: items} = await exec('ls packages')
-    const packages = items.split('\n')
+    const items = await fs.readdir(path.join(__dirname, '../../'));
+    const packages = items.filter(package => !skipList.includes(package) && !package.startsWith('.'));
     for (const package of packages) {
-      if (!skipList.includes(package)) {
-        template += `  ${packageTemplate.replace('_PACKAGE_', package)}`
-      }
+        template += `
+  - package-ecosystem: "npm"
+    directory: "/packages/${package}"
+    schedule:
+      interval: "daily"`;
     }
-    await fs.writeFile(path.join(__dirname,'../../../.github/dependabot.yml'), template)
-  } catch (error) {
-    throw error
-  }
+    await fs.writeFile(path.join(__dirname,'../../../.github/dependabot.yml'), template);
 })()
