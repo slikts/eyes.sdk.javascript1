@@ -324,7 +324,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     const results = new TestResultsData(await this._commands.close(), results => this._spec.deleteTestResults(results))
     this._commands = null
     if (throwErr) {
-      const testName = `Test '${this._config.testName}' of '${this._config.appName}'`
+      const testName = `Test '${results.name}' of '${results.appName}'`
       if (results.status === TestResultsStatus.Unresolved) {
         if (results.isNew) {
           throw new NewTestError(`${testName}! Please approve the new baseline at ${results.url}`, results)

@@ -996,7 +996,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   get rotation(): ImageRotation {
-    return this._rotation.rotation
+    return this._rotation ? this._rotation.rotation : undefined
   }
   set rotation(rotation: ImageRotation) {
     this._rotation = new ImageRotationData(rotation)
