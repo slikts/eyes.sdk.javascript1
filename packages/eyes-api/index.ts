@@ -58,6 +58,7 @@ export {
   ImageMatchSettings as ImageMatchSettingsPlain,
   ImageMatchSettingsData as ImageMatchSettings,
 } from './src/input/ImageMatchSettings'
+export {ImageRotation as ImageRotationPlain, ImageRotationData as ImageRotation} from './src/input/ImageRotation'
 export {Location as LocationPlain, LocationData as Location} from './src/input/Location'
 export {
   LogHandler as LogHandlerPlain,

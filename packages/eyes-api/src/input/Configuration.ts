@@ -11,6 +11,7 @@ import {CutProvider} from './CutProvider'
 import {LogHandler} from './LogHandler'
 import {DebugScreenshotProvider} from './DebugScreenshotProvider'
 import {RectangleSize, RectangleSizeData} from './RectangleSize'
+import {ImageRotation, ImageRotationData} from './ImageRotation'
 import {ProxySettings, ProxySettingsData} from './ProxySettings'
 import {BatchInfo, BatchInfoData} from './BatchInfo'
 import {PropertyData, PropertyDataData} from './PropertyData'
@@ -83,7 +84,7 @@ export type ClassicConfiguration<TElement = unknown, TSelector = unknown> = {
   stitchOverlap?: number
   scrollRootElement?: TElement | TSelector
   cut?: CutProvider
-  rotation?: number
+  rotation?: ImageRotation
   scaleRatio?: number
 }
 
@@ -149,7 +150,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   private _stitchOverlap: number
   private _scrollRootElement: TElement | TSelector
   private _cut: CutProvider
-  private _rotation: number
+  private _rotation: ImageRotationData
   private _scaleRatio: number
   private _concurrentSessions: number
   private _browsersInfo: RenderInfo[]
@@ -469,20 +470,20 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     return this._proxy
   }
   setProxy(proxy: ProxySettings): this
-  setProxy(isDisabled: true): this
   setProxy(url: string, username?: string, password?: string, isHttpOnly?: boolean): this
+  setProxy(isEnabled: false): this
   setProxy(
-    proxyOrUrlOrIsDisabled: ProxySettings | ProxySettingsData | string | true,
+    proxyOrUrlOrIsEnabled: ProxySettings | ProxySettingsData | string | false,
     username?: string,
     password?: string,
     isHttpOnly?: boolean,
   ): this {
-    if (proxyOrUrlOrIsDisabled === true) {
+    if (proxyOrUrlOrIsEnabled === false) {
       this.proxy = undefined
-    } else if (utils.types.isString(proxyOrUrlOrIsDisabled)) {
-      this.proxy = {url: proxyOrUrlOrIsDisabled, username, password, isHttpOnly}
+    } else if (utils.types.isString(proxyOrUrlOrIsEnabled)) {
+      this.proxy = {url: proxyOrUrlOrIsEnabled, username, password, isHttpOnly}
     } else {
-      this.proxy = proxyOrUrlOrIsDisabled
+      this.proxy = proxyOrUrlOrIsEnabled
     }
     return this
   }
@@ -994,18 +995,17 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     return this
   }
 
-  get rotation(): number {
+  get rotation(): ImageRotation {
+    return this._rotation.rotation
+  }
+  set rotation(rotation: ImageRotation) {
+    this._rotation = new ImageRotationData(rotation)
+  }
+  getRotation(): ImageRotationData {
     return this._rotation
   }
-  set rotation(rotation: number) {
-    utils.guard.isInteger(rotation, {name: 'rotation', strict: false})
-    this._rotation = rotation
-  }
-  getRotation(): number {
-    return this._rotation
-  }
-  setRotation(rotation: number): this {
-    this.rotation = rotation
+  setRotation(rotation: ImageRotation | ImageRotationData): this {
+    this.rotation = utils.types.isNumber(rotation) ? rotation : rotation.rotation
     return this
   }
 

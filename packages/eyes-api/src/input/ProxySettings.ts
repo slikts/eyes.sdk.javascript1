@@ -12,31 +12,24 @@ export class ProxySettingsData implements Required<ProxySettings> {
   private _username: string
   private _password: string
   private _isHttpOnly: boolean
-  private _isDisabled: boolean
 
   constructor(proxy: ProxySettings)
   constructor(url: string, username?: string, password?: string, isHttpOnly?: boolean)
-  constructor(isDisabled: true)
   constructor(
-    proxyOrUrlOrIsDisabled: ProxySettings | string | true,
+    proxyOrUrlOrIsDisabled: ProxySettings | string,
     username?: string,
     password?: string,
     isHttpOnly?: boolean,
   ) {
     utils.guard.notNull(proxyOrUrlOrIsDisabled, {name: 'proxyOrUrlOrIsDisabled'})
 
-    if (proxyOrUrlOrIsDisabled === true) {
-      this._isDisabled = true
-    } else {
-      if (utils.types.isString(proxyOrUrlOrIsDisabled)) {
-        return new ProxySettingsData({url: proxyOrUrlOrIsDisabled, username, password, isHttpOnly})
-      }
-      this._url = proxyOrUrlOrIsDisabled.url
-      this._username = proxyOrUrlOrIsDisabled.username
-      this._password = proxyOrUrlOrIsDisabled.password
-      this._isHttpOnly = proxyOrUrlOrIsDisabled.isHttpOnly
-      this._isDisabled = false
+    if (utils.types.isString(proxyOrUrlOrIsDisabled)) {
+      return new ProxySettingsData({url: proxyOrUrlOrIsDisabled, username, password, isHttpOnly})
     }
+    this._url = proxyOrUrlOrIsDisabled.url
+    this._username = proxyOrUrlOrIsDisabled.username
+    this._password = proxyOrUrlOrIsDisabled.password
+    this._isHttpOnly = proxyOrUrlOrIsDisabled.isHttpOnly
   }
 
   get url() {
@@ -65,12 +58,5 @@ export class ProxySettingsData implements Required<ProxySettings> {
   }
   getIsHttpOnly() {
     return this._isHttpOnly
-  }
-
-  get isDisabled() {
-    return this._isDisabled
-  }
-  getIsDisabled() {
-    return this._isDisabled
   }
 }

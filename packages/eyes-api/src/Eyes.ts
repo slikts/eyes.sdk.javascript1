@@ -13,6 +13,7 @@ import {Configuration, OpenConfiguration, ConfigurationData} from './input/Confi
 import {BatchInfo, BatchInfoData} from './input/BatchInfo'
 import {RectangleSize, RectangleSizeData} from './input/RectangleSize'
 import {Region} from './input/Region'
+import {ImageRotation, ImageRotationData} from './input/ImageRotation'
 import {CutProviderData} from './input/CutProvider'
 import {LogHandlerData, FileLogHandlerData, ConsoleLogHandlerData, NullLogHandlerData} from './input/LogHandler'
 import {MatchResult, MatchResultData} from './output/MatchResult'
@@ -410,10 +411,10 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     return Boolean(this._config.getCut())
   }
 
-  getRotation(): number {
+  getRotation(): ImageRotationData {
     return this._config.getRotation()
   }
-  setRotation(rotation: number) {
+  setRotation(rotation: ImageRotation | ImageRotationData) {
     this._config.setRotation(rotation)
   }
 
@@ -584,10 +585,10 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   }
 
   setProxy(proxy: ProxySettings): void
-  setProxy(isDisabled: true): void
   setProxy(url: string, username?: string, password?: string, isHttpOnly?: boolean): void
+  setProxy(isEnabled: false): void
   setProxy(
-    proxyOrUrlOrIsDisabled: ProxySettings | string | true,
+    proxyOrUrlOrIsDisabled: ProxySettings | string | false,
     username?: string,
     password?: string,
     isHttpOnly?: boolean,

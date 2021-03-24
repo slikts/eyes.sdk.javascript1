@@ -122,9 +122,15 @@ export function isObject(value: any, {name, strict = true}: StrictParam) {
 export function isEnumValue(value: any, enumeration: Record<string, any>, {name, strict = true}: StrictParam) {
   const values = new Set(Object.values(enumeration))
   if ((strict || !types.isNull(value)) && !values.has(value)) {
-    throw new Error(
-      `IllegalArgument: ${name} must be one of [${Array.from(values, value => JSON.stringify(value)).join(', ')}]. Received ${value}`,
-    )
+    const list = Array.from(values, value => JSON.stringify(value)).join(', ')
+    throw new Error(`IllegalArgument: ${name} must be one of [${list}]. Received ${value}`)
+  }
+}
+
+export function isOneOf<TValue>(value: any, values: readonly TValue[], {name, strict = true}: StrictParam) {
+  if ((strict || !types.isNull(value)) && !values.includes(value)) {
+    const list = values.map(value => JSON.stringify(value)).join(', ')
+    throw new Error(`IllegalArgument: ${name} must be one of [${list}]. Received ${value}`)
   }
 }
 
