@@ -33,6 +33,7 @@
     "lib": "./lib",
     "test": "./test"
   },
+  "files": ["dist", "commands", "index.d.ts"],
   "main": "./dist/index.js",
   "types": "./index.d.ts",
   "dependencies": {

@@ -34,6 +34,7 @@
     "lib": "./lib",
     "test": "./test"
   },
+  "files": ["dist", "index.d.ts"],
   "main": "./dist/index.js",
   "types": "./index.d.ts",
   "dependencies": {
