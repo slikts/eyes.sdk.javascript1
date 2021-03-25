@@ -3,6 +3,10 @@
 ## Unreleased
 
 
+## 15.6.4 - 2021/3/22
+
+- updated to @applitools/eyes-sdk-core@12.16.3 (from 12.16.2)
+
 ## 15.6.3 - 2021/3/17
 
 - updated to @applitools/jsdom@1.0.3 (from 1.0.2)
