@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- add `general.toJSON` one argument signature to convert class instances to plain objects
 
 ## 1.1.0 - 2021/3/24
 
