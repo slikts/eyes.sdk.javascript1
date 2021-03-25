@@ -10,6 +10,11 @@ yargs
     command: '*',
     builder: yargs =>
       yargs.options({
+        unlink: {
+          description: 'Unlink packages instead of linking them',
+          type: 'boolean',
+          default: false,
+        },
         packagePath: {
           alias: ['package'],
           description: 'Path to the target package',
@@ -40,10 +45,10 @@ yargs
           description: 'Package names to not link',
           type: 'array',
         },
-        unlink: {
-          description: 'Unlink packages instead of linking them',
-          type: 'boolean',
-          default: false,
+        maxDepth: {
+          alias: ['depth'],
+          type: 'number',
+          default: 0,
         },
       }),
     handler: async args => {
@@ -65,6 +70,7 @@ async function link({
   packagesPath = path.resolve(packagePath, '..'),
   runInstall = false,
   runBuild = true,
+  maxDepth = 0,
 } = {}) {
   const target = await getPackage(packagePath)
   if (!target) process.exit(1)
@@ -75,14 +81,26 @@ async function link({
 
   results.forEach(result => {
     if (result.error) {
-      console.error(chalk.redBright(`${chalk.bold.yellow(result.name)} wasn't linked due to error`))
+      console.error(
+        chalk.redBright(
+          `${chalk.bold.yellow(result.dependency.name)} wasn't linked to ${chalk.bold.yellow(
+            result.target.name,
+          )} due to error`,
+        ),
+      )
       console.error(result.error)
       process.exit(1)
     }
-    console.log(chalk.greenBright(`${chalk.bold.cyan(result.name)} was successfully linked`))
+    console.log(
+      chalk.greenBright(
+        `${chalk.bold.cyan(result.dependency.name)} was successfully linked to ${chalk.bold.cyan(
+          result.target.name,
+        )}`,
+      ),
+    )
   })
 
-  async function task(target, packages) {
+  async function task(target, packages, {depth = 0} = {}) {
     const dependencies = target.dependencies
       .filter(dependencyName => packages.has(dependencyName))
       .map(dependencyName => packages.get(dependencyName))
@@ -94,7 +112,8 @@ async function link({
         if (runBuild && dependency.hasBuild) commands.push(`yarn build`)
         commands.push(`cd ${target.path}`, `yarn link ${dependency.name}`)
         exec(commands.join(' && '), {cwd: dependency.path}, async error => {
-          const results = !error ? await task(dependency, packages) : []
+          const results =
+            !error && depth <= maxDepth ? await task(dependency, packages, {depth: depth + 1}) : []
           resolve([{target, dependency, error}, ...results])
         })
       })
@@ -150,7 +169,7 @@ async function getPackage(packagePath) {
   if (!manifest) return null
   return {
     name: manifest.name,
-    alias: path.dirname(packagePath),
+    alias: path.basename(packagePath),
     path: packagePath,
     dependencies: Object.keys({
       ...manifest.dependencies,
