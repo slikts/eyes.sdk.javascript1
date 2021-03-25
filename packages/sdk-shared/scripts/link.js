@@ -111,7 +111,7 @@ async function link({
         if (runInstall) commands.push(`yarn install`)
         if (runBuild && dependency.hasBuild) commands.push(`yarn build`)
         commands.push(`cd ${target.path}`, `yarn link ${dependency.name}`)
-        exec(commands.join(' && '), {cwd: dependency.path}, async error => {
+        exec(commands.join(' && sleep 5 && '), {cwd: dependency.path}, async error => {
           const results =
             !error && depth <= maxDepth ? await task(dependency, packages, {depth: depth + 1}) : []
           resolve([{target, dependency, error}, ...results])
