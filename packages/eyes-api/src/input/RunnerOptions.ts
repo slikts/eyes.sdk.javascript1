@@ -15,8 +15,13 @@ export class RunnerOptionsFluent {
   }
 
   /** @internal */
-  toJSON(): RunnerOptions {
+  toObject(): RunnerOptions {
     return this._options
+  }
+
+  /** @internal */
+  toJSON(): RunnerOptions {
+    return utils.general.toJSON(this._options)
   }
 
   /** @internal */

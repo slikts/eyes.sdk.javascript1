@@ -8,86 +8,72 @@ type CutProviderRect = {
 }
 
 type CutProviderRegion = {
-  width: number
-  height: number
   x: number
   y: number
+  width: number
+  height: number
 }
 
 export type CutProvider = CutProviderRect | CutProviderRegion
 
 export class CutProviderData implements Required<CutProviderRegion & CutProviderRect> {
-  private _top: number
-  private _right: number
-  private _bottom: number
-  private _left: number
+  private _region: CutProviderRegion
+  private _rect: CutProviderRect
 
-  private _width: number
-  private _height: number
-  private _x: number
-  private _y: number
-
-  constructor(settings: CutProvider)
+  constructor(rectOrRegion: CutProvider)
   constructor(top: number, bottom: number, left: number, right: number)
-  constructor(settingsOrTop: CutProvider | number, bottom?: number, left?: number, right?: number) {
-    if (utils.types.isNumber(settingsOrTop)) {
-      return new CutProviderData({top: settingsOrTop, bottom, left, right})
+  constructor(rectOrRegionOrTop: CutProvider | number, bottom?: number, left?: number, right?: number) {
+    if (utils.types.isNumber(rectOrRegionOrTop)) {
+      return new CutProviderData({top: rectOrRegionOrTop, bottom, left, right})
     }
 
-    const settings = settingsOrTop
-    if (utils.types.has(settings, ['top', 'right', 'bottom', 'left'])) {
-      this._top = settings.top
-      this._right = settings.right
-      this._bottom = settings.bottom
-      this._left = settings.left
-    } else if (utils.types.has(settings, ['width', 'height', 'x', 'y'])) {
-      this._width = settings.width
-      this._height = settings.height
-      this._x = settings.x
-      this._y = settings.y
+    if (utils.types.has(rectOrRegionOrTop, ['top', 'right', 'bottom', 'left'])) {
+      this._rect = rectOrRegionOrTop
+    } else if (utils.types.has(rectOrRegionOrTop, ['width', 'height', 'x', 'y'])) {
+      this._region = rectOrRegionOrTop
     }
   }
 
   get top() {
-    return this._top
+    return this._rect.top
   }
   get right() {
-    return this._right
+    return this._rect.right
   }
   get bottom() {
-    return this._bottom
+    return this._rect.bottom
   }
   get left() {
-    return this._left
+    return this._rect.left
   }
 
   get width() {
-    return this._width
+    return this._region.width
   }
   get height() {
-    return this._height
+    return this._region.height
   }
   get x() {
-    return this._x
+    return this._region.x
   }
   get y() {
-    return this._y
+    return this._region.y
   }
 
   scale(scaleRatio: number): CutProviderData {
-    if (!utils.types.isNull(this._top)) {
+    if (this._rect) {
       return new CutProviderData({
-        top: this._top * scaleRatio,
-        right: this._right * scaleRatio,
-        bottom: this._bottom * scaleRatio,
-        left: this._left * scaleRatio,
+        top: this._rect.top * scaleRatio,
+        right: this._rect.right * scaleRatio,
+        bottom: this._rect.bottom * scaleRatio,
+        left: this._rect.left * scaleRatio,
       })
-    } else if (!utils.types.isNull(this._width)) {
+    } else if (this._region) {
       return new CutProviderData({
-        width: this._width * scaleRatio,
-        height: this._height * scaleRatio,
-        x: this._x * scaleRatio,
-        y: this._y * scaleRatio,
+        width: this._region.width * scaleRatio,
+        height: this._region.height * scaleRatio,
+        x: this._region.x * scaleRatio,
+        y: this._region.y * scaleRatio,
       })
     } else {
       return new CutProviderData({top: 0, right: 0, bottom: 0, left: 0})
@@ -95,12 +81,13 @@ export class CutProviderData implements Required<CutProviderRegion & CutProvider
   }
 
   /** @internal */
-  toJSON(): Required<CutProvider> {
-    if (!utils.types.isNull(this._width)) {
-      return utils.general.toJSON(this, ['width', 'height', 'x', 'y'])
-    } else {
-      return utils.general.toJSON(this, ['top', 'right', 'bottom', 'left'])
-    }
+  toObject(): CutProvider {
+    return this._region ? this._region : this._rect
+  }
+
+  /** @internal */
+  toJSON(): CutProvider {
+    return utils.general.toJSON(this._region ? this._region : this._rect) as CutProvider
   }
 
   /** @internal */

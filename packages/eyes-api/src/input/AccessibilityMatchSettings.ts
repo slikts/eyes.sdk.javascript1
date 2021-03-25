@@ -8,74 +8,88 @@ export type AccessibilityMatchSettings = {
 }
 
 export class AccessibilityMatchSettingsData implements Required<AccessibilityMatchSettings> {
-  private _region: RegionData
-  private _type: AccessibilityRegionType
+  private _settings: AccessibilityMatchSettings = {} as any
 
-  constructor(accessibilityRegion: AccessibilityMatchSettings)
+  constructor(settings: AccessibilityMatchSettings)
   constructor(x: number, y: number, width: number, height: number, type?: AccessibilityRegionType)
   constructor(
-    accessibilityRegionOrX: AccessibilityMatchSettings | number,
+    settingsOrX: AccessibilityMatchSettings | number,
     y?: number,
     width?: number,
     height?: number,
     type?: AccessibilityRegionType,
   ) {
-    if (utils.types.isNumber(accessibilityRegionOrX)) {
-      return new AccessibilityMatchSettingsData({region: {x: accessibilityRegionOrX, y, width, height}, type})
+    if (utils.types.isNumber(settingsOrX)) {
+      return new AccessibilityMatchSettingsData({region: {x: settingsOrX, y, width, height}, type})
     }
-    this.region = accessibilityRegionOrX.region
-    this.type = accessibilityRegionOrX.type
+    this.region = settingsOrX.region
+    this.type = settingsOrX.type
   }
 
   get region(): Region {
-    return this._region
+    return this._settings.region
   }
   set region(region: Region) {
     utils.guard.isObject(region, {name: 'region'})
-    this._region = new RegionData(region)
+    this._settings.region = region
   }
   getRegion(): RegionData {
-    return this._region
+    return new RegionData(this._settings.region)
   }
   setRegion(region: Region) {
     this.region = region
   }
   getLeft(): number {
-    return this._region.getLeft()
+    return this.region.x
   }
   setLeft(left: number) {
-    this._region.setLeft(left)
+    this.region.x = left
   }
   getTop(): number {
-    return this._region.getTop()
+    return this.region.y
   }
   setTop(top: number) {
-    this._region.setTop(top)
+    this.region.y = top
   }
   getWidth(): number {
-    return this._region.getWidth()
+    return this.region.width
   }
   setWidth(width: number) {
-    this._region.setWidth(width)
+    this.region.width = width
   }
   getHeight(): number {
-    return this._region.getHeight()
+    return this.region.height
   }
   setHeight(height: number) {
-    this._region.setHeight(height)
+    this.region.height = height
   }
 
   get type(): AccessibilityRegionType {
-    return this._type
+    return this._settings.type
   }
   set type(type: AccessibilityRegionType) {
     utils.guard.isEnumValue(type, AccessibilityRegionType, {name: 'type', strict: false})
-    this._type = type
+    this._settings.type = type
   }
   getType(): AccessibilityRegionType {
-    return this._type
+    return this.type
   }
   setType(type: AccessibilityRegionType) {
     this.type = type
+  }
+
+  /** @internal */
+  toObject(): AccessibilityMatchSettings {
+    return this._settings
+  }
+
+  /** @internal */
+  toJSON(): AccessibilityMatchSettings {
+    return utils.general.toJSON(this._settings)
+  }
+
+  /** @internal */
+  toString(): string {
+    return utils.general.toString(this)
   }
 }

@@ -84,11 +84,10 @@ export class TestResultsData implements Required<TestResults> {
   constructor(results?: TestResults, deleteTestResults?: (result: TestResults) => Promise<void>) {
     if (!results) return this
     this._deleteTestResults = deleteTestResults
+    if (results instanceof TestResultsData) results = results.toJSON()
     const self = this as any
     for (const [key, value] of Object.entries(results)) {
-      if (key in this && !key.startsWith('_')) {
-        self[key] = value
-      }
+      if (value) self[key] = value
     }
   }
 

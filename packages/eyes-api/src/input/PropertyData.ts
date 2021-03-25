@@ -6,40 +6,60 @@ export type PropertyData = {
 }
 
 export class PropertyDataData implements Required<PropertyData> {
-  private _name: string
-  private _value: string
+  private _property: PropertyData
 
-  constructor(prop: PropertyData)
+  constructor(property: PropertyData)
   constructor(name: string, value: string)
-  constructor(propOrName: PropertyData | string, value?: string) {
-    if (utils.types.isString(propOrName)) {
-      return new PropertyDataData({name: propOrName, value})
+  constructor(propertyOrName: PropertyData | string, value?: string) {
+    if (utils.types.isString(propertyOrName)) {
+      utils.guard.isString(propertyOrName, {name: 'name'})
+      utils.guard.notNull(value, {name: 'value'})
+      this._property = {name: propertyOrName, value}
+    } else {
+      utils.guard.isString(propertyOrName.name, {name: 'property.name'})
+      utils.guard.notNull(propertyOrName.value, {name: 'property.value'})
+      this._property = propertyOrName
     }
-    const prop = propOrName
-    utils.guard.isString(prop.name, {name: 'prop.name'})
-    utils.guard.notNull(prop.value, {name: 'prop.value'})
-
-    this._name = prop.name
-    this._value = prop.value
   }
 
   get name(): string {
-    return this._name
+    return this._property.name
+  }
+  set name(name: string) {
+    this._property.name = name
   }
   getName(): string {
-    return this._name
+    return this.name
   }
   setName(name: string) {
-    this._name = name
+    this.name = name
   }
 
   get value(): string {
-    return this._value
+    return this._property.value
+  }
+  set value(value: string) {
+    this._property.value = value
   }
   getValue(): string {
-    return this._value
+    return this.value
   }
   setValue(value: string) {
-    this._value = value
+    this.value = value
+  }
+
+  /** @internal */
+  toObject(): PropertyData {
+    return this._property
+  }
+
+  /** @internal */
+  toJSON(): PropertyData {
+    return utils.general.toJSON(this._property)
+  }
+
+  /** @internal */
+  toString() {
+    return utils.general.toString(this)
   }
 }

@@ -12,13 +12,9 @@ export type FloatingMatchSettings = {
 
 /** @undocumented */
 export class FloatingMatchSettingsData implements Required<FloatingMatchSettings> {
-  private _region: RegionData
-  private _maxUpOffset: number
-  private _maxDownOffset: number
-  private _maxLeftOffset: number
-  private _maxRightOffset: number
+  private _settings: FloatingMatchSettings
 
-  constructor(floatingRegion: FloatingMatchSettings)
+  constructor(settings: FloatingMatchSettings)
   constructor(
     x: number,
     y: number,
@@ -30,7 +26,7 @@ export class FloatingMatchSettingsData implements Required<FloatingMatchSettings
     maxRightOffset: number,
   )
   constructor(
-    floatingRegionOrX: FloatingMatchSettings | number,
+    settingsOrX: FloatingMatchSettings | number,
     y?: number,
     width?: number,
     height?: number,
@@ -39,16 +35,16 @@ export class FloatingMatchSettingsData implements Required<FloatingMatchSettings
     maxLeftOffset?: number,
     maxRightOffset?: number,
   ) {
-    if (utils.types.isNumber(floatingRegionOrX)) {
+    if (utils.types.isNumber(settingsOrX)) {
       return new FloatingMatchSettingsData({
-        region: {x: floatingRegionOrX, y, width, height},
+        region: {x: settingsOrX, y, width, height},
         maxUpOffset,
         maxDownOffset,
         maxLeftOffset,
         maxRightOffset,
       })
     }
-    this.region = floatingRegionOrX.region
+    this.region = settingsOrX.region
     this.maxUpOffset = maxUpOffset
     this.maxDownOffset = maxDownOffset
     this.maxLeftOffset = maxLeftOffset
@@ -56,96 +52,111 @@ export class FloatingMatchSettingsData implements Required<FloatingMatchSettings
   }
 
   get region(): Region {
-    return this._region
+    return this._settings.region
   }
   set region(region: Region) {
     utils.guard.isObject(region, {name: 'region'})
-    this._region = new RegionData(region)
+    this._settings.region = new RegionData(region)
   }
   getRegion(): RegionData {
-    return this._region
+    return new RegionData(this.region)
   }
   setRegion(region: Region) {
     this.region = region
   }
   getLeft(): number {
-    return this._region.getLeft()
+    return this.region.x
   }
   setLeft(left: number) {
-    this._region.setLeft(left)
+    this.region.x = left
   }
-  retTop(): number {
-    return this._region.getTop()
+  getTop(): number {
+    return this.region.y
   }
   setTop(top: number) {
-    this._region.setTop(top)
+    this.region.y = top
   }
   getWidth(): number {
-    return this._region.getWidth()
+    return this.region.width
   }
   setWidth(width: number) {
-    this._region.setWidth(width)
+    this.region.width = width
   }
   getHeight(): number {
-    return this._region.getHeight()
+    return this.region.height
   }
   setHeight(height: number) {
-    this._region.setHeight(height)
+    this.region.height = height
   }
 
   get maxUpOffset(): number {
-    return this._maxUpOffset
+    return this._settings.maxUpOffset
   }
   set maxUpOffset(maxUpOffset: number) {
     utils.guard.isNumber(maxUpOffset, {name: 'maxUpOffset'})
-    this._maxUpOffset = maxUpOffset
+    this._settings.maxUpOffset = maxUpOffset
   }
   getMaxUpOffset(): number {
-    return this._maxUpOffset
+    return this.maxUpOffset
   }
   setMaxUpOffset(maxUpOffset: number) {
     this.maxUpOffset = maxUpOffset
   }
 
   get maxDownOffset(): number {
-    return this._maxDownOffset
+    return this._settings.maxDownOffset
   }
   set maxDownOffset(maxDownOffset: number) {
     utils.guard.isNumber(maxDownOffset, {name: 'maxDownOffset'})
-    this._maxDownOffset = maxDownOffset
+    this._settings.maxDownOffset = maxDownOffset
   }
   getMaxDownOffset(): number {
-    return this._maxDownOffset
+    return this.maxDownOffset
   }
   setMaxDownOffset(maxDownOffset: number) {
     this.maxDownOffset = maxDownOffset
   }
 
   get maxLeftOffset(): number {
-    return this._maxLeftOffset
+    return this._settings.maxLeftOffset
   }
   set maxLeftOffset(maxLeftOffset: number) {
     utils.guard.isNumber(maxLeftOffset, {name: 'maxLeftOffset'})
-    this._maxLeftOffset = maxLeftOffset
+    this._settings.maxLeftOffset = maxLeftOffset
   }
   getMaxLeftOffset(): number {
-    return this._maxLeftOffset
+    return this.maxLeftOffset
   }
   setMaxLeftOffset(maxLeftOffset: number) {
     this.maxLeftOffset = maxLeftOffset
   }
 
   get maxRightOffset(): number {
-    return this._maxRightOffset
+    return this._settings.maxRightOffset
   }
   set maxRightOffset(maxRightOffset: number) {
     utils.guard.isNumber(maxRightOffset, {name: 'maxRightOffset'})
-    this._maxRightOffset = maxRightOffset
+    this._settings.maxRightOffset = maxRightOffset
   }
   getMaxRightOffset(): number {
-    return this._maxRightOffset
+    return this.maxRightOffset
   }
   setMaxRightOffset(maxRightOffset: number) {
     this.maxRightOffset = maxRightOffset
+  }
+
+  /** @internal */
+  toObject(): FloatingMatchSettings {
+    return this._settings
+  }
+
+  /** @internal */
+  toJSON(): FloatingMatchSettings {
+    return utils.general.toJSON(this._settings)
+  }
+
+  /** @internal */
+  toString(): string {
+    return utils.general.toString(this)
   }
 }
