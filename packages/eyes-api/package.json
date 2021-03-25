@@ -34,7 +34,7 @@
   "types": "./types/index.d.ts",
   "dependencies": {
     "@applitools/logger": "0.0.2",
-    "@applitools/utils": "1.1.0"
+    "@applitools/utils": "1.1.1"
   },
   "devDependencies": {
     "@applitools/sdk-release-kit": "0.13.0",

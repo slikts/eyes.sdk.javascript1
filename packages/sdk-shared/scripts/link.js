@@ -3,6 +3,7 @@ const path = require('path')
 const chalk = require('chalk')
 const {exec} = require('child_process')
 const yargs = require('yargs')
+const { resolve } = require('path')
 
 yargs
   .usage('yarn link [options]')
@@ -106,19 +107,26 @@ async function link({
       .map(dependencyName => packages.get(dependencyName))
 
     return dependencies.reduce(async (promise, dependency) => {
-      const chunk = await new Promise(resolve => {
-        const commands = [`yarn link`]
-        if (runInstall) commands.push(`yarn install`)
-        if (runBuild && dependency.hasBuild) commands.push(`yarn build`)
-        commands.push(`cd ${target.path}`, `yarn link ${dependency.name}`)
-        exec(commands.join(' && sleep 5 && '), {cwd: dependency.path}, async error => {
+      let [result, ...nestedResults] = await new Promise(resolve => {
+        const commands = []
+        if (runInstall) commands.push('yarn install')
+        if (runBuild && dependency.hasBuild) commands.push('yarn build')
+        commands.push('yarn link')
+        exec(commands.join(' && '), {cwd: dependency.path}, async error => {
           const results =
             !error && depth <= maxDepth ? await task(dependency, packages, {depth: depth + 1}) : []
           resolve([{target, dependency, error}, ...results])
         })
       })
+      if (!result.error) {
+        result = await new Promise(resolve => {
+          exec(`yarn link ${dependency.name}`, {cwd: target.path}, error => {
+            resolve({target, dependency, error})
+          })
+        })
+      }
       const results = await promise
-      return results.concat(chunk)
+      return results.concat(result, nestedResults)
     }, Promise.resolve([]))
   }
 }
