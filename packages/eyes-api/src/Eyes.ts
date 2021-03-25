@@ -219,15 +219,15 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   ): Promise<TDriver> {
     const config = this._config.toJSON()
     if (utils.types.instanceOf(configOrAppName, ConfigurationData)) {
-      Object.assign(config, configOrAppName.open)
+      Object.assign(config, configOrAppName.toJSON())
     } else if (utils.types.isObject(configOrAppName)) {
       Object.assign(config, configOrAppName)
     } else if (utils.types.isString(configOrAppName)) {
       config.appName = configOrAppName
     }
     if (utils.types.isString(testName)) config.testName = testName
-    if (utils.types.isString(viewportSize)) config.viewportSize = viewportSize
-    if (utils.types.isString(sessionType)) config.sessionType = sessionType
+    if (utils.types.has(viewportSize, ['width', 'height'])) config.viewportSize = viewportSize
+    if (utils.types.isEnumValue(sessionType, SessionType)) config.sessionType = sessionType
 
     this._driver = driver
     this._commands = await this._runner.open({

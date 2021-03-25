@@ -21,13 +21,13 @@ function makeOpen({sdk, runner}) {
     }
     if (config.rotation) eyes.setRotation(config.rotation)
     if (config.scaleRatio) eyes.setScaleRatio(config.scaleRatio)
-    if (config.saveDebugScreenshots) {
-      eyes.setSaveDebugScreenshots(config.saveDebugScreenshots.save)
-      if (config.saveDebugScreenshots.path) {
-        eyes.setDebugScreenshotsPath(config.saveDebugScreenshots.path)
+    if (config.debugScreenshots) {
+      eyes.setSaveDebugScreenshots(config.debugScreenshots.save)
+      if (config.debugScreenshots.path) {
+        eyes.setDebugScreenshotsPath(config.debugScreenshots.path)
       }
-      if (config.saveDebugScreenshots.prefix) {
-        eyes.setDebugScreenshotsPrefix(config.saveDebugScreenshots.prefix)
+      if (config.debugScreenshots.prefix) {
+        eyes.setDebugScreenshotsPrefix(config.debugScreenshots.prefix)
       }
     }
     if (config.remoteEvents) {
