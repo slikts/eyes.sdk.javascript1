@@ -246,7 +246,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   }
 
   /** @deprecated */
-  async checkWindow(name?: string, timeout?: number, fully = true) {
+  async checkWindow(name?: string, timeout?: number, fully = false) {
     return this.check({name, timeout, fully})
   }
   /** @deprecated */
