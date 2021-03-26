@@ -7,7 +7,7 @@ import {TestResultsContainer, TestResultsContainerData} from './TestResultsConta
 export type TestResultsSummary = Iterable<TestResultsContainer>
 
 export class TestResultsSummaryData implements TestResultsSummary {
-  private _results: TestResultsContainerData[]
+  private _results: TestResultsContainerData[] = []
   private _passed = 0
   private _unresolved = 0
   private _failed = 0

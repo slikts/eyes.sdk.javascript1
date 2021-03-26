@@ -30,7 +30,7 @@ export class BatchInfoData implements Required<BatchInfo> {
     return this._batch.id
   }
   set id(id: string) {
-    utils.guard.isString(id, {name: 'id'})
+    utils.guard.isString(id, {name: 'id', strict: false})
     this._batch.id = id
   }
   getId(): string {
