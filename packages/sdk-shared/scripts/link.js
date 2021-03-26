@@ -109,7 +109,7 @@ async function link({
     return dependencies.reduce(async (promise, dependency) => {
       let [result, ...nestedResults] = await new Promise(resolve => {
         const commands = []
-        if (runInstall) commands.push('yarn install')
+        if (runInstall) commands.push('yarn install && sleep 20')
         if (runBuild && dependency.hasBuild) commands.push('yarn build')
         commands.push('yarn link')
         exec(commands.join(' && '), {cwd: dependency.path}, async error => {
