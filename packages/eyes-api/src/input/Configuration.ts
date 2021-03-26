@@ -776,44 +776,50 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     return this
   }
   getMatchLevel(): MatchLevel {
-    return this.defaultMatchSettings.matchLevel
+    return this.defaultMatchSettings?.matchLevel
   }
   setMatchLevel(matchLevel: MatchLevel): this {
+    if (!this.defaultMatchSettings) this.defaultMatchSettings = {}
     this.defaultMatchSettings.matchLevel = matchLevel
     return this
   }
   getAccessibilityValidation(): AccessibilitySettings {
-    return this.defaultMatchSettings.accessibilitySettings
+    return this.defaultMatchSettings?.accessibilitySettings
   }
   setAccessibilityValidation(accessibilityValidation: AccessibilitySettings): this {
+    if (!this.defaultMatchSettings) this.defaultMatchSettings = {}
     this.defaultMatchSettings.accessibilitySettings = accessibilityValidation
     return this
   }
   getUseDom(): boolean {
-    return this.defaultMatchSettings.useDom
+    return this.defaultMatchSettings?.useDom
   }
   setUseDom(useDom: boolean): this {
+    if (!this.defaultMatchSettings) this.defaultMatchSettings = {}
     this.defaultMatchSettings.useDom = useDom
     return this
   }
   getEnablePatterns(): boolean {
-    return this.defaultMatchSettings.enablePatterns
+    return this.defaultMatchSettings?.enablePatterns
   }
   setEnablePatterns(enablePatterns: boolean): this {
+    if (!this.defaultMatchSettings) this.defaultMatchSettings = {}
     this.defaultMatchSettings.enablePatterns = enablePatterns
     return this
   }
   getIgnoreDisplacements(): boolean {
-    return this.defaultMatchSettings.ignoreDisplacements
+    return this.defaultMatchSettings?.ignoreDisplacements
   }
   setIgnoreDisplacements(ignoreDisplacements: boolean): this {
+    if (!this.defaultMatchSettings) this.defaultMatchSettings = {}
     this.defaultMatchSettings.ignoreDisplacements = ignoreDisplacements
     return this
   }
   getIgnoreCaret(): boolean {
-    return this.defaultMatchSettings.ignoreCaret
+    return this.defaultMatchSettings?.ignoreCaret
   }
   setIgnoreCaret(ignoreCaret: boolean): this {
+    if (!this.defaultMatchSettings) this.defaultMatchSettings = {}
     this.defaultMatchSettings.ignoreCaret = ignoreCaret
     return this
   }

@@ -15,6 +15,7 @@ export class BatchInfoData implements Required<BatchInfo> {
   constructor(batch?: BatchInfo)
   constructor(name?: string, startedAt?: Date | string, id?: string)
   constructor(batchOrName?: BatchInfo | string, startedAt?: Date | string, id?: string) {
+    if (!batchOrName) return this
     if (utils.types.isString(batchOrName)) {
       return new BatchInfoData({name: batchOrName, id, startedAt: startedAt})
     }

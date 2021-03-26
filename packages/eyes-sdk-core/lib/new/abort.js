@@ -1,6 +1,7 @@
 function makeAbort({eyes}) {
   return async function abort() {
-    const result = await eyes.abort()
+    let result = await eyes.abort()
+    if (Array.isArray(result)) [result] = result
     return result ? result.toJSON() : null
   }
 }
