@@ -4,6 +4,7 @@ import SessionType from './enums/SessionType'
 import StitchMode from './enums/StitchMode'
 import MatchLevel from './enums/MatchLevel'
 import TestResultsStatus from './enums/TestResultsStatus'
+import EyesError from './errors/EyesError'
 import NewTestError from './errors/NewTestError'
 import DiffsFoundError from './errors/DiffsFoundError'
 import TestFailedError from './errors/TestFailedError'
@@ -317,19 +318,16 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   }
 
   async close(throwErr = true): Promise<TestResultsData> {
-    if (!this.isOpen) return null
+    if (this._config.isDisabled) return null
+    if (!this.isOpen) throw new EyesError('Eyes not open')
     const results = new TestResultsData(await this._commands.close(), results => this._spec.deleteTestResults(results))
     this._commands = null
     if (throwErr) {
-      const testName = `Test '${results.name}' of '${results.appName}'`
       if (results.status === TestResultsStatus.Unresolved) {
-        if (results.isNew) {
-          throw new NewTestError(`${testName}! Please approve the new baseline at ${results.url}`, results)
-        } else {
-          throw new DiffsFoundError(`${testName} detected differences! See details at: ${results.url}`, results)
-        }
+        if (results.isNew) throw new NewTestError(results)
+        else throw new DiffsFoundError(results)
       } else if (results.status === TestResultsStatus.Failed) {
-        throw new TestFailedError(`${testName} is failed! See details at ${results.url}`, results)
+        throw new TestFailedError(results)
       }
     }
     return results
@@ -340,7 +338,8 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   }
 
   async abort(): Promise<TestResultsData> {
-    if (!this.isOpen) return null
+    if (this._config.isDisabled) return null
+    if (!this.isOpen) throw new EyesError('Eyes not open')
     const results = new TestResultsData(await this._commands.abort(), results => this._spec.deleteTestResults(results))
     this._commands = null
     return results

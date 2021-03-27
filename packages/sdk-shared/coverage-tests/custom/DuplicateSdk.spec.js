@@ -21,7 +21,7 @@ describe('Coverage tests', () => {
   })
 
   it('resilient to duplicate copies of the SDK', async () => {
-    const {sdkPath, cleanup} = await createCopyOfSdk(cwd)
+    const {sdkPath, cleanup} = await createCopyOfSdk(path.join(cwd, 'dist'))
 
     await spec.visit(driver, 'https://applitools.github.io/demo/TestPages/FramesTestPage/')
 

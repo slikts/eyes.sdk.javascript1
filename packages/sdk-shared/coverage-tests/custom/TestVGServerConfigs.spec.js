@@ -43,7 +43,7 @@ describe('TestVGServerConfigs', () => {
 
     await eyes.open(webDriver)
     await eyes.close()
-    await expect(eyes.close()).to.be.rejectedWith(Error, 'IllegalState: Eyes not open')
+    await expect(eyes.close()).to.be.rejectedWith(Error, 'Eyes not open')
   })
 
   it(`TestMobileWeb_VG`, async () => {
