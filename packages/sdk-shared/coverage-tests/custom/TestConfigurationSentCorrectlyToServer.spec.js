@@ -26,7 +26,7 @@ describe('TestEyesConfiguration', async () => {
       if (data.sequenceNameEnvVar !== undefined) {
         process.env.APPLITOOLS_BATCH_SEQUENCE = data.sequenceNameEnvVar
       }
-      let batchInfo = new BatchInfo()
+      let batchInfo = new BatchInfo({id: `batch-id-${Math.floor(Math.random() * 100000)}`})
       let effectiveSequenceName = data.sequenceName ? data.sequenceName : data.sequenceNameEnvVar
 
       if (data.sequenceName !== undefined) {
@@ -72,8 +72,6 @@ describe('TestEyesConfiguration', async () => {
 
       assert.deepStrictEqual(sessionResults.env.os, 'someHostOS', 'OS')
       assert.deepStrictEqual(sessionResults.env.hostingApp, 'someHostApp', 'Hosting App')
-
-      console.log(sessionResults.startInfo.batchInfo, batchInfo)
 
       assert.deepStrictEqual(
         sessionResults.startInfo.batchInfo.sequenceName ||
