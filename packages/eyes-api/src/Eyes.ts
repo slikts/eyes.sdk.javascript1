@@ -338,8 +338,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   }
 
   async abort(): Promise<TestResultsData> {
-    if (this._config.isDisabled) return null
-    if (!this.isOpen) throw new EyesError('Eyes not open')
+    if (this._config.isDisabled || !this.isOpen) return null
     const results = new TestResultsData(await this._commands.abort(), results => this._spec.deleteTestResults(results))
     this._commands = null
     return results
