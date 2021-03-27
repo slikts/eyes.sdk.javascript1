@@ -57,6 +57,16 @@ export class TestResultsSummaryData implements TestResultsSummary {
   }
 
   /** @internal */
+  toObject(): TestResultsSummary {
+    return this._results
+  }
+
+  /** @internal */
+  toJSON(): Array<TestResultsContainer> {
+    return this._results.map(container => utils.general.toJSON(container))
+  }
+
+  /** @internal */
   toString() {
     return (
       'result summary {' +

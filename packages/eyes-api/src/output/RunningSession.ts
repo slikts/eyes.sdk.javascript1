@@ -12,119 +12,112 @@ export type RunningSession = {
 }
 
 export class RunningSessionData implements Required<RunningSession> {
-  private _id: string
-  private _sessionId: string
-  private _batchId: string
-  private _baselineId: string
-  private _url: string
-  private _isNew: boolean
-  private _renderingInfo: RenderingInfoData
+  private _session: RunningSession = {} as any
 
   /** @internal */
-  constructor(runningSession: RunningSession) {
-    this._id = runningSession.id
-    this._sessionId = runningSession.sessionId
-    this._batchId = runningSession.batchId
-    this._baselineId = runningSession.baselineId
-    this._url = runningSession.url
-    this._isNew = runningSession.isNew
-    this._renderingInfo = new RenderingInfoData(runningSession.renderingInfo)
+  constructor(session: RunningSession) {
+    this._session = session instanceof RunningSessionData ? session.toJSON() : session
   }
 
   get id(): string {
-    return this._id
+    return this._session.id
   }
   set id(id: string) {
-    this._id = id
+    this._session.id = id
   }
   getId(): string {
-    return this._id
+    return this.id
   }
   setId(id: string) {
     this.id = id
   }
 
   get sessionId(): string {
-    return this._sessionId
+    return this._session.sessionId
   }
   set sessionId(sessionId: string) {
-    this._sessionId = sessionId
+    this._session.sessionId = sessionId
   }
   getSessionId(): string {
-    return this._sessionId
+    return this.sessionId
   }
   setSessionId(sessionId: string) {
     this.sessionId = sessionId
   }
 
   get batchId(): string {
-    return this._batchId
+    return this._session.batchId
   }
   set batchId(batchId: string) {
-    this._batchId = batchId
+    this._session.batchId = batchId
   }
   getBatchId(): string {
-    return this._batchId
+    return this.batchId
   }
   setBatchId(batchId: string) {
     this.batchId = batchId
   }
 
   get baselineId(): string {
-    return this._baselineId
+    return this._session.baselineId
   }
   set baselineId(baselineId: string) {
-    this._baselineId = baselineId
+    this._session.baselineId = baselineId
   }
   getBaselineId(): string {
-    return this._baselineId
+    return this.baselineId
   }
   setBaselineId(baselineId: string) {
     this.baselineId = baselineId
   }
 
   get url(): string {
-    return this._url
+    return this._session.url
   }
   set url(url: string) {
-    this._url = url
+    this._session.url = url
   }
   getUrl(): string {
-    return this._url
+    return this.url
   }
   setUrl(url: string) {
     this.url = url
   }
 
   get isNew(): boolean {
-    return this._isNew
+    return this._session.isNew
   }
   set isNew(isNew: boolean) {
-    this._isNew = isNew
+    this._session.isNew = isNew
   }
   getIsNew(): boolean {
-    return this._isNew
+    return this.isNew
   }
   setIsNew(isNew: boolean) {
     this.isNew = isNew
   }
 
   get renderingInfo(): RenderingInfo {
-    return this._renderingInfo
+    return this._session.renderingInfo
   }
   set renderingInfo(renderingInfo: RenderingInfo) {
-    this._renderingInfo = new RenderingInfoData(renderingInfo)
+    this._session.renderingInfo = renderingInfo
   }
   getRenderingInfo(): RenderingInfoData {
-    return this._renderingInfo
+    return new RenderingInfoData(this.renderingInfo)
   }
   setRenderingInfo(renderingInfo: RenderingInfo) {
     this.renderingInfo = renderingInfo
   }
 
   /** @internal */
-  toJSON(): Required<RunningSession> {
-    return utils.general.toJSON(this, ['id', 'sessionId', 'batchId', 'baselineId', 'url', 'isNew', 'renderingInfo'])
+  toObject(): RunningSession {
+    return this._session
+  }
+
+  /** @internal */
+  toJSON(): RunningSession {
+    return utils.general.toJSON(this._session)
   }
 
   /** @internal */

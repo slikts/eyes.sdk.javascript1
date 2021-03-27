@@ -6,45 +6,48 @@ export type SessionUrls = {
 }
 
 export class SessionUrlsData implements Required<SessionUrls> {
-  private _batch: string
-  private _session: string
+  private _urls: SessionUrls = {} as any
 
   /** @internal */
-  constructor(sessionUrls?: SessionUrls) {
-    if (!sessionUrls) return this
-    this.batch = sessionUrls.batch
-    this.session = sessionUrls.session
+  constructor(urls?: SessionUrls) {
+    if (!urls) return this
+    this._urls = urls instanceof SessionUrlsData ? urls.toJSON() : urls
   }
 
   get batch(): string {
-    return this._batch
+    return this._urls.batch
   }
   set batch(batch: string) {
-    this._batch = batch
+    this._urls.batch = batch
   }
   getBatch(): string {
-    return this._batch
+    return this.batch
   }
   setBatch(batch: string) {
     this.batch = batch
   }
 
   get session(): string {
-    return this._session
+    return this._urls.session
   }
   set session(session: string) {
-    this._session = session
+    this._urls.session = session
   }
   getSession(): string {
-    return this._session
+    return this.session
   }
   setSession(session: string) {
     this.session = session
   }
 
   /** @internal */
-  toJSON(): Required<SessionUrls> {
-    return utils.general.toJSON(this, ['batch', 'session'])
+  toObject(): SessionUrls {
+    return this._urls
+  }
+
+  /** @internal */
+  toJSON(): SessionUrls {
+    return utils.general.toJSON(this._urls)
   }
 
   /** @internal */

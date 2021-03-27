@@ -8,78 +8,76 @@ export type RenderingInfo = {
 }
 
 export class RenderingInfoData {
-  private _accessToken: string
-  private _serviceUrl: string
-  private _resultsUrl: string
-  private _stitchingServiceUrl: string
+  private _info: RenderingInfo = {} as any
 
   /** @internal */
-  constructor(renderingInfo: RenderingInfo) {
-    this._serviceUrl = renderingInfo.serviceUrl
-    this._accessToken = renderingInfo.accessToken
-    this._resultsUrl = renderingInfo.resultsUrl
-    this._stitchingServiceUrl = renderingInfo.stitchingServiceUrl
+  constructor(info: RenderingInfo) {
+    this._info = info instanceof RenderingInfoData ? info.toJSON() : info
   }
 
   get accessToken(): string {
-    return this._accessToken
+    return this._info.accessToken
   }
   set accessToken(accessToken: string) {
-    this._accessToken = accessToken
+    this._info.accessToken = accessToken
   }
   getAccessToken(): string {
-    return this._accessToken
+    return this.accessToken
   }
   setAccessToken(accessToken: string) {
     this.accessToken = accessToken
   }
+  getDecodedAccessToken(): {sub: string; exp: number; iss: string} {
+    return utils.general.jwtDecode(this._info.accessToken) as {sub: string; exp: number; iss: string}
+  }
 
   get serviceUrl(): string {
-    return this._serviceUrl
+    return this._info.serviceUrl
   }
   set serviceUrl(serviceUrl: string) {
-    this._serviceUrl = serviceUrl
+    this._info.serviceUrl = serviceUrl
   }
   getServiceUrl(): string {
-    return this._serviceUrl
+    return this.serviceUrl
   }
   setServiceUrl(serviceUrl: string) {
     this.serviceUrl = serviceUrl
   }
 
   get resultsUrl(): string {
-    return this._resultsUrl
+    return this._info.resultsUrl
   }
   set resultsUrl(resultsUrl: string) {
-    this._resultsUrl = resultsUrl
+    this._info.resultsUrl = resultsUrl
   }
   getResultsUrl(): string {
-    return this._resultsUrl
+    return this.resultsUrl
   }
   setResultsUrl(resultsUrl: string) {
     this.resultsUrl = resultsUrl
   }
 
   get stitchingServiceUrl(): string {
-    return this._stitchingServiceUrl
+    return this._info.stitchingServiceUrl
   }
   set stitchingServiceUrl(stitchingServiceUrl: string) {
-    this._stitchingServiceUrl = stitchingServiceUrl
+    this._info.stitchingServiceUrl = stitchingServiceUrl
   }
   getStitchingServiceUrl(): string {
-    return this._stitchingServiceUrl
+    return this.stitchingServiceUrl
   }
   setStitchingServiceUrl(stitchingServiceUrl: string) {
     this.stitchingServiceUrl = stitchingServiceUrl
   }
 
-  getDecodedAccessToken(): {sub: string; exp: number; iss: string} {
-    return utils.general.jwtDecode(this._accessToken) as {sub: string; exp: number; iss: string}
+  /** @internal */
+  toObject(): RenderingInfo {
+    return this._info
   }
 
   /** @internal */
-  toJSON(): Required<RenderingInfo> {
-    return utils.general.toJSON(this, ['accessToken', 'serviceUrl', 'resultsUrl', 'stitchingServiceUrl'])
+  toJSON(): RenderingInfo {
+    return utils.general.toJSON(this._info)
   }
 
   /** @internal */

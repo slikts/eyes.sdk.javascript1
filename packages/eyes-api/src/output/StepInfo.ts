@@ -13,127 +13,113 @@ export type StepInfo = {
 }
 
 export class StepInfoData implements Required<StepInfo> {
-  private _name: string
-  private _isDifferent: boolean
-  private _hasBaselineImage: boolean
-  private _hasCurrentImage: boolean
-  private _appUrls: AppUrlsData
-  private _apiUrls: ApiUrlsData
-  private _renderId: string[]
+  private _info: StepInfo = {} as any
 
   /** @internal */
-  constructor(stepInfo?: StepInfo) {
-    if (!stepInfo) return this
-    const self = this as any
-    for (const [key, value] of Object.entries(stepInfo)) {
-      if (key in this && !key.startsWith('_')) {
-        self[key] = value
-      }
-    }
+  constructor(info?: StepInfo) {
+    if (!info) return this
+    this._info = info instanceof StepInfoData ? info.toJSON() : info
   }
 
   get name(): string {
-    return this._name
+    return this._info.name
   }
   set name(value: string) {
-    this._name = value
+    this._info.name = value
   }
   getName(): string {
-    return this._name
+    return this.name
   }
   setName(value: string) {
     this.name = value
   }
 
   get isDifferent(): boolean {
-    return this._isDifferent
+    return this._info.isDifferent
   }
   set isDifferent(value: boolean) {
-    this._isDifferent = value
+    this._info.isDifferent = value
   }
   getIsDifferent(): boolean {
-    return this._isDifferent
+    return this.isDifferent
   }
   setIsDifferent(value: boolean) {
     this.isDifferent = value
   }
 
   get hasBaselineImage(): boolean {
-    return this._hasBaselineImage
+    return this._info.hasBaselineImage
   }
   set hasBaselineImage(value: boolean) {
-    this._hasBaselineImage = value
+    this._info.hasBaselineImage = value
   }
   getHasBaselineImage(): boolean {
-    return this._hasBaselineImage
+    return this.hasBaselineImage
   }
   setHasBaselineImage(value: boolean) {
     this.hasBaselineImage = value
   }
 
   get hasCurrentImage(): boolean {
-    return this._hasCurrentImage
+    return this._info.hasCurrentImage
   }
   set hasCurrentImage(hasCurrentImage: boolean) {
-    this._hasCurrentImage = hasCurrentImage
+    this._info.hasCurrentImage = hasCurrentImage
   }
   getHasCurrentImage(): boolean {
-    return this._hasCurrentImage
+    return this.hasCurrentImage
   }
   setHasCurrentImage(hasCurrentImage: boolean) {
     this.hasCurrentImage = hasCurrentImage
   }
 
   get appUrls(): AppUrls {
-    return this._appUrls
+    return this._info.appUrls
   }
   set appUrls(appUrls: AppUrls) {
-    this._appUrls = new AppUrlsData(appUrls)
+    this._info.appUrls = appUrls
   }
   getAppUrls(): AppUrlsData {
-    return this._appUrls
+    return new AppUrlsData(this.appUrls)
   }
-  setAppUrls(appUrls: AppUrls | AppUrlsData) {
+  setAppUrls(appUrls: AppUrls) {
     this.appUrls = appUrls
   }
 
   get apiUrls(): ApiUrls {
-    return this._apiUrls
+    return this._info.apiUrls
   }
   set apiUrls(apiUrls: ApiUrls) {
-    this._apiUrls = new ApiUrlsData(apiUrls)
+    this._info.apiUrls = apiUrls
   }
   getApiUrls(): ApiUrlsData {
-    return this._apiUrls
+    return new ApiUrlsData(this.apiUrls)
   }
   setApiUrls(apiUrls: ApiUrls) {
     this.apiUrls = apiUrls
   }
 
   get renderId(): string[] {
-    return this._renderId
+    return this._info.renderId
   }
   set renderId(renderId: string[]) {
-    this._renderId = renderId
+    this._info.renderId = renderId
   }
   getRenderId(): string[] {
-    return this._renderId
+    return this.renderId
   }
   setRenderId(renderId: string[]) {
     this.renderId = renderId
   }
 
   /** @internal */
-  toJSON(): Required<StepInfo> {
-    return utils.general.toJSON(this, [
-      'name',
-      'isDifferent',
-      'hasBaselineImage',
-      'hasCurrentImage',
-      'appUrls',
-      'apiUrls',
-      'renderId',
-    ])
+  toObject(): StepInfo {
+    return this._info
+  }
+
+  /** @internal */
+  toJSON(): StepInfo {
+    return utils.general.toJSON(this._info)
   }
 
   /** @internal */

@@ -6,45 +6,48 @@ export type AppUrls = {
 }
 
 export class AppUrlsData implements Required<AppUrls> {
-  private _step: string
-  private _stepEditor: string
+  private _urls: AppUrls = {} as any
 
   /** @internal */
-  constructor(appUrls?: AppUrls) {
-    if (!appUrls) return this
-    this.step = appUrls.step
-    this.stepEditor = appUrls.stepEditor
+  constructor(urls?: AppUrls) {
+    if (!urls) return this
+    this._urls = urls instanceof AppUrlsData ? urls.toJSON() : urls
   }
 
   get step(): string {
-    return this._step
+    return this._urls.step
   }
   set step(step: string) {
-    this._step = step
+    this._urls.step = step
   }
   getStep(): string {
-    return this._step
+    return this.step
   }
   setStep(step: string) {
     this.step = step
   }
 
   get stepEditor(): string {
-    return this._stepEditor
+    return this._urls.stepEditor
   }
   set stepEditor(stepEditor: string) {
-    this._stepEditor = stepEditor
+    this._urls.stepEditor = stepEditor
   }
   getStepEditor(): string {
-    return this._stepEditor
+    return this.stepEditor
   }
   setStepEditor(stepEditor: string) {
     this.stepEditor = stepEditor
   }
 
   /** @internal */
-  toJSON(): Required<AppUrls> {
-    return utils.general.toJSON(this, ['step', 'stepEditor'])
+  toObject(): AppUrls {
+    return this._urls
+  }
+
+  /** @internal */
+  toJSON(): AppUrls {
+    return utils.general.toJSON(this._urls)
   }
 
   /** @internal */

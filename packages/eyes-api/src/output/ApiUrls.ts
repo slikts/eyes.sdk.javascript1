@@ -9,96 +9,87 @@ export type ApiUrls = {
 }
 
 export class ApiUrlsData implements Required<ApiUrls> {
-  private _baselineImage: string
-  private _currentImage: string
-  private _checkpointImage: string
-  private _checkpointImageThumbnail: string
-  private _diffImage: string
+  private _urls: ApiUrls = {} as any
 
   /** @internal */
-  constructor(appUrls?: ApiUrls) {
-    if (appUrls) return this
-    this.baselineImage = appUrls.baselineImage
-    this.currentImage = appUrls.currentImage
-    this.checkpointImage = appUrls.checkpointImage
-    this.checkpointImageThumbnail = appUrls.checkpointImageThumbnail
-    this.diffImage = appUrls.diffImage
+  constructor(urls?: ApiUrls) {
+    if (!urls) return this
+    this._urls = urls instanceof ApiUrlsData ? urls.toJSON() : urls
   }
 
   get baselineImage(): string {
-    return this._baselineImage
+    return this._urls.baselineImage
   }
-  set baselineImage(value: string) {
-    this._baselineImage = value
+  set baselineImage(setBaselineImage: string) {
+    this._urls.baselineImage = setBaselineImage
   }
   getBaselineImage(): string {
-    return this._baselineImage
+    return this.baselineImage
   }
-  setBaselineImage(value: string) {
-    this._baselineImage = value
+  setBaselineImage(setBaselineImage: string) {
+    this.baselineImage = setBaselineImage
   }
 
   get currentImage(): string {
-    return this._currentImage
+    return this._urls.currentImage
   }
   set currentImage(currentImage: string) {
-    this._currentImage = currentImage
+    this._urls.currentImage = currentImage
   }
   getCurrentImage(): string {
-    return this._currentImage
+    return this.currentImage
   }
   setCurrentImage(currentImage: string) {
-    this._currentImage = currentImage
+    this.currentImage = currentImage
   }
 
   get checkpointImage(): string {
-    return this._checkpointImage
+    return this._urls.checkpointImage
   }
   set checkpointImage(checkpointImage: string) {
-    this._checkpointImage = checkpointImage
+    this._urls.checkpointImage = checkpointImage
   }
   getCheckpointImage(): string {
-    return this._checkpointImage
+    return this.checkpointImage
   }
   setCheckpointImage(checkpointImage: string) {
-    this._checkpointImage = checkpointImage
+    this.checkpointImage = checkpointImage
   }
 
   get checkpointImageThumbnail(): string {
-    return this._checkpointImageThumbnail
+    return this._urls.checkpointImageThumbnail
   }
   set checkpointImageThumbnail(checkpointImageThumbnail: string) {
-    this._checkpointImageThumbnail = checkpointImageThumbnail
+    this._urls.checkpointImageThumbnail = checkpointImageThumbnail
   }
   getCheckpointImageThumbnail(): string {
-    return this._checkpointImageThumbnail
+    return this.checkpointImageThumbnail
   }
   setCheckpointImageThumbnail(checkpointImageThumbnail: string) {
     this.checkpointImageThumbnail = checkpointImageThumbnail
   }
 
   get diffImage(): string {
-    return this._diffImage
+    return this._urls.diffImage
   }
   set diffImage(diffImage: string) {
-    this._diffImage = diffImage
+    this._urls.diffImage = diffImage
   }
   getDiffImage(): string {
-    return this._diffImage
+    return this.diffImage
   }
   setDiffImage(diffImage: string) {
     this.diffImage = diffImage
   }
 
   /** @internal */
-  toJSON(): Required<ApiUrls> {
-    return utils.general.toJSON(this, [
-      'baselineImage',
-      'currentImage',
-      'checkpointImage',
-      'checkpointImageThumbnail',
-      'diffImage',
-    ])
+  toObject(): ApiUrls {
+    return this._urls
+  }
+
+  /** @internal */
+  toJSON(): ApiUrls {
+    return utils.general.toJSON(this._urls)
   }
 
   /** @internal */

@@ -26,7 +26,7 @@ export type TestResults = {
   hostApp?: string
   hostDisplaySize?: RectangleSize
   accessibilityStatus?: TestAccessibilityStatus
-  startedAt?: string
+  startedAt?: Date | string
   duration?: number
   isNew?: boolean
   isDifferent?: boolean
@@ -47,446 +47,413 @@ export type TestResults = {
 }
 
 export class TestResultsData implements Required<TestResults> {
-  private _id: string
-  private _name: string
-  private _secretToken: string
-  private _status: TestResultsStatus
-  private _appName: string
-  private _batchName: string
-  private _batchId: string
-  private _branchName: string
-  private _hostOS: string
-  private _hostApp: string
-  private _hostDisplaySize: RectangleSizeData
-  private _accessibilityStatus: TestAccessibilityStatus
-  private _startedAt: Date
-  private _duration: number
-  private _isNew: boolean
-  private _isDifferent: boolean
-  private _isAborted: boolean
-  private _appUrls: SessionUrlsData
-  private _apiUrls: SessionUrlsData
-  private _stepsInfo: StepInfoData[]
-  private _steps: number
-  private _matches: number
-  private _mismatches: number
-  private _missing: number
-  private _exactMatches: number
-  private _strictMatches: number
-  private _contentMatches: number
-  private _layoutMatches: number
-  private _noneMatches: number
-  private _url: string
-
+  private _results: TestResults = {} as any
   private readonly _deleteTestResults: (result: TestResults) => Promise<void>
 
   /** @internal */
   constructor(results?: TestResults, deleteTestResults?: (result: TestResults) => Promise<void>) {
-    if (!results) return this
     this._deleteTestResults = deleteTestResults
-    if (results instanceof TestResultsData) results = results.toJSON()
-    const self = this as any
-    for (const [key, value] of Object.entries(results)) {
-      if (value) self[key] = value
-    }
+    if (!results) return this
+    this._results = results instanceof TestResultsData ? results.toJSON() : results
   }
 
   get id(): string {
-    return this._id
+    return this._results.id
   }
   set id(id: string) {
-    this._id = id
+    this._results.id = id
   }
   getId(): string {
-    return this._id
+    return this.id
   }
   setId(id: string) {
     this.id = id
   }
 
   get name(): string {
-    return this._name
+    return this._results.name
   }
   set name(name: string) {
-    this._name = name
+    this._results.name = name
   }
   getName(): string {
-    return this._name
+    return this.name
   }
   setName(name: string) {
     this.name = name
   }
 
   get secretToken(): string {
-    return this._secretToken
+    return this._results.secretToken
   }
   set secretToken(secretToken: string) {
-    this._secretToken = secretToken
+    this._results.secretToken = secretToken
   }
   getSecretToken(): string {
-    return this._secretToken
+    return this.secretToken
   }
   setSecretToken(secretToken: string) {
     this.secretToken = secretToken
   }
 
   get status(): TestResultsStatus {
-    return this._status
+    return this._results.status
   }
   set status(status: TestResultsStatus) {
-    this._status = status
+    this._results.status = status
   }
   getStatus(): TestResultsStatus {
-    return this._status
+    return this.status
   }
   setStatus(status: TestResultsStatus) {
     this.status = status
   }
 
   get appName(): string {
-    return this._appName
+    return this._results.appName
   }
   set appName(appName: string) {
-    this._appName = appName
+    this._results.appName = appName
   }
   getAppName(): string {
-    return this._appName
+    return this.appName
   }
   setAppName(appName: string) {
     this.appName = appName
   }
 
   get batchName(): string {
-    return this._batchName
+    return this._results.batchName
   }
   set batchName(batchName: string) {
-    this._batchName = batchName
+    this._results.batchName = batchName
   }
   getBatchName(): string {
-    return this._batchName
+    return this.batchName
   }
   setBatchName(batchName: string) {
     this.batchName = batchName
   }
 
   get batchId(): string {
-    return this._batchId
+    return this._results.batchId
   }
   set batchId(batchId: string) {
-    this._batchId = batchId
+    this._results.batchId = batchId
   }
   getBatchId(): string {
-    return this._batchId
+    return this.batchId
   }
   setBatchId(batchId: string) {
     this.batchId = batchId
   }
 
   get branchName(): string {
-    return this._batchName
+    return this._results.batchName
   }
   set branchName(branchName: string) {
-    this._batchName = branchName
+    this._results.batchName = branchName
   }
   getBranchName(): string {
-    return this._branchName
+    return this.branchName
   }
   setBranchName(branchName: string) {
     this.branchName = branchName
   }
 
   get hostOS(): string {
-    return this._hostOS
+    return this._results.hostOS
   }
   set hostOS(hostOS: string) {
-    this._hostOS = hostOS
+    this._results.hostOS = hostOS
   }
   getHostOS(): string {
-    return this._hostOS
+    return this.hostOS
   }
   setHostOS(hostOS: string) {
     this.hostOS = hostOS
   }
 
   get hostApp(): string {
-    return this._hostApp
+    return this._results.hostApp
   }
   set hostApp(hostApp: string) {
-    this._hostApp = hostApp
+    this._results.hostApp = hostApp
   }
   getHostApp(): string {
-    return this._hostApp
+    return this.hostApp
   }
   setHostApp(hostApp: string) {
     this.hostApp = hostApp
   }
 
   get hostDisplaySize(): RectangleSize {
-    return this._hostDisplaySize
+    return this._results.hostDisplaySize
   }
   set hostDisplaySize(hostDisplaySize: RectangleSize) {
-    this._hostDisplaySize = new RectangleSizeData(hostDisplaySize)
+    this._results.hostDisplaySize = hostDisplaySize
   }
   getHostDisplaySize(): RectangleSizeData {
-    return this._hostDisplaySize
+    return new RectangleSizeData(this.hostDisplaySize)
   }
   setHostDisplaySize(hostDisplaySize: RectangleSize) {
     this.hostDisplaySize = hostDisplaySize
   }
 
   get accessibilityStatus(): TestAccessibilityStatus {
-    return this._accessibilityStatus
+    return this._results.accessibilityStatus
   }
   set accessibilityStatus(accessibilityStatus: TestAccessibilityStatus) {
-    this._accessibilityStatus = accessibilityStatus
+    this._results.accessibilityStatus = accessibilityStatus
   }
   getAccessibilityStatus(): TestAccessibilityStatus {
-    return this._accessibilityStatus
+    return this.accessibilityStatus
   }
   setAccessibilityStatus(accessibilityStatus: TestAccessibilityStatus) {
     this.accessibilityStatus = accessibilityStatus
   }
 
-  get startedAt(): string {
-    return this._startedAt.toISOString()
+  get startedAt(): Date | string {
+    return this._results.startedAt
   }
-  set startedAt(startedAt: string) {
-    this._startedAt = new Date(startedAt)
+  set startedAt(startedAt: Date | string) {
+    this._results.startedAt = startedAt
   }
   getStartedAt(): Date {
-    return this._startedAt
+    return new Date(this.startedAt)
   }
   setStartedAt(startedAt: Date | string) {
-    this._startedAt = new Date(startedAt)
+    this.startedAt = startedAt
   }
 
   get duration(): number {
-    return this._duration
+    return this._results.duration
   }
   set duration(duration: number) {
-    this._duration = duration
+    this._results.duration = duration
   }
   getDuration(): number {
-    return this._duration
+    return this.duration
   }
   setDuration(duration: number) {
     this.duration = duration
   }
 
   get isNew(): boolean {
-    return this._isNew
+    return this._results.isNew
   }
   set isNew(isNew: boolean) {
-    this._isNew = isNew
+    this._results.isNew = isNew
   }
   getIsNew(): boolean {
-    return this._isNew
+    return this.isNew
   }
   setIsNew(isNew: boolean) {
     this.isNew = isNew
   }
 
   get isDifferent(): boolean {
-    return this._isDifferent
+    return this._results.isDifferent
   }
   set isDifferent(isDifferent: boolean) {
-    this._isDifferent = isDifferent
+    this._results.isDifferent = isDifferent
   }
   getIsDifferent(): boolean {
-    return this._isDifferent
+    return this.isDifferent
   }
   setIsDifferent(isDifferent: boolean) {
     this.isDifferent = isDifferent
   }
 
   get isAborted(): boolean {
-    return this._isAborted
+    return this._results.isAborted
   }
   set isAborted(isAborted: boolean) {
-    this._isAborted = isAborted
+    this._results.isAborted = isAborted
   }
   getIsAborted(): boolean {
-    return this._isAborted
+    return this.isAborted
   }
   setIsAborted(isAborted: boolean) {
     this.isAborted = isAborted
   }
 
   get appUrls(): SessionUrls {
-    return this._appUrls
+    return this._results.appUrls
   }
   set appUrls(appUrls: SessionUrls) {
-    this._appUrls = new SessionUrlsData(appUrls)
+    this._results.appUrls = appUrls
   }
   getAppUrls(): SessionUrlsData {
-    return this._appUrls
+    return new SessionUrlsData(this.appUrls)
   }
   setAppUrls(appUrls: SessionUrls) {
     this.appUrls = appUrls
   }
 
   get apiUrls(): SessionUrls {
-    return this._apiUrls
+    return this._results.apiUrls
   }
   set apiUrls(apiUrls: SessionUrls) {
-    this._apiUrls = new SessionUrlsData(apiUrls)
+    this._results.apiUrls = apiUrls
   }
   getApiUrls(): SessionUrlsData {
-    return this._apiUrls
+    return new SessionUrlsData(this.apiUrls)
   }
   setApiUrls(apiUrls: SessionUrls) {
     this.apiUrls = apiUrls
   }
 
   get stepsInfo(): StepInfo[] {
-    return this._stepsInfo
+    return this._results.stepsInfo
   }
   set stepsInfo(stepInfo: StepInfo[]) {
-    this._stepsInfo = stepInfo.map(info => new StepInfoData(info))
+    this._results.stepsInfo = stepInfo
   }
   getStepsInfo(): StepInfoData[] {
-    return this._stepsInfo
+    return this.stepsInfo.map(info => new StepInfoData(info))
   }
   setStepsInfo(stepInfo: StepInfo[]) {
     this.stepsInfo = stepInfo
   }
 
   get steps(): number {
-    return this._steps
+    return this._results.steps
   }
   set steps(steps: number) {
-    this._steps = steps
+    this._results.steps = steps
   }
   getSteps(): number {
-    return this._steps
+    return this.steps
   }
   setSteps(steps: number) {
     this.steps = steps
   }
 
   get matches(): number {
-    return this._matches
+    return this._results.matches
   }
   set matches(matches: number) {
-    this._matches = matches
+    this._results.matches = matches
   }
   getMatches(): number {
-    return this._matches
+    return this.matches
   }
   setMatches(matches: number) {
     this.matches = matches
   }
 
   get mismatches(): number {
-    return this._mismatches
+    return this._results.mismatches
   }
   set mismatches(mismatches: number) {
-    this._mismatches = mismatches
+    this._results.mismatches = mismatches
   }
   getMismatches(): number {
-    return this._mismatches
+    return this.mismatches
   }
   setMismatches(mismatches: number) {
     this.mismatches = mismatches
   }
 
   get missing(): number {
-    return this._missing
+    return this._results.missing
   }
   set missing(missing: number) {
-    this._missing = missing
+    this._results.missing = missing
   }
   getMissing(): number {
-    return this._missing
+    return this.missing
   }
   setMissing(missing: number) {
     this.missing = missing
   }
 
   get exactMatches(): number {
-    return this._exactMatches
+    return this._results.exactMatches
   }
   set exactMatches(exactMatches: number) {
-    this._exactMatches = exactMatches
+    this._results.exactMatches = exactMatches
   }
   getExactMatches(): number {
-    return this._exactMatches
+    return this.exactMatches
   }
   setExactMatches(exactMatches: number) {
     this.exactMatches = exactMatches
   }
 
   get strictMatches(): number {
-    return this._strictMatches
+    return this._results.strictMatches
   }
   set strictMatches(strictMatches: number) {
-    this._strictMatches = strictMatches
+    this._results.strictMatches = strictMatches
   }
   getStrictMatches(): number {
-    return this._strictMatches
+    return this.strictMatches
   }
   setStrictMatches(strictMatches: number) {
     this.strictMatches = strictMatches
   }
 
   get contentMatches(): number {
-    return this._contentMatches
+    return this._results.contentMatches
   }
   set contentMatches(contentMatches: number) {
-    this._contentMatches = contentMatches
+    this._results.contentMatches = contentMatches
   }
   getContentMatches(): number {
-    return this._contentMatches
+    return this.contentMatches
   }
   setContentMatches(contentMatches: number) {
     this.contentMatches = contentMatches
   }
 
   get layoutMatches(): number {
-    return this._layoutMatches
+    return this._results.layoutMatches
   }
   set layoutMatches(layoutMatches: number) {
-    this._layoutMatches = layoutMatches
+    this._results.layoutMatches = layoutMatches
   }
   getLayoutMatches(): number {
-    return this._layoutMatches
+    return this.layoutMatches
   }
   setLayoutMatches(layoutMatches: number) {
     this.layoutMatches = layoutMatches
   }
 
   get noneMatches(): number {
-    return this._noneMatches
+    return this._results.noneMatches
   }
   set noneMatches(noneMatches: number) {
-    this._noneMatches = noneMatches
+    this._results.noneMatches = noneMatches
   }
   getNoneMatches(): number {
-    return this._noneMatches
+    return this.noneMatches
   }
   setNoneMatches(noneMatches: number) {
     this.noneMatches = noneMatches
   }
 
   get url(): string {
-    return this._url
+    return this._results.url
   }
   set url(url: string) {
-    this._url = url
+    this._results.url = url
   }
   getUrl(): string {
-    return this._url
+    return this.url
   }
   setUrl(url: string) {
     this.url = url
   }
 
   isPassed(): boolean {
-    return this._status === TestResultsStatus.Passed
+    return this._results.status === TestResultsStatus.Passed
   }
 
   async delete(): Promise<void> {
-    return this._deleteTestResults(this.toJSON())
+    if (!this._deleteTestResults) return
+    return this._deleteTestResults(this._results)
   }
   /** @deprecated */
   async deleteSession(): Promise<void> {
@@ -494,39 +461,13 @@ export class TestResultsData implements Required<TestResults> {
   }
 
   /** @internal */
-  toJSON(): Required<TestResults> {
-    return utils.general.toJSON(this, [
-      'id',
-      'name',
-      'secretToken',
-      'status',
-      'appName',
-      'batchName',
-      'batchId',
-      'branchName',
-      'hostOS',
-      'hostApp',
-      'hostDisplaySize',
-      'accessibilityStatus',
-      'startedAt',
-      'duration',
-      'isNew',
-      'isDifferent',
-      'isAborted',
-      'appUrls',
-      'apiUrls',
-      'stepsInfo',
-      'steps',
-      'matches',
-      'mismatches',
-      'missing',
-      'exactMatches',
-      'strictMatches',
-      'contentMatches',
-      'layoutMatches',
-      'noneMatches',
-      'url',
-    ])
+  toObject(): TestResults {
+    return this._results
+  }
+
+  /** @internal */
+  toJSON(): TestResults {
+    return utils.general.toJSON(this._results)
   }
 
   /** @internal */

@@ -466,22 +466,19 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
   }
 
   hook(name: string, script: string): this {
-    this._settings.hooks[name] = script
+    this._settings.hooks = {...this._settings.hooks, [name]: script}
     return this
   }
-
   beforeRenderScreenshotHook(script: string): this {
     return this.hook('beforeCaptureScreenshot', script)
   }
-
   /** @deprecated */
   webHook(script: string): this {
     return this.beforeRenderScreenshotHook(script)
   }
 
   visualGridOption(key: string, value: any) {
-    if (!this._settings.visualGridOptions) this._settings.visualGridOptions = {}
-    this._settings.visualGridOptions[key] = value
+    this._settings.visualGridOptions = {...this._settings.visualGridOptions, [key]: value}
     return this
   }
   visualGridOptions(options: {[key: string]: any}) {
