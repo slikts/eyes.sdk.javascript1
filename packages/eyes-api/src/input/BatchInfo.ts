@@ -9,14 +9,13 @@ export type BatchInfo = {
 }
 
 export class BatchInfoData implements Required<BatchInfo> {
-  private _batch: BatchInfo = {} as any
+  private _batch: BatchInfo = {}
 
   constructor()
   constructor(batch?: BatchInfo)
   constructor(name?: string, startedAt?: Date | string, id?: string)
   constructor(batchOrName?: BatchInfo | string, startedAt?: Date | string, id?: string) {
-    if (!batchOrName) return this
-    if (utils.types.isString(batchOrName)) {
+    if (utils.types.isNull(batchOrName) || utils.types.isString(batchOrName)) {
       return new BatchInfoData({name: batchOrName, id, startedAt: startedAt})
     }
     this.id = batchOrName.id ?? utils.general.getEnvValue('BATCH_ID')

@@ -74,7 +74,7 @@ describe('TestEyesConfiguration', async () => {
       assert.deepStrictEqual(sessionResults.env.hostingApp, 'someHostApp', 'Hosting App')
 
       assert.deepStrictEqual(
-        sessionResults.startInfo.batchInfo.sequenceName,
+        sessionResults.startInfo.batchInfo.batchSequenceName,
         batchInfo.sequenceName,
         'Sequence Name',
       )

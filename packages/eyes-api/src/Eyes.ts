@@ -8,11 +8,14 @@ import NewTestError from './errors/NewTestError'
 import DiffsFoundError from './errors/DiffsFoundError'
 import TestFailedError from './errors/TestFailedError'
 import {CheckSettings, CheckSettingsFluent} from './input/CheckSettings'
+import {OCRSettings} from './input/OCRSettings'
+import {VisualLocatorSettings} from './input/VisualLocatorSettings'
 import {ProxySettings, ProxySettingsData} from './input/ProxySettings'
 import {Configuration, OpenConfiguration, ConfigurationData} from './input/Configuration'
 import {BatchInfo, BatchInfoData} from './input/BatchInfo'
 import {RectangleSize, RectangleSizeData} from './input/RectangleSize'
 import {Region} from './input/Region'
+import {OCRRegion} from './input/OCRRegion'
 import {ImageRotation, ImageRotationData} from './input/ImageRotation'
 import {CutProviderData} from './input/CutProvider'
 import {LogHandlerData, FileLogHandlerData, ConsoleLogHandlerData, NullLogHandlerData} from './input/LogHandler'
@@ -25,32 +28,23 @@ import {SessionEventHandler, SessionEventHandlers, RemoteSessionEventHandler} fr
 import {RunnerConfiguration, EyesRunner, ClassicRunner} from './Runners'
 import {Logger} from './Logger'
 
-type ExtractTextRegion<TElement = unknown, TSelector = unknown> = {
-  target: Region | TElement | TSelector
-  hint?: string
-  minMatch?: number
-  language?: string
-}
-
-type ExtractTextRegionsSettings<TPattern extends string = string> = {
-  patterns: TPattern[]
-  ignoreCase?: boolean
-  firstOnly?: boolean
-  language?: string
-}
-
-type LocateSettings<TLocator extends string = string> = {
-  locatorNames: TLocator[]
-  firstOnly: boolean
-}
-
 type EyesCommands<TElement = unknown, TSelector = unknown> = {
-  check(settings?: CheckSettings<TElement, TSelector>): Promise<MatchResult>
-  extractText(regions: ExtractTextRegion<TElement, TSelector>[]): Promise<string[]>
-  extractTextRegions<TPattern extends string>(
-    settings: ExtractTextRegionsSettings<TPattern>,
-  ): Promise<{[key in TPattern]: string[]}>
-  locate<TLocator extends string>(settings: LocateSettings<TLocator>): Promise<{[key in TLocator]: Region[]}>
+  check(options: {
+    settings?: CheckSettings<TElement, TSelector>
+    config?: Configuration<TElement, TSelector>
+  }): Promise<MatchResult>
+  locate<TLocator extends string>(options: {
+    settings: VisualLocatorSettings<TLocator>
+    config?: Configuration<TElement, TSelector>
+  }): Promise<{[key in TLocator]: Region[]}>
+  extractTextRegions<TPattern extends string>(options: {
+    settings: OCRSettings<TPattern>
+    config?: Configuration<TElement, TSelector>
+  }): Promise<{[key in TPattern]: string[]}>
+  extractText(options: {
+    regions: OCRRegion<TElement, TSelector>[]
+    config?: Configuration<TElement, TSelector>
+  }): Promise<string[]>
   close(): Promise<TestResults>
   abort(): Promise<TestResults>
 }
@@ -58,7 +52,7 @@ type EyesCommands<TElement = unknown, TSelector = unknown> = {
 type EyesController<TDriver = unknown, TElement = unknown, TSelector = unknown> = {
   open: (options: {
     driver: TDriver
-    config?: Configuration
+    config?: Configuration<TElement, TSelector>
     logger?: logger.Logger
     on?: (event: string, data?: Record<string, any>) => any
   }) => Promise<EyesCommands<TElement, TSelector>>
@@ -301,23 +295,25 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
         : {...checkSettingsOrName}
     }
 
-    const result = await this._commands.check(settings)
+    const result = await this._commands.check({settings, config: this._config.toJSON()})
 
     return new MatchResultData(result)
   }
 
-  async extractText(regions: ExtractTextRegion<TElement, TSelector>[]): Promise<string[]> {
-    return this._commands.extractText(regions)
+  async locate<TLocator extends string>(
+    settings: VisualLocatorSettings<TLocator>,
+  ): Promise<{[key in TLocator]: Region[]}> {
+    return this._commands.locate({settings, config: this._config.toJSON()})
   }
 
   async extractTextRegions<TPattern extends string>(
-    settings: ExtractTextRegionsSettings<TPattern>,
+    settings: OCRSettings<TPattern>,
   ): Promise<{[key in TPattern]: string[]}> {
-    return this._commands.extractTextRegions(settings)
+    return this._commands.extractTextRegions({settings, config: this._config.toJSON()})
   }
 
-  async locate<TLocator extends string>(settings: LocateSettings<TLocator>): Promise<{[key in TLocator]: Region[]}> {
-    return this._commands.locate(settings)
+  async extractText(regions: OCRRegion<TElement, TSelector>[]): Promise<string[]> {
+    return this._commands.extractText({regions, config: this._config.toJSON()})
   }
 
   async close(throwErr = true): Promise<TestResultsData> {

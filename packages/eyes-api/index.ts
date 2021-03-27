@@ -70,6 +70,8 @@ export {
   ConsoleLogHandlerData as ConsoleLogHandler,
   NullLogHandlerData as NullLogHandler,
 } from './src/input/LogHandler'
+export {OCRRegion} from './src/input/OCRRegion'
+export {OCRSettings} from './src/input/OCRSettings'
 export {PropertyData as PropertyDataPlain, PropertyDataData as PropertyData} from './src/input/PropertyData'
 export {ProxySettings as ProxySettingsPlain, ProxySettingsData as ProxySettings} from './src/input/ProxySettings'
 export {RectangleSize as RectangleSizePlain, RectangleSizeData as RectangleSize} from './src/input/RectangleSize'
@@ -80,6 +82,7 @@ export {
   RunnerOptionsFluent,
   RunnerOptionsFluentInit as RunnerOptions,
 } from './src/input/RunnerOptions'
+export {VisualLocatorSettings} from './src/input/VisualLocatorSettings'
 
 // #endregion
 
