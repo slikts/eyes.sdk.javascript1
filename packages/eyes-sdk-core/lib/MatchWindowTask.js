@@ -63,6 +63,7 @@ class MatchWindowTask {
     ignoreMismatch,
     imageMatchSettings,
     source,
+    variantId,
   ) {
     // Prepare match model.
     const options = new Options({
@@ -75,6 +76,7 @@ class MatchWindowTask {
       forceMatch: false,
       imageMatchSettings,
       source,
+      variantId,
     })
     const data = new MatchWindowData({
       userInputs,
@@ -432,6 +434,8 @@ class MatchWindowTask {
       checkSettings,
     )
     const renderId = checkSettings.getRenderId()
+    debugger
+    const variantId = checkSettings.getVariantId()
     const screenshot = appOutput.getScreenshot()
     const matchSettings = await this.createImageMatchSettings(checkSettings, screenshot)
     this._matchResult = await this.performMatch(
@@ -442,6 +446,7 @@ class MatchWindowTask {
       ignoreMismatch,
       matchSettings,
       source,
+      variantId,
     )
     return screenshot
   }
