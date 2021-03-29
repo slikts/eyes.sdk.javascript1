@@ -78,6 +78,7 @@
     "lint": "eslint '**/*.ts' '**/*.js'",
     "render": "node ../sdk-shared/scripts/render.js",
     "capture-dom": "node ../sdk-shared/scripts/capture-dom.js",
+    "doc": "typedoc ./index.d.ts --theme minimal",
     "build": "yarn build:dist && yarn build:types",
     "build:dist": "tsc",
     "build:types": "api-extractor ./index.ts --out ./index.d.ts --external-modules selenium-webdriver",

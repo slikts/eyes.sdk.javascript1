@@ -1,4 +1,5 @@
 {
+  "files": ["index.ts", "index.d.ts",],
   "compilerOptions": {
     "outDir": "dist",
     "sourceMap": true,
