@@ -1,5 +1,4 @@
 // #region ENUM
-
 export {default as AccessibilityGuidelinesVersion} from './src/enums/AccessibilityGuidelinesVersion'
 export {default as AccessibilityLevel} from './src/enums/AccessibilityLevel'
 export {default as AccessibilityRegionType} from './src/enums/AccessibilityRegionType'
@@ -15,11 +14,16 @@ export {default as ScreenOrientation} from './src/enums/ScreenOrientation'
 export {default as SessionType} from './src/enums/SessionType'
 export {default as StitchMode} from './src/enums/StitchMode'
 export {default as TestResultsStatus} from './src/enums/TestResultsStatus'
+// #endregion
 
+// #region ERROR
+export {default as EyesError} from './src/errors/EyesError'
+export {default as TestFailedError} from './src/errors/TestFailedError'
+export {default as DiffsFoundError} from './src/errors/DiffsFoundError'
+export {default as NewTestError} from './src/errors/NewTestError'
 // #endregion
 
 // #region INPUT
-
 export {
   AccessibilityMatchSettings as AccessibilityMatchSettingsPlain,
   AccessibilityMatchSettingsData as AccessibilityMatchSettings,
@@ -83,11 +87,9 @@ export {
   RunnerOptionsFluentInit as RunnerOptions,
 } from './src/input/RunnerOptions'
 export {VisualLocatorSettings} from './src/input/VisualLocatorSettings'
-
 // #endregion
 
 // #region OUTPUT
-
 export {ApiUrls as ApiUrlsPlain, ApiUrlsData as ApiUrls} from './src/output/ApiUrls'
 export {AppUrls as AppUrlsPlain, AppUrlsData as AppUrls} from './src/output/AppUrls'
 export {MatchResult as MatchResultPlain, MatchResultData as MatchResult} from './src/output/MatchResult'
@@ -109,11 +111,10 @@ export {
 } from './src/output/TestResultsSummary'
 export {ValidationInfo as ValidationInfoPlain, ValidationInfoData as ValidationInfo} from './src/output/ValidationInfo'
 export {TestResults as TestResultsPlain, TestResultsData as TestResults} from './src/output/TestResults'
-
 // #endregion
 
 export {Logger} from './src/Logger'
 export {Eyes} from './src/Eyes'
-export {closeBatch, BatchClose} from './src/BatchClose'
+export {BatchClose, closeBatch} from './src/BatchClose'
 export {EyesRunner, ClassicRunner, VisualGridRunner} from './src/Runners'
 export {SessionEventHandler, SessionEventHandlers, RemoteSessionEventHandler} from './src/SessionEventHandlers'

@@ -354,7 +354,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     this._config.viewportSize = viewportSize
   }
   getViewportSize(): RectangleSizeData {
-    return new RectangleSizeData(this.viewportSize)
+    return this.viewportSize && new RectangleSizeData(this.viewportSize)
   }
   setViewportSize(viewportSize: RectangleSize): this {
     this.viewportSize = viewportSize

@@ -212,6 +212,10 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     viewportSize?: RectangleSize,
     sessionType?: SessionType,
   ): Promise<TDriver> {
+    this._driver = driver
+
+    if (this._config.isDisabled) return driver
+
     const config = this._config.toJSON()
     if (utils.types.instanceOf(configOrAppName, ConfigurationData)) {
       Object.assign(config, configOrAppName.toJSON())
@@ -224,7 +228,6 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     if (utils.types.has(viewportSize, ['width', 'height'])) config.viewportSize = viewportSize
     if (utils.types.isEnumValue(sessionType, SessionType)) config.sessionType = sessionType
 
-    this._driver = driver
     this._commands = await this._runner.open({
       driver,
       config,
@@ -284,6 +287,9 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     checkSettingsOrName?: CheckSettings<TElement, TSelector> | CheckSettingsFluent<TElement, TSelector> | string,
     checkSettings?: CheckSettings<TElement, TSelector> | CheckSettingsFluent<TElement, TSelector>,
   ): Promise<MatchResultData> {
+    if (!this.isOpen) throw new EyesError('Eyes not open')
+    if (this._config.isDisabled) return null
+
     let settings
     if (utils.types.isString(checkSettingsOrName)) {
       utils.guard.notNull(checkSettings, {name: 'checkSettings'})
@@ -304,22 +310,31 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   async locate<TLocator extends string>(
     settings: VisualLocatorSettings<TLocator>,
   ): Promise<{[key in TLocator]: Region[]}> {
+    if (!this.isOpen) throw new EyesError('Eyes not open')
+    if (this._config.isDisabled) return null
+
     return this._commands.locate({settings, config: this._config.toJSON()})
   }
 
   async extractTextRegions<TPattern extends string>(
     settings: OCRSettings<TPattern>,
   ): Promise<{[key in TPattern]: string[]}> {
+    if (!this.isOpen) throw new EyesError('Eyes not open')
+    if (this._config.isDisabled) return null
+
     return this._commands.extractTextRegions({settings, config: this._config.toJSON()})
   }
 
   async extractText(regions: OCRRegion<TElement, TSelector>[]): Promise<string[]> {
+    if (!this.isOpen) throw new EyesError('Eyes not open')
+    if (this._config.isDisabled) return null
+
     return this._commands.extractText({regions, config: this._config.toJSON()})
   }
 
   async close(throwErr = true): Promise<TestResultsData> {
-    if (this._config.isDisabled) return null
     if (!this.isOpen) throw new EyesError('Eyes not open')
+    if (this._config.isDisabled) return null
     const results = new TestResultsData(await this._commands.close(), results => this._spec.deleteTestResults(results))
     this._commands = null
     if (throwErr) {
@@ -338,7 +353,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   }
 
   async abort(): Promise<TestResultsData> {
-    if (this._config.isDisabled || !this.isOpen) return null
+    if (!this.isOpen || this._config.isDisabled) return null
     const results = new TestResultsData(await this._commands.abort(), results => this._spec.deleteTestResults(results))
     this._commands = null
     return results

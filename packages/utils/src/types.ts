@@ -68,9 +68,7 @@ export function has<TKey extends PropertyKey>(
   if (!isArray(keys)) keys = [keys as TKey]
 
   for (const key of keys) {
-    if (!Object.prototype.hasOwnProperty.call(value, key)) {
-      return false
-    }
+    if (!(key in value)) return false
   }
 
   return true

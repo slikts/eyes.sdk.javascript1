@@ -19,8 +19,8 @@ export type TestResults = {
   secretToken?: string
   status?: TestResultsStatus
   appName?: string
-  batchName?: string
   batchId?: string
+  batchName?: string
   branchName?: string
   hostOS?: string
   hostApp?: string
