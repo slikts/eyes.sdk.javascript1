@@ -434,8 +434,10 @@ class MatchWindowTask {
       checkSettings,
     )
     const renderId = checkSettings.getRenderId()
-    debugger
-    const variantId = checkSettings.getVariantId()
+    const variantId = TypeUtils.getOrDefault(
+      checkSettings.getVariantId(),
+      this._eyes._configuration.getVariantId(),
+    )
     const screenshot = appOutput.getScreenshot()
     const matchSettings = await this.createImageMatchSettings(checkSettings, screenshot)
     this._matchResult = await this.performMatch(
