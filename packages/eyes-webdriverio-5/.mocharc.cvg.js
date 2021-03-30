@@ -16,8 +16,9 @@ const tags = {
 const protocol = process.env.APPLITOOLS_WDIO_PROTOCOL in tags ? process.env.APPLITOOLS_WDIO_PROTOCOL : 'wd'
 module.exports = {
   spec: [
-    './test/generic/*.spec.js',
-    'node_modules/@applitools/sdk-shared/coverage-tests/custom/**/*.spec.js',
+    './test/generic/CheckHoveredRegionByElementWithScrollStitching.spec.js',
+    // './test/generic/*.spec.js',
+    // 'node_modules/@applitools/sdk-shared/coverage-tests/custom/**/*.spec.js',
   ],
   parallel: true,
   jobs: 15,
