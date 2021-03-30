@@ -31,7 +31,7 @@ function makeSDK(settings = {}) {
 
   function makeEyes(config) {
     const test = {
-      steps: []
+      steps: [],
     }
 
     history.push({command: 'makeEyes', data: config})

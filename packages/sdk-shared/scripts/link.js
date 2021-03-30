@@ -3,7 +3,6 @@ const path = require('path')
 const chalk = require('chalk')
 const {exec} = require('child_process')
 const yargs = require('yargs')
-const { resolve } = require('path')
 
 yargs
   .usage('yarn link [options]')
@@ -107,6 +106,7 @@ async function link({
       .map(dependencyName => packages.get(dependencyName))
 
     return dependencies.reduce(async (promise, dependency) => {
+      const results = await promise
       let [result, ...nestedResults] = await new Promise(resolve => {
         const commands = []
         if (runInstall) commands.push('yarn install && sleep 20')
@@ -125,7 +125,6 @@ async function link({
           })
         })
       }
-      const results = await promise
       return results.concat(result, nestedResults)
     }, Promise.resolve([]))
   }

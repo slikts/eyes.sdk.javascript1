@@ -36,7 +36,7 @@
   "dependencies": {
     "@applitools/eyes-api": "0.0.2",
     "@applitools/eyes-sdk-core": "12.14.2",
-    "@applitools/utils": "^1.0.1",
+    "@applitools/utils": "1.1.0",
     "@applitools/visual-grid-client": "15.5.14"
   },
   "peerDependencies": {
