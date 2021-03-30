@@ -118,9 +118,13 @@ export async function type(frame: Context, element: Element | Selector, keys: st
   if (isSelector(element)) element = await findElement(frame, element)
   await element.type(keys)
 }
-export async function hover(frame: Context, element: Element | Selector, {x = 0, y = 0} = {}): Promise<void> {
+export async function hover(
+  frame: Context,
+  element: Element | Selector,
+  position?: {x: number; y: number},
+): Promise<void> {
   if (isSelector(element)) element = await findElement(frame, element)
-  await element.hover({position: {x, y}})
+  await element.hover({position})
 }
 export async function scrollIntoView(frame: Context, element: Element | Selector, align = false): Promise<void> {
   if (isSelector(element)) element = await findElement(frame, element)

@@ -38,13 +38,13 @@
   "main": "./dist/index.js",
   "types": "./index.d.ts",
   "dependencies": {
-    "@applitools/eyes-api": "link:../eyes-api",
-    "@applitools/eyes-sdk-core": "12.14.8",
-    "@applitools/utils": "^1.0.1",
-    "@applitools/visual-grid-client": "15.5.21"
+    "@applitools/eyes-api": "0.0.2",
+    "@applitools/eyes-sdk-core": "12.14.2",
+    "@applitools/utils": "1.1.0",
+    "@applitools/visual-grid-client": "15.5.14"
   },
   "devDependencies": {
-    "@applitools/api-extractor": "file:../api-extractor",
+    "@applitools/api-extractor": "1.0.0",
     "@applitools/sdk-coverage-tests": "2.3.6",
     "@applitools/sdk-fake-eyes-server": "2.1.1",
     "@applitools/sdk-release-kit": "0.12.2",
@@ -78,6 +78,7 @@
     "lint": "eslint '**/*.ts' '**/*.js'",
     "render": "node ../sdk-shared/scripts/render.js",
     "capture-dom": "node ../sdk-shared/scripts/capture-dom.js",
+    "link": "node ../sdk-shared/scripts/link.js",
     "doc": "typedoc ./index.d.ts --theme minimal",
     "build": "yarn build:dist && yarn build:types",
     "build:dist": "tsc",
