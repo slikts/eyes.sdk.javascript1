@@ -348,7 +348,15 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
     }
   }
   const driver = await webdriverio.remote(options)
-  return [driver, () => driver.deleteSession().then(() => chromedriver.stop())]
+  return [
+    driver,
+    async () => {
+      try {
+        await driver.deleteSession()
+        await chromedriver.stop()
+      } catch {}
+    },
+  ]
 }
 
 // #endregion
