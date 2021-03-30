@@ -163,7 +163,7 @@ export async function getDriverInfo(driver: Driver): Promise<any> {
   const platformVersion = capabilities.get('platformVersion')
   const browserName = capabilities.get('browserName')
   const browserVersion = capabilities.get('browserVersion')
-  const isMobile = ['android', 'ios'].includes(platformName && platformName.toLowerCase())
+  const isMobile = ['android', 'ios'].includes(platformName?.toLowerCase())
 
   return {
     sessionId,
@@ -192,14 +192,14 @@ export async function click(driver: Driver, element: Element | Selector): Promis
   if (isSelector(element)) element = await findElement(driver, element)
   await element.click()
 }
-export async function hover(driver: Driver, element: Element | Selector, {x = 0, y = 0} = {}) {
+export async function hover(driver: Driver, element: Element | Selector, offset?: {x: number; y: number}) {
   if (isSelector(element)) element = await findElement(driver, element)
   if (process.env.ApPLitoOLS_SELENIUM_MAJOR_VERSION === '3') {
     const {ActionSequence} = require('selenium-webdriver')
     const action = new ActionSequence(driver)
-    await action.mouseMove(element, {x, y}).perform()
+    await action.mouseMove(element, offset).perform()
   } else {
-    await driver.actions().move({origin: element, x, y}).perform()
+    await driver.actions().move({origin: element, x: offset?.x, y: offset?.y}).perform()
   }
 }
 export async function type(driver: Driver, element: Element | Selector, keys: string): Promise<void> {

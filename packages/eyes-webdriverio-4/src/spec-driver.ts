@@ -159,9 +159,13 @@ export async function click(browser: Driver, element: Element | Selector): Promi
   if (isSelector(element)) element = await findElement(browser, element)
   await browser.elementIdClick(extractElementId(element))
 }
-export async function hover(browser: Driver, element: Element | Selector, {x = 0, y = 0} = {}): Promise<void> {
+export async function hover(
+  browser: Driver,
+  element: Element | Selector,
+  offset?: {x: number; y: number},
+): Promise<void> {
   if (isSelector(element)) element = await findElement(browser, element)
-  await browser.moveTo(extractElementId(element), x, y)
+  await browser.moveTo(extractElementId(element), offset?.x, offset?.y)
 }
 export async function type(browser: Driver, element: Element | Selector, keys: string): Promise<void> {
   if (isSelector(element)) browser.setValue(transformSelector(element), keys)
