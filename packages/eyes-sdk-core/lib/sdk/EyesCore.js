@@ -365,7 +365,8 @@ class EyesCore extends EyesBase {
   static async getViewportSize(driver) {
     const logger = new Logger(process.env.APPLITOOLS_SHOW_LOGS)
     const eyesDriver = await this.spec.newDriver(logger, driver).init()
-    return eyesDriver.getViewportSize()
+    const viewportSize = await eyesDriver.getViewportSize()
+    return viewportSize.toJSON()
   }
 
   /**
