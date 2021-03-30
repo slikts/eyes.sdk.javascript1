@@ -310,8 +310,8 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   async locate<TLocator extends string>(
     settings: VisualLocatorSettings<TLocator>,
   ): Promise<{[key in TLocator]: Region[]}> {
-    if (!this.isOpen) throw new EyesError('Eyes not open')
     if (this._config.isDisabled) return null
+    if (!this.isOpen) throw new EyesError('Eyes not open')
 
     return this._commands.locate({settings, config: this._config.toJSON()})
   }
@@ -319,22 +319,22 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   async extractTextRegions<TPattern extends string>(
     settings: OCRSettings<TPattern>,
   ): Promise<{[key in TPattern]: string[]}> {
-    if (!this.isOpen) throw new EyesError('Eyes not open')
     if (this._config.isDisabled) return null
+    if (!this.isOpen) throw new EyesError('Eyes not open')
 
     return this._commands.extractTextRegions({settings, config: this._config.toJSON()})
   }
 
   async extractText(regions: OCRRegion<TElement, TSelector>[]): Promise<string[]> {
-    if (!this.isOpen) throw new EyesError('Eyes not open')
     if (this._config.isDisabled) return null
+    if (!this.isOpen) throw new EyesError('Eyes not open')
 
     return this._commands.extractText({regions, config: this._config.toJSON()})
   }
 
   async close(throwErr = true): Promise<TestResultsData> {
-    if (!this.isOpen) throw new EyesError('Eyes not open')
     if (this._config.isDisabled) return null
+    if (!this.isOpen) throw new EyesError('Eyes not open')
     const results = new TestResultsData(await this._commands.close(), results => this._spec.deleteTestResults(results))
     this._commands = null
     if (throwErr) {
