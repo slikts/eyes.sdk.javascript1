@@ -287,8 +287,8 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     checkSettingsOrName?: CheckSettings<TElement, TSelector> | CheckSettingsFluent<TElement, TSelector> | string,
     checkSettings?: CheckSettings<TElement, TSelector> | CheckSettingsFluent<TElement, TSelector>,
   ): Promise<MatchResultData> {
-    if (!this.isOpen) throw new EyesError('Eyes not open')
     if (this._config.isDisabled) return null
+    if (!this.isOpen) throw new EyesError('Eyes not open')
 
     let settings
     if (utils.types.isString(checkSettingsOrName)) {
