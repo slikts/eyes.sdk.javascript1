@@ -34,7 +34,7 @@
   "main": "./dist/index.js",
   "types": "./index.d.ts",
   "dependencies": {
-    "@applitools/eyes-api": "link:../eyes-api",
+    "@applitools/eyes-api": "0.0.2",
     "@applitools/eyes-sdk-core": "12.14.2",
     "@applitools/utils": "^1.0.1",
     "@applitools/visual-grid-client": "15.5.14"
@@ -43,7 +43,7 @@
     "puppeteer": ">=5.3.0"
   },
   "devDependencies": {
-    "@applitools/api-extractor": "file:../api-extractor",
+    "@applitools/api-extractor": "1.0.0",
     "@applitools/sdk-coverage-tests": "2.3.5",
     "@applitools/sdk-fake-eyes-server": "2.1.1",
     "@applitools/sdk-release-kit": "0.12.1",
@@ -65,6 +65,7 @@
   "scripts": {
     "lint": "eslint '**/*.js' '**/*.ts'",
     "render": "node ../sdk-shared/scripts/render.js",
+    "link": "node ../sdk-shared/scripts/link.js",
     "build": "yarn build:dist && yarn build:types",
     "build:dist": "tsc",
     "build:types": "api-extractor ./index.ts --out ./index.d.ts --external-modules puppeteer",

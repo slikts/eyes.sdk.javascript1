@@ -10,6 +10,9 @@ function makeSdk(options) {
   const sdk = EyesSDK(options)
 
   return {
+    isDriver: options.spec.isDriver,
+    isElement: options.spec.isElement,
+    isSelector: options.spec.isSelector,
     makeEyes: makeMakeEyes(sdk),
     getViewportSize: makeGetViewportSize(sdk),
     setViewportSize: makeSetViewportSize(sdk),
