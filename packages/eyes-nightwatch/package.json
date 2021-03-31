@@ -46,6 +46,7 @@
     "nw": "yarn nightwatch",
     "lint": "eslint '**/*.ts' '**/*.js'",
     "render": "node ../sdk-shared/scripts/render.js",
+    "link": "node ../sdk-shared/scripts/link.js",
     "build": "yarn build:dist && yarn build:types",
     "build:dist": "tsc",
     "build:types": "api-extractor ./index.ts --out ./index.d.ts --external-modules nightwatch",
