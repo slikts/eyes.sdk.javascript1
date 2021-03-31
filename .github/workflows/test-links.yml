@@ -16,9 +16,6 @@ jobs:
       - uses: actions/checkout@v2
         with:
           fetch-depth: 0
-      - uses: browser-actions/setup-chrome@latest
-        with:
-          chrome-version: stable
       - uses: actions/setup-node@v1
         with:
           node-version: 14
@@ -38,10 +35,9 @@ jobs:
           cd "packages/${{github.event.inputs.name}}"
           yarn run link --include ${{github.event.inputs.links}} --build --install
           yarn
-          yarn list --pattern webdriverio
           npm run build --if-present
           npm run prepublish:setup --if-present
-          CHROME_BIN_PATH=$(which chrome) yarn coverage:sandbox
+          yarn coverage:sandbox
           echo "::endgroup::"
 
           cat coverage-test-report.xml || echo "failed to cat coverage-test-report.xml file"
