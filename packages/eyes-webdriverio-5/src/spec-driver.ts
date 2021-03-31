@@ -263,12 +263,12 @@ export async function hover(
   offset?: {x: number; y: number},
 ): Promise<any> {
   if (isSelector(element)) element = await findElement(browser, element)
-  element = await browser.$(element)
   // NOTE: WDIO6 changed the signature of moveTo method
+  console.log(element)
   if (process.env.APPLITOOLS_WDIO_MAJOR_VERSION === '5') {
-    await (element.moveTo as any)()
+    await (element.moveTo as any)(offset?.x, offset?.y)
   } else {
-    await (element.moveTo as any)()
+    await (element.moveTo as any)({xOffset: offset?.x, yOffset: offset?.y})
   }
 }
 export async function scrollIntoView(browser: Driver, element: Element | Selector, align = false): Promise<void> {
