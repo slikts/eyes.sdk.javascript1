@@ -49,8 +49,8 @@ export function transformDriver(driver: Driver): Driver {
     const cmd = require('selenium-webdriver/lib/command')
     cmd.Name.SWITCH_TO_PARENT_FRAME = 'switchToParentFrame'
     driver.getExecutor().defineCommand(cmd.Name.SWITCH_TO_PARENT_FRAME, 'POST', '/session/:sessionId/frame/parent')
-    return driver
   }
+  return driver
 }
 export function isStaleElementError(error: any): boolean {
   if (!error) return false
