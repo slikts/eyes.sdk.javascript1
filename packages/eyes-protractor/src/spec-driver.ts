@@ -170,11 +170,15 @@ export async function click(driver: Driver, element: Element | Selector): Promis
   if (isSelector(element)) element = await findElement(driver, element)
   await (element as Element).click()
 }
-export async function hover(driver: Driver, element: Element | Selector, {x = 0, y = 0} = {}) {
+export async function hover(
+  driver: Driver,
+  element: Element | Selector,
+  offset?: {x: number, y: number},
+): Promise<void> {
   if (isSelector(element)) element = await findElement(driver, element)
   await driver
     .actions()
-    .mouseMove(element as Element, {x, y})
+    .mouseMove(element as Element, offset)
     .perform()
 }
 export async function type(driver: Driver, element: Element | Selector, keys: string): Promise<void> {

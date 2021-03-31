@@ -199,9 +199,13 @@ export async function click(driver: Driver, element: Element | Selector): Promis
   if (isSelector(element)) element = await findElement(driver, element)
   await call(driver, 'elementIdClick', extractElementId(element))
 }
-export async function hover(driver: Driver, element: Element | Selector, {x = 0, y = 0} = {}): Promise<void> {
+export async function hover(
+  driver: Driver,
+  element: Element | Selector,
+  offset?: {x: number, y: number},
+): Promise<void> {
   if (isSelector(element)) element = await findElement(driver, element)
-  await call(driver, 'moveTo', extractElementId(element), x, y)
+  await call(driver, 'moveTo', extractElementId(element), offset?.x, offset?.y)
 }
 export async function type(driver: Driver, element: Element | Selector, keys: string): Promise<void> {
   if (isSelector(element)) element = await findElement(driver, element)
