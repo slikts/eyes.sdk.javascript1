@@ -265,10 +265,14 @@ export async function hover(
   if (isSelector(element)) element = await findElement(browser, element)
   // NOTE: WDIO6 changed the signature of moveTo method
   console.log(process.env.APPLITOOLS_WDIO_MAJOR_VERSION, element)
-  if (process.env.APPLITOOLS_WDIO_MAJOR_VERSION === '5') {
-    await (element as any).moveTo(offset?.x, offset?.y)
-  } else {
-    await (element as any).moveTo({xOffset: offset?.x, yOffset: offset?.y})
+  try {
+    if (process.env.APPLITOOLS_WDIO_MAJOR_VERSION === '5') {
+      await (element as any).moveTo()
+    } else {
+      await (element as any).moveTo()
+    }
+  } catch (err) {
+    console.log(err)
   }
 }
 export async function scrollIntoView(browser: Driver, element: Element | Selector, align = false): Promise<void> {

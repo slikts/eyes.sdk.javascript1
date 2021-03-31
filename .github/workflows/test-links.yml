@@ -17,6 +17,8 @@ jobs:
         with:
           fetch-depth: 0
       - uses: browser-actions/setup-chrome@latest
+        with:
+          chrome-version: stable
       - uses: actions/setup-node@v1
         with:
           node-version: 14
