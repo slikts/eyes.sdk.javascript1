@@ -14,6 +14,8 @@ const tags = {
   cdp: ['chrome']
 }
 const protocol = process.env.APPLITOOLS_WDIO_PROTOCOL in tags ? process.env.APPLITOOLS_WDIO_PROTOCOL : 'wd'
+const grep = process.env.MOCHA_GREP
+
 module.exports = {
   spec: [
     './test/generic/*.spec.js',
@@ -24,5 +26,5 @@ module.exports = {
   timeout: 0,
   reporter: 'spec-xunit-file',
   require: ['node_modules/@applitools/sdk-shared/coverage-tests/util/mocha-hooks.js'],
-  grep: new RegExp(`^[^\(]*?(\\((?:@(${tags[protocol].join('|')}) ?)+\\))?$`),
+  grep: new RegExp(`^${grep ? `.*?${grep}.*?` : '[^(]*?'}(\\((?:@(${tags[protocol].join('|')}) ?)+\\))?$`, 'i'),
 }

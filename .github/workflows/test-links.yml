@@ -1,4 +1,4 @@
-name: Coverage test with links
+name: Coverage test (advanced)
 
 on:
   workflow_dispatch:
@@ -8,6 +8,9 @@ on:
         required: true
       links:
         description: "links"
+        default: "eyes-sdk-core"
+      grep:
+        description: "grep"
 jobs:
   test:
     runs-on: ubuntu-latest
@@ -20,16 +23,6 @@ jobs:
         with:
           node-version: 14
       - run: |
-          git config --local user.email "action@github.com"
-          git config --local user.name "GitHub Action"
-
-          echo "::group::create temp branch"
-          DATE=$(date +%F_%H-%M)
-          BRANCH="${{github.event.inputs.name}}_$DATE"
-          git checkout -b $BRANCH
-          git push -u origin $BRANCH
-          echo "::endgroup::"
-
           echo "::group::test ${{github.event.inputs.name}}"
           yarn install --cwd "packages/sdk-shared"
           cd "packages/${{github.event.inputs.name}}"
@@ -41,9 +34,8 @@ jobs:
           echo "::endgroup::"
 
           cat coverage-test-report.xml || echo "failed to cat coverage-test-report.xml file"
-          git branch -d $BRANCH
-          git push origin --delete $BRANCH
     env:
+      MOCHA_GREP: ${{github.event.inputs.grep}}
       CVG_TESTS_REMOTE: http://localhost:4444/wd/hub
       APPLITOOLS_API_KEY_SDK: ${{secrets.APPLITOOLS_API_KEY_SDK}}
       APPLITOOLS_API_KEY: ${{secrets.APPLITOOLS_API_KEY}}

@@ -64,7 +64,7 @@ yargs
   .help().argv
 
 async function link({
-  include,
+  include = [],
   exclude = [],
   packagePath = process.cwd(),
   packagesPath = path.resolve(packagePath, '..'),
@@ -109,7 +109,7 @@ async function link({
       const results = await promise
       let [result, ...nestedResults] = await new Promise(resolve => {
         const commands = []
-        if (runInstall) commands.push('yarn install && sleep 20')
+        if (runInstall) commands.push('yarn install')
         if (runBuild && dependency.hasBuild) commands.push('yarn build')
         commands.push('yarn link')
         exec(commands.join(' && '), {cwd: dependency.path}, async error => {
@@ -131,7 +131,7 @@ async function link({
 }
 
 async function unlink({
-  include,
+  include = [],
   exclude = [],
   packagePath = process.cwd(),
   packagesPath = path.resolve(packagePath, '..'),
@@ -187,7 +187,7 @@ async function getPackage(packagePath) {
   }
 }
 
-async function getPackages(packagesPath, {include, exclude = []} = {}) {
+async function getPackages(packagesPath, {include = [], exclude = []} = {}) {
   const entries = await new Promise(resolve => {
     fs.readdir(packagesPath, (err, entries) => resolve(!err ? entries : []))
   })
@@ -198,7 +198,7 @@ async function getPackages(packagesPath, {include, exclude = []} = {}) {
     if (
       !data ||
       exclude.some(name => name === data.name || name === data.alias) ||
-      (include && include.every(name => name !== data.name && name !== data.alias))
+      include.every(name => name !== data.name && name !== data.alias)
     ) {
       return packages
     }
