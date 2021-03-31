@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- fix `types.instanceOf` will immediately return `false` for non-object values
 
 ## 1.1.1 - 2021/3/25
 
