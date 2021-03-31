@@ -12,27 +12,42 @@
     "tests"
   ],
   "homepage": "https://applitools.com",
-  "author": {
-    "name": "Applitools Team",
-    "email": "team@applitools.com"
+  "bugs": {
+    "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/applitools/eyes.sdk.javascript1.git"
   },
-  "bugs": {
-    "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
+  "license": "SEE LICENSE IN LICENSE",
+  "author": {
+    "name": "Applitools Team",
+    "email": "team@applitools.com"
   },
+  "main": "./dist/index.js",
+  "types": "./types/index.d.ts",
   "directories": {
-    "src": "./src",
-    "test": "./test"
+    "test": "./test",
+    "src": "./src"
   },
   "files": [
     "dist",
     "types"
   ],
-  "main": "./dist/index.js",
-  "types": "./types/index.d.ts",
+  "scripts": {
+    "lint": "eslint '**/*.ts'",
+    "build": "tsc",
+    "preversion": "bongo preversion && yarn build",
+    "version": "bongo version",
+    "postversion": "bongo postversion --skip-release-notification",
+    "deps": "bongo deps",
+    "prepublish:setup": "echo 'setup is a no-op. Move along, nothing to see here.'"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "yarn bongo lint"
+    }
+  },
   "dependencies": {},
   "devDependencies": {
     "@applitools/sdk-release-kit": "0.13.0",
@@ -46,22 +61,7 @@
     "prettier": "^2.1.2",
     "typescript": "^4.0.5"
   },
-  "scripts": {
-    "lint": "eslint '**/*.ts'",
-    "build": "tsc",
-    "preversion": "bongo preversion && yarn build",
-    "version": "bongo version",
-    "postversion": "bongo postversion --skip-release-notification",
-    "deps": "bongo deps",
-    "prepublish:setup": "echo 'setup is a no-op. Move along, nothing to see here.'"
-  },
-  "license": "SEE LICENSE IN LICENSE",
   "engines": {
     "node": ">= 8.9.0"
-  },
-  "husky": {
-    "hooks": {
-      "pre-push": "yarn bongo lint"
-    }
   }
 }

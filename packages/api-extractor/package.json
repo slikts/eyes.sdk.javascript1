@@ -9,16 +9,21 @@
     "type definition"
   ],
   "homepage": "https://applitools.com",
-  "author": {
-    "name": "Applitools Team",
-    "email": "team@applitools.com"
+  "bugs": {
+    "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
   },
   "repository": {
     "type": "git",
     "url": "git@github.com:applitools/eyes.sdk.javascript1.git"
   },
-  "bugs": {
-    "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
+  "license": "SEE LICENSE IN LICENSE",
+  "author": {
+    "name": "Applitools Team",
+    "email": "team@applitools.com"
+  },
+  "main": "./index.js",
+  "bin": {
+    "api-extractor": "./bin/cli.js"
   },
   "directories": {
     "lib": "./src",
@@ -29,10 +34,19 @@
     "bin",
     "index.js"
   ],
-  "bin": {
-    "api-extractor": "./bin/cli.js"
+  "scripts": {
+    "lint": "eslint '**/*.js'",
+    "preversion": "bongo preversion",
+    "version": "bongo version",
+    "postversion": "bongo postversion",
+    "deps": "bongo deps",
+    "prepublish:setup": ""
   },
-  "main": "./index.js",
+  "husky": {
+    "hooks": {
+      "pre-push": "yarn bongo lint"
+    }
+  },
   "dependencies": {
     "prettier": "2.2.1",
     "typedoc": "0.20.33",
@@ -51,21 +65,7 @@
     "husky": "^4.3.7",
     "mocha": "^8.0.1"
   },
-  "scripts": {
-    "lint": "eslint '**/*.js'",
-    "preversion": "bongo preversion",
-    "version": "bongo version",
-    "postversion": "bongo postversion",
-    "deps": "bongo deps",
-    "prepublish:setup": ""
-  },
-  "license": "SEE LICENSE IN LICENSE",
   "engines": {
     "node": ">=8.9.0"
-  },
-  "husky": {
-    "hooks": {
-      "pre-push": "yarn bongo lint"
-    }
   }
 }

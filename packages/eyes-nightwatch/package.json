@@ -17,33 +17,72 @@
     "nightwatchjs"
   ],
   "homepage": "https://applitools.com",
-  "author": {
-    "name": "Applitools Team",
-    "email": "team@applitools.com"
+  "bugs": {
+    "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/applitools/eyes.sdk.javascript1.git"
   },
-  "bugs": {
-    "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
+  "license": "SEE LICENSE IN LICENSE",
+  "author": {
+    "name": "Applitools Team",
+    "email": "team@applitools.com"
   },
-  "directories": {
-    "example": "./example",
-    "lib": "./lib",
-    "test": "./test"
-  },
-  "files": ["dist", "commands", "index.d.ts"],
   "main": "./dist/index.js",
   "types": "./index.d.ts",
+  "directories": {
+    "lib": "./lib",
+    "example": "./example",
+    "test": "./test"
+  },
+  "files": [
+    "dist",
+    "commands",
+    "index.d.ts"
+  ],
+  "scripts": {
+    "nightwatch": "nightwatch --config test/nightwatch.conf.js",
+    "nw": "yarn nightwatch",
+    "lint": "eslint '**/*.ts' '**/*.js'",
+    "render": "node ../sdk-shared/scripts/render.js",
+    "build": "yarn build:dist && yarn build:types",
+    "build:dist": "tsc",
+    "build:types": "api-extractor ./index.ts --out ./index.d.ts --external-modules nightwatch",
+    "test": "yarn build:dist && yarn test:it && yarn test:e2e",
+    "test:it": "yarn test:it:headless:jwp && yarn test:it:headless:w3c && yarn test:it:headed && yarn test:it:mobile",
+    "test:it:headless:jwp": "yarn nightwatch test/it/spec-driver-headless-desktop.spec.js",
+    "test:it:headless:w3c": "yarn nightwatch test/it/spec-driver-headless-desktop.spec.js --env firefox",
+    "test:it:headed": "yarn nightwatch --env firefox test/it/spec-driver-onscreen-desktop.spec.js",
+    "test:it:mobile": "yarn nightwatch test/it/spec-driver-mobile.spec.js",
+    "test:e2e": "yarn nightwatch --eyes-config applitools.config.js test/e2e/*.spec.js",
+    "coverage:generate": "coverage-tests generate node_modules/@applitools/sdk-shared/coverage-tests/generic/index.js --name 'eyes-nightwatch'",
+    "coverage:report": "coverage-tests report node_modules/@applitools/sdk-shared/coverage-tests/generic/index.js --name 'eyes-nightwatch'",
+    "coverage:sandbox": "yarn coverage:generate && yarn test:coverage && yarn coverage:report --sandbox",
+    "coverage:prod": "yarn coverage:generate && yarn test:coverage && yarn coverage:report",
+    "docker:setup": "node ../sdk-shared/src/generate-docker-compose-config.js && docker-compose up -d",
+    "docker:teardown": "docker-compose down",
+    "test:coverage": "APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-nightwatch' APPLITOOLS_BATCH_ID=$(uuidgen) XUNIT_FILE=coverage-test-report.xml mocha --config .mocharc.cvg.js",
+    "types:generate": "rm -rf ./typings && tsc --declaration --declarationDir ./typings --allowJs --emitDeclarationOnly ./index.js",
+    "preversion": "bongo preversion && yarn test && yarn coverage:prod",
+    "version": "bongo version",
+    "postversion": "bongo postversion",
+    "deps": "bongo deps",
+    "prepublish:setup": "yarn docker:setup"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "yarn bongo lint"
+    }
+  },
   "dependencies": {
-    "@applitools/eyes-api": "link:../eyes-api",
+    "@applitools/eyes-api": "0.0.2",
     "@applitools/eyes-sdk-core": "12.14.2",
-    "@applitools/utils": "^1.0.1",
+    "@applitools/utils": "1.1.0",
     "@applitools/visual-grid-client": "15.5.14"
   },
   "devDependencies": {
-    "@applitools/api-extractor": "file:../api-extractor",
+    "@applitools/api-extractor": "1.0.0",
     "@applitools/sdk-coverage-tests": "2.3.5",
     "@applitools/sdk-fake-eyes-server": "2.1.1",
     "@applitools/sdk-release-kit": "0.12.1",
@@ -68,42 +107,7 @@
   "peerDependencies": {
     "nightwatch": ">=1.3.4"
   },
-  "scripts": {
-    "nightwatch": "nightwatch --config test/nightwatch.conf.js",
-    "nw": "yarn nightwatch",
-    "lint": "eslint '**/*.ts' '**/*.js'",
-    "render": "node ../sdk-shared/scripts/render.js",
-    "build": "yarn build:dist && yarn build:types",
-    "build:dist": "tsc",
-    "build:types": "api-extractor ./index.ts --out ./index.d.ts --external-modules nightwatch",
-    "test": "yarn build:dist && yarn test:it && yarn test:e2e",
-    "test:it": "yarn test:it:headless:jwp && yarn test:it:headless:w3c && yarn test:it:headed && yarn test:it:mobile",
-    "test:it:headless:jwp": "yarn nightwatch test/it/spec-driver-headless-desktop.spec.js",
-    "test:it:headless:w3c": "yarn nightwatch test/it/spec-driver-headless-desktop.spec.js --env firefox",
-    "test:it:headed": "yarn nightwatch --env firefox test/it/spec-driver-onscreen-desktop.spec.js",
-    "test:it:mobile": "yarn nightwatch test/it/spec-driver-mobile.spec.js",
-    "test:e2e": "yarn nightwatch --eyes-config applitools.config.js test/e2e/*.spec.js",
-    "coverage:generate": "coverage-tests generate node_modules/@applitools/sdk-shared/coverage-tests/generic/index.js --name 'eyes-nightwatch'",
-    "coverage:report": "coverage-tests report node_modules/@applitools/sdk-shared/coverage-tests/generic/index.js --name 'eyes-nightwatch'",
-    "coverage:sandbox": "yarn coverage:generate && yarn test:coverage && yarn coverage:report --sandbox",
-    "coverage:prod": "yarn coverage:generate && yarn test:coverage && yarn coverage:report",
-    "docker:setup": "node ../sdk-shared/src/generate-docker-compose-config.js && docker-compose up -d",
-    "docker:teardown": "docker-compose down",
-    "test:coverage": "APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-nightwatch' APPLITOOLS_BATCH_ID=$(uuidgen) XUNIT_FILE=coverage-test-report.xml mocha --config .mocharc.cvg.js",
-    "types:generate": "rm -rf ./typings && tsc --declaration --declarationDir ./typings --allowJs --emitDeclarationOnly ./index.js",
-    "version": "bongo version",
-    "preversion": "bongo preversion && yarn test && yarn coverage:prod",
-    "postversion": "bongo postversion",
-    "deps": "bongo deps",
-    "prepublish:setup": "yarn docker:setup"
-  },
-  "license": "SEE LICENSE IN LICENSE",
   "engines": {
     "node": ">=8.9.0"
-  },
-  "husky": {
-    "hooks": {
-      "pre-push": "yarn bongo lint"
-    }
   }
 }

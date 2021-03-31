@@ -12,17 +12,20 @@
     "tests"
   ],
   "homepage": "https://applitools.com",
-  "author": {
-    "name": "Applitools Team",
-    "email": "team@applitools.com"
+  "bugs": {
+    "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/applitools/eyes.sdk.javascript1.git"
   },
-  "bugs": {
-    "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
+  "license": "SEE LICENSE IN LICENSE",
+  "author": {
+    "name": "Applitools Team",
+    "email": "team@applitools.com"
   },
+  "main": "./dist/index.js",
+  "types": "./types/index.d.ts",
   "directories": {
     "lib": "./src"
   },
@@ -30,8 +33,17 @@
     "dist",
     "types"
   ],
-  "main": "./dist/index.js",
-  "types": "./types/index.d.ts",
+  "scripts": {
+    "lint": "eslint '**/*.ts' '**/*.js'",
+    "build": "tsc",
+    "test": "yarn build && yarn test:unit",
+    "test:unit": " mocha --no-timeouts './test/unit/*.spec.js'",
+    "preversion": "bongo preversion && yarn test && yarn build",
+    "version": "bongo version",
+    "postversion": "bongo postversion --skip-release-notification",
+    "deps": "bongo deps",
+    "prepublish:setup": "echo 'no setup'"
+  },
   "dependencies": {
     "@applitools/logger": "0.0.2",
     "@applitools/utils": "1.1.1"
@@ -50,18 +62,6 @@
     "prettier": "^2.1.2",
     "typescript": "^4.0.5"
   },
-  "scripts": {
-    "lint": "eslint '**/*.ts' '**/*.js'",
-    "build": "tsc",
-    "test": "yarn build && yarn test:unit",
-    "test:unit": " mocha --no-timeouts './test/unit/*.spec.js'",
-    "preversion": "bongo preversion && yarn test && yarn build",
-    "version": "bongo version",
-    "postversion": "bongo postversion --skip-release-notification",
-    "deps": "bongo deps",
-    "prepublish:setup": "echo 'no setup'"
-  },
-  "license": "SEE LICENSE IN LICENSE",
   "engines": {
     "node": ">= 8.9.0"
   }

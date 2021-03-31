@@ -18,25 +18,58 @@
     "webdriverjs"
   ],
   "homepage": "https://applitools.com",
-  "author": {
-    "name": "Applitools Team",
-    "email": "team@applitools.com"
+  "bugs": {
+    "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/applitools/eyes.sdk.javascript1.git"
   },
-  "bugs": {
-    "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
+  "license": "SEE LICENSE IN LICENSE",
+  "author": {
+    "name": "Applitools Team",
+    "email": "team@applitools.com"
   },
-  "directories": {
-    "example": "./example",
-    "lib": "./lib",
-    "test": "./test"
-  },
-  "files": ["dist", "index.d.ts"],
   "main": "./dist/index.js",
   "types": "./index.d.ts",
+  "directories": {
+    "lib": "./lib",
+    "example": "./example",
+    "test": "./test"
+  },
+  "files": [
+    "dist",
+    "index.d.ts"
+  ],
+  "scripts": {
+    "lint": "eslint '**/*.ts' '**/*.js'",
+    "render": "node ../sdk-shared/scripts/render.js",
+    "capture-dom": "node ../sdk-shared/scripts/capture-dom.js",
+    "link": "node ../sdk-shared/scripts/link.js",
+    "doc": "typedoc ./index.d.ts --theme minimal --tsconfig ./tsconfig.doc.json",
+    "build": "yarn build:dist && yarn build:types",
+    "build:dist": "tsc",
+    "build:types": "api-extractor ./index.ts --out ./index.d.ts --external-modules selenium-webdriver",
+    "test": "yarn build:dist && yarn test:it",
+    "test:it": "mocha -r ./test/util/version-alias.js --no-timeouts --parallel --jobs 15 './test/it/**/*.spec.js'",
+    "test:coverage": "APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-selenium' APPLITOOLS_BATCH_ID=$(uuidgen) XUNIT_FILE=coverage-test-report.xml mocha --config .mocharc.cvg.js",
+    "coverage:generate": "coverage-tests generate node_modules/@applitools/sdk-shared/coverage-tests/generic/index.js --name 'eyes-selenium'",
+    "coverage:report": "coverage-tests report node_modules/@applitools/sdk-shared/coverage-tests/generic/index.js --name 'eyes-selenium'",
+    "coverage:sandbox": "yarn coverage:generate && yarn test:coverage && yarn coverage:report --sandbox",
+    "coverage:prod": "yarn coverage:generate && yarn test:coverage && yarn coverage:report",
+    "docker:setup": "node ../sdk-shared/src/generate-docker-compose-config.js && docker-compose up -d",
+    "docker:teardown": "docker-compose down",
+    "preversion": "bongo preversion && yarn test && yarn coverage:prod",
+    "version": "bongo version",
+    "postversion": "bongo postversion",
+    "deps": "bongo deps",
+    "prepublish:setup": "yarn docker:setup"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "yarn bongo lint"
+    }
+  },
   "dependencies": {
     "@applitools/eyes-api": "0.0.2",
     "@applitools/eyes-sdk-core": "12.14.2",
@@ -74,37 +107,7 @@
   "peerDependencies": {
     "selenium-webdriver": ">=3.6.0"
   },
-  "scripts": {
-    "lint": "eslint '**/*.ts' '**/*.js'",
-    "render": "node ../sdk-shared/scripts/render.js",
-    "capture-dom": "node ../sdk-shared/scripts/capture-dom.js",
-    "link": "node ../sdk-shared/scripts/link.js",
-    "doc": "typedoc ./index.d.ts --theme minimal --tsconfig ./tsconfig.doc.json",
-    "build": "yarn build:dist && yarn build:types",
-    "build:dist": "tsc",
-    "build:types": "api-extractor ./index.ts --out ./index.d.ts --external-modules selenium-webdriver",
-    "test": "yarn build:dist && yarn test:it",
-    "test:it": "mocha -r ./test/util/version-alias.js --no-timeouts --parallel --jobs 15 './test/it/**/*.spec.js'",
-    "test:coverage": "APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-selenium' APPLITOOLS_BATCH_ID=$(uuidgen) XUNIT_FILE=coverage-test-report.xml mocha --config .mocharc.cvg.js",
-    "coverage:generate": "coverage-tests generate node_modules/@applitools/sdk-shared/coverage-tests/generic/index.js --name 'eyes-selenium'",
-    "coverage:report": "coverage-tests report node_modules/@applitools/sdk-shared/coverage-tests/generic/index.js --name 'eyes-selenium'",
-    "coverage:sandbox": "yarn coverage:generate && yarn test:coverage && yarn coverage:report --sandbox",
-    "coverage:prod": "yarn coverage:generate && yarn test:coverage && yarn coverage:report",
-    "docker:setup": "node ../sdk-shared/src/generate-docker-compose-config.js && docker-compose up -d",
-    "docker:teardown": "docker-compose down",
-    "preversion": "bongo preversion && yarn test && yarn coverage:prod",
-    "version": "bongo version",
-    "postversion": "bongo postversion",
-    "deps": "bongo deps",
-    "prepublish:setup": "yarn docker:setup"
-  },
-  "license": "SEE LICENSE IN LICENSE",
   "engines": {
     "node": ">=8.9.0"
-  },
-  "husky": {
-    "hooks": {
-      "pre-push": "yarn bongo lint"
-    }
   }
 }
