@@ -77,6 +77,7 @@ export function has<TKey extends PropertyKey>(
 export function instanceOf<TCtor>(value: any, ctorName: string): value is TCtor
 export function instanceOf<TCtor extends Function>(value: any, ctor: TCtor): value is TCtor['prototype']
 export function instanceOf(value: any, ctorOrName: Function | string): boolean {
+  if (!isObject(value)) return false
   if (!isString(ctorOrName)) return value instanceof ctorOrName
   let proto = Object.getPrototypeOf(value)
   while (proto) {
