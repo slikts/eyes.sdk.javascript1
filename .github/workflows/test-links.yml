@@ -48,7 +48,7 @@ jobs:
           git branch -d $BRANCH
           git push origin --delete $BRANCH
     env:
-      CVG_TESTS_REMOTE: ${{secrets.CVG_TESTS_REMOTE}}
+      CVG_TESTS_REMOTE: http://localhost:4444/wd/hub
       APPLITOOLS_API_KEY_SDK: ${{secrets.APPLITOOLS_API_KEY_SDK}}
       APPLITOOLS_API_KEY: ${{secrets.APPLITOOLS_API_KEY}}
       APPLITOOLS_API_KEY_READ: ${{secrets.APPLITOOLS_API_KEY_READ}}
