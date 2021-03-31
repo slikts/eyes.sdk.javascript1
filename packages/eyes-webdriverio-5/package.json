@@ -98,7 +98,7 @@
     "version": "bongo version",
     "postversion": "bongo postversion",
     "deps": "bongo deps",
-    "prepublish:setup": "npx chromedriver --post 4444 --url-base /wd/hub"
+    "prepublish:setup": "chromedriver --port='4444' --url-base='/wd/hub' &"
   },
   "license": "SEE LICENSE IN LICENSE",
   "engines": {
