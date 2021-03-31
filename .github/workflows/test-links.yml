@@ -35,6 +35,7 @@ jobs:
           cd "packages/${{github.event.inputs.name}}"
           yarn run link --include ${{github.event.inputs.links}} --build --install
           yarn
+          yarn list --pattern webdriverio
           npm run build --if-present
           npm run prepublish:setup --if-present
           yarn coverage:sandbox

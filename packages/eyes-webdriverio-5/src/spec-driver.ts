@@ -264,7 +264,7 @@ export async function hover(
 ): Promise<void> {
   if (isSelector(element)) element = await findElement(browser, element)
   // NOTE: WDIO6 changed the signature of moveTo method
-  console.log(element)
+  console.log(process.env.APPLITOOLS_WDIO_MAJOR_VERSION, element)
   if (process.env.APPLITOOLS_WDIO_MAJOR_VERSION === '5') {
     await (element as any).moveTo(offset?.x, offset?.y)
   } else {
