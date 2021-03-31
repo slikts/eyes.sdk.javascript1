@@ -264,7 +264,7 @@ export async function hover(
 ): Promise<void> {
   if (isSelector(element)) element = await findElement(browser, element)
   // NOTE: WDIO6 changed the signature of moveTo method
-  console.log(process.env.APPLITOOLS_WDIO_MAJOR_VERSION, element)
+  console.log(browser.isDevTools, process.env.APPLITOOLS_WDIO_MAJOR_VERSION, element)
   try {
     if (process.env.APPLITOOLS_WDIO_MAJOR_VERSION === '5') {
       await (element as any).moveTo()
@@ -273,6 +273,7 @@ export async function hover(
     }
   } catch (err) {
     console.log(err)
+    throw err
   }
 }
 export async function scrollIntoView(browser: Driver, element: Element | Selector, align = false): Promise<void> {
@@ -336,6 +337,7 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
       const browserOptionsName = browserOptionsNames[browser || options.capabilities.browserName]
       if (browserOptionsName) {
         const browserOptions = options.capabilities[browserOptionsName] || {}
+        browserOptions.binary = process.env.CHROME_BIN_PATH
         browserOptions.args = [...(browserOptions.args || []), ...args]
         if (headless) browserOptions.args.push('headless')
         if (attach) {
@@ -355,6 +357,7 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
       noProxy: proxy.bypass.join(','),
     }
   }
+  console.log(options)
   const driver = await webdriverio.remote(options)
   return [
     driver,

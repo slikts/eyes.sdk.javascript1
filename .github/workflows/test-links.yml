@@ -41,7 +41,7 @@ jobs:
           yarn list --pattern webdriverio
           npm run build --if-present
           npm run prepublish:setup --if-present
-          yarn coverage:sandbox
+          CHROME_BIN_PATH=$(which chrome) yarn coverage:sandbox
           echo "::endgroup::"
 
           cat coverage-test-report.xml || echo "failed to cat coverage-test-report.xml file"
