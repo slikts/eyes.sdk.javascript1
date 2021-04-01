@@ -38,8 +38,14 @@ function makeSDK(settings = {}) {
 
     return {open, getResults}
 
-    function open({driver, config}) {
+    function open({driver, config, on}) {
       assert.ok(isDriver(driver), '"driver" is not a driver')
+
+      on('setSizeWillStart', {viewportSize: config.viewportSize})
+      on('setSizeEnded')
+      on('initStarted')
+      on('initEnded')
+      on('testStarted', {sessionId: 'session-id'})
 
       test.config = config
       history.push({command: 'open', data: {driver, config}})
@@ -53,10 +59,13 @@ function makeSDK(settings = {}) {
         abort,
       }
 
-      function check({settings, config}) {
+      function check({settings = {}, config = {}} = {}) {
         test.steps.push({settings, config})
         history.push({command: 'check', data: {settings, config}})
-        return {asExpected: true}
+        const asExpected = !settings.region || !settings.region.includes('diff')
+        on('validationWillStart', {sessionId: 'session-id', validationInfo: {validationId: 0, tag: ''}})
+        on('validationEnded', {sessionId: 'session-id', validationId: 0, validationResult: {asExpected}})
+        return {asExpected}
       }
 
       function locate({settings, config}) {
@@ -77,7 +86,7 @@ function makeSDK(settings = {}) {
       function close() {
         const isDifferent = test.steps.some(step => step.settings.region && step.settings.region.includes('diff'))
         const isNew = test.steps.some(step => step.settings.region && step.settings.region.includes('new'))
-        return {
+        const testResults = {
           id: 'test-id',
           name: 'test',
           batchId: 'batch-id',
@@ -90,6 +99,10 @@ function makeSDK(settings = {}) {
           isDifferent,
           url: 'https://eyes.applitools.com',
         }
+
+        on('testEnded', {sessionId: 'session-id', testResults})
+
+        return testResults
       }
 
       function abort() {

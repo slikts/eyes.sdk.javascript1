@@ -21,14 +21,21 @@ export abstract class SessionEventHandler {
   /** @internal */
   attach(eyes: Eyes) {
     this._detach = eyes.on((name, data = {}) => {
-      if (utils.types.isFunction(this, name)) {
-        const args = [
-          data.viewportSize || data.sessionId,
-          data.testResults || data.validationInfo || data.validationId,
-          data.validationResult,
-        ]
-        this[name](...args)
+      if (!utils.types.isFunction(this, name)) return
+      const args = []
+      if (name === 'setSizeWillStart') {
+        args.push(new RectangleSizeData(data.viewportSize))
+      } else if (['testStarted', 'validationWillStart', 'validationEnded', 'testEnded'].includes(name)) {
+        args.push(data.sessionId)
+        if (name === 'validationWillStart') {
+          args.push(new ValidationInfoData(data.validationInfo))
+        } else if (name === 'validationEnded') {
+          args.push(data.validationId, new ValidationResultData(data.validationResult))
+        } else if (name === 'testEnded') {
+          args.push(new TestResultsData(data.testResults))
+        }
       }
+      this[name](...args)
     })
   }
 

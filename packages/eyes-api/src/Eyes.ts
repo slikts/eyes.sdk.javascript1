@@ -152,17 +152,15 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   /** @undocumented */
   on(handler: (event: string, data?: Record<string, any>) => any): () => void
   /** @undocumented */
-  on(event: 'initStarted', handler: () => any): () => void
-  /** @undocumented */
-  on(event: 'initEnded', handler: () => any): () => void
-  /** @undocumented */
   on(event: 'setSizeWillStart', handler: (data: {viewportSize: RectangleSize}) => any): () => void
   /** @undocumented */
   on(event: 'setSizeEnded', handler: () => any): () => void
   /** @undocumented */
-  on(event: 'testStarted', handler: (data: {sessionId: string}) => any): () => void
+  on(event: 'initStarted', handler: () => any): () => void
   /** @undocumented */
-  on(event: 'testEnded', handler: (data: {sessionId: string; testResults: TestResults}) => any): () => void
+  on(event: 'initEnded', handler: () => any): () => void
+  /** @undocumented */
+  on(event: 'testStarted', handler: (data: {sessionId: string}) => any): () => void
   /** @undocumented */
   on(
     event: 'validationWillStart',
@@ -170,9 +168,11 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   ): () => void
   /** @undocumented */
   on(
-    event: 'validationWillStart',
+    event: 'validationEnded',
     handler: (data: {sessionId: string; validationId: number; validationResult: ValidationResult}) => any,
   ): () => void
+  /** @undocumented */
+  on(event: 'testEnded', handler: (data: {sessionId: string; testResults: TestResults}) => any): () => void
   on(event: string | ((...args: any[]) => any), handler?: (...args: any[]) => any): () => void {
     if (utils.types.isFunction(event)) [handler, event] = [event, '*']
 
