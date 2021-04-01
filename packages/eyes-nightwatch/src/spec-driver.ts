@@ -45,7 +45,7 @@ function call<
 >(driver: Driver, command: TCommand, ...args: any[]): Promise<TResult> {
   return new Promise<TResult>((resolve, reject) =>
     (driver[command] as any)(...args, (result: Nightwatch.NightwatchCallbackResult<TResult>) => {
-      if (!result.value) resolve(result as any)
+      if (!('value' in result)) resolve(result as any)
       else if (!result.status) resolve(result.value as TResult)
       else reject(result.value)
     }),
