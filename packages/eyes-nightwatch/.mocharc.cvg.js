@@ -13,7 +13,7 @@ const grep = process.env.MOCHA_GREP
 module.exports = {
   spec: [
     './test/generic/*.spec.js',
-    'node_modules/@applitools/sdk-shared/coverage-tests/custom/**/*.spec.js',
+    // 'node_modules/@applitools/sdk-shared/coverage-tests/custom/**/*.spec.js',
   ],
   parallel: true,
   jobs: 15,
