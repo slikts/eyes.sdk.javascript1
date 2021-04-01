@@ -248,6 +248,7 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
   const conf: any = {
     test_settings: {
       default: {
+        output: false,
         webdriver: {
           port: 4444,
           default_path_prefix: '/wd/hub',
