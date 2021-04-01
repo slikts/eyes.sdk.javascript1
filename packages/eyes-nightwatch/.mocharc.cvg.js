@@ -3,10 +3,10 @@ const tags = [
   'webdriver',
   // 'mobile',
   'chrome',
-  'firefox',
-  'ie',
-  'edge',
-  'safari',
+  // 'firefox',
+  // 'ie',
+  // 'edge',
+  // 'safari',
 ]
 const grep = process.env.MOCHA_GREP
 
