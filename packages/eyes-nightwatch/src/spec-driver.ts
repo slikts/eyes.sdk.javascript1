@@ -77,9 +77,9 @@ export function transformElement(element: Element): Element {
 }
 export function isStaleElementError(err: any): boolean {
   if (!err) return false
-  const errOrResult = err.originalError || err
-  const error = errOrResult && errOrResult.error
-  return error && (error.includes('stale element reference') || error.includes('is stale'))
+  const error = err.originalError || err
+  const message = error && error.message
+  return message && (message.includes('stale element reference') || message.includes('is stale'))
 }
 export function isEqualElements(_driver: Driver, element1: Element, element2: Element) {
   if (!element1 || !element2) return false
