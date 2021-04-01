@@ -3,6 +3,10 @@
 ## Unreleased
 
 
+## 2.3.9 - 2021/4/1
+
+- add `api` parameter to test object in bongo report
+
 ## 2.3.8 - 2021/2/23
 
 - fix bug with unskipped and unexecuted tests

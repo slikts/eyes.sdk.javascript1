@@ -16,6 +16,7 @@ function convertJunitXmlToResultSchema({junit, browser, metadata}) {
         parameters: {
           browser: browser || 'chrome',
           mode: testMeta.executionMode,
+          api: testMeta.api,
         },
         passed: testResults && !isSkipped ? !testResults.failure : undefined,
         isGeneric: testMeta.isGeneric,
