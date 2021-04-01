@@ -168,6 +168,8 @@ function makeCheckWindow({
         return
       }
 
+      const hooks = scriptHooksToArray(scriptHooks.beforeCaptureScreenshot)
+      console.log('hooks', hooks)
       const renderRequest = createRenderRequest({
         url,
         browser: browsers[index],
@@ -176,7 +178,7 @@ function makeCheckWindow({
         selector,
         selectorsToFindRegionsFor,
         region,
-        scriptHooks,
+        scriptHooks: hooks[index],
         sendDom,
         visualGridOptions,
       })
@@ -325,6 +327,22 @@ function makeCheckWindow({
       })
 
       return renderRequestTask.promise
+    }
+
+    function scriptHooksToArray(hooks) {
+      if (Array.isArray(hooks)) {
+        return hooks
+      }
+
+      if (!hooks || typeof hooks === 'string') {
+        return Array(browsers.length).fill(hooks)
+      }
+
+      return Object.keys(hooks).reduce((acc, key, index) => {
+        const {name} = browsers[index]
+        acc.push(name ? hooks[name] : hooks[key])
+        return acc
+      }, [])
     }
   }
 }
