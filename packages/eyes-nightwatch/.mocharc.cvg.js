@@ -4,8 +4,8 @@ const tags = [
   // 'mobile',
   // 'chrome',
   'firefox',
-  // 'ie',
-  // 'edge',
+  'ie',
+  'edge',
   'safari',
 ]
 const grep = process.env.MOCHA_GREP
