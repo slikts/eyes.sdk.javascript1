@@ -121,7 +121,7 @@ describe('Report', () => {
         parameters: {
           browser: 'chrome',
           mode: 'css',
-          api: undefined,
+          api: 'classic',
         },
         passed: true,
         isSkipped: false,
@@ -163,7 +163,7 @@ describe('Report', () => {
           parameters: {
             browser: 'chrome',
             mode: 'css',
-            api: undefined,
+            api: 'classic',
           },
           passed: true,
           isSkipped: false,
@@ -209,7 +209,7 @@ describe('Report', () => {
             parameters: {
               browser: 'chrome',
               mode: 'css',
-              api: undefined,
+              api: 'classic',
             },
             passed: true,
             isSkipped: false,
@@ -241,6 +241,7 @@ describe('Report', () => {
         parameters: {
           browser: 'chrome',
           mode: 'visualgrid',
+          api: undefined,
         },
         passed: undefined,
         isSkipped: true,
@@ -251,6 +252,7 @@ describe('Report', () => {
         parameters: {
           browser: 'chrome',
           mode: 'css',
+          api: 'classic',
         },
         passed: true,
         isSkipped: false,
@@ -261,6 +263,7 @@ describe('Report', () => {
         parameters: {
           browser: 'chrome',
           mode: 'scroll',
+          api: undefined,
         },
         passed: undefined,
         isSkipped: true,
@@ -271,6 +274,7 @@ describe('Report', () => {
         parameters: {
           browser: 'chrome',
           mode: undefined,
+          api: undefined,
         },
         passed: false,
         isSkipped: false,
