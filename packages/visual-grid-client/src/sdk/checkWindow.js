@@ -340,7 +340,7 @@ function makeCheckWindow({
 
       return Object.keys(hooks).reduce((acc, key, index) => {
         const {name} = browsers[index]
-        acc.push(name ? hooks[name] : hooks[key])
+        acc.push(hooks[name] || hooks[key])
         return acc
       }, [])
     }
