@@ -43,13 +43,14 @@ function call<
     ? TResult
     : void
 >(driver: Driver, command: TCommand, ...args: any[]): Promise<TResult> {
-  return new Promise<TResult>((resolve, reject) =>
-    (driver[command] as any)(...args, (result: Nightwatch.NightwatchCallbackResult<TResult>) => {
+  return new Promise<TResult>((resolve, reject) => {
+    const promise = (driver[command] as any)(...args, (result: Nightwatch.NightwatchCallbackResult<TResult>) => {
       if (!('value' in result)) resolve(result as any)
       else if (!result.status) resolve(result.value as TResult)
       else reject(result.value)
-    }),
-  )
+    })
+    if (promise instanceof Promise) promise.then(resolve, reject)
+  })
 }
 
 // #endregion
@@ -244,7 +245,7 @@ function createBrowserOptions(browserName: string, argsArray: string[] = []) {
 export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
   // config prep
   const {testSetup} = require('@applitools/sdk-shared')
-  const testSetupConfig = testSetup.Env(env)
+  const testSetupConfig = testSetup.Env({...env, legacy: false})
   const conf: any = {
     test_settings: {
       default: {
@@ -256,12 +257,6 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
       },
     },
   }
-  // NOTE: https://github.com/nightwatchjs/nightwatch/issues/2501
-  //if (testSetupConfig.browser === 'ie-11') {
-  //  conf.test_settings.default.capabilities = testSetupConfig.capabilities
-  //  conf.test_settings.default.capabilities['sauce:options'].seleniumVersion = '3.141.59'
-  //  conf.test_settings.default.capabilities['sauce:options'].iedriverVersion = '3.150.1'
-  //}
   conf.test_settings.default.desiredCapabilities = Object.assign(
     {},
     testSetupConfig.capabilities,

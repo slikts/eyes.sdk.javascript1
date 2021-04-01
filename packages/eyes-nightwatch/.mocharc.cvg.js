@@ -3,10 +3,10 @@ const tags = [
   // 'webdriver',
   // 'mobile',
   // 'chrome',
-  'firefox',
+  // 'firefox',
   'ie',
   'edge',
-  'safari',
+  // 'safari',
 ]
 const grep = process.env.MOCHA_GREP
 
@@ -15,10 +15,10 @@ module.exports = {
     './test/generic/*.spec.js',
     // 'node_modules/@applitools/sdk-shared/coverage-tests/custom/**/*.spec.js',
   ],
-  parallel: true,
-  jobs: 15,
+  // parallel: true,
+  // jobs: 15,
   timeout: 0,
   reporter: 'spec-xunit-file',
-  require: ['node_modules/@applitools/sdk-shared/coverage-tests/util/mocha-hooks.js'],
+  // require: ['node_modules/@applitools/sdk-shared/coverage-tests/util/mocha-hooks.js'],
   grep: new RegExp(`^${grep ? `.*?${grep}.*?` : '[^(]*?'}(\\((?:@(${tags.join('|')}) ?)+\\))$`, 'i'),
 }
