@@ -1,9 +1,9 @@
 const tags = [
   // 'headfull',
-  'webdriver',
+  // 'webdriver',
   // 'mobile',
-  'chrome',
-  // 'firefox',
+  // 'chrome',
+  'firefox',
   // 'ie',
   // 'edge',
   // 'safari',
