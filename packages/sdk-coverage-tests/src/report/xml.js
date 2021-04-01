@@ -4,11 +4,12 @@ const {logDebug} = require('../log')
 function convertJunitXmlToResultSchema({junit, browser, metadata}) {
   const tests = parseJunitXmlForTests(junit)
   logDebug(tests)
-  return Object.entries(metadata)
-    .map(([testName, testMeta]) => {
-      const testResult = tests.find(t => testName === parseBareTestName(t._attributes.name))
+  return tests
+    .map(testResults => {
+      const testName = parseBareTestName(testResults._attributes.name)
+      const testMeta = metadata[testName] || {name: testName, isGeneric: false}
       const isSkipped = testMeta.skip || testMeta.skipEmit || false // we explicitly set false to preserve backwards compatibility
-      if (!testResult && !isSkipped) return
+      if (!testMeta && !isSkipped) return
 
       return {
         test_name: testMeta.name || testName,
@@ -16,7 +17,7 @@ function convertJunitXmlToResultSchema({junit, browser, metadata}) {
           browser: browser || 'chrome',
           mode: testMeta.executionMode,
         },
-        passed: testResult && !isSkipped ? !testResult.failure : undefined,
+        passed: testResults && !isSkipped ? !testResults.failure : undefined,
         isGeneric: testMeta.isGeneric,
         isSkipped,
       }

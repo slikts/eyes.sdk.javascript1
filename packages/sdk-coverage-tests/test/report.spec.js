@@ -56,6 +56,7 @@ describe('Report', () => {
       const result = parseJunitXmlForTests(junit)
       assert(result[0].hasOwnProperty('_attributes'))
     })
+
     it('should support multiple suites with multiple tests at every suite', () => {
       const altXmlResult = loadFixture('multiple-suites-multiple-tests-each.xml')
       const result = parseJunitXmlForTests(altXmlResult)
@@ -71,6 +72,7 @@ describe('Report', () => {
       const result = parseJunitXmlForTests(altXmlResult)
       assert(result[0].hasOwnProperty('_attributes'))
     })
+
     it('should support a single suite with a single test', () => {
       const altXmlResult = loadFixture('single-suite-single-test.xml')
       const result = parseJunitXmlForTests(altXmlResult)
@@ -103,17 +105,8 @@ describe('Report', () => {
     assert.deepStrictEqual(convertSdkNameToReportName('eyes-images'), 'js_images')
   })
   it('should convert xml report to QA report schema as JSON', () => {
-    assert.deepStrictEqual(convertJunitXmlToResultSchema({junit, metadata}), [
-      {
-        test_name: 'test check window with css',
-        parameters: {
-          browser: 'chrome',
-          mode: 'css',
-        },
-        passed: true,
-        isSkipped: false,
-        isGeneric: true,
-      },
+    const results = convertJunitXmlToResultSchema({junit, metadata})
+    assert.deepStrictEqual(results, [
       {
         test_name: 'test check window with vg',
         parameters: {
@@ -125,20 +118,20 @@ describe('Report', () => {
         isGeneric: true,
       },
       {
+        test_name: 'test check window with css',
+        parameters: {
+          browser: 'chrome',
+          mode: 'css',
+        },
+        passed: true,
+        isSkipped: false,
+        isGeneric: true,
+      },
+      {
         test_name: 'test check window with scroll',
         parameters: {
           browser: 'chrome',
           mode: 'scroll',
-        },
-        passed: undefined,
-        isSkipped: true,
-        isGeneric: true,
-      },
-      {
-        test_name: 'test that was not emitted',
-        parameters: {
-          browser: 'chrome',
-          mode: 'bla',
         },
         passed: undefined,
         isSkipped: true,
@@ -154,16 +147,6 @@ describe('Report', () => {
       sandbox: false,
       results: [
         {
-          test_name: 'test check window with css',
-          parameters: {
-            browser: 'chrome',
-            mode: 'css',
-          },
-          passed: true,
-          isSkipped: false,
-          isGeneric: true,
-        },
-        {
           test_name: 'test check window with vg',
           parameters: {
             browser: 'chrome',
@@ -174,20 +157,20 @@ describe('Report', () => {
           isGeneric: true,
         },
         {
+          test_name: 'test check window with css',
+          parameters: {
+            browser: 'chrome',
+            mode: 'css',
+          },
+          passed: true,
+          isSkipped: false,
+          isGeneric: true,
+        },
+        {
           test_name: 'test check window with scroll',
           parameters: {
             browser: 'chrome',
             mode: 'scroll',
-          },
-          passed: undefined,
-          isSkipped: true,
-          isGeneric: true,
-        },
-        {
-          test_name: 'test that was not emitted',
-          parameters: {
-            browser: 'chrome',
-            mode: 'bla',
           },
           passed: undefined,
           isSkipped: true,
@@ -207,16 +190,6 @@ describe('Report', () => {
         sandbox: false,
         results: [
           {
-            test_name: 'test check window with css',
-            parameters: {
-              browser: 'chrome',
-              mode: 'css',
-            },
-            passed: true,
-            isSkipped: false,
-            isGeneric: true,
-          },
-          {
             test_name: 'test check window with vg',
             parameters: {
               browser: 'chrome',
@@ -224,6 +197,16 @@ describe('Report', () => {
             },
             passed: undefined,
             isSkipped: true,
+            isGeneric: true,
+          },
+          {
+            test_name: 'test check window with css',
+            parameters: {
+              browser: 'chrome',
+              mode: 'css',
+            },
+            passed: true,
+            isSkipped: false,
             isGeneric: true,
           },
           {
@@ -236,19 +219,56 @@ describe('Report', () => {
             isSkipped: true,
             isGeneric: true,
           },
-          {
-            test_name: 'test that was not emitted',
-            parameters: {
-              browser: 'chrome',
-              mode: 'bla',
-            },
-            passed: undefined,
-            isSkipped: true,
-            isGeneric: true,
-          },
         ],
         id: '111111',
       },
     )
+  })
+
+  it('should create a report with custom coverage tests', () => {
+    const junit = loadFixture('multiple-suites-with-custom-tests.xml')
+    const results = convertJunitXmlToResultSchema({junit, metadata})
+    assert.deepStrictEqual(results, [
+      {
+        test_name: 'test check window with vg',
+        parameters: {
+          browser: 'chrome',
+          mode: 'visualgrid',
+        },
+        passed: undefined,
+        isSkipped: true,
+        isGeneric: true,
+      },
+      {
+        test_name: 'test check window with css',
+        parameters: {
+          browser: 'chrome',
+          mode: 'css',
+        },
+        passed: true,
+        isSkipped: false,
+        isGeneric: true,
+      },
+      {
+        test_name: 'test check window with scroll',
+        parameters: {
+          browser: 'chrome',
+          mode: 'scroll',
+        },
+        passed: undefined,
+        isSkipped: true,
+        isGeneric: true,
+      },
+      {
+        test_name: 'some custom test',
+        parameters: {
+          browser: 'chrome',
+          mode: undefined,
+        },
+        passed: false,
+        isSkipped: false,
+        isGeneric: false,
+      },
+    ])
   })
 })
