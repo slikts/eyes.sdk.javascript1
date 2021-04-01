@@ -1,5 +1,5 @@
 const tags = [
-  'headfull',
+  // 'headfull',
   'webdriver',
   // 'mobile',
   'chrome',
