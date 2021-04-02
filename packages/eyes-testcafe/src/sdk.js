@@ -18,9 +18,6 @@ const sdk = EyesSDK({
 })
 const translateArgsToCheckSettings = makeTranslateArgsToCheckSettings(sdk.CheckSettings)
 
-process.env.APPLITOOLS_SCRIPT_RESULT_MAX_BYTE_LENGTH = 4718592 // 4.5 MB
-process.env.APPLITOOLS_SCRIPT_REMOVE_REVERSE_PROXY_URL_PREFIXES = true
-
 class DecoratedEyesFactory extends sdk.EyesFactory {
   constructor({configPath, runner = new VisualGridRunner()} = {}) {
     // init
