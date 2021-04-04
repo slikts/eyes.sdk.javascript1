@@ -104,18 +104,8 @@ describe('Report', () => {
     assert.deepStrictEqual(convertSdkNameToReportName('eyes-images'), 'js_images')
   })
   it('should convert xml report to QA report schema as JSON', () => {
-    assert.deepStrictEqual(convertJunitXmlToResultSchema({junit, metadata}), [
-      {
-        test_name: 'test check window with vg',
-        parameters: {
-          browser: 'chrome',
-          mode: 'visualgrid',
-          api: undefined,
-        },
-        passed: undefined,
-        isSkipped: true,
-        isGeneric: true,
-      },
+    const result = convertJunitXmlToResultSchema({junit, metadata})
+    assert.deepStrictEqual(result, [
       {
         test_name: 'test check window with css',
         parameters: {
@@ -125,6 +115,17 @@ describe('Report', () => {
         },
         passed: true,
         isSkipped: false,
+        isGeneric: true,
+      },
+      {
+        test_name: 'test check window with vg',
+        parameters: {
+          browser: 'chrome',
+          mode: 'visualgrid',
+          api: undefined,
+        },
+        passed: undefined,
+        isSkipped: true,
         isGeneric: true,
       },
       {
@@ -138,6 +139,28 @@ describe('Report', () => {
         isSkipped: true,
         isGeneric: true,
       },
+      {
+        test_name: 'test that was not emitted',
+        parameters: {
+          browser: 'chrome',
+          mode: 'bla',
+          api: undefined,
+        },
+        passed: undefined,
+        isSkipped: true,
+        isGeneric: true,
+      },
+      {
+        test_name: 'test that was emitted but not executed',
+        parameters: {
+          browser: 'chrome',
+          mode: 'bla',
+          api: undefined,
+        },
+        passed: true,
+        isSkipped: false,
+        isGeneric: true,
+      },
     ])
   })
 
@@ -147,17 +170,6 @@ describe('Report', () => {
       group: 'selenium',
       sandbox: false,
       results: [
-        {
-          test_name: 'test check window with vg',
-          parameters: {
-            browser: 'chrome',
-            mode: 'visualgrid',
-            api: undefined,
-          },
-          passed: undefined,
-          isSkipped: true,
-          isGeneric: true,
-        },
         {
           test_name: 'test check window with css',
           parameters: {
@@ -170,6 +182,17 @@ describe('Report', () => {
           isGeneric: true,
         },
         {
+          test_name: 'test check window with vg',
+          parameters: {
+            browser: 'chrome',
+            mode: 'visualgrid',
+            api: undefined,
+          },
+          passed: undefined,
+          isSkipped: true,
+          isGeneric: true,
+        },
+        {
           test_name: 'test check window with scroll',
           parameters: {
             browser: 'chrome',
@@ -178,6 +201,28 @@ describe('Report', () => {
           },
           passed: undefined,
           isSkipped: true,
+          isGeneric: true,
+        },
+        {
+          test_name: 'test that was not emitted',
+          parameters: {
+            browser: 'chrome',
+            mode: 'bla',
+            api: undefined,
+          },
+          passed: undefined,
+          isSkipped: true,
+          isGeneric: true,
+        },
+        {
+          test_name: 'test that was emitted but not executed',
+          parameters: {
+            browser: 'chrome',
+            mode: 'bla',
+            api: undefined,
+          },
+          passed: true,
+          isSkipped: false,
           isGeneric: true,
         },
       ],
@@ -194,17 +239,6 @@ describe('Report', () => {
         sandbox: false,
         results: [
           {
-            test_name: 'test check window with vg',
-            parameters: {
-              browser: 'chrome',
-              mode: 'visualgrid',
-              api: undefined,
-            },
-            passed: undefined,
-            isSkipped: true,
-            isGeneric: true,
-          },
-          {
             test_name: 'test check window with css',
             parameters: {
               browser: 'chrome',
@@ -213,6 +247,17 @@ describe('Report', () => {
             },
             passed: true,
             isSkipped: false,
+            isGeneric: true,
+          },
+          {
+            test_name: 'test check window with vg',
+            parameters: {
+              browser: 'chrome',
+              mode: 'visualgrid',
+              api: undefined,
+            },
+            passed: undefined,
+            isSkipped: true,
             isGeneric: true,
           },
           {
@@ -226,6 +271,28 @@ describe('Report', () => {
             isSkipped: true,
             isGeneric: true,
           },
+          {
+            test_name: 'test that was not emitted',
+            parameters: {
+              browser: 'chrome',
+              mode: 'bla',
+              api: undefined,
+            },
+            passed: undefined,
+            isSkipped: true,
+            isGeneric: true,
+          },
+          {
+            test_name: 'test that was emitted but not executed',
+            parameters: {
+              browser: 'chrome',
+              mode: 'bla',
+              api: undefined,
+            },
+            passed: true,
+            isSkipped: false,
+            isGeneric: true,
+          },
         ],
         id: '111111',
       },
@@ -234,19 +301,8 @@ describe('Report', () => {
 
   it('should create a report with custom coverage tests', () => {
     const junit = loadFixture('multiple-suites-with-custom-tests.xml')
-    const results = convertJunitXmlToResultSchema({junit, metadata})
-    assert.deepStrictEqual(results, [
-      {
-        test_name: 'test check window with vg',
-        parameters: {
-          browser: 'chrome',
-          mode: 'visualgrid',
-          api: undefined,
-        },
-        passed: undefined,
-        isSkipped: true,
-        isGeneric: true,
-      },
+    const result = convertJunitXmlToResultSchema({junit, metadata})
+    assert.deepStrictEqual(result, [
       {
         test_name: 'test check window with css',
         parameters: {
@@ -256,6 +312,17 @@ describe('Report', () => {
         },
         passed: true,
         isSkipped: false,
+        isGeneric: true,
+      },
+      {
+        test_name: 'test check window with vg',
+        parameters: {
+          browser: 'chrome',
+          mode: 'visualgrid',
+          api: undefined,
+        },
+        passed: undefined,
+        isSkipped: true,
         isGeneric: true,
       },
       {
@@ -270,11 +337,33 @@ describe('Report', () => {
         isGeneric: true,
       },
       {
-        test_name: 'some custom test',
+        test_name: 'test that was not emitted',
         parameters: {
           browser: 'chrome',
-          mode: undefined,
+          mode: 'bla',
           api: undefined,
+        },
+        passed: undefined,
+        isSkipped: true,
+        isGeneric: true,
+      },
+      {
+        test_name: 'test that was emitted but not executed',
+        parameters: {
+          browser: 'chrome',
+          mode: 'bla',
+          api: undefined,
+        },
+        passed: true,
+        isSkipped: false,
+        isGeneric: true,
+      },
+      {
+        test_name: 'some custom test',
+        parameters: {
+          api: undefined,
+          browser: 'chrome',
+          mode: undefined,
         },
         passed: false,
         isSkipped: false,

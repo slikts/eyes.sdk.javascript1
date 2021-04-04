@@ -4,26 +4,28 @@ const {logDebug} = require('../log')
 function convertJunitXmlToResultSchema({junit, browser, metadata}) {
   const tests = parseJunitXmlForTests(junit)
   logDebug(tests)
-  return tests
-    .map(testResults => {
-      const testName = parseBareTestName(testResults._attributes.name)
-      const testMeta = metadata[testName] || {name: testName, isGeneric: false}
-      const isSkipped = testMeta.skip || testMeta.skipEmit || false // we explicitly set false to preserve backwards compatibility
-      if (!testMeta && !isSkipped) return
+  const allTests = tests.reduce((acc, test) => {
+    const name = parseBareTestName(test._attributes.name)
+    acc[name] = metadata[name] || test
+    return acc
+  }, metadata)
 
-      return {
-        test_name: testMeta.name || testName,
-        parameters: {
-          browser: browser || 'chrome',
-          mode: testMeta.executionMode,
-          api: testMeta.api,
-        },
-        passed: testResults && !isSkipped ? !testResults.failure : undefined,
-        isGeneric: testMeta.isGeneric,
-        isSkipped,
-      }
+  return Object.entries(allTests).reduce((acc, [testName, testMeta]) => {
+    const isSkipped = testMeta.skip || testMeta.skipEmit || false // we explicitly set false to preserve backwards compatibility
+    acc.push({
+      test_name: testMeta.name || testName,
+      parameters: {
+        browser: browser || 'chrome',
+        mode: testMeta.executionMode,
+        api: testMeta.api,
+      },
+      passed: isSkipped ? undefined : !testMeta.failure,
+      isGeneric: !!testMeta.isGeneric,
+      isSkipped,
     })
-    .filter(Boolean)
+
+    return acc
+  }, [])
 }
 
 function parseBareTestName(testCaseName) {
