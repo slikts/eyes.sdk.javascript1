@@ -6,7 +6,8 @@ function convertJunitXmlToResultSchema({junit, browser, metadata}) {
   logDebug(tests)
   const allTests = tests.reduce((acc, test) => {
     const name = parseBareTestName(test._attributes.name)
-    acc[name] = metadata[name] || test
+    const testData = metadata[name] || {skip: Number(test._attributes.time) === 0, ...test}
+    acc[name] = testData
     return acc
   }, metadata)
 
@@ -36,7 +37,7 @@ function parseBareTestName(testCaseName) {
 }
 
 function parseJunitXmlForTests(xmlResult) {
-  const jsonResult = JSON.parse(convert.xml2json(xmlResult, {compact: true, spaces: 2}))
+  const jsonResult = convert.xml2js(xmlResult, {compact: true, spaces: 2})
   if (jsonResult.hasOwnProperty('testsuites')) {
     const testsuite = jsonResult.testsuites.testsuite
     return Array.isArray(testsuite)
