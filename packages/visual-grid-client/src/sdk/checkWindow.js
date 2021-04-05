@@ -338,9 +338,10 @@ function makeCheckWindow({
         return Array(browsers.length).fill(hooks)
       }
 
-      return Object.keys(hooks).reduce((acc, key, index) => {
-        const {name} = browsers[index]
-        acc.push(hooks[name] || hooks[key])
+      return Object.keys(hooks).reduce((acc, _key, index) => {
+        const {name, deviceName} = browsers[index]
+        const browserName = name || deviceName
+        acc.push(hooks[browserName] || hooks['default'])
         return acc
       }, [])
     }
