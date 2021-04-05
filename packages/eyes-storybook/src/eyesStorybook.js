@@ -45,6 +45,13 @@ async function eyesStorybook({
   logger.log('browser launched');
   const page = await browser.newPage();
   const userAgent = await page.evaluate('navigator.userAgent');
+  // filter out browser config into IE and non-IE
+  // warn when flag is used and no IE is in browser config
+  // for IE:
+  // set userAgent
+  // reload page
+  // take dom-snapshot
+
   const {
     testWindow,
     closeBatch,
