@@ -18,8 +18,10 @@ describe('fake ie', () => {
       ),
     );
     const stdout = err ? err.stdout : result.stdout;
-    const splittedResult = stdout.split('\n')
+    const splittedResult = stdout.split('\n');
     const testResult = `${splittedResult[7]}\n${splittedResult[8]}`;
-    expect(testResult).to.equal(`Fake IE: Fake IE Page [Chrome 89.0] [800x600] - Passed\nFake IE: Fake IE Page [IE 11.0] [800x600] - Passed`)
+    expect(testResult).to.equal(
+      `Fake IE: Fake IE Page [Chrome 89.0] [800x600] - Passed\nFake IE: Fake IE Page [IE 11.0] [800x600] - Passed`,
+    );
   });
 });
