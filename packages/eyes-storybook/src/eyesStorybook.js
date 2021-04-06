@@ -47,16 +47,15 @@ async function eyesStorybook({
   // filter out browser config into IE and non-IE
   // warn when flag is used and no IE is in browser config
   // for IE:
-    // set userAgent
-    // set documentMode
-    // reload page
-    // take dom-snapshots
+  // set userAgent
+  // set documentMode
+  // reload page
+  // take dom-snapshots
   // for NON-IE:
-    // set userAgent
-    // take dom-snapshots
+  // set userAgent
+  // take dom-snapshots
 
   const userAgent = await page.evaluate('navigator.userAgent');
-  
 
   const {
     testWindow,
