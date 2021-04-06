@@ -41,23 +41,19 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
 
     const replacer = [extendedType, ...implementedTypes].reduce((replacer, typeReference) => {
       if (!typeReference || typeReference.reflection) return replacer
-      let typeDeclaration
-      try {
-        typeDeclaration = typeReference.declaration || typeReference._target.declarations.find(ts.isClassDeclaration)
-      } catch (err) {
-        console.log(typeReference)
-        throw err
-      }
+      const typeDeclaration =
+        typeReference.declaration || typeReference._target.declarations.find(ts.isClassDeclaration)
       return typeDeclaration ? $replacer(typeReference, typeDeclaration, replacer) : replacer
     }, null)
 
     const members = node.children.reduce((members, member) => {
+      if (member.inheritedFrom && !extendedType.unknown) return members
       const parent = !member.flags.isStatic ? {_replacer: replacer} : undefined
       if (member.kind === ReflectionKind.Constructor) return members.concat($constructor(member, parent))
       else if (member.kind === ReflectionKind.Property) return members.concat($property(member, parent))
       else if (member.kind === ReflectionKind.Accessor) return members.concat($accessor(member, parent))
       else if (member.kind === ReflectionKind.Method) return members.concat($method(member, parent))
-      else members
+      else return members
     }, [])
 
     return (
@@ -257,6 +253,7 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
       const [declaration] = typeReference._target.declarations
       const source = declaration.getSourceFile()
       if (source) {
+        if (source && source.path.includes('node_modules/typescript')) return {builtin: true}
         const moduleName = externalModules.find(name => {
           return source.path.includes(`node_modules/${name}`) || source.path.includes(`node_modules/@types/${name}`)
         })
