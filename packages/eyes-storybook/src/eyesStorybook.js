@@ -44,13 +44,19 @@ async function eyesStorybook({
   const browser = await puppeteer.launch(config.puppeteerOptions);
   logger.log('browser launched');
   const page = await browser.newPage();
-  const userAgent = await page.evaluate('navigator.userAgent');
   // filter out browser config into IE and non-IE
   // warn when flag is used and no IE is in browser config
   // for IE:
-  // set userAgent
-  // reload page
-  // take dom-snapshot
+    // set userAgent
+    // set documentMode
+    // reload page
+    // take dom-snapshots
+  // for NON-IE:
+    // set userAgent
+    // take dom-snapshots
+
+  const userAgent = await page.evaluate('navigator.userAgent');
+  
 
   const {
     testWindow,
