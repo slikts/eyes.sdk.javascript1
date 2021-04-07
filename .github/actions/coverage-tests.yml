@@ -20,8 +20,8 @@ runs:
     - name: test
       run: |
         yarn install --cwd "packages/sdk-shared"
-        cd "packages/${{github.event.inputs.name}}"
-        yarn run link --include ${{github.event.inputs.links}} --build --install
+        cd "packages/${{inputs.name}}"
+        yarn run link --include ${{inputs.links}} --build --install
         yarn
         npm run build --if-present
         npm run prepublish:setup --if-present
