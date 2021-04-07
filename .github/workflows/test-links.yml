@@ -23,8 +23,7 @@ env:
 jobs:
   eyes-playwright:
     runs-on: ubuntu-latest
-    name: test ${{github.job}} ${{github.event.inputs.names}} $${contains(github.event.inputs.names, 'eyes-playwright')}
-    if: contains(github.event.inputs.names, 'eyes-playwright')
+    name: test ${{github.event.inputs.names}} ${{contains(github.event.inputs.names, 'eyes-playwright')}}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -40,8 +39,7 @@ jobs:
           grep: ${{github.event.inputs.grep}}
   eyes-puppeteer:
     runs-on: ubuntu-latest
-    name: test ${{github.job}} ${{github.event.inputs.names}} $${contains(github.event.inputs.names, 'eyes-puppeteer')}
-    if: contains(github.event.inputs.names, 'eyes-puppeteer')
+    name: test ${{github.event.inputs.names}} ${{contains(github.event.inputs.names, 'eyes-puppeteer')}}
     steps:
       - uses: actions/checkout@v2
         with:
