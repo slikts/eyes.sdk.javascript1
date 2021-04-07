@@ -162,13 +162,15 @@ export function TestCafeEyes(Eyes: typeof api.Eyes) {
     }
 
     async close(throwErr = true): Promise<api.TestResults> {
-      return super.close(throwErr && this._testcafeConfig.failTestcafeOnDiff)
+      return super.close(throwErr && Boolean(this._testcafeConfig?.failTestcafeOnDiff))
     }
 
     /** @undocumented */
     async waitForResults(throwErr = true) {
-      const resultsSummary = await this.runner.getAllTestResults(throwErr && this._testcafeConfig.failTestcafeOnDiff)
-      if (this._testcafeConfig.tapDirPath) {
+      const resultsSummary = await this.runner.getAllTestResults(
+        throwErr && Boolean(this._testcafeConfig?.failTestcafeOnDiff),
+      )
+      if (this._testcafeConfig?.tapDirPath) {
         const results = resultsSummary.getAllResults().map(r => r.getTestResults())
         const includeSubTests = false
         const markNewAsPassed = true
