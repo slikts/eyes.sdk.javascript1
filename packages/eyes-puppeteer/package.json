@@ -53,7 +53,7 @@
     "coverage:report": "coverage-tests report node_modules/@applitools/sdk-shared/coverage-tests/generic/index.js --name 'eyes-puppeteer'",
     "coverage:sandbox": "yarn coverage:generate && yarn test:coverage && yarn coverage:report --sandbox",
     "coverage:prod": "yarn coverage:generate && yarn test:coverage && yarn coverage:report",
-    "preversion": "bongo preversion && yarn test && yarn coverage:prod",
+    "preversion": "bongo preversion && yarn build && yarn test && yarn coverage:prod",
     "version": "bongo version",
     "postversion": "bongo postversion",
     "deps": "bongo deps",

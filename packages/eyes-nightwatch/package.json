@@ -65,7 +65,7 @@
     "docker:teardown": "docker-compose down",
     "test:coverage": "APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-nightwatch' APPLITOOLS_BATCH_ID=$(uuidgen) XUNIT_FILE=coverage-test-report.xml mocha --config .mocharc.cvg.js",
     "types:generate": "rm -rf ./typings && tsc --declaration --declarationDir ./typings --allowJs --emitDeclarationOnly ./index.js",
-    "preversion": "bongo preversion && yarn test && yarn coverage:prod",
+    "preversion": "bongo preversion && yarn build && yarn test && yarn coverage:prod",
     "version": "bongo version",
     "postversion": "bongo postversion",
     "deps": "bongo deps",

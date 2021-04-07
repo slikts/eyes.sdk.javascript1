@@ -1,10 +1,9 @@
-const Eyes = require('../../index-short')
+const {Eyes, TestResultsSummary} = require('../../dist/index')
 const eyes = new Eyes()
 const assert = require('assert')
 const {getTestInfo} = require('@applitools/sdk-shared')
-const {v4: uuidv4} = require('uuid')
 process.env.APPLITOOLS_BATCH_NAME = 'JS Coverage Tests - eyes-testcafe (legacy API)'
-process.env.APPLITOOLS_BATCH_ID = uuidv4()
+process.env.APPLITOOLS_BATCH_ID = require('uuid').v4()
 const path = require('path')
 const fs = require('fs')
 
@@ -17,28 +16,10 @@ fixture`legacy vg api`.after(async () => {
   if (eyes.getIsOpen()) await eyes.close(false)
 })
 test('is vg', () => {
-  assert.deepStrictEqual(eyes.getRunner().constructor.name, 'VisualGridRunner')
+  assert.strictEqual(eyes.getRunner().constructor.name, 'VisualGridRunner')
 })
 test('eyes.open with init params', async driver => {
-  assert.doesNotThrow(async () => {
-    await eyes.open({t: driver, appName: 'app-name', testName: 'test-name'})
-  })
-})
-test('eyes.open with config params', async driver => {
-  const init = {
-    t: driver,
-    appName: 'app-name',
-    testName: 'test-name',
-  }
-  const browser = [{width: 1024, height: 768, name: 'ie11'}]
-  assert.doesNotThrow(async () => {
-    await eyes.open({
-      ...init,
-      browser,
-    })
-  })
-  const config = eyes.getConfiguration()
-  assert.deepStrictEqual(config.getBrowsersInfo(), browser)
+  await assert.doesNotReject(eyes.open({t: driver, appName: 'app-name', testName: 'test-name'}))
 })
 test('eyes.checkWindow tag', async t => {
   await t.navigateTo('https://applitools.github.io/demo/TestPages/FramesTestPage/')
@@ -185,7 +166,7 @@ test.skip('eyes.checkWindow sendDom', async t => {
   console.log(info['actualAppOutput']['0']['image'])
   assert.deepStrictEqual(info['actualAppOutput']['0']['image']['hasDom'], false)
 })
-test('eyes.waitForResults', async t => {
+test.only('eyes.waitForResults', async t => {
   const eyes = new Eyes()
   await t.navigateTo('https://applitools.github.io/demo/TestPages/FramesTestPage/')
   await eyes.open({
@@ -196,9 +177,9 @@ test('eyes.waitForResults', async t => {
   await eyes.checkWindow({})
   await eyes.close(false)
   const result = await eyes.waitForResults()
-  assert.deepStrictEqual(result.constructor.name, 'TestResultsSummary')
+  assert.ok(result instanceof TestResultsSummary)
+  assert.ok(result.getAllResults().length > 0)
   assert.deepStrictEqual(result._passed, 1)
-  assert(result._allResults.length)
 })
 test('eyes failTestcafeOnDiff false', async t => {
   const eyes = new Eyes()
@@ -284,9 +265,7 @@ test('should output a tap file when tapDirPath is specified', async t => {
     assert(
       fs
         .readFileSync(pathToFile, {encoding: 'utf-8'})
-        .includes(
-          `ok 1 - [PASSED TEST] Test: 'legacy api test: tapDirPath', Application: 'eyes-testcafe'`,
-        ),
+        .includes(`ok 1 - [PASSED TEST] Test: 'legacy api test: tapDirPath', Application: 'eyes-testcafe'`),
     )
   } finally {
     pathToFile && fs.unlinkSync(pathToFile)

@@ -17,9 +17,11 @@ const sdk = makeSDK({
 
 export * from '@applitools/eyes-api'
 
+export {TestCafeConfiguration, TestCafeCheckSettings} from './legacy'
+
 export {Driver, Element, Selector}
 
-export class Eyes extends api.Eyes<Driver, Element, Selector> implements legacy.Eyes<Driver, Element, Selector> {
+export class Eyes extends legacy.TestCafeEyes(api.Eyes)<Driver, Element, Selector> {
   protected static readonly _spec = sdk
   protected readonly _spec = sdk
   static setViewportSize: (driver: Driver, viewportSize: api.RectangleSize) => Promise<void>

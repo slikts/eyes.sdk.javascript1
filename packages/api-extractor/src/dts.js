@@ -22,16 +22,16 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
 
   return exports.join('\n\n')
 
-  function $variable(node, {exported} = {}) {
-    return $comment(node.comment) + (exported ? 'export ' : '') + `const ${node.name}: ${$type(node.type)}`
+  function $variable(node) {
+    return $comment(node.comment) + $export(node) + `const ${node.name}: ${$type(node.type)}`
   }
-  function $enum(node, {exported} = {}) {
+  function $enum(node) {
     const members = node.children.map(member => {
       return $comment(member.comment) + `${member.name} ${member.defaultValue ? `= ${member.defaultValue}` : ''}`
     })
-    return $comment(node.comment) + (exported ? 'export ' : '') + `enum ${node.name} {${members.join(',\n')}}`
+    return $comment(node.comment) + $export(node) + `enum ${node.name} {${members.join(',\n')}}`
   }
-  function $class(node, {exported} = {}) {
+  function $class(node) {
     const extendedType = node.extendedTypes ? $type(node.extendedTypes[0], {ext: true}) : null
     const extendsExpression = extendedType && !extendedType.unknown ? `extends ${extendedType}` : ''
     const implementedTypes = node.implementedTypes
@@ -42,7 +42,10 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
     const replacer = [extendedType, ...implementedTypes].reduce((replacer, typeReference) => {
       if (!typeReference || typeReference.reflection) return replacer
       const typeDeclaration =
-        typeReference.declaration || typeReference._target.declarations.find(ts.isClassDeclaration)
+        typeReference.declaration ||
+        typeReference._target.declarations.find(
+          declaration => ts.isClassDeclaration(declaration) || ts.isClassExpression(declaration),
+        )
       return typeDeclaration ? $replacer(typeReference, typeDeclaration, replacer) : replacer
     }, null)
 
@@ -56,14 +59,23 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
       else return members
     }, [])
 
-    return (
-      $comment(node.comment) +
-      (exported ? 'export ' : '') +
-      (node.flags.isAbstract ? 'abstract ' : '') +
-      `class ${node.name}${$generics(node)} ${extendsExpression} ${implementsExpression} {${members.join('\n')}}`
-    )
+    const isNamedExport = node.name !== 'default' && node.name !== 'export='
+    const name = !isNamedExport ? node.escapedName : node.name
+    const isDuplication =
+      !isNamedExport && project.children.some(child => child.name === name && child.kind === ReflectionKind.Class)
+
+    if (isDuplication) {
+      return $comment(node.comment) + $export(node) + name
+    } else {
+      return (
+        $comment(node.comment) +
+        $export(node) +
+        (node.flags.isAbstract ? 'abstract ' : '') +
+        `class ${name}${$generics(node)} ${extendsExpression} ${implementsExpression} {${members.join('\n')}}`
+      )
+    }
   }
-  function $interface(node, {exported} = {}) {
+  function $interface(node) {
     const extendedTypes = node.extendedTypes
       ? node.extendedTypes.map(type => $type(type, {ext: true})).filter(type => !type.unknown)
       : []
@@ -79,21 +91,19 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
 
     return (
       $comment(node.comment) +
-      (exported ? 'export ' : '') +
+      $export(node) +
       `interface ${node.name}${$generics(node)} ${extendsExpression} {${members.join('\n')}}`
     )
   }
-  function $typedef(node, {exported} = {}) {
+  function $typedef(node) {
     return (
-      $comment(node.comment) +
-      (exported ? 'export ' : '') +
-      `type ${node.name}${$generics(node)} = ${$type(node.type, {ext: true})}`
+      $comment(node.comment) + $export(node) + `type ${node.name}${$generics(node)} = ${$type(node.type, {ext: true})}`
     )
   }
-  function $function(node, {exported} = {}) {
+  function $function(node) {
     const signatures = $signatures(node.signatures || node.type.declaration.signatures)
     return signatures.map(signature => {
-      return $comment(signature.comment) + (exported ? 'export ' : '') + `function ${node.name}${signature}`
+      return $comment(signature.comment) + $export(node) + `function ${node.name}${signature}`
     })
   }
 
@@ -176,6 +186,15 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
     const tags = comment.tags.map(tag => `@${tag.tagName} ${/[^\s\n\r\t]/.test(tag.text) ? tag.text : ''}`)
     if (tags.length === 1) return `/** ${tags[0]}*/\n`
     return `/**\n${tags.map(tag => ` * ${tag}`).join('\n')}\n */\n`
+  }
+  function $export(node) {
+    if (node.name === 'default') {
+      return 'export default '
+    } else if (node.name === 'export=') {
+      return 'export = '
+    } else {
+      return 'export '
+    }
   }
   function $signatures(signatures, parent) {
     return signatures
@@ -346,7 +365,11 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
 
     function replace(type) {
       const replacedType = replace.sequence.reduce((replacedType, {typeArguments, typeParameters}) => {
-        return typeArguments.find((_, index) => type.name === typeParameters[index].name.escapedText) || replacedType
+        return (
+          typeArguments.find(
+            (_, index) => typeParameters[index] && type.name === typeParameters[index].name.escapedText,
+          ) || replacedType
+        )
       }, type)
       return replacedType !== type ? replacedType : null
     }

@@ -1,8 +1,6 @@
 const assert = require('assert')
 const spec = require('../../dist/src/spec-driver')
 const {Selector, ClientFunction} = require('testcafe')
-const fs = require('fs')
-// const Eyes = require('../..')
 
 fixture`spec-driver`.page`https://applitools.github.io/demo/TestPages/FramesTestPage/`
 
@@ -72,22 +70,22 @@ test('findElements(string) - single element returned', async driver => {
 test('findElements(string) - multiple elements returned', async driver => {
   const elements = await spec.findElements(driver, 'div')
   assert.ok(elements.length > 1)
-  assert.ok(!await spec.isEqualElements(driver, elements[0], elements[1]))
+  assert.ok(!(await spec.isEqualElements(driver, elements[0], elements[1])))
 })
 test('findElements(Selector)', async driver => {
   const elements = await spec.findElements(driver, Selector('div'))
   assert.ok(elements.length > 1)
-  assert.ok(!await spec.isEqualElements(driver, elements[0], elements[1]))
+  assert.ok(!(await spec.isEqualElements(driver, elements[0], elements[1])))
 })
 test('findElements({type: css, selector})', async driver => {
   const elements = await spec.findElements(driver, {type: 'css', selector: 'div'})
   assert.ok(elements.length > 1)
-  assert(!await spec.isEqualElements(driver, elements[0], elements[1]))
+  assert(!(await spec.isEqualElements(driver, elements[0], elements[1])))
 })
 test('findElements({type: xpath, selector})', async driver => {
   const elements = await spec.findElements(driver, {type: 'xpath', selector: '//div'})
   assert.ok(elements.length > 1)
-  assert(!await spec.isEqualElements(driver, elements[0], elements[1]))
+  assert(!(await spec.isEqualElements(driver, elements[0], elements[1])))
 })
 test('findElements(non-existent)', async driver => {
   const elements = await spec.findElements(driver, 'non-existent')
@@ -97,10 +95,7 @@ test('executeScript(string)', async driver => {
   assert.deepStrictEqual(await spec.executeScript(driver, 'return 4'), 4)
 })
 test('executeScript(string, ...args)', async driver => {
-  assert.deepStrictEqual(
-    await spec.executeScript(driver, 'return arguments[0] + arguments[1]', 4, 5),
-    9,
-  )
+  assert.deepStrictEqual(await spec.executeScript(driver, 'return arguments[0] + arguments[1]', 4, 5), 9)
 })
 test('executeScript(function, ...args)', async driver => {
   const script = function() {
@@ -109,7 +104,7 @@ test('executeScript(function, ...args)', async driver => {
   assert.deepStrictEqual(await spec.executeScript(driver, script, 4, 5), 9)
 })
 test('executeScript w/ Selector', async driver => {
-  const script = "return arguments[0].style.width"
+  const script = 'return arguments[0].style.width'
   const selector = Selector('#overflowing-div')
   assert.deepStrictEqual(await spec.executeScript(driver, script, selector), '300px')
 })
@@ -138,11 +133,7 @@ test('executeScript return mixed data-types (Array)', async driver => {
 })
 test('executeScript return mixed data-types (Object)', async driver => {
   const expected = 2
-  const result = await spec.executeScript(
-    driver,
-    "return {element: arguments[0], blah: 'blah'}",
-    Selector('h1'),
-  )
+  const result = await spec.executeScript(driver, "return {element: arguments[0], blah: 'blah'}", Selector('h1'))
   const actual = Object.entries(result).length
   assert.deepStrictEqual(actual, expected)
 })
@@ -158,7 +149,7 @@ test('mainContext()', async driver => {
     const isMainContext = ClientFunction(() => window.top === window)
     await driver.switchToIframe('[name="frame1"]')
     await driver.switchToIframe('[name="frame1-1"]')
-    assert.ok(!await isMainContext())
+    assert.ok(!(await isMainContext()))
     await spec.mainContext(driver)
     assert.ok(await isMainContext())
   } finally {
@@ -169,10 +160,10 @@ test('childContext(element)', async driver => {
   try {
     const isMainContext = ClientFunction(() => window.top === window)
     await driver.switchToIframe('[name="frame1"]')
-    assert.ok(!await isMainContext())
+    assert.ok(!(await isMainContext()))
     await driver.switchToMainWindow()
     await spec.childContext(driver, Selector('[name="frame1"]'))
-    assert.ok(!await isMainContext())
+    assert.ok(!(await isMainContext()))
   } finally {
     await driver.switchToMainWindow().catch(() => null)
   }

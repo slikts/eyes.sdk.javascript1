@@ -2,29 +2,24 @@ import * as utils from '@applitools/utils'
 import * as testcafe from 'testcafe'
 import * as fs from 'fs'
 
+// eslint-disable-next-line @typescript-eslint/no-namespace
 namespace TestCafe {
   export type TestController = globalThis.TestController
   export type NodeSnapshot = globalThis.NodeSnapshot
   export type Selector = globalThis.Selector
-  export type SelectorOptions =  globalThis.SelectorOptions
+  export type SelectorOptions = globalThis.SelectorOptions
 }
 
 export type Driver = TestCafe.TestController
 export type Element = TestCafe.Selector | TestCafe.NodeSnapshot
-export type Selector = TestCafe.Selector | {type: string, selector: 'string'} | string
+export type Selector = TestCafe.Selector | {type: string; selector: string} | string
 
 // #region HELPERS
 
 function XPathSelector(selector: string, options?: TestCafe.SelectorOptions): TestCafe.Selector {
   const getElementsByXPath = testcafe.Selector(xpath => {
     /* eslint-disable no-undef */
-    const iterator = document.evaluate(
-      xpath,
-      document,
-      null,
-      XPathResult.UNORDERED_NODE_ITERATOR_TYPE,
-      null,
-    )
+    const iterator = document.evaluate(xpath, document, null, XPathResult.UNORDERED_NODE_ITERATOR_TYPE, null)
     /* eslint-enable */
     const items = []
 
@@ -46,21 +41,36 @@ function transformSelector(selector: Selector): TestCafe.Selector {
   }
   return testcafe.Selector(selector)
 }
-function scriptRunner(): {result: any; elementsId?: string} {
+function deserializeResult(result: any, elements: Element[]): any {
+  if (!result) {
+    return result
+  } else if (result.isElement) {
+    return elements.shift()
+  } else if (utils.types.isArray(result)) {
+    return result.map(result => deserializeResult(result, elements))
+  } else if (utils.types.isObject(result)) {
+    return Object.entries(result).reduce((object, [key, value]) => {
+      return Object.assign(object, {[key]: deserializeResult(value, elements)})
+    }, {})
+  } else {
+    return result
+  }
+}
+const scriptRunner = testcafe.ClientFunction(() => {
   // @ts-ignore
-  const {script, args} = input as {script: string, args: any[]}
+  const {script, args} = input as {script: string; args: any[]}
   const func = new Function(script.startsWith('function') ? `return (${script}).apply(null, arguments)` : script)
   const elements: HTMLElement[] = []
-  const result = serializeResult(func.apply(null, args.map(deserializeArg)))
+  const result = serializeResult(func(...args.map(deserializeArg)))
 
-  const elementsId = elements.length > 0 ? String(Math.floor(Math.random() * 1000)) : null
-  if (elementsId) {
+  const resultId = elements.length > 0 ? String(Math.floor(Math.random() * 1000)) : null
+  if (resultId) {
     const APPLITOOLS_NAMESPACE = '__TESTCAFE_EYES_APPLITOOLS__'
     const global = window as any
     if (!global[APPLITOOLS_NAMESPACE]) global[APPLITOOLS_NAMESPACE] = {}
-    global[APPLITOOLS_NAMESPACE][elementsId] = elements
+    global[APPLITOOLS_NAMESPACE][resultId] = elements
   }
-  return {result, elementsId}
+  return {result, resultId, elementsCount: elements.length}
 
   function deserializeArg(arg: any): any {
     if (!arg) {
@@ -80,7 +90,7 @@ function scriptRunner(): {result: any; elementsId?: string} {
 
   function serializeResult(result: any): any {
     if (!result) {
-     return result
+      return result
     } else if (result instanceof window.HTMLElement) {
       elements.push(result)
       return {isElement: true}
@@ -94,31 +104,16 @@ function scriptRunner(): {result: any; elementsId?: string} {
       return result
     }
   }
-}
-function elementsExtractor(): HTMLElement[] {
+})
+const elementsExtractor = testcafe.Selector(() => {
   // @ts-ignore
-  const {elementsId} = input as {elementsId: string}
+  const {resultId} = input as {resultId: string}
   const APPLITOOLS_NAMESPACE = '__TESTCAFE_EYES_APPLITOOLS__'
   const global = window as any
-  if (!global[APPLITOOLS_NAMESPACE] || !global[APPLITOOLS_NAMESPACE][elementsId]) return []
-  const elements = global[APPLITOOLS_NAMESPACE][elementsId]
+  if (!global[APPLITOOLS_NAMESPACE] || !global[APPLITOOLS_NAMESPACE][resultId]) return []
+  const elements = global[APPLITOOLS_NAMESPACE][resultId]
   return elements
-}
-function deserializeResult(result: any, elements: Element[]): any {
-  if (!result) {
-    return result
-  } else if (result.isElement) {
-    return elements.shift()
-  } else if (utils.types.isArray(result)) {
-    return result.map(result => deserializeResult(result, elements))
-  } else if (utils.types.isObject(result)) {
-    return Object.entries(result).reduce((object, [key, value]) => {
-      return Object.assign(object, {[key]: deserializeResult(value, elements)})
-    }, {})
-  } else {
-    return result
-  }
-}
+})
 
 // #endregion
 
@@ -128,15 +123,16 @@ export function isDriver(t: any): t is Driver {
   return utils.types.instanceOf(t, 'TestController')
 }
 export function isElement(element: any): element is Element {
-  return Boolean(element && element.addCustomMethods && element.find && element.parent) || 
-    utils.types.isFunction(element.selector) && Boolean(element.selector && element.selector.addCustomMethods && element.selector.find && element.selector.parent)
+  return (
+    Boolean(element && element.addCustomMethods && element.find && element.parent) ||
+    (utils.types.isFunction(element.selector) &&
+      Boolean(
+        element.selector && element.selector.addCustomMethods && element.selector.find && element.selector.parent,
+      ))
+  )
 }
 export function isSelector(selector: any): selector is Selector {
-  return (
-    utils.types.has(selector, ['type', 'selector']) ||
-    utils.types.isString(selector) ||
-    isElement(selector)
-  )
+  return utils.types.has(selector, ['type', 'selector']) || utils.types.isString(selector) || isElement(selector)
 }
 export function transformElement(element: Element): TestCafe.Selector {
   return utils.types.isFunction((element as any).selector) ? (element as any).selector : element
@@ -154,7 +150,7 @@ export async function isEqualElements(t: Driver, element1: Element, element2: El
   // @ts-ignore
   const compareElements = testcafe.ClientFunction(() => element1() === element2(), {
     boundTestRun: t,
-    dependencies: {element1, element2}
+    dependencies: {element1, element2},
   })
   return compareElements()
 }
@@ -163,27 +159,25 @@ export async function isEqualElements(t: Driver, element1: Element, element2: El
 
 // #region COMMANDS
 
-export async function executeScript(
-  t: Driver,
-  script: ((...args: any) => any) | string,
-  ...args: any[]
-): Promise<any> {
+export async function executeScript(t: Driver, script: ((...args: any) => any) | string, ...args: any[]): Promise<any> {
   script = utils.types.isFunction(script) ? script.toString() : script
 
-  const executeScript = testcafe.ClientFunction(scriptRunner, {
+  const {result, resultId, elementsCount} = await scriptRunner.with({
     boundTestRun: t,
-    dependencies: {input: {script, args}}
-  })
-  const {result, elementsId} = await executeScript()
+    dependencies: {input: {script, args}},
+  })()
 
-  if (!result || !elementsId) return result
+  if (!result || !resultId) return result
 
-  const elements = testcafe.Selector(elementsExtractor, {
+  const elements = elementsExtractor.with({
     boundTestRun: t,
-    dependencies: {input: {elementsId}}
+    dependencies: {input: {resultId}},
   })
 
-  return deserializeResult(result, Array.from({length: await elements.count}, (_, index) => elements.nth(index)))
+  return deserializeResult(
+    result,
+    Array.from({length: elementsCount}, (_, index) => elements.nth(index)),
+  )
 }
 export async function mainContext(t: Driver): Promise<void> {
   await t.switchToMainWindow()
@@ -272,9 +266,9 @@ export async function waitUntilDisplayed(t: Driver, selector: Selector): Promise
 
 // #region BUILD
 
-export function build() {
+export function build(): [Driver, () => Promise<void>] {
   // no-op for coverage-tests
-  return [undefined, () => {}]
+  return [undefined, () => void 0]
 }
 
 // #endregion
