@@ -98,7 +98,7 @@ test('executeScript(string, ...args)', async driver => {
   assert.deepStrictEqual(await spec.executeScript(driver, 'return arguments[0] + arguments[1]', 4, 5), 9)
 })
 test('executeScript(function, ...args)', async driver => {
-  const script = function() {
+  const script = function () {
     return arguments[0] + arguments[1]
   }
   assert.deepStrictEqual(await spec.executeScript(driver, script, 4, 5), 9)
@@ -139,7 +139,7 @@ test('executeScript return mixed data-types (Object)', async driver => {
 })
 test('executeScript with serialized arguments', async driver => {
   const serializedArgs = [{element: Selector('html')}]
-  const fn = function({element}) {
+  const fn = function ({element}) {
     return element.style.overflow
   }
   await spec.executeScript(driver, fn, ...serializedArgs)
