@@ -16,24 +16,10 @@ jobs:
     runs-on: ubuntu-latest
     name: test ${{github.event.inputs.name}}
     steps:
-      - uses: actions/checkout@v2
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v1
-        with:
-          node-version: 14
-      - run: |
-          echo "::group::test ${{github.event.inputs.name}}"
-            yarn install --cwd "packages/sdk-shared"
-            cd "packages/${{github.event.inputs.name}}"
-            yarn run link --include ${{github.event.inputs.links}} --build --install
-            yarn
-            npm run build --if-present
-            npm run prepublish:setup --if-present
-            yarn coverage:sandbox
-          echo "::endgroup::"
-
-          cat coverage-test-report.xml || echo "failed to cat coverage-test-report.xml file"
+      - uses: applitools/eyes.sdk.javascript1/.github/actions/coverage-tests
+        name: ${{github.event.inputs.name}}
+        links: ${{github.event.inputs.links}}
+        grep: ${{github.event.inputs.grep}}
     env:
       MOCHA_GREP: ${{github.event.inputs.grep}}
       CVG_TESTS_REMOTE: http://localhost:4444/wd/hub
