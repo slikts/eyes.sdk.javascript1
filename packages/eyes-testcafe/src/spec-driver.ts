@@ -123,16 +123,18 @@ export function isDriver(t: any): t is Driver {
   return utils.types.instanceOf(t, 'TestController')
 }
 export function isElement(element: any): element is Element {
-  return (
-    Boolean(element && element.addCustomMethods && element.find && element.parent) ||
-    (utils.types.isFunction(element.selector) &&
-      Boolean(
-        element.selector && element.selector.addCustomMethods && element.selector.find && element.selector.parent,
-      ))
+  if (!element) return false
+  return Boolean(
+    (element.addCustomMethods && element.find && element.parent) ||
+      (element.nodeType && element.selector?.addCustomMethods && element.selector?.find && element.selector?.parent),
   )
 }
 export function isSelector(selector: any): selector is Selector {
-  return utils.types.has(selector, ['type', 'selector']) || utils.types.isString(selector) || isElement(selector)
+  return (
+    utils.types.has(selector, ['type', 'selector']) ||
+    utils.types.isString(selector) ||
+    Boolean(selector.addCustomMethods && selector.find && selector.parent)
+  )
 }
 export function transformElement(element: Element): TestCafe.Selector {
   return utils.types.isFunction((element as any).selector) ? (element as any).selector : element
