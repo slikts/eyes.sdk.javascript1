@@ -55,3 +55,105 @@ jobs:
           name: eyes-puppeteer
           links: ${{github.event.inputs.links}}
           grep: ${{github.event.inputs.grep}}
+  eyes-webdriverio-5:
+    runs-on: ubuntu-latest
+    name: test eyes-webdriverio-5
+    if: ${{contains(github.event.inputs.names, 'eyes-webdriverio-5')}}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: test
+        uses: ./.github/actions/coverage-tests
+        with:
+          name: eyes-webdriverio-5
+          links: ${{github.event.inputs.links}}
+          grep: ${{github.event.inputs.grep}}
+  eyes-webdriverio-4:
+    runs-on: ubuntu-latest
+    name: test eyes-webdriverio-4
+    if: ${{contains(github.event.inputs.names, 'eyes-webdriverio-4')}}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: test
+        uses: ./.github/actions/coverage-tests
+        with:
+          name: eyes-webdriverio-4
+          links: ${{github.event.inputs.links}}
+          grep: ${{github.event.inputs.grep}}
+  eyes-selenium:
+    runs-on: ubuntu-latest
+    name: test eyes-selenium
+    if: ${{contains(github.event.inputs.names, 'eyes-selenium')}}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: test
+        uses: ./.github/actions/coverage-tests
+        with:
+          name: eyes-selenium
+          links: ${{github.event.inputs.links}}
+          grep: ${{github.event.inputs.grep}}
+  eyes-protractor:
+    runs-on: ubuntu-latest
+    name: test eyes-protractor
+    if: ${{contains(github.event.inputs.names, 'eyes-protractor')}}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: test
+        uses: ./.github/actions/coverage-tests
+        with:
+          name: eyes-protractor
+          links: ${{github.event.inputs.links}}
+          grep: ${{github.event.inputs.grep}}
+  eyes-nightwatch:
+    runs-on: ubuntu-latest
+    name: test eyes-nightwatch
+    if: ${{contains(github.event.inputs.names, 'eyes-nightwatch')}}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: test
+        uses: ./.github/actions/coverage-tests
+        with:
+          name: eyes-nightwatch
+          links: ${{github.event.inputs.links}}
+          grep: ${{github.event.inputs.grep}}
+  eyes-testcafe:
+    runs-on: ubuntu-latest
+    name: test eyes-testcafe
+    if: ${{contains(github.event.inputs.names, 'eyes-testcafe')}}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: test
+        uses: ./.github/actions/coverage-tests
+        with:
+          name: eyes-testcafe
+          links: ${{github.event.inputs.links}}
+          grep: ${{github.event.inputs.grep}}
