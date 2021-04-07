@@ -22,9 +22,9 @@ env:
   AZURE_STORAGE_CONNECTION_STRING: ${{secrets.AZURE_STORAGE_CONNECTION_STRING}}
 jobs:
   eyes-playwright:
-    if: contains(github.event.inputs.names, github.job)
-    runs-on: ubuntu-latest
     name: test ${{github.job}}
+    if: contains(github.event.inputs.names, 'eyes-playwright')
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
@@ -39,9 +39,9 @@ jobs:
           links: ${{github.event.inputs.links}}
           grep: ${{github.event.inputs.grep}}
   eyes-puppeteer:
-    if: contains(github.event.inputs.names, github.job)
-    runs-on: ubuntu-latest
     name: test ${{github.job}}
+    if: contains(github.event.inputs.names, 'eyes-puppeteer')
+    runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
         with:
