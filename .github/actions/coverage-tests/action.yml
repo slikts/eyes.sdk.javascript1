@@ -11,10 +11,10 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - uses: actions/setup-node@v1
-      with:
-        node-version: 14
     - name: test
+      shell: bash
+      env:
+        MOCHA_GREP: ${{inputs.grep}}
       run: |
         yarn install --cwd "packages/sdk-shared"
         cd "packages/${{inputs.name}}"
