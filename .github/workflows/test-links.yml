@@ -17,9 +17,10 @@ jobs:
     name: test ${{github.event.inputs.name}}
     steps:
       - uses: applitools/eyes.sdk.javascript1/.github/actions/coverage-tests
-        name: ${{github.event.inputs.name}}
-        links: ${{github.event.inputs.links}}
-        grep: ${{github.event.inputs.grep}}
+        with:
+          name: ${{github.event.inputs.name}}
+          links: ${{github.event.inputs.links}}
+          grep: ${{github.event.inputs.grep}}
     env:
       MOCHA_GREP: ${{github.event.inputs.grep}}
       CVG_TESTS_REMOTE: http://localhost:4444/wd/hub
