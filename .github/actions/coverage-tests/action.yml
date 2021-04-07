@@ -11,8 +11,7 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: test
-      shell: bash
+    - shell: bash
       env:
         MOCHA_GREP: ${{inputs.grep}}
       run: |
