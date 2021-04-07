@@ -36,6 +36,7 @@
     "deps": "bongo deps",
     "lint": "eslint '**/*.ts' '**/*.js'",
     "render": "node ../sdk-shared/src/render.js",
+    "link": "node ../sdk-shared/scripts/link.js",
     "build": "yarn build:dist && yarn build:types",
     "build:dist": "tsc",
     "build:types": "api-extractor ./index.ts --out ./index.d.ts",
