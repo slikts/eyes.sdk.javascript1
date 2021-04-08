@@ -1,26 +1,27 @@
-import {Eyes, VisualGridRunner} from './api'
-import type {ConfigurationPlain, TestResults} from './api'
-
-type EyesServiceConfiguration = ConfigurationPlain & {
-  useVisualGrid?: boolean
-  concurrency?: number
-  eyes?: ConfigurationPlain
-}
+import {Eyes, VisualGridRunner, ConfigurationPlain, TestResults} from './src/api'
 
 if (!process.env.APPLITOOLS_WDIO_MAJOR_VERSION) {
-  const {version} = require('webdriverio/package.json')
-  const [major] = version.split('.', 1)
-  process.env.APPLITOOLS_WDIO_MAJOR_VERSION = major
+  try {
+    const {version} = require('webdriverio/package.json')
+    const [major] = version.split('.', 1)
+    process.env.APPLITOOLS_WDIO_MAJOR_VERSION = major
+  } catch {
+    // NOTE: ignore error
+  }
 }
 
-const DEFAULT_VIEWPORT = {width: 800, height: 600}
+interface EyesServiceOptions extends ConfigurationPlain {
+  useVisualGrid?: boolean
+  concurrency?: number
+  eyes?: EyesServiceOptions
+}
 
 export = class EyesService {
   private _eyes: Eyes
   private _appName: string
   private _testResults: TestResults
 
-  constructor({useVisualGrid, concurrency, eyes, ...config}: EyesServiceConfiguration) {
+  constructor({useVisualGrid, concurrency, eyes, ...config}: EyesServiceOptions) {
     const wdioMajorVersion = Number(process.env.APPLITOOLS_WDIO_MAJOR_VERSION)
     config = wdioMajorVersion < 6 ? {...eyes} : config
 
@@ -88,7 +89,7 @@ export = class EyesService {
     }
 
     if (!configuration.getViewportSize()) {
-      configuration.setViewportSize(DEFAULT_VIEWPORT)
+      configuration.setViewportSize({width: 800, height: 600})
     }
     this._eyes.setConfiguration(configuration)
   }

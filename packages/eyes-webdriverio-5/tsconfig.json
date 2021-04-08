@@ -1,4 +1,5 @@
 {
+  "file": ["./index.ts", "./service.ts"],
   "compilerOptions": {
     "outDir": "dist",
     "sourceMap": true,
