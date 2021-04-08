@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- add variantId to CheckSettings
 
 ## 0.0.2 - 2021/3/24
 

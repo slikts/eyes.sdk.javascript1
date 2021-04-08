@@ -55,6 +55,7 @@ export type CheckSettings<TElement, TSelector> = {
   visualGridOptions?: {[key: string]: any}
   hooks?: {[key: string]: string}
   renderId?: string
+  variantId?: string
   timeout?: number
 }
 
@@ -156,6 +157,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
       Object.entries(settings.visualGridOptions).forEach(([key, value]) => this.visualGridOption(key, value))
     }
     if (settings.renderId) this.renderId(settings.renderId)
+    if (settings.variantId) this.variantId(settings.variantId)
     if (!utils.types.isNull(settings.timeout)) this.timeout(settings.timeout)
   }
 
@@ -489,6 +491,12 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
   renderId(renderId: string): this {
     utils.guard.isString(renderId, {name: 'renderId'})
     this._settings.renderId = renderId
+    return this
+  }
+
+  variantId(variantId: string): this {
+    utils.guard.isString(variantId, {name: 'variantId'})
+    this._settings.variantId = variantId
     return this
   }
 
