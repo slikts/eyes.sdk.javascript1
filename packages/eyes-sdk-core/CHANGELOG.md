@@ -3,6 +3,19 @@
 ## Unreleased
 
 
+## 12.17.2 - 2021/4/6
+
+- updated to @applitools/dom-snapshot@4.5.0 (from 4.4.14)
+
+## 12.17.1 - 2021/3/30
+
+- remove `variantId` from configuration
+
+## 12.17.0 - 2021/3/29
+
+- support `agentRunId`
+- support `variantId`
+
 ## 12.16.3 - 2021/3/22
 
 - fix mutable image round position

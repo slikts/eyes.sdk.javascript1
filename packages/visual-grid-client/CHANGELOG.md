@@ -3,6 +3,16 @@
 ## Unreleased
 
 
+## 15.7.1 - 2021/4/6
+
+- updated to @applitools/eyes-sdk-core@12.17.2 (from 12.17.0)
+
+## 15.7.0 - 2021/3/29
+
+- support `agentRunId`
+- support `variantId`
+- updated to @applitools/eyes-sdk-core@12.17.0 (from 12.16.3)
+
 ## 15.6.4 - 2021/3/22
 
 - updated to @applitools/eyes-sdk-core@12.16.3 (from 12.16.2)

@@ -98,6 +98,17 @@ describe('EyesVisualGrid', async () => {
     )
   })
 
+  it('should populate agentRunId', async () => {
+    await eyes.open(driver, 'FakeApp', 'FakeTest')
+    await eyes.check()
+    const results = await eyes.close()
+    const session = await getSession(results, serverUrl)
+    const agentRunId = session.startInfo.agentRunId
+    const [testName, random] = agentRunId.split('--')
+    expect(testName).to.equal('FakeTest')
+    expect(random).to.have.length(10)
+  })
+
   async function extractMatchSettings(results) {
     const session = await getSession(results, serverUrl)
     const imageMatchSettings = session.steps[0].matchWindowData.options.imageMatchSettings

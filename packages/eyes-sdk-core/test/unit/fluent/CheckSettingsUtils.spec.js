@@ -327,4 +327,14 @@ describe('CheckSettingsUtils', () => {
 
     assert.deepStrictEqual(checkWindowConfiguration.useDom, true)
   })
+  it('toCheckWindowConfiguration handles variantId', () => {
+    const checkSettings = new CheckSettings().variantId('variant-id')
+
+    const checkWindowConfiguration = toCheckWindowConfiguration({
+      checkSettings,
+      configuration: new Configuration(),
+    })
+
+    assert.deepStrictEqual(checkWindowConfiguration.variantId, 'variant-id')
+  })
 })

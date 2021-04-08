@@ -3,6 +3,11 @@
 ## Unreleased
 
 
+## 4.20.0 - 2021/3/30
+
+- support `variantId` in checkSettings
+- updated to @applitools/eyes-sdk-core@12.17.0 (from 12.15.0)
+
 ## 4.19.1 - 2021/3/11
 
 - fix: update getScreenshot to support the correct return type when performing a full page stitch ([Trello](https://trello.com/c/6oVADkSf))
