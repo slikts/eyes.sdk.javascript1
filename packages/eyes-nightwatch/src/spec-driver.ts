@@ -45,9 +45,9 @@ function call<
 >(driver: Driver, command: TCommand, ...args: any[]): Promise<TResult> {
   return new Promise<TResult>((resolve, reject) => {
     const promise = (driver[command] as any)(...args, (result: Nightwatch.NightwatchCallbackResult<TResult>) => {
-      if (!('value' in result)) resolve(result as any)
-      else if (!result.status) resolve(result.value as TResult)
-      else reject(result.value)
+      if (!('value' in result) && !(result as any).error) resolve(result as any)
+      else if (!result.status && !(result as any).error) resolve(result.value as TResult)
+      else reject(result.value || (result as any).error)
     })
     if (promise instanceof Promise) promise.then(resolve, reject)
   })
@@ -135,8 +135,8 @@ export async function getWindowRect(driver: Driver): Promise<{x: number; y: numb
   try {
     return await call(driver, 'getWindowRect' as any)
   } catch {
-    const location = await call(driver, 'windowPosition', 'current')
-    const size = await call(driver, 'windowSize', 'current')
+    const location = await call(driver, 'getWindowPosition' as 'windowPosition')
+    const size = await call(driver, 'getWindowSize' as 'windowSize')
     return {...location, ...size}
   }
 }
@@ -148,14 +148,14 @@ export async function setWindowRect(
   // Same deal as with getWindowRect. If running on JWP, need to catch and retry
   // with a different command.
   try {
-    await call(driver, 'windowRect' as any, rect)
+    await call(driver, 'setWindowRect' as any, rect)
   } catch {
     const {x = null, y = null, width = null, height = null} = rect || {}
     if (x !== null && y !== null) {
-      await call(driver, 'windowPosition', x, y)
+      await call(driver, 'setWindowPosition' as 'windowPosition', x, y)
     }
     if (width !== null && height !== null) {
-      await call(driver, 'windowSize', width, height)
+      await call(driver, 'setWindowSize' as 'windowSize', width, height)
     }
   }
 }
@@ -227,54 +227,55 @@ export async function waitUntilDisplayed(driver: Driver, selector: Selector, tim
 
 // #region TESTING
 
-function createBrowserOptions(browserName: string, argsArray: string[] = []) {
-  const browserOptionsNames: Record<string, string> = {
-    chrome: 'goog:chromeOptions',
-    firefox: 'moz:firefoxOptions',
-  }
-  const browserOption = browserOptionsNames[browserName]
-  if (!browserOption) return
-  const browserOptions = {
-    [browserOption]: {
-      w3c: browserName === 'chrome' ? false : undefined,
-      args: argsArray,
-    },
-  }
-  return browserName === 'firefox' ? {alwaysMatch: browserOptions} : browserOptions
+const browserOptionsNames: Record<string, string> = {
+  chrome: 'goog:chromeOptions',
+  firefox: 'moz:firefoxOptions',
 }
 export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
   // config prep
   const {testSetup} = require('@applitools/sdk-shared')
-  const testSetupConfig = testSetup.Env({...env, legacy: false})
-  const conf: any = {
-    test_settings: {
-      default: {
-        output: false,
-        webdriver: {
-          port: 4444,
-          default_path_prefix: '/wd/hub',
-        },
-      },
-    },
-  }
-  conf.test_settings.default.desiredCapabilities = Object.assign(
-    {},
-    testSetupConfig.capabilities,
-    createBrowserOptions(testSetupConfig.browser, [testSetupConfig.headless ? '--headless' : '//--headless']),
-  )
-  const host = testSetupConfig.url.host
-  const port = testSetupConfig.url.port
-  if (port) conf.test_settings.default.webdriver.port = port
-  if (!host.includes('localhost')) {
-    conf.test_settings.default.selenium_host = host
-    conf.test_settings.default.username = process.env.SAUCE_USERNAME
-    conf.test_settings.default.access_key = process.env.SAUCE_ACCESS_KEY
+  const {browser = '', capabilities, url, configurable = true, args = [], headless} = testSetup.Env({
+    ...env,
+    legacy: true,
+  })
+  const desiredCapabilities = {browserName: browser, ...capabilities}
+  if (configurable) {
+    const browserOptionsName = browserOptionsNames[browser || desiredCapabilities.browserName]
+    if (browserOptionsName) {
+      const browserOptions = desiredCapabilities[browserOptionsName] || {}
+      browserOptions.w3c = browser === 'chrome' ? false : undefined
+      browserOptions.args = [...(browserOptions.args || []), ...args]
+      if (headless) browserOptions.args.push('headless')
+      if (browser === 'firefox') {
+        desiredCapabilities.alwaysMatch = {[browserOptionsName]: browserOptions}
+      } else {
+        desiredCapabilities[browserOptionsName] = browserOptions
+      }
+    }
   }
 
   // building
   const Nightwatch = require('nightwatch')
   const Settings = require('nightwatch/lib/settings/settings')
-  const client = Nightwatch.client(Settings.parse({}, conf, {}, 'default'))
+  const settings = Settings.parse(
+    {},
+    {
+      test_settings: {
+        default: {
+          output: false,
+          webdriver: {
+            host: !url.host.includes('localhost') ? url.host : undefined,
+            port: url.port,
+            default_path_prefix: url.pathname,
+          },
+          desiredCapabilities,
+        },
+      },
+    },
+    {},
+    'default',
+  )
+  const client = Nightwatch.client(settings)
   client.isES6AsyncTestcase = true
   await client.createSession()
   return [client.api, () => client.session.close()]
