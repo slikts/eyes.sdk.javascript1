@@ -2,7 +2,7 @@ import * as utils from '@applitools/utils'
 
 /** @undocumented */
 export type ValidationResult = {
-  asExpected: boolean
+  readonly asExpected: boolean
 }
 
 /** @undocumented */

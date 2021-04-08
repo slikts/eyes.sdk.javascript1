@@ -2,8 +2,8 @@ import * as utils from '@applitools/utils'
 import {TestResults, TestResultsData} from './TestResults'
 
 export type TestResultsContainer = {
-  exception: Error
-  testResults: TestResults
+  readonly exception: Error
+  readonly testResults: TestResults
 }
 
 export class TestResultsContainerData implements Required<TestResultsContainer> {

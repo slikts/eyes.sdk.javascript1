@@ -1,12 +1,13 @@
 import * as utils from '@applitools/utils'
+import type {Mutable} from '@applitools/utils'
 
 export type MatchResult = {
-  asExpected?: boolean
-  windowId?: number
+  readonly asExpected?: boolean
+  readonly windowId?: number
 }
 
 export class MatchResultData implements Required<MatchResult> {
-  private _result: MatchResult = {} as any
+  private _result: Mutable<MatchResult> = {} as any
 
   /** @internal */
   constructor(result?: MatchResult) {
@@ -17,29 +18,23 @@ export class MatchResultData implements Required<MatchResult> {
   get asExpected(): boolean {
     return this._result.asExpected
   }
-  set asExpected(asExpected: boolean) {
-    utils.guard.isBoolean(asExpected, {name: 'asExpected', strict: false})
-    this._result.asExpected = asExpected
-  }
   getAsExpected(): boolean {
     return this.asExpected
   }
+  /** @deprecated */
   setAsExpected(asExpected: boolean) {
-    this.asExpected = asExpected
+    this._result.asExpected = asExpected
   }
 
   get windowId(): number {
     return this._result.windowId
   }
-  set windowId(windowId: number) {
-    utils.guard.isNumber(windowId, {name: 'windowId', strict: false})
-    this._result.windowId = windowId
-  }
   getWindowId(): number {
     return this.windowId
   }
+  /** @deprecated */
   setWindowId(windowId: number) {
-    this.windowId = windowId
+    this._result.windowId = windowId
   }
 
   /** @internal */

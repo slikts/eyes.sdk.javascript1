@@ -1,14 +1,15 @@
 import * as utils from '@applitools/utils'
+import type {Mutable} from '@applitools/utils'
 
 export type RenderingInfo = {
-  accessToken: string
-  serviceUrl: string
-  resultsUrl: string
-  stitchingServiceUrl: string
+  readonly accessToken: string
+  readonly serviceUrl: string
+  readonly resultsUrl: string
+  readonly stitchingServiceUrl: string
 }
 
 export class RenderingInfoData {
-  private _info: RenderingInfo = {} as any
+  private _info: Mutable<RenderingInfo> = {} as any
 
   /** @internal */
   constructor(info: RenderingInfo) {
@@ -18,56 +19,48 @@ export class RenderingInfoData {
   get accessToken(): string {
     return this._info.accessToken
   }
-  set accessToken(accessToken: string) {
-    this._info.accessToken = accessToken
-  }
   getAccessToken(): string {
     return this.accessToken
   }
-  setAccessToken(accessToken: string) {
-    this.accessToken = accessToken
-  }
   getDecodedAccessToken(): {sub: string; exp: number; iss: string} {
     return utils.general.jwtDecode(this._info.accessToken) as {sub: string; exp: number; iss: string}
+  }
+  /** @deprecated */
+  setAccessToken(accessToken: string) {
+    this._info.accessToken = accessToken
   }
 
   get serviceUrl(): string {
     return this._info.serviceUrl
   }
-  set serviceUrl(serviceUrl: string) {
-    this._info.serviceUrl = serviceUrl
-  }
   getServiceUrl(): string {
     return this.serviceUrl
   }
+  /** @deprecated */
   setServiceUrl(serviceUrl: string) {
-    this.serviceUrl = serviceUrl
+    this._info.serviceUrl = serviceUrl
   }
 
   get resultsUrl(): string {
     return this._info.resultsUrl
   }
-  set resultsUrl(resultsUrl: string) {
-    this._info.resultsUrl = resultsUrl
-  }
   getResultsUrl(): string {
     return this.resultsUrl
   }
+  /** @deprecated */
   setResultsUrl(resultsUrl: string) {
-    this.resultsUrl = resultsUrl
+    this._info.resultsUrl = resultsUrl
   }
 
   get stitchingServiceUrl(): string {
     return this._info.stitchingServiceUrl
   }
-  set stitchingServiceUrl(stitchingServiceUrl: string) {
-    this._info.stitchingServiceUrl = stitchingServiceUrl
-  }
   getStitchingServiceUrl(): string {
     return this.stitchingServiceUrl
   }
+  /** @deprecated */
   setStitchingServiceUrl(stitchingServiceUrl: string) {
-    this.stitchingServiceUrl = stitchingServiceUrl
+    this._info.stitchingServiceUrl = stitchingServiceUrl
   }
 
   /** @internal */

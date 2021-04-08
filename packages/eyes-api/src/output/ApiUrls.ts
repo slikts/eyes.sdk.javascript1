@@ -1,15 +1,16 @@
 import * as utils from '@applitools/utils'
+import type {Mutable} from '@applitools/utils'
 
 export type ApiUrls = {
-  baselineImage?: string
-  currentImage?: string
-  checkpointImage?: string
-  checkpointImageThumbnail?: string
-  diffImage?: string
+  readonly baselineImage?: string
+  readonly currentImage?: string
+  readonly checkpointImage?: string
+  readonly checkpointImageThumbnail?: string
+  readonly diffImage?: string
 }
 
 export class ApiUrlsData implements Required<ApiUrls> {
-  private _urls: ApiUrls = {} as any
+  private _urls: Mutable<ApiUrls> = {} as any
 
   /** @internal */
   constructor(urls?: ApiUrls) {
@@ -20,66 +21,56 @@ export class ApiUrlsData implements Required<ApiUrls> {
   get baselineImage(): string {
     return this._urls.baselineImage
   }
-  set baselineImage(setBaselineImage: string) {
-    this._urls.baselineImage = setBaselineImage
-  }
   getBaselineImage(): string {
     return this.baselineImage
   }
+  /** @deprecated */
   setBaselineImage(setBaselineImage: string) {
-    this.baselineImage = setBaselineImage
+    this._urls.baselineImage = setBaselineImage
   }
 
   get currentImage(): string {
     return this._urls.currentImage
   }
-  set currentImage(currentImage: string) {
-    this._urls.currentImage = currentImage
-  }
   getCurrentImage(): string {
     return this.currentImage
   }
+  /** @deprecated */
   setCurrentImage(currentImage: string) {
-    this.currentImage = currentImage
+    this._urls.currentImage = currentImage
   }
 
   get checkpointImage(): string {
     return this._urls.checkpointImage
   }
-  set checkpointImage(checkpointImage: string) {
-    this._urls.checkpointImage = checkpointImage
-  }
   getCheckpointImage(): string {
     return this.checkpointImage
   }
+  /** @deprecated */
   setCheckpointImage(checkpointImage: string) {
-    this.checkpointImage = checkpointImage
+    this._urls.checkpointImage = checkpointImage
   }
 
   get checkpointImageThumbnail(): string {
     return this._urls.checkpointImageThumbnail
   }
-  set checkpointImageThumbnail(checkpointImageThumbnail: string) {
-    this._urls.checkpointImageThumbnail = checkpointImageThumbnail
-  }
   getCheckpointImageThumbnail(): string {
     return this.checkpointImageThumbnail
   }
+  /** @deprecated */
   setCheckpointImageThumbnail(checkpointImageThumbnail: string) {
-    this.checkpointImageThumbnail = checkpointImageThumbnail
+    this._urls.checkpointImageThumbnail = checkpointImageThumbnail
   }
 
   get diffImage(): string {
     return this._urls.diffImage
   }
-  set diffImage(diffImage: string) {
-    this._urls.diffImage = diffImage
-  }
   getDiffImage(): string {
     return this.diffImage
   }
+  /** @deprecated */
   setDiffImage(diffImage: string) {
-    this.diffImage = diffImage
+    this._urls.diffImage = diffImage
   }
 
   /** @internal */

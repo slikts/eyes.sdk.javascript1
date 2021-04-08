@@ -1,19 +1,20 @@
 import * as utils from '@applitools/utils'
+import type {Mutable} from '@applitools/utils'
 import {AppUrls, AppUrlsData} from './AppUrls'
 import {ApiUrls, ApiUrlsData} from './ApiUrls'
 
 export type StepInfo = {
-  name?: string
-  isDifferent?: boolean
-  hasBaselineImage?: boolean
-  hasCurrentImage?: boolean
-  appUrls?: AppUrls
-  apiUrls?: ApiUrls
-  renderId?: string[]
+  readonly name?: string
+  readonly isDifferent?: boolean
+  readonly hasBaselineImage?: boolean
+  readonly hasCurrentImage?: boolean
+  readonly appUrls?: AppUrls
+  readonly apiUrls?: ApiUrls
+  readonly renderId?: string[]
 }
 
 export class StepInfoData implements Required<StepInfo> {
-  private _info: StepInfo = {} as any
+  private _info: Mutable<StepInfo> = {} as any
 
   /** @internal */
   constructor(info?: StepInfo) {
@@ -24,92 +25,78 @@ export class StepInfoData implements Required<StepInfo> {
   get name(): string {
     return this._info.name
   }
-  set name(value: string) {
-    this._info.name = value
-  }
   getName(): string {
     return this.name
   }
+  /** @deprecated */
   setName(value: string) {
-    this.name = value
+    this._info.name = value
   }
 
   get isDifferent(): boolean {
     return this._info.isDifferent
   }
-  set isDifferent(value: boolean) {
-    this._info.isDifferent = value
-  }
   getIsDifferent(): boolean {
     return this.isDifferent
   }
+  /** @deprecated */
   setIsDifferent(value: boolean) {
-    this.isDifferent = value
+    this._info.isDifferent = value
   }
 
   get hasBaselineImage(): boolean {
     return this._info.hasBaselineImage
   }
-  set hasBaselineImage(value: boolean) {
-    this._info.hasBaselineImage = value
-  }
   getHasBaselineImage(): boolean {
     return this.hasBaselineImage
   }
+  /** @deprecated */
   setHasBaselineImage(value: boolean) {
-    this.hasBaselineImage = value
+    this._info.hasBaselineImage = value
   }
 
   get hasCurrentImage(): boolean {
     return this._info.hasCurrentImage
   }
-  set hasCurrentImage(hasCurrentImage: boolean) {
-    this._info.hasCurrentImage = hasCurrentImage
-  }
   getHasCurrentImage(): boolean {
     return this.hasCurrentImage
   }
+  /** @deprecated */
   setHasCurrentImage(hasCurrentImage: boolean) {
-    this.hasCurrentImage = hasCurrentImage
+    this._info.hasCurrentImage = hasCurrentImage
   }
 
   get appUrls(): AppUrls {
     return this._info.appUrls
   }
-  set appUrls(appUrls: AppUrls) {
-    this._info.appUrls = appUrls
-  }
   getAppUrls(): AppUrlsData {
     return new AppUrlsData(this.appUrls)
   }
+  /** @deprecated */
   setAppUrls(appUrls: AppUrls) {
-    this.appUrls = appUrls
+    this._info.appUrls = appUrls
   }
 
   get apiUrls(): ApiUrls {
     return this._info.apiUrls
   }
-  set apiUrls(apiUrls: ApiUrls) {
-    this._info.apiUrls = apiUrls
-  }
   getApiUrls(): ApiUrlsData {
     return new ApiUrlsData(this.apiUrls)
   }
+  /** @deprecated */
   setApiUrls(apiUrls: ApiUrls) {
-    this.apiUrls = apiUrls
+    this._info.apiUrls = apiUrls
   }
 
   get renderId(): string[] {
     return this._info.renderId
   }
-  set renderId(renderId: string[]) {
-    this._info.renderId = renderId
-  }
   getRenderId(): string[] {
     return this.renderId
   }
+  /** @deprecated */
   setRenderId(renderId: string[]) {
-    this.renderId = renderId
+    this._info.renderId = renderId
   }
 
   /** @internal */

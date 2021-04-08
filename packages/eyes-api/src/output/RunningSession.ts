@@ -1,18 +1,19 @@
 import * as utils from '@applitools/utils'
+import type {Mutable} from '@applitools/utils'
 import {RenderingInfo, RenderingInfoData} from './RenderingInfo'
 
 export type RunningSession = {
-  id: string
-  sessionId: string
-  batchId: string
-  baselineId: string
-  url: string
-  isNew: boolean
-  renderingInfo: RenderingInfo
+  readonly id: string
+  readonly sessionId: string
+  readonly batchId: string
+  readonly baselineId: string
+  readonly url: string
+  readonly isNew: boolean
+  readonly renderingInfo: RenderingInfo
 }
 
 export class RunningSessionData implements Required<RunningSession> {
-  private _session: RunningSession = {} as any
+  private _session: Mutable<RunningSession> = {} as any
 
   /** @internal */
   constructor(session: RunningSession) {
@@ -22,92 +23,77 @@ export class RunningSessionData implements Required<RunningSession> {
   get id(): string {
     return this._session.id
   }
-  set id(id: string) {
-    this._session.id = id
-  }
   getId(): string {
     return this.id
   }
   setId(id: string) {
-    this.id = id
+    this._session.id = id
   }
 
   get sessionId(): string {
     return this._session.sessionId
   }
-  set sessionId(sessionId: string) {
-    this._session.sessionId = sessionId
-  }
   getSessionId(): string {
     return this.sessionId
   }
+  /** @deprecated */
   setSessionId(sessionId: string) {
-    this.sessionId = sessionId
+    this._session.sessionId = sessionId
   }
 
   get batchId(): string {
     return this._session.batchId
   }
-  set batchId(batchId: string) {
-    this._session.batchId = batchId
-  }
   getBatchId(): string {
     return this.batchId
   }
+  /** @deprecated */
   setBatchId(batchId: string) {
-    this.batchId = batchId
+    this._session.batchId = batchId
   }
 
   get baselineId(): string {
     return this._session.baselineId
   }
-  set baselineId(baselineId: string) {
-    this._session.baselineId = baselineId
-  }
   getBaselineId(): string {
     return this.baselineId
   }
+  /** @deprecated */
   setBaselineId(baselineId: string) {
-    this.baselineId = baselineId
+    this._session.baselineId = baselineId
   }
 
   get url(): string {
     return this._session.url
   }
-  set url(url: string) {
-    this._session.url = url
-  }
   getUrl(): string {
     return this.url
   }
+  /** @deprecated */
   setUrl(url: string) {
-    this.url = url
+    this._session.url = url
   }
 
   get isNew(): boolean {
     return this._session.isNew
   }
-  set isNew(isNew: boolean) {
-    this._session.isNew = isNew
-  }
   getIsNew(): boolean {
     return this.isNew
   }
+  /** @deprecated */
   setIsNew(isNew: boolean) {
-    this.isNew = isNew
+    this._session.isNew = isNew
   }
 
   get renderingInfo(): RenderingInfo {
     return this._session.renderingInfo
   }
-  set renderingInfo(renderingInfo: RenderingInfo) {
-    this._session.renderingInfo = renderingInfo
-  }
   getRenderingInfo(): RenderingInfoData {
     return new RenderingInfoData(this.renderingInfo)
   }
+  /** @deprecated */
   setRenderingInfo(renderingInfo: RenderingInfo) {
-    this.renderingInfo = renderingInfo
+    this._session.renderingInfo = renderingInfo
   }
 
   /** @internal */

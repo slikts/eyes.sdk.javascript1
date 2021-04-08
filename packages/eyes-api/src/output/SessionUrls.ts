@@ -1,12 +1,13 @@
 import * as utils from '@applitools/utils'
+import type {Mutable} from '@applitools/utils'
 
 export type SessionUrls = {
-  batch?: string
-  session?: string
+  readonly batch?: string
+  readonly session?: string
 }
 
 export class SessionUrlsData implements Required<SessionUrls> {
-  private _urls: SessionUrls = {} as any
+  private _urls: Mutable<SessionUrls> = {} as any
 
   /** @internal */
   constructor(urls?: SessionUrls) {
@@ -17,27 +18,23 @@ export class SessionUrlsData implements Required<SessionUrls> {
   get batch(): string {
     return this._urls.batch
   }
-  set batch(batch: string) {
-    this._urls.batch = batch
-  }
   getBatch(): string {
     return this.batch
   }
+  /** @deprecated */
   setBatch(batch: string) {
-    this.batch = batch
+    this._urls.batch = batch
   }
 
   get session(): string {
     return this._urls.session
   }
-  set session(session: string) {
-    this._urls.session = session
-  }
   getSession(): string {
     return this.session
   }
+  /** @deprecated */
   setSession(session: string) {
-    this.session = session
+    this._urls.session = session
   }
 
   /** @internal */

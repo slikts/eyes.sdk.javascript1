@@ -97,10 +97,8 @@ export {RenderingInfo as RenderingInfoPlain, RenderingInfoData as RenderingInfo}
 export {RunningSession as RunningSessionPlain, RunningSessionData as RunningSession} from './src/output/RunningSession'
 export {SessionUrls as SessionUrlsPlain, SessionUrlsData as SessionUrls} from './src/output/SessionUrls'
 export {StepInfo as StepInfoPlain, StepInfoData as StepInfo} from './src/output/StepInfo'
-export {
-  ValidationResult as ValidationResultPlain,
-  ValidationResultData as ValidationResult,
-} from './src/output/ValidationResult'
+export {TestAccessibilityStatus} from './src/output/TestAccessibilityStatus'
+export {TestResults as TestResultsPlain, TestResultsData as TestResults} from './src/output/TestResults'
 export {
   TestResultsContainer as TestResultsContainerPlain,
   TestResultsContainerData as TestResultsContainer,
@@ -110,7 +108,10 @@ export {
   TestResultsSummaryData as TestResultsSummary,
 } from './src/output/TestResultsSummary'
 export {ValidationInfo as ValidationInfoPlain, ValidationInfoData as ValidationInfo} from './src/output/ValidationInfo'
-export {TestResults as TestResultsPlain, TestResultsData as TestResults} from './src/output/TestResults'
+export {
+  ValidationResult as ValidationResultPlain,
+  ValidationResultData as ValidationResult,
+} from './src/output/ValidationResult'
 // #endregion
 
 export {Logger} from './src/Logger'

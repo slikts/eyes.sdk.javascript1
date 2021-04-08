@@ -2,8 +2,8 @@ import * as utils from '@applitools/utils'
 
 /** @undocumented */
 export type ValidationInfo = {
-  validationId: number
-  tag: string
+  readonly validationId: number
+  readonly tag: string
 }
 
 /** @undocumented */

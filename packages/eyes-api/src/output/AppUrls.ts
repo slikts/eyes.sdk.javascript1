@@ -1,12 +1,13 @@
 import * as utils from '@applitools/utils'
+import type {Mutable} from '@applitools/utils'
 
 export type AppUrls = {
-  step?: string
-  stepEditor?: string
+  readonly step?: string
+  readonly stepEditor?: string
 }
 
 export class AppUrlsData implements Required<AppUrls> {
-  private _urls: AppUrls = {} as any
+  private _urls: Mutable<AppUrls> = {} as any
 
   /** @internal */
   constructor(urls?: AppUrls) {
@@ -17,27 +18,23 @@ export class AppUrlsData implements Required<AppUrls> {
   get step(): string {
     return this._urls.step
   }
-  set step(step: string) {
-    this._urls.step = step
-  }
   getStep(): string {
     return this.step
   }
+  /** @deprecated */
   setStep(step: string) {
-    this.step = step
+    this._urls.step = step
   }
 
   get stepEditor(): string {
     return this._urls.stepEditor
   }
-  set stepEditor(stepEditor: string) {
-    this._urls.stepEditor = stepEditor
-  }
   getStepEditor(): string {
     return this.stepEditor
   }
+  /** @deprecated */
   setStepEditor(stepEditor: string) {
-    this.stepEditor = stepEditor
+    this._urls.stepEditor = stepEditor
   }
 
   /** @internal */
