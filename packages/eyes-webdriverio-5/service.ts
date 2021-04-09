@@ -1,10 +1,10 @@
 import {Eyes, VisualGridRunner, ConfigurationPlain, TestResults} from './src/api'
 
-if (!process.env.APPLITOOLS_WDIO_MAJOR_VERSION) {
+if (!process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION) {
   try {
     const {version} = require('webdriverio/package.json')
     const [major] = version.split('.', 1)
-    process.env.APPLITOOLS_WDIO_MAJOR_VERSION = major
+    process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION = major
   } catch {
     // NOTE: ignore error
   }
@@ -22,7 +22,7 @@ export = class EyesService {
   private _testResults: TestResults
 
   constructor({useVisualGrid, concurrency, eyes, ...config}: EyesServiceOptions) {
-    const wdioMajorVersion = Number(process.env.APPLITOOLS_WDIO_MAJOR_VERSION)
+    const wdioMajorVersion = Number(process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION)
     config = wdioMajorVersion < 6 ? {...eyes} : config
 
     if (!useVisualGrid) config.hideScrollbars = true

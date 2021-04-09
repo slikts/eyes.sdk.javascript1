@@ -13,7 +13,7 @@ const tags = {
   ],
   cdp: ['chrome']
 }
-const protocol = process.env.APPLITOOLS_WDIO_PROTOCOL in tags ? process.env.APPLITOOLS_WDIO_PROTOCOL : 'wd'
+const protocol = process.env.APPLITOOLS_WEBDRIVERIO_PROTOCOL in tags ? process.env.APPLITOOLS_WEBDRIVERIO_PROTOCOL : 'wd'
 const grep = process.env.MOCHA_GREP
 
 module.exports = {

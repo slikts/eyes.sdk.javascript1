@@ -265,7 +265,7 @@ export async function hover(
   if (isSelector(element)) element = await findElement(browser, element)
   element = await browser.$(element)
   // NOTE: WDIO6 changed the signature of moveTo method
-  if (process.env.APPLITOOLS_WDIO_MAJOR_VERSION === '5') {
+  if (process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION === '5') {
     await (element.moveTo as any)(offset?.x, offset?.y)
   } else {
     await (element.moveTo as any)({xOffset: offset?.x, yOffset: offset?.y})
@@ -304,7 +304,7 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
     args = [],
     headless,
     logLevel = 'silent',
-  } = testSetup.Env(env, process.env.APPLITOOLS_WDIO_PROTOCOL)
+  } = testSetup.Env(env, process.env.APPLITOOLS_WEBDRIVERIO_PROTOCOL)
 
   const options: any = {
     capabilities: {browserName: browser, ...capabilities},
