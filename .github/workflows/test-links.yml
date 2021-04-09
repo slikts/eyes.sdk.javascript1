@@ -25,6 +25,7 @@ env:
   AZURE_STORAGE_CONNECTION_STRING: ${{secrets.AZURE_STORAGE_CONNECTION_STRING}}
 jobs:
   setup:
+    name: Prepare settings
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{steps.settings.outputs.matrix}}
@@ -39,7 +40,7 @@ jobs:
   test:
     needs: setup
     strategy:
-      matrix: ${{needs.setup.outputs.matrix}}
+      matrix: ${{fromJSON(needs.setup.outputs.matrix)}}
     name: ${{matrix.setting}}
     runs-on: ubuntu-latest
     steps:
