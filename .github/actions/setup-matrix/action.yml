@@ -1,9 +1,4 @@
 name: 'Setup matrix'
-inputs:
-  settings:
-    required: true
-outputs:
-  - matrix
 runs:
   using: 'node14'
   main: 'index.js'

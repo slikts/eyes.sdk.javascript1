@@ -38,4 +38,6 @@ const include = settings.split(/[\s,]+/).reduce((output, setting) => {
   return output
 }, [])
 
+console.log(include)
+
 core.setOutput('matrix', {include})
