@@ -21,9 +21,8 @@ env:
   NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
   AZURE_STORAGE_CONNECTION_STRING: ${{secrets.AZURE_STORAGE_CONNECTION_STRING}}
 jobs:
-  eyes-playwright:
+  playwright:
     runs-on: ubuntu-latest
-    name: test eyes-playwright
     if: ${{contains(github.event.inputs.names, 'eyes-playwright')}}
     steps:
       - uses: actions/checkout@v2
@@ -38,9 +37,8 @@ jobs:
           name: eyes-playwright
           links: ${{github.event.inputs.links}}
           grep: ${{github.event.inputs.grep}}
-  eyes-puppeteer:
+  puppeteer:
     runs-on: ubuntu-latest
-    name: test eyes-puppeteer
     if: ${{contains(github.event.inputs.names, 'eyes-puppeteer')}}
     steps:
       - uses: actions/checkout@v2
@@ -55,9 +53,8 @@ jobs:
           name: eyes-puppeteer
           links: ${{github.event.inputs.links}}
           grep: ${{github.event.inputs.grep}}
-  eyes-webdriverio-5:
+  wdio:
     runs-on: ubuntu-latest
-    name: test eyes-webdriverio-5
     if: ${{contains(github.event.inputs.names, 'eyes-webdriverio-5')}}
     steps:
       - uses: actions/checkout@v2
@@ -72,7 +69,25 @@ jobs:
           name: eyes-webdriverio-5
           links: ${{github.event.inputs.links}}
           grep: ${{github.event.inputs.grep}}
-  eyes-webdriverio-4:
+  wdio:cdp:
+    runs-on: ubuntu-latest
+    if: ${{contains(github.event.inputs.names, 'eyes-webdriverio-5:cdp')}}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: test
+        uses: ./.github/actions/coverage-tests
+        with:
+          name: eyes-webdriverio-5
+          links: ${{github.event.inputs.links}}
+          grep: ${{github.event.inputs.grep}}
+        env:
+          APPLITOOLS_WDIO_PROTOCOL: cdp
+  wdio-legacy:
     runs-on: ubuntu-latest
     name: test eyes-webdriverio-4
     if: ${{contains(github.event.inputs.names, 'eyes-webdriverio-4')}}
@@ -89,9 +104,8 @@ jobs:
           name: eyes-webdriverio-4
           links: ${{github.event.inputs.links}}
           grep: ${{github.event.inputs.grep}}
-  eyes-selenium:
+  selenium:
     runs-on: ubuntu-latest
-    name: test eyes-selenium
     if: ${{contains(github.event.inputs.names, 'eyes-selenium')}}
     steps:
       - uses: actions/checkout@v2
@@ -106,9 +120,26 @@ jobs:
           name: eyes-selenium
           links: ${{github.event.inputs.links}}
           grep: ${{github.event.inputs.grep}}
-  eyes-protractor:
+  selenium@3:
     runs-on: ubuntu-latest
-    name: test eyes-protractor
+    if: ${{contains(github.event.inputs.names, 'eyes-selenium@3')}}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: test
+        uses: ./.github/actions/coverage-tests
+        with:
+          name: eyes-selenium
+          links: ${{github.event.inputs.links}}
+          grep: ${{github.event.inputs.grep}}
+        env:
+          APPLITOOLS_SELENIUM_MAJOR_VERSION: 3
+  protractor:
+    runs-on: ubuntu-latest
     if: ${{contains(github.event.inputs.names, 'eyes-protractor')}}
     steps:
       - uses: actions/checkout@v2
@@ -123,9 +154,8 @@ jobs:
           name: eyes-protractor
           links: ${{github.event.inputs.links}}
           grep: ${{github.event.inputs.grep}}
-  eyes-nightwatch:
+  nightwatch:
     runs-on: ubuntu-latest
-    name: test eyes-nightwatch
     if: ${{contains(github.event.inputs.names, 'eyes-nightwatch')}}
     steps:
       - uses: actions/checkout@v2
@@ -140,9 +170,8 @@ jobs:
           name: eyes-nightwatch
           links: ${{github.event.inputs.links}}
           grep: ${{github.event.inputs.grep}}
-  eyes-testcafe:
+  testcafe:
     runs-on: ubuntu-latest
-    name: test eyes-testcafe
     if: ${{contains(github.event.inputs.names, 'eyes-testcafe')}}
     steps:
       - uses: actions/checkout@v2
