@@ -69,9 +69,9 @@ jobs:
           name: eyes-webdriverio-5
           links: ${{github.event.inputs.links}}
           grep: ${{github.event.inputs.grep}}
-  wdio:cdp:
+  wdio/cdp:
     runs-on: ubuntu-latest
-    if: ${{contains(github.event.inputs.names, 'eyes-webdriverio-5:cdp')}}
+    if: ${{contains(github.event.inputs.names, 'eyes-webdriverio-5/cdp')}}
     steps:
       - uses: actions/checkout@v2
         with:
