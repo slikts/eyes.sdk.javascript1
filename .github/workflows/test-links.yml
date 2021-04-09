@@ -4,11 +4,14 @@ on:
   workflow_dispatch:
     inputs:
       names:
-        description: "package names"
+        description: "sdk names"
         required: true
       links:
-        description: "links"
+        description: "packages to link"
         default: "eyes-sdk-core"
+      linkingDepth:
+        description: "linking depth"
+        default: 0
       grep:
         description: "grep"
 env:
@@ -89,7 +92,6 @@ jobs:
           APPLITOOLS_WDIO_PROTOCOL: cdp
   wdio-legacy:
     runs-on: ubuntu-latest
-    name: test eyes-webdriverio-4
     if: ${{contains(github.event.inputs.names, 'eyes-webdriverio-4')}}
     steps:
       - uses: actions/checkout@v2

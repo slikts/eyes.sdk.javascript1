@@ -6,6 +6,9 @@ inputs:
     required: true
   links:
     description: "links"
+  linkingDepth:
+    description: "linking depth"
+    default: 0
   grep:
     description: "grep"
 runs:
@@ -17,7 +20,7 @@ runs:
       run: |
         yarn install --cwd "packages/sdk-shared"
         cd "packages/${{inputs.name}}"
-        yarn run link --include ${{inputs.links}} --build --install
+        yarn run link --include ${{inputs.links}} --build --install --depth ${{inputs.linkingDepth}}
         yarn
         npm run build --if-present
         npm run prepublish:setup --if-present
