@@ -41,7 +41,7 @@ jobs:
     needs: setup
     strategy:
       matrix: ${{fromJSON(needs.setup.outputs.matrix)}}
-    name: ${{matrix.setting}}
+    name: ${{matrix.name}}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
