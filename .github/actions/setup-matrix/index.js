@@ -25,19 +25,19 @@ const PREFIXES = {
 const settings = core.getInput('settings', {required: true})
 
 const include = settings.split(/[\s,]+/).reduce((output, setting) => {
-  const [_, name, version, protocol] = setting.match(/(.*?)(?:@(\d+))?(?::(.+?))?/i)
+  const [_, name, version, protocol] = setting.match(/^(.*?)(?:@(\d+))?(?::(.+?))?$/i)
   const package = Object.keys(ALIASES).find(dirname => dirname === name || ALIASES[dirname].includes(name))
   if (!package) return output
+  const prefix = PREFIXES[package].toUpperCase()
   output.push({
+    setting,
     package,
     env: {
-      [`APPLITOOLS_${PREFIXES[package]}_MAJOR_VERSION`]: version,
-      [`APPLITOOLS_${PREFIXES[package]}_PROTOCOL`]: protocol
+      [`APPLITOOLS_${prefix}_MAJOR_VERSION`]: version,
+      [`APPLITOOLS_${prefix}_PROTOCOL`]: protocol
     },
   })
   return output
 }, [])
-
-console.log(include)
 
 core.setOutput('matrix', {include})
