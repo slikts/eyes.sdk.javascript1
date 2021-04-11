@@ -55,6 +55,16 @@ async function validateAndPopulateConfig({config, packagePath, logger}) {
       config.puppeteerOptions.args.push('--disable-dev-shm-usage');
     }
   }
+
+  if (config.fakeIE) {
+    if (!config.browser.find(({name}) => name === 'ie' || name === 'ie11')) {
+      console.log(
+        chalk.yellow(
+          `\u26A0 fakeIE flag was set, but no IE browsers were found in the configuration`,
+        ),
+      );
+    }
+  }
 }
 
 module.exports = validateAndPopulateConfig;

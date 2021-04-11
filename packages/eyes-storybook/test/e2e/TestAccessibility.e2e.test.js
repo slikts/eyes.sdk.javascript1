@@ -14,6 +14,7 @@ const logger = require('../util/testLogger');
 const testStream = require('../util/testStream');
 const {performance, timeItAsync} = makeTiming();
 const fetch = require('node-fetch');
+const snap = require('@applitools/snaptdout');
 
 describe('eyes-storybook accessibility', () => {
   let closeStorybook;
@@ -41,9 +42,11 @@ describe('eyes-storybook accessibility', () => {
     const globalConfig = require(configPath);
     const defaultConfig = {waitBeforeScreenshots: 50};
     const config = generateConfig({argv: {conf: configPath}, defaultConfig, externalConfigParams});
+
     let results = await eyesStorybook({
       config: {
         storybookUrl: 'http://localhost:9001',
+        browser: [{name: 'chrome', width: 800, height: 600}],
         ...config,
         // puppeteerOptions: {headless: false, devtools: true},
       },
@@ -54,7 +57,6 @@ describe('eyes-storybook accessibility', () => {
     });
 
     const expectedTitles = ['Single category: Story with local accessibility region'];
-
     expect(results.map(e => e.title).sort()).to.eql(expectedTitles.sort());
     results = flatten(results.map(r => r.resultsOrErr));
     expect(results.some(x => x instanceof Error)).to.be.false;
@@ -78,10 +80,6 @@ describe('eyes-storybook accessibility', () => {
       ]);
     }
 
-    expect(getEvents().join('')).to.equal(`- Reading stories
-✔ Reading stories
-- Done 0 stories out of 1
-✔ Done 1 stories out of 1
-`);
+    await snap(getEvents().join(''), 'accessibility validation');
   });
 });

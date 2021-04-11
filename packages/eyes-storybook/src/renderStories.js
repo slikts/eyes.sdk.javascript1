@@ -1,7 +1,6 @@
 'use strict';
 const getStoryUrl = require('./getStoryUrl');
 const getStoryTitle = require('./getStoryTitle');
-const ora = require('ora');
 const {presult} = require('@applitools/functional-commons');
 
 function makeRenderStories({
@@ -10,7 +9,7 @@ function makeRenderStories({
   renderStory,
   storybookUrl,
   logger,
-  stream,
+  spinner,
   waitForQueuedRenders,
   storyDataGap,
   getClientAPI,
@@ -18,12 +17,8 @@ function makeRenderStories({
 }) {
   let newPageIdToAdd;
 
-  return async function renderStories(stories) {
+  return async function renderStories(stories, config) {
     let doneStories = 0;
-
-    const spinner = ora({text: `Done 0 stories out of ${stories.length}`, stream});
-    spinner.start();
-
     const allTestResults = [];
     let allStoriesPromise = Promise.resolve();
     let currIndex = 0;
@@ -32,7 +27,6 @@ function makeRenderStories({
 
     await processStoryLoop();
     await allStoriesPromise;
-    updateSpinnerEnd();
     return allTestResults;
 
     async function processStoryLoop() {
@@ -107,6 +101,7 @@ function makeRenderStories({
             snapshot: storyData,
             url: storyUrl,
             story,
+            config,
           });
 
           return onDoneStory(testResults, story);
@@ -114,19 +109,6 @@ function makeRenderStories({
           return onDoneStory(ex, story);
         }
       }
-    }
-
-    function didTestPass({resultsOrErr}) {
-      return (
-        resultsOrErr.constructor.name !== 'Error' &&
-        resultsOrErr.every(
-          r => r.constructor.name !== 'Error' && r.getStatus && r.getStatus() === 'Passed',
-        )
-      );
-    }
-
-    function updateSpinnerEnd() {
-      allTestResults.every(didTestPass) ? spinner.succeed() : spinner.fail();
     }
 
     function onDoneStory(resultsOrErr, story) {

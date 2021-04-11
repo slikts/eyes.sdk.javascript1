@@ -18,6 +18,9 @@ const createPagePool = require('./pagePool');
 const getClientAPI = require('../dist/getClientAPI');
 const {takeDomSnapshots} = require('@applitools/eyes-sdk-core');
 const {Driver} = require('@applitools/eyes-puppeteer');
+const {refineErrorMessage} = require('./errMessages');
+const makeExecuteRenders = require('./executeRenders');
+const updateSpinnerEnd = require('./updateTestResults');
 
 const CONCURRENT_PAGES = 3;
 
@@ -44,17 +47,6 @@ async function eyesStorybook({
   const browser = await puppeteer.launch(config.puppeteerOptions);
   logger.log('browser launched');
   const page = await browser.newPage();
-  // filter out browser config into IE and non-IE
-  // warn when flag is used and no IE is in browser config
-  // for IE:
-  // set userAgent
-  // set documentMode
-  // reload page
-  // take dom-snapshots
-  // for NON-IE:
-  // set userAgent
-  // take dom-snapshots
-
   const userAgent = await page.evaluate('navigator.userAgent');
 
   const {
@@ -120,8 +112,8 @@ async function eyesStorybook({
       takeDomSnapshots: doTakeDomSnapshots,
       waitBeforeScreenshot,
     });
+
     const renderStory = makeRenderStory({
-      config,
       logger: logger.extend('renderStory'),
       testWindow,
       performance,
@@ -129,36 +121,42 @@ async function eyesStorybook({
       reloadPagePerStory,
     });
 
+    const spinner = ora({
+      text: `Done 0 stories out of ${storiesIncludingVariations.length}`,
+      stream: outputStream,
+    });
+
     const renderStories = makeRenderStories({
       getStoryData,
       renderStory,
+      getClientAPI,
       storybookUrl,
       logger,
-      stream: outputStream,
+      spinner,
       waitForQueuedRenders: globalState.waitForQueuedRenders,
       storyDataGap: config.storyDataGap,
       pagePool,
-      getClientAPI,
+    });
+
+    const executeRendersByBrowser = makeExecuteRenders({
+      renderStories,
+      logger,
+      timeItAsync,
+      closeBatch,
+      config,
+      stories: storiesIncludingVariations,
     });
 
     logger.log('finished creating functions');
 
-    const [error, results] = await presult(
-      timeItAsync('renderStories', () => renderStories(storiesIncludingVariations)),
-    );
+    spinner.start();
 
-    const [closeBatchErr] = await presult(closeBatch());
-    if (closeBatchErr) {
-      logger.log('failed to close batch', closeBatchErr);
-    }
+    const browsers = splitBrowsersByIE(config);
+    const results = await executeRendersByBrowser(browsers);
 
-    if (error) {
-      const msg = refineErrorMessage({prefix: 'Error in renderStories:', error});
-      logger.log(error);
-      throw new Error(msg);
-    } else {
-      return results;
-    }
+    updateSpinnerEnd(results, spinner);
+
+    return results;
   } finally {
     logger.log('total time: ', performance['renderStories']);
     logger.log('perf results', performance);
@@ -226,10 +224,6 @@ async function eyesStorybook({
     spinner.succeed();
     logger.log(`got ${stories.length} stories:`, JSON.stringify(stories));
     return stories;
-  }
-
-  function refineErrorMessage({prefix, error}) {
-    return `${prefix} ${error.message.replace('Evaluation failed: ', '')}`;
   }
 }
 
