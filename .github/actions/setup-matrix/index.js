@@ -29,7 +29,7 @@ const include = settings.split(/[\s,]+/).reduce((output, setting) => {
   const package = Object.keys(ALIASES).find(dirname => dirname === name || ALIASES[dirname].includes(name))
   if (!package) return output
   const modifiers = Object.entries({version, protocol})
-    .reduce((parts, [key, value]) => [...parts, `${key}: ${value}`], [])
+    .reduce((parts, [key, value]) => value ? [...parts, `${key}: ${value}`] : parts, [])
     .join('; ')
   output.push({
     name: `${package} ${modifiers ? `(${modifiers})` : ''}`,

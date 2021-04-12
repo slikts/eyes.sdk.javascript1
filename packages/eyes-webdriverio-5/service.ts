@@ -36,47 +36,47 @@ export = class EyesService {
     }
   }
   before() {
-    global.browser.addCommand('eyesCheck', async (title, checkSettings = {fully: true}) => {
+    browser.addCommand('eyesCheck', async (title, checkSettings = {fully: true}) => {
       await this._eyesOpen()
       return this._eyes.check(title, checkSettings)
     })
 
     // deprecated, alias of eyesCheck
-    global.browser.addCommand('eyesCheckWindow', async (...args) => {
-      return (global.browser as any).eyesCheck(...args)
+    browser.addCommand('eyesCheckWindow', async (...args) => {
+      return (browser as any).eyesCheck(...args)
     })
 
-    global.browser.addCommand('eyesSetScrollRootElement', element => {
+    browser.addCommand('eyesSetScrollRootElement', element => {
       this._eyes.getConfiguration().setScrollRootElement(element)
     })
 
-    global.browser.addCommand('eyesAddProperty', (key, value) => {
+    browser.addCommand('eyesAddProperty', (key, value) => {
       this._eyes.getConfiguration().addProperty(key, value)
     })
 
-    global.browser.addCommand('eyesClearProperties', () => {
+    browser.addCommand('eyesClearProperties', () => {
       this._eyes.getConfiguration().clearProperties()
     })
 
-    global.browser.addCommand('eyesGetTestResults', async () => {
+    browser.addCommand('eyesGetTestResults', async () => {
       // because `afterTest` executes after `afterEach`, this is the way to get results in `afterEach` or `it`
       await this._eyesClose()
       return this._testResults
     })
 
-    global.browser.addCommand('eyesSetConfiguration', configuration => {
+    browser.addCommand('eyesSetConfiguration', configuration => {
       return this._eyes.setConfiguration(configuration)
     })
 
-    global.browser.addCommand('eyesGetIsOpen', () => {
+    browser.addCommand('eyesGetIsOpen', () => {
       return this._eyes.getIsOpen()
     })
 
-    global.browser.addCommand('eyesGetConfiguration', () => {
+    browser.addCommand('eyesGetConfiguration', () => {
       return this._eyes.getConfiguration()
     })
 
-    global.browser.addCommand('eyesGetAllTestResults', async (throwErr: boolean) => {
+    browser.addCommand('eyesGetAllTestResults', async (throwErr: boolean) => {
       return this._eyes.runner.getAllTestResults(throwErr)
     })
   }
@@ -97,17 +97,17 @@ export = class EyesService {
     // the next line is required because if we set an element in one test, then the following test
     // will say that the element is not attached to the page (because different browsers are used)
     this._eyes.getConfiguration().setScrollRootElement(null)
-    global.browser.call(() => this._eyesClose())
+    browser.call(() => this._eyesClose())
   }
   after() {
-    global.browser.call(() => this._eyes.runner.getAllTestResults(false))
-    global.browser.call(() => this._eyes.abort())
+    browser.call(() => this._eyes.runner.getAllTestResults(false))
+    browser.call(() => this._eyes.abort())
   }
 
   async _eyesOpen() {
     if (!this._eyes.isOpen) {
       this._testResults = null
-      await this._eyes.open(global.browser)
+      await this._eyes.open(browser)
     }
   }
 

@@ -13,6 +13,6 @@
     "stripInternal": true,
     "experimentalDecorators": false,
     "resolveJsonModule": true,
-    "types": ["webdriverio"]
+    "types": ["webdriverio/async"]
   },
 }

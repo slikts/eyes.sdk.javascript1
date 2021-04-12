@@ -3,21 +3,27 @@ import * as legacy from './legacy'
 
 /* eslint {"@typescript-eslint/ban-types": ["error", {"types": {"Function": false}}] } */
 
-export type Driver = WebdriverIO.BrowserObject | WebdriverIO.MultiRemoteBrowserObject
+export type Driver = WebdriverIO.Browser
 export type Element = WebdriverIO.Element | {ELEMENT: string} | {'element-6066-11e4-a52e-4f735466cecf': string}
-export type Selector = string | Function | legacy.By | {type: string; selector: string}
-
+export type Selector =
+  | string
+  | ((element: HTMLElement) => HTMLElement)
+  | ((element: HTMLElement) => HTMLElement[])
+  | legacy.By
+  | {type: string; selector: string}
 // #region HELPERS
 
 const LEGACY_ELEMENT_ID = 'ELEMENT'
 const ELEMENT_ID = 'element-6066-11e4-a52e-4f735466cecf'
 
 function extractElementId(element: Element): string {
-  if (utils.types.has(element, 'elementId')) return element.elementId
-  else if (utils.types.has(element, ELEMENT_ID)) return element[ELEMENT_ID]
-  else if (utils.types.has(element, LEGACY_ELEMENT_ID)) return element[LEGACY_ELEMENT_ID]
+  if (utils.types.has(element, 'elementId')) return element.elementId as string
+  else if (utils.types.has(element, ELEMENT_ID)) return element[ELEMENT_ID] as string
+  else if (utils.types.has(element, LEGACY_ELEMENT_ID)) return element[LEGACY_ELEMENT_ID] as string
 }
-function transformSelector(selector: Selector): string | Function {
+function transformSelector(
+  selector: Selector,
+): string | ((element: HTMLElement) => HTMLElement) | ((element: HTMLElement) => HTMLElement[]) {
   if (selector instanceof legacy.By) {
     return selector.toString()
   } else if (utils.types.has(selector, ['type', 'selector'])) {
@@ -56,7 +62,7 @@ function serializeArgs(args: any[]): [any[], ...Element[]] {
 //    own argument. To account for this, we use a wrapper function to receive all
 //    of the arguments in a serialized structure, deserialize them, and call the script,
 //    and pass the arguments as originally intended
-function scriptRunner(script: string, argsWithElementMarkers: any[], ...elements: HTMLElement[]) {
+function scriptRunner(script: string, argsWithElementMarkers: any[], ...elements: Element[]) {
   /*eslint prefer-rest-params: "off", prefer-spread: "off"*/
   const func = new Function(script.startsWith('function') ? `return (${script}).apply(null, arguments)` : script)
   return func.apply(null, argsWithElementMarkers.map(deserializeArg))
@@ -153,11 +159,11 @@ export async function childContext(browser: Driver, element: Element): Promise<D
   await browser.switchToFrame(element)
   return browser
 }
-export async function findElement(browser: Driver, selector: Selector): Promise<Element> {
+export async function findElement(browser: Driver, selector: Selector): Promise<WebdriverIO.Element> {
   const element = await browser.$(transformSelector(selector))
   return !utils.types.has(element, 'error') ? element : null
 }
-export async function findElements(browser: Driver, selector: Selector): Promise<Element[]> {
+export async function findElements(browser: Driver, selector: Selector): Promise<WebdriverIO.Element[]> {
   const elements = await browser.$$(transformSelector(selector))
   return Array.from(elements)
 }
@@ -165,7 +171,7 @@ export async function getElementRect(
   browser: Driver,
   element: Element,
 ): Promise<{x: number; y: number; width: number; height: number}> {
-  const extendedElement = await browser.$(element)
+  const extendedElement = await browser.$(element as any)
   if (utils.types.isFunction(extendedElement, 'getRect')) {
     return extendedElement.getRect()
   } else {
@@ -222,17 +228,16 @@ export async function getOrientation(browser: Driver): Promise<string> {
   return orientation.toLowerCase()
 }
 export async function getDriverInfo(browser: Driver): Promise<any> {
+  const capabilities = browser.capabilities as any
   return {
     sessionId: browser.sessionId,
     isMobile: browser.isMobile,
-    isNative: browser.isMobile && !browser.capabilities.browserName,
-    deviceName: (browser.capabilities as any).desired
-      ? (browser.capabilities as any).desired.deviceName
-      : browser.capabilities.deviceName,
-    platformName: browser.capabilities.platformName || browser.capabilities.platform,
-    platformVersion: browser.capabilities.platformVersion,
-    browserName: browser.capabilities.browserName,
-    browserVersion: browser.capabilities.browserVersion,
+    isNative: browser.isMobile && !capabilities.browserName,
+    deviceName: capabilities.desired ? capabilities.desired.deviceName : capabilities.deviceName,
+    platformName: capabilities.platformName || capabilities.platform,
+    platformVersion: capabilities.platformVersion,
+    browserName: capabilities.browserName,
+    browserVersion: capabilities.browserVersion,
   }
 }
 export async function getTitle(browser: Driver): Promise<string> {
@@ -249,13 +254,13 @@ export async function takeScreenshot(driver: Driver): Promise<string> {
 }
 export async function click(browser: Driver, element: Element | Selector): Promise<void> {
   if (isSelector(element)) element = await findElement(browser, element)
-  element = await browser.$(element)
-  await element.click()
+  const extendedElement = await browser.$(element as any)
+  await extendedElement.click()
 }
 export async function type(browser: Driver, element: Element | Selector, keys: string): Promise<void> {
   if (isSelector(element)) element = await findElement(browser, element)
-  element = await browser.$(element)
-  await element.setValue(keys)
+  const extendedElement = await browser.$(element as any)
+  await extendedElement.setValue(keys)
 }
 export async function hover(
   browser: Driver,
@@ -263,21 +268,21 @@ export async function hover(
   offset?: {x: number; y: number},
 ): Promise<any> {
   if (isSelector(element)) element = await findElement(browser, element)
-  element = await browser.$(element)
+  const extendedElement = await browser.$(element as any)
   // NOTE: WDIO6 changed the signature of moveTo method
   if (process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION === '5') {
-    await (element.moveTo as any)(offset?.x, offset?.y)
+    await (extendedElement.moveTo as any)(offset?.x, offset?.y)
   } else {
-    await (element.moveTo as any)({xOffset: offset?.x, yOffset: offset?.y})
+    await (extendedElement.moveTo as any)({xOffset: offset?.x, yOffset: offset?.y})
   }
 }
 export async function scrollIntoView(browser: Driver, element: Element | Selector, align = false): Promise<void> {
   if (isSelector(element)) element = await findElement(browser, element)
-  element = await browser.$(element)
-  await element.scrollIntoView(align)
+  const extendedElement = await browser.$(element as any)
+  await extendedElement.scrollIntoView(align)
 }
 export async function waitUntilDisplayed(browser: Driver, selector: Selector, timeout: number): Promise<void> {
-  const element = (await findElement(browser, selector)) as any
+  const element = await findElement(browser, selector)
   await element.waitForDisplayed({timeout})
 }
 
