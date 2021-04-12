@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+
+## 12.18.1 - 2021/4/12
+
 - fix internal error propagation in wrapper
 
 ## 12.18.0 - 2021/4/12
