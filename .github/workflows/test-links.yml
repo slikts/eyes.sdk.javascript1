@@ -41,6 +41,7 @@ jobs:
     needs: setup
     strategy:
       matrix: ${{fromJSON(needs.setup.outputs.matrix)}}
+      fail-fast: false
     name: ${{matrix.name}}
     runs-on: ubuntu-latest
     steps:
