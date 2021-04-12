@@ -27,7 +27,7 @@
     "email": "team@applitools.com"
   },
   "main": "./dist/index.js",
-  "types": "./index.d.ts",
+  "types": "./types/index.d.ts",
   "directories": {
     "lib": "./src",
     "example": "./example",
@@ -35,7 +35,7 @@
   },
   "files": [
     "dist",
-    "index.d.ts"
+    "types"
   ],
   "scripts": {
     "lint": "eslint '**/*.js'",
@@ -43,7 +43,7 @@
     "link": "node ../sdk-shared/scripts/link.js",
     "build": "yarn build:dist && yarn build:types",
     "build:dist": "tsc",
-    "build:types": "api-extractor ./index.ts --out ./index.d.ts --external-globals WebdriverIO",
+    "build:types": "api-extractor ./src/index.ts --out ./types/index.d.ts --external-globals WebdriverIO Applitools",
     "test": "yarn build:dist && yarn test:it && yarn test:service",
     "test:it": "mocha -r ./test/util/version-alias.js --no-timeouts \"test/it/*.js\"",
     "test:service": "mocha ./test/service/unit/*.spec.js && wdio \"test/service/wdio.conf.js\" && wdio \"test/service/no-config/wdio.no-config.conf.js\" && wdio \"test/service/vg/wdio.vg.conf.js\"",

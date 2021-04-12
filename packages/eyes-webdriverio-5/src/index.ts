@@ -8,4 +8,4 @@ if (!process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION) {
   }
 }
 
-export * from './src/api'
+export * from './api'

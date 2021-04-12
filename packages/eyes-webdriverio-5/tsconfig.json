@@ -1,6 +1,6 @@
 {
-  "file": ["./index.ts", "./service.ts"],
   "compilerOptions": {
+    "rootDir": "src",
     "outDir": "dist",
     "sourceMap": true,
 
@@ -13,6 +13,8 @@
     "stripInternal": true,
     "experimentalDecorators": false,
     "resolveJsonModule": true,
-    "types": ["webdriverio/async"]
+    "typeRoots": ["./node_modules", "./node_modules/@types", "./types"],
+    "types": ["webdriverio/async", "v7"]
   },
+  "include": ["./src/**/*"]
 }

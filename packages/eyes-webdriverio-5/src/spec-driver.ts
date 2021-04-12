@@ -3,14 +3,12 @@ import * as legacy from './legacy'
 
 /* eslint {"@typescript-eslint/ban-types": ["error", {"types": {"Function": false}}] } */
 
-export type Driver = WebdriverIO.Browser
-export type Element = WebdriverIO.Element | {ELEMENT: string} | {'element-6066-11e4-a52e-4f735466cecf': string}
-export type Selector =
-  | string
-  | ((element: HTMLElement) => HTMLElement)
-  | ((element: HTMLElement) => HTMLElement[])
-  | legacy.By
-  | {type: string; selector: string}
+export type Driver = Applitools.WebdriverIO.Browser
+export type Element =
+  | Applitools.WebdriverIO.Element
+  | {ELEMENT: string}
+  | {'element-6066-11e4-a52e-4f735466cecf': string}
+export type Selector = Applitools.WebdriverIO.Selector | string | legacy.By | {type: string; selector: string}
 // #region HELPERS
 
 const LEGACY_ELEMENT_ID = 'ELEMENT'

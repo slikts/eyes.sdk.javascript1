@@ -1,4 +1,4 @@
-import {Eyes, VisualGridRunner, ConfigurationPlain, TestResults} from './src/api'
+import {Eyes, VisualGridRunner, ConfigurationPlain, TestResults} from './api'
 
 if (!process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION) {
   try {
