@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+
+## 12.18.0 - 2021/4/12
+
 - add wrappers to work with new internal api
 
 ## 12.17.2 - 2021/4/6
