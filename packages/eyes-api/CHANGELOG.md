@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+
+## 0.0.3 - 2021/4/12
+
 - make output classes readonly
 - move TestAccessibilityStatus to its own file
 - add variantId to CheckSettings
