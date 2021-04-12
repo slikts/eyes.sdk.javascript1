@@ -45,7 +45,7 @@
     "prepublish:setup": "echo 'no setup'"
   },
   "dependencies": {
-    "@applitools/logger": "0.0.2",
+    "@applitools/logger": "1.0.0",
     "@applitools/utils": "1.1.3"
   },
   "devDependencies": {

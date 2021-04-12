@@ -6,6 +6,7 @@
 - move TestAccessibilityStatus to its own file
 - add variantId to CheckSettings
 - updated to @applitools/utils@1.1.3 (from 1.1.1)
+- updated to @applitools/logger@1.0.0 (from 0.0.2)
 
 ## 0.0.2 - 2021/3/24
 
