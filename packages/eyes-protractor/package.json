@@ -57,9 +57,9 @@
     "coverage:prod": "yarn coverage:generate && yarn test:coverage && yarn coverage:report",
     "docker:setup": "node ../sdk-shared/src/generate-docker-compose-config.js && docker-compose up -d",
     "docker:teardown": "docker-compose down",
-    "preversion": "bongo preversion && yarn build && yarn test && yarn coverage:prod",
+    "preversion": "bongo preversion --skipVerifyInstalledVersions && yarn build && yarn test",
     "version": "bongo version",
-    "postversion": "bongo postversion",
+    "postversion": "bongo postversion --skipReleaseNotification",
     "deps": "bongo deps",
     "prepublish:setup": "yarn docker:setup"
   },
