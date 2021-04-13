@@ -157,11 +157,11 @@ export async function childContext(browser: Driver, element: Element): Promise<D
   await browser.switchToFrame(element)
   return browser
 }
-export async function findElement(browser: Driver, selector: Selector): Promise<WebdriverIO.Element> {
+export async function findElement(browser: Driver, selector: Selector): Promise<Applitools.WebdriverIO.Element> {
   const element = await browser.$(transformSelector(selector))
   return !utils.types.has(element, 'error') ? element : null
 }
-export async function findElements(browser: Driver, selector: Selector): Promise<WebdriverIO.Element[]> {
+export async function findElements(browser: Driver, selector: Selector): Promise<Applitools.WebdriverIO.Element[]> {
   const elements = await browser.$$(transformSelector(selector))
   return Array.from(elements)
 }
@@ -269,9 +269,9 @@ export async function hover(
   const extendedElement = await browser.$(element as any)
   // NOTE: WDIO6 changed the signature of moveTo method
   if (process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION === '5') {
-    await (extendedElement.moveTo as any)(offset?.x, offset?.y)
+    await extendedElement.moveTo(offset?.x as never, offset?.y as never)
   } else {
-    await (extendedElement.moveTo as any)({xOffset: offset?.x, yOffset: offset?.y})
+    await extendedElement.moveTo({xOffset: offset?.x, yOffset: offset?.y} as never)
   }
 }
 export async function scrollIntoView(browser: Driver, element: Element | Selector, align = false): Promise<void> {
@@ -281,7 +281,11 @@ export async function scrollIntoView(browser: Driver, element: Element | Selecto
 }
 export async function waitUntilDisplayed(browser: Driver, selector: Selector, timeout: number): Promise<void> {
   const element = await findElement(browser, selector)
-  await element.waitForDisplayed({timeout})
+  if (process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION === '5') {
+    await element.waitForDisplayed(timeout as never)
+  } else {
+    await element.waitForDisplayed({timeout} as never)
+  }
 }
 
 // #endregion
