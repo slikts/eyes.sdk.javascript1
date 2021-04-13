@@ -43,6 +43,8 @@
     "link": "node ../sdk-shared/scripts/link.js",
     "build": "yarn build:tsconfig && yarn build:dist && yarn build:types",
     "build:tsconfig": "tsconfig.js --once",
+    "build:tsconfig:6": "APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION=6 tsconfig.js --once",
+    "build:tsconfig:5": "APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION=5 tsconfig.js --once",
     "build:dist": "tsc",
     "build:types": "api-extractor ./src/index.ts --out ./types/index.d.ts --external-globals WebdriverIO Applitools",
     "test": "yarn build:dist && yarn test:it && yarn test:service",

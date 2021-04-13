@@ -269,9 +269,11 @@ export async function hover(
   const extendedElement = await browser.$(element as any)
   // NOTE: WDIO6 changed the signature of moveTo method
   if (process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION === '5') {
-    await extendedElement.moveTo(offset?.x as never, offset?.y as never)
+    // @ts-ignore
+    await extendedElement.moveTo(offset?.x, offset?.y)
   } else {
-    await extendedElement.moveTo({xOffset: offset?.x, yOffset: offset?.y} as never)
+    // @ts-ignore
+    await extendedElement.moveTo({xOffset: offset?.x, yOffset: offset?.y})
   }
 }
 export async function scrollIntoView(browser: Driver, element: Element | Selector, align = false): Promise<void> {
@@ -282,9 +284,11 @@ export async function scrollIntoView(browser: Driver, element: Element | Selecto
 export async function waitUntilDisplayed(browser: Driver, selector: Selector, timeout: number): Promise<void> {
   const element = await findElement(browser, selector)
   if (process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION === '5') {
-    await element.waitForDisplayed(timeout as never)
+    // @ts-ignore
+    await element.waitForDisplayed(timeout)
   } else {
-    await element.waitForDisplayed({timeout} as never)
+    // @ts-ignore
+    await element.waitForDisplayed({timeout})
   }
 }
 

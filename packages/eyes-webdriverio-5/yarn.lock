@@ -6212,7 +6212,7 @@ webdriverio@5.18.6:
     serialize-error "^5.0.0"
     webdriver "5.18.6"
 
-webdriverio@7:
+webdriverio@^7.3.1:
   version "7.4.2"
   resolved "https://registry.yarnpkg.com/webdriverio/-/webdriverio-7.4.2.tgz#36cc1a0b7f7033c1ccb0c7d89a4c4a756c48530a"
   integrity sha512-ZGT1L7ulPQKavCuAt+7mz5ggpYtQCwWo+BCh1KxQwTnq5HMayRo0S87m/nxtrD7bNBNylnlFhMevACSh13U7Ag==

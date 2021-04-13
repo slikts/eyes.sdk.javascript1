@@ -1,4 +1,4 @@
-import {Driver, Eyes, VisualGridRunner, ConfigurationPlain, TestResults} from './api'
+import {Driver, Element, Eyes, VisualGridRunner, ConfigurationPlain, TestResults} from './api'
 
 if (!process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION) {
   try {
@@ -36,21 +36,21 @@ export = class EyesService {
     }
   }
   before() {
-    browser.addCommand('eyesCheck', async (title, checkSettings = {fully: true}) => {
+    browser.addCommand('eyesCheck', async (title: string, checkSettings: any = {fully: true}) => {
       await this._eyesOpen()
       return this._eyes.check(title, checkSettings)
     })
 
     // deprecated, alias of eyesCheck
-    browser.addCommand('eyesCheckWindow', async (...args) => {
+    browser.addCommand('eyesCheckWindow', async (...args: any[]) => {
       return (browser as any).eyesCheck(...args)
     })
 
-    browser.addCommand('eyesSetScrollRootElement', element => {
+    browser.addCommand('eyesSetScrollRootElement', (element: Element) => {
       this._eyes.getConfiguration().setScrollRootElement(element)
     })
 
-    browser.addCommand('eyesAddProperty', (key, value) => {
+    browser.addCommand('eyesAddProperty', (key: string, value: string) => {
       this._eyes.getConfiguration().addProperty(key, value)
     })
 
@@ -64,7 +64,7 @@ export = class EyesService {
       return this._testResults
     })
 
-    browser.addCommand('eyesSetConfiguration', configuration => {
+    browser.addCommand('eyesSetConfiguration', (configuration: ConfigurationPlain) => {
       return this._eyes.setConfiguration(configuration)
     })
 
