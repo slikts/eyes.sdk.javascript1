@@ -1,6 +1,5 @@
 const assert = require('assert')
-const spec = require('../../dist/src/spec-driver')
-const {EyesError} = require('@applitools/eyes-sdk-core')
+const spec = require('../../dist/spec-driver')
 
 describe('spec driver', () => {
   const url = 'https://applitools.github.io/demo/TestPages/FramesTestPage/'
@@ -206,18 +205,7 @@ describe('spec driver', () => {
       await driver.refresh()
       const error = await new Promise(resolve => {
         driver.elementIdClick(elementId, err => {
-          resolve(err)
-        })
-      })
-      assert.ok(spec.isStaleElementError(error))
-    })
-    it('isStaleElementError(eyesErr)', async function (driver) {
-      const {value: element} = await driver.element('css selector', '#overflowing-div')
-      const elementId = element.ELEMENT || element['element-6066-11e4-a52e-4f735466cecf']
-      await driver.refresh()
-      const error = await new Promise(resolve => {
-        driver.elementIdClick(elementId, err => {
-          resolve(new EyesError('bla', err))
+          resolve(err.value)
         })
       })
       assert.ok(spec.isStaleElementError(error))

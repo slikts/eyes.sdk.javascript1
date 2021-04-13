@@ -1,6 +1,6 @@
 const assert = require('assert')
-const spec = require('../../dist/src/spec-driver')
-const legacy = require('../../dist/src/legacy')
+const spec = require('../../dist/spec-driver')
+const legacy = require('../../dist/legacy')
 
 describe('legacy api', () => {
   let browser, destroyBrowser, driver

@@ -1,6 +1,6 @@
 const assert = require('assert')
-const spec = require('../../dist/src/spec-driver')
-const {By} = require('../../dist/src/legacy')
+const spec = require('../../dist/spec-driver')
+const {By} = require('../../dist/legacy')
 
 describe('spec driver', async () => {
   let browser, destroyBrowser

@@ -173,7 +173,7 @@ export async function click(driver: Driver, element: Element | Selector): Promis
 export async function hover(
   driver: Driver,
   element: Element | Selector,
-  offset?: {x: number, y: number},
+  offset?: {x: number; y: number},
 ): Promise<void> {
   if (isSelector(element)) element = await findElement(driver, element)
   await driver

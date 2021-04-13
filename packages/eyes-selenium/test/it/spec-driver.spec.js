@@ -1,5 +1,5 @@
 const assert = require('assert')
-const spec = require('../../dist/src/spec-driver')
+const spec = require('../../dist/spec-driver')
 const {By} = require('selenium-webdriver')
 
 describe('spec driver', async () => {

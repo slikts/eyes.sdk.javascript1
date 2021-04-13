@@ -1,4 +1,4 @@
-const {Eyes, Target} = require('../..')
+const {Eyes, Target} = require('../../dist')
 
 describe('Nightwatch e2e tests', async () => {
   it('chaining api', function (driver) {
