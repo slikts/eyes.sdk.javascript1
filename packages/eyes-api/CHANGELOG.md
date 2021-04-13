@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- added strict type definition of CheckSettings.hooks
 
 ## 0.1.0 - 2021/4/13
 

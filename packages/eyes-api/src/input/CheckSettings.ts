@@ -53,7 +53,7 @@ export type CheckSettings<TElement, TSelector> = {
   disableBrowserFetching?: boolean
   layoutBreakpoints?: boolean | number[]
   visualGridOptions?: {[key: string]: any}
-  hooks?: {[key: string]: string}
+  hooks?: {beforeCaptureScreenshot: string}
   renderId?: string
   variantId?: string
   timeout?: number
