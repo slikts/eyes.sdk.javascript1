@@ -40,16 +40,16 @@ function makeInitPage({iframeUrl, config, browser, logger, getRenderIE}) {
       }
     });
 
-    if (getRenderIE()) {
-      await fakeIE(page);
-    }
-
     const [err] = await presult(page.goto(iframeUrl, {timeout: config.readStoriesTimeout}));
     if (err) {
       logger.log(`error navigating to iframe.html`, err);
       if (pagePool.isInPool(pageId)) {
         throw err;
       }
+    }
+
+    if (getRenderIE()) {
+      await fakeIE(page);
     }
 
     return page;
