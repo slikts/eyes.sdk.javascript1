@@ -1,9 +1,11 @@
 name: 'Coverage Tests'
 description: 'Run coverage tests for an SDK'
 inputs:
-  name:
+  sdk:
     description: "name"
     required: true
+  install:
+    description: "name of the framework to install"
   links:
     description: "links"
   linking-depth:
@@ -19,9 +21,10 @@ runs:
         MOCHA_GREP: ${{inputs.grep}}
       run: |
         yarn install --cwd "packages/sdk-shared"
-        cd "packages/${{inputs.name}}"
+        cd "packages/${{inputs.sdk}}"
         yarn run link --include ${{inputs.links}} --build --install --depth ${{inputs['linking-depth']}}
         yarn
+        if [ ! -z "${{inputs.install}}" ]; then yarn add ${{input.install}}; fi
         npm run build --if-present
         npm run prepublish:setup --if-present
         yarn coverage:sandbox

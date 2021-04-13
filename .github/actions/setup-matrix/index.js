@@ -22,10 +22,21 @@ const DIR_NAME = {
   'testcafe': 'eyes-testcafe',
 }
 
+const FRAMEWORK_NAME = {
+  'playwright': 'playwright',
+  'puppeteer': 'puppeteer',
+  'webdriverio': 'webdriverio',
+  'webdriverio-legacy': 'webdriverio',
+  'selenium': 'selenium-webdriver',
+  'protractor': 'protractor',
+  'nightwatch': 'nightwatch',
+  'testcafe': 'testcafe',
+}
+
 const settings = core.getInput('settings', {required: true})
 
 const include = settings.split(/[\s,]+/).reduce((output, setting) => {
-  const [_, name, version, protocol] = setting.match(/^(.*?)(?:@(\d+))?(?::(.+?))?$/i)
+  const [_, name, version, protocol] = setting.match(/^(.*?)(?:@([\d.]+))?(?::(.+?))?$/i)
   const package = Object.keys(ALIASES).find(dirname => dirname === name || ALIASES[dirname].includes(name))
   if (!package) return output
   const modifiers = Object.entries({version, protocol})
@@ -33,7 +44,8 @@ const include = settings.split(/[\s,]+/).reduce((output, setting) => {
     .join('; ')
   output.push({
     name: `${package} ${modifiers ? `(${modifiers})` : ''}`,
-    package: DIR_NAME[package],
+    sdk: DIR_NAME[package],
+    install: version ? `${FRAMEWORK_NAME[package]}@${version}` : '',
     env: {
       [`APPLITOOLS_${package.toUpperCase()}_MAJOR_VERSION`]: version,
       [`APPLITOOLS_${package.toUpperCase()}_PROTOCOL`]: protocol

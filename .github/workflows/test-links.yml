@@ -3,11 +3,11 @@ name: Coverage test (advanced)
 on:
   workflow_dispatch:
     inputs:
-      names:
-        description: "sdk names"
+      settings:
+        description: "sdk packages"
         required: true
       links:
-        description: "packages to link"
+        description: "linked packages"
         default: "eyes-sdk-core"
       linking-depth:
         description: "linking depth"
@@ -36,7 +36,7 @@ jobs:
       - uses: ./.github/actions/setup-matrix
         id: settings
         with:
-          settings: ${{github.event.inputs.names}}
+          settings: ${{github.event.inputs.settings}}
   test:
     needs: setup
     strategy:
@@ -53,7 +53,8 @@ jobs:
           node-version: 14
       - uses: ./.github/actions/coverage-tests
         with:
-          name: ${{matrix.package}}
+          sdk: ${{matrix.sdk}}
+          install: ${{matrix.install}}
           links: ${{github.event.inputs.links}}
           linking-depth: ${{github.event.inputs['linking-depth']}}
           grep: ${{github.event.inputs.grep}}
