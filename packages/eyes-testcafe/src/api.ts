@@ -26,8 +26,6 @@ export class Eyes extends legacy.TestCafeEyes(api.Eyes)<Driver, Element, Selecto
   static setViewportSize: (driver: Driver, viewportSize: api.RectangleSize) => Promise<void>
 }
 
-export type ClassicConfigurationPlain = api.ClassicConfigurationPlain<Element, Selector>
-
 export type ConfigurationPlain = api.ConfigurationPlain<Element, Selector>
 
 export class Configuration extends api.Configuration<Element, Selector> {

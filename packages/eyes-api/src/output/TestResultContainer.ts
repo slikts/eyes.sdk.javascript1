@@ -1,17 +1,17 @@
 import * as utils from '@applitools/utils'
 import {TestResults, TestResultsData} from './TestResults'
 
-export type TestResultsContainer = {
+export type TestResultContainer = {
   readonly exception: Error
   readonly testResults: TestResults
 }
 
-export class TestResultsContainerData implements Required<TestResultsContainer> {
-  private _container: TestResultsContainer = {} as any
+export class TestResultContainerData implements Required<TestResultContainer> {
+  private _container: TestResultContainer = {} as any
 
   /** @internal */
-  constructor(container: TestResultsContainer) {
-    this._container = container instanceof TestResultsContainerData ? container.toJSON() : container
+  constructor(container: TestResultContainer) {
+    this._container = container instanceof TestResultContainerData ? container.toJSON() : container
   }
 
   get testResults(): TestResults {
@@ -29,12 +29,12 @@ export class TestResultsContainerData implements Required<TestResultsContainer> 
   }
 
   /** @internal */
-  toObject(): TestResultsContainer {
+  toObject(): TestResultContainer {
     return this._container
   }
 
   /** @internal */
-  toJSON(): TestResultsContainer {
+  toJSON(): TestResultContainer {
     return utils.general.toJSON(this._container)
   }
 

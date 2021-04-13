@@ -8,7 +8,7 @@ const {promisify} = require('util')
 const ncp = require('ncp')
 const pncp = promisify(ncp)
 
-describe('Coverage tests', () => {
+describe.skip('Coverage tests', () => {
   let driver, destroyDriver, eyes
 
   beforeEach(async () => {

@@ -10,7 +10,7 @@ const makeClose = require('./close')
 const makeAbort = require('./abort')
 
 function makeOpen({sdk, runner}) {
-  return async function open({driver, config, logger, on}) {
+  return async function open({driver, config, on}) {
     const eyes = new sdk.EyesFactory(runner)
     eyes.setConfiguration(config)
     if (config.scrollRootElement) eyes.setScrollRootElement(config.scrollRootElement)

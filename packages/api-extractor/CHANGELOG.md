@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+
+## 1.1.0 - 2021/4/13
+
 - fix methods duplication from a base class
 
 ## 1.0.0 - 2021/3/24

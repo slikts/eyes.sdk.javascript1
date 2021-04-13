@@ -472,15 +472,19 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     return this
   }
 
+  /** @undocumented */
   get remoteEvents(): {serverUrl: string; accessKey?: string; timeout?: number} {
     return this._config.remoteEvents
   }
+  /** @undocumented */
   set remoteEvents(remoteEvents: {serverUrl: string; accessKey?: string; timeout?: number}) {
     this._config.remoteEvents = remoteEvents
   }
+  /** @undocumented */
   getRemoteEvents(): {serverUrl: string; accessKey?: string; timeout?: number} {
     return this.remoteEvents
   }
+  /** @undocumented */
   setRemoteEvents(remoteEvents: {serverUrl: string; accessKey?: string; timeout?: number}): this {
     this.remoteEvents = remoteEvents
     return this

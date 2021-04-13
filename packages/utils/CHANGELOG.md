@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+
+## 1.1.3 - 2021/4/12
+
 - add utility types
 
 ## 1.1.2 - 2021/3/31
