@@ -2,10 +2,10 @@
 # yarn lockfile v1
 
 
-"@applitools/api-extractor@1.0.0":
-  version "1.0.0"
-  resolved "https://registry.yarnpkg.com/@applitools/api-extractor/-/api-extractor-1.0.0.tgz#3f005542bd3ef83dfcf091a5509c6fdf5ee99ecc"
-  integrity sha512-PgF0bEHkXZKND67lnbQhX/DbLDu517Cy/DI4VzKjDgAgjBClh+0ajw9DJnfJysCt2b4TBqfsewclwttr0pxUug==
+"@applitools/api-extractor@1.1.0":
+  version "1.1.0"
+  resolved "https://registry.yarnpkg.com/@applitools/api-extractor/-/api-extractor-1.1.0.tgz#7e88c99392e767e393a60acd2df8ca67f92976c4"
+  integrity sha512-BaZZqdYyjkjPngImY42sJ5IyUBpqCCbFY/poBNv1ZaF4wMA++p06mYwNrFmor1W9lS6ljZsZX1n0yJfpPRC/hg==
   dependencies:
     prettier "2.2.1"
     typedoc "0.20.33"
@@ -43,10 +43,10 @@
     "@applitools/snippets" "2.1.1"
     "@applitools/utils" "1.0.1"
 
-"@applitools/eyes-api@0.0.3":
-  version "0.0.3"
-  resolved "https://registry.yarnpkg.com/@applitools/eyes-api/-/eyes-api-0.0.3.tgz#89542c2ccb5db401e6c5a283bd1acbca0e40dac5"
-  integrity sha512-Wpx6ulYCJfrOU1E2TeVlDqubZeEF0pa4DOxCbGaux30XQBE+MJCYlCNzFWV1nK94lu+1mExycoDX8gFZTlpBgA==
+"@applitools/eyes-api@0.1.0":
+  version "0.1.0"
+  resolved "https://registry.yarnpkg.com/@applitools/eyes-api/-/eyes-api-0.1.0.tgz#a228ac5875fcbe0f109577eaeb4c3dec432963a9"
+  integrity sha512-xEjS4UAeLYbqMvokPXE00boNVtqAjUJWyGmnq+/KOnE7C9Ie8HkjoqutXogGIbpGQZm1KKLLSBlj7kcfKOTo5w==
   dependencies:
     "@applitools/logger" "1.0.0"
     "@applitools/utils" "1.1.3"
@@ -72,7 +72,7 @@
     stack-trace "0.0.10"
     tunnel "0.0.6"
 
-"@applitools/eyes-sdk-core@^12.18.1":
+"@applitools/eyes-sdk-core@12.18.1":
   version "12.18.1"
   resolved "https://registry.yarnpkg.com/@applitools/eyes-sdk-core/-/eyes-sdk-core-12.18.1.tgz#40fba91439aff16bfccdc2924aa2a8275d890b0f"
   integrity sha512-JkxogdEfoqJWzW+RJ1EiKWssODxJxDHfAKFY93sdWyWxUHavDcJm/OmOuzYrWcNKWaTjT8AP6BZpL813fk7Hcw==
