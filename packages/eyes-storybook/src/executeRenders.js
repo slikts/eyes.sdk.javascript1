@@ -1,14 +1,17 @@
 const {refineErrorMessage} = require('./errMessages');
 const {presult} = require('@applitools/functional-commons');
+const {shouldRenderIE} = require('./shouldRenderIE');
 
-function makeExecuteRenders({timeItAsync, closeBatch, renderStories, stories, config, logger}) {
-  return async function executeRendersByBrowser(browsers) {
-    const results = await browsers.reduce(async (promise, browser) => {
+function makeExecuteRenders({timeItAsync, closeBatch, renderStories, stories, logger}) {
+  return async function executeRendersByBrowser(renderConfigs, renderIE) {
+    const results = await renderConfigs.reduce(async (promise, renderConfig) => {
       const acc = await promise;
-      if (browser.length) {
-        logger.verbose(`executing render story for browsers ${browser.map(b => b.name).join(' ')}`);
-        acc.push(...(await executeRenders({...config, browser})));
-      }
+      logger.verbose(
+        `executing render story for browsers ${renderConfig.browser
+          .map(b => b.name)
+          .join(' ')} with ${JSON.stringify(renderConfig)}`,
+      );
+      acc.push(...(await executeRenders(renderConfig, renderIE)));
       return acc;
     }, Promise.resolve([]));
 
@@ -20,7 +23,8 @@ function makeExecuteRenders({timeItAsync, closeBatch, renderStories, stories, co
     return results;
   };
 
-  async function executeRenders(config) {
+  async function executeRenders(config, setRenderIE) {
+    if (shouldRenderIE(config)) setRenderIE(true);
     const [error, results] = await presult(
       timeItAsync('renderStories', () => renderStories(stories, config)),
     );

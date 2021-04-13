@@ -2,6 +2,7 @@
 const getStoryUrl = require('./getStoryUrl');
 const getStoryTitle = require('./getStoryTitle');
 const {presult} = require('@applitools/functional-commons');
+const fakeIE = require('./fakeIE');
 
 function makeRenderStories({
   getStoryData,
@@ -23,7 +24,7 @@ function makeRenderStories({
     let allStoriesPromise = Promise.resolve();
     let currIndex = 0;
 
-    prepareNewPage();
+    await prepareNewPage();
 
     await processStoryLoop();
     await allStoriesPromise;
@@ -40,7 +41,7 @@ function makeRenderStories({
         removePage();
         page.close();
         pagePool.addToPool(newPageIdToAdd);
-        prepareNewPage();
+        await prepareNewPage();
         return processStoryLoop();
       }
       logger.log(`[page ${pageId}] waiting for queued renders`);
@@ -75,6 +76,7 @@ function makeRenderStories({
               .close()
               .catch(e => logger.log(`stale [page ${pageId}] already closed: ${e.message}`));
             const newPageObj = await pagePool.createPage();
+
             logger.log(`new page ${newPageObj.pageId} created ad hoc. trying it out`);
             const [newError, newStoryData] = await presult(
               getStoryData({
@@ -141,6 +143,7 @@ function makeRenderStories({
       }
 
       logger.log(`[prepareNewPage] setting new page for replacement: ${pageId}`);
+
       newPageIdToAdd = pageId;
     }
   };

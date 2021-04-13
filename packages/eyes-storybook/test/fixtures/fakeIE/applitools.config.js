@@ -8,7 +8,8 @@ module.exports = {
   storybookStaticDir: dir,
   fakeIE: true,
   browser: [
-    {width: 800, height: 600, name: 'chrome'},
     {width: 800, height: 600, name: 'ie'},
+    {width: 800, height: 600, name: 'chrome'},
   ],
+  // puppeteerOptions: {headless: false},
 };

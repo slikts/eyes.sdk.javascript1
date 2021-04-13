@@ -21,6 +21,7 @@ const {Driver} = require('@applitools/eyes-puppeteer');
 const {refineErrorMessage} = require('./errMessages');
 const makeExecuteRenders = require('./executeRenders');
 const updateSpinnerEnd = require('./updateTestResults');
+const {splitConfigsByBrowser} = require('./shouldRenderIE');
 
 const CONCURRENT_PAGES = 3;
 
@@ -32,6 +33,7 @@ async function eyesStorybook({
   outputStream = process.stderr,
 }) {
   let memoryTimeout;
+  let renderIE = false;
   takeMemLoop();
   logger.log('eyesStorybook started');
   const {storybookUrl, waitBeforeScreenshot, readStoriesTimeout, reloadPagePerStory} = config;
@@ -62,8 +64,7 @@ async function eyesStorybook({
     logger: logger.extend('vgc'),
   });
 
-  const initPage = makeInitPage({iframeUrl, config, browser, logger});
-
+  const initPage = makeInitPage({iframeUrl, config, browser, logger, getRenderIE});
   const pagePool = createPagePool({initPage, logger});
 
   const doTakeDomSnapshots = async ({page, layoutBreakpoints}) => {
@@ -91,7 +92,6 @@ async function eyesStorybook({
       logger.log(`master tab: ${text}`);
     },
   });
-
   try {
     const [stories] = await Promise.all(
       [getStoriesWithSpinner()].concat(
@@ -143,7 +143,6 @@ async function eyesStorybook({
       logger,
       timeItAsync,
       closeBatch,
-      config,
       stories: storiesIncludingVariations,
     });
 
@@ -151,8 +150,8 @@ async function eyesStorybook({
 
     spinner.start();
 
-    const browsers = splitBrowsersByIE(config);
-    const results = await executeRendersByBrowser(browsers);
+    const configs = splitConfigsByBrowser(config);
+    const results = await executeRendersByBrowser(configs, setRenderIE);
 
     updateSpinnerEnd(results, spinner);
 
@@ -162,11 +161,6 @@ async function eyesStorybook({
     logger.log('perf results', performance);
     await browser.close();
     clearTimeout(memoryTimeout);
-  }
-
-  function takeMemLoop() {
-    logger.log(memoryLog(process.memoryUsage()));
-    memoryTimeout = setTimeout(takeMemLoop, 30000);
   }
 
   async function getStoriesWithSpinner() {
@@ -224,6 +218,19 @@ async function eyesStorybook({
     spinner.succeed();
     logger.log(`got ${stories.length} stories:`, JSON.stringify(stories));
     return stories;
+  }
+
+  function takeMemLoop() {
+    logger.log(memoryLog(process.memoryUsage()));
+    memoryTimeout = setTimeout(takeMemLoop, 30000);
+  }
+
+  function getRenderIE() {
+    return renderIE;
+  }
+
+  function setRenderIE(value) {
+    renderIE = value;
   }
 }
 
