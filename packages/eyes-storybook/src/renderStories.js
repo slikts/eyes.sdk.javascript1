@@ -2,7 +2,6 @@
 const getStoryUrl = require('./getStoryUrl');
 const getStoryTitle = require('./getStoryTitle');
 const {presult} = require('@applitools/functional-commons');
-const fakeIE = require('./fakeIE');
 
 function makeRenderStories({
   getStoryData,
@@ -24,7 +23,7 @@ function makeRenderStories({
     let allStoriesPromise = Promise.resolve();
     let currIndex = 0;
 
-    await prepareNewPage();
+    prepareNewPage();
 
     await processStoryLoop();
     await allStoriesPromise;
@@ -41,7 +40,7 @@ function makeRenderStories({
         removePage();
         page.close();
         pagePool.addToPool(newPageIdToAdd);
-        await prepareNewPage();
+        prepareNewPage();
         return processStoryLoop();
       }
       logger.log(`[page ${pageId}] waiting for queued renders`);
