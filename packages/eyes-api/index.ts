@@ -35,15 +35,7 @@ export {
   CheckSettingsFluent as CheckSettings,
   Target,
 } from './src/input/CheckSettings'
-export {
-  GeneralConfiguration as GeneralConfigurationPlain,
-  OpenConfiguration as OpenConfigurationPlain,
-  CheckConfiguration as CheckConfigurationPlain,
-  ClassicConfiguration as ClassicConfigurationPlain,
-  VGConfiguration as VGConfigurationPlain,
-  Configuration as ConfigurationPlain,
-  ConfigurationData as Configuration,
-} from './src/input/Configuration'
+export {Configuration as ConfigurationPlain, ConfigurationData as Configuration} from './src/input/Configuration'
 export {
   CutProvider as CutProviderPlain,
   CutProviderData as CutProvider,
@@ -100,9 +92,9 @@ export {StepInfo as StepInfoPlain, StepInfoData as StepInfo} from './src/output/
 export {TestAccessibilityStatus} from './src/output/TestAccessibilityStatus'
 export {TestResults as TestResultsPlain, TestResultsData as TestResults} from './src/output/TestResults'
 export {
-  TestResultsContainer as TestResultsContainerPlain,
-  TestResultsContainerData as TestResultsContainer,
-} from './src/output/TestResultsContainer'
+  TestResultContainer as TestResultContainerPlain,
+  TestResultContainerData as TestResultContainer,
+} from './src/output/TestResultContainer'
 export {
   TestResultsSummary as TestResultsSummaryPlain,
   TestResultsSummaryData as TestResultsSummary,

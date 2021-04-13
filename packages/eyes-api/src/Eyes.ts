@@ -12,7 +12,7 @@ import {CheckSettings, CheckSettingsFluent} from './input/CheckSettings'
 import {OCRSettings} from './input/OCRSettings'
 import {VisualLocatorSettings} from './input/VisualLocatorSettings'
 import {ProxySettings, ProxySettingsData} from './input/ProxySettings'
-import {Configuration, OpenConfiguration, ConfigurationData} from './input/Configuration'
+import {Configuration, ConfigurationData} from './input/Configuration'
 import {BatchInfo, BatchInfoData} from './input/BatchInfo'
 import {RectangleSize, RectangleSizeData} from './input/RectangleSize'
 import {Region} from './input/Region'
@@ -197,7 +197,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     }
   }
 
-  async open(driver: TDriver, config?: OpenConfiguration): Promise<TDriver>
+  async open(driver: TDriver, config?: Configuration): Promise<TDriver>
   async open(
     driver: TDriver,
     appName?: string,
@@ -207,7 +207,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   ): Promise<TDriver>
   async open(
     driver: TDriver,
-    configOrAppName?: OpenConfiguration | string,
+    configOrAppName?: Configuration | string,
     testName?: string,
     viewportSize?: RectangleSize,
     sessionType?: SessionType,

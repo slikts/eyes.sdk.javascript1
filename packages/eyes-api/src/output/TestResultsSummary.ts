@@ -2,12 +2,12 @@ import * as utils from '@applitools/utils'
 import TestResultsStatus from '../enums/TestResultsStatus'
 import TestFailedError from '../errors/TestFailedError'
 import {TestResults} from './TestResults'
-import {TestResultsContainer, TestResultsContainerData} from './TestResultsContainer'
+import {TestResultContainer, TestResultContainerData} from './TestResultContainer'
 
-export type TestResultsSummary = Iterable<TestResultsContainer>
+export type TestResultsSummary = Iterable<TestResultContainer>
 
 export class TestResultsSummaryData implements TestResultsSummary {
-  private _results: TestResultsContainerData[] = []
+  private _results: TestResultContainerData[] = []
   private _passed = 0
   private _unresolved = 0
   private _failed = 0
@@ -17,17 +17,17 @@ export class TestResultsSummaryData implements TestResultsSummary {
   private _matches = 0
 
   /** @internal */
-  constructor(results: (TestResults | TestResultsContainer | Error)[]) {
+  constructor(results: (TestResults | TestResultContainer | Error)[]) {
     for (const result of results) {
       let container
       if (utils.types.has(result, ['testResults', 'exception'])) {
-        container = new TestResultsContainerData(result)
+        container = new TestResultContainerData(result)
       } else if (result instanceof TestFailedError) {
-        container = new TestResultsContainerData({testResults: result.testResults, exception: result})
+        container = new TestResultContainerData({testResults: result.testResults, exception: result})
       } else if (result instanceof Error) {
-        container = new TestResultsContainerData({testResults: null, exception: result})
+        container = new TestResultContainerData({testResults: null, exception: result})
       } else {
-        container = new TestResultsContainerData({testResults: result, exception: null})
+        container = new TestResultContainerData({testResults: result, exception: null})
       }
 
       this._results.push(container)
@@ -48,11 +48,11 @@ export class TestResultsSummaryData implements TestResultsSummary {
     }
   }
 
-  getAllResults(): TestResultsContainerData[] {
+  getAllResults(): TestResultContainerData[] {
     return this._results
   }
 
-  [Symbol.iterator](): Iterator<TestResultsContainerData> {
+  [Symbol.iterator](): Iterator<TestResultContainerData> {
     return this._results[Symbol.iterator]()
   }
 
@@ -62,7 +62,7 @@ export class TestResultsSummaryData implements TestResultsSummary {
   }
 
   /** @internal */
-  toJSON(): Array<TestResultsContainer> {
+  toJSON(): Array<TestResultContainer> {
     return this._results.map(container => utils.general.toJSON(container))
   }
 
