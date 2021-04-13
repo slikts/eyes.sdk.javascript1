@@ -1,6 +1,6 @@
 const assert = require('assert')
-const spec = require('../../dist/src/spec-driver')
 const {Selector, ClientFunction} = require('testcafe')
+const spec = require('../../dist/spec-driver')
 
 fixture`spec-driver`.page`https://applitools.github.io/demo/TestPages/FramesTestPage/`
 

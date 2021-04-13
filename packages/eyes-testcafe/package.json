@@ -22,12 +22,10 @@
   },
   "files": [
     "dist",
-    "index.d.ts",
-    "index-legacy.js",
-    "index-legacy.d.ts"
+    "types"
   ],
-  "main": "./index-legacy.js",
-  "types": "./index-legacy.d.ts",
+  "main": "./dist/index-legacy.js",
+  "types": "./types/index-legacy.d.ts",
   "scripts": {
     "perf": "testcafe chrome:headless test/perf/perf.spec.js",
     "perf:full": "yarn perf && yarn perf -c 5",
@@ -39,7 +37,7 @@
     "link": "node ../sdk-shared/scripts/link.js",
     "build": "yarn build:dist && yarn build:types",
     "build:dist": "tsc",
-    "build:types": "api-extractor ./index.ts --out ./index.d.ts",
+    "build:types": "api-extractor ./src/index.ts --out ./types/index.d.ts",
     "test": "yarn test:it",
     "test:unit": "mocha --no-timeouts ./test/unit/*.spec.js",
     "test:it:chrome": "testcafe chrome test/it/spec-driver.spec.js",

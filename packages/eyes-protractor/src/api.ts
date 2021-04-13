@@ -1,12 +1,11 @@
 import {makeSDK} from '@applitools/eyes-sdk-core'
 import * as api from '@applitools/eyes-api'
 import * as spec from './spec-driver'
-import {version} from '../package.json'
 import type {Driver, Element, Selector} from './spec-driver'
 
 const sdk = makeSDK({
   name: 'eyes-protractor',
-  version: `${version}`,
+  version: require('../package.json').version,
   spec,
   VisualGridClient: require('@applitools/visual-grid-client'),
 })

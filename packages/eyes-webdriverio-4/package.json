@@ -6,10 +6,10 @@
   "license": "SEE LICENSE IN LICENSE",
   "author": "Applitools Team <team@applitools.com> (http://www.applitools.com/)",
   "main": "./dist/index.js",
-  "types": "./index.d.ts",
+  "types": "./types/index.d.ts",
   "files": [
     "dist",
-    "index.d.ts"
+    "types"
   ],
   "scripts": {
     "lint": "eslint '**/*.ts' '**/*.js'",
@@ -17,7 +17,7 @@
     "link": "node ../sdk-shared/scripts/link.js",
     "build": "yarn build:dist && yarn build:types",
     "build:dist": "tsc",
-    "build:types": "api-extractor ./index.ts --out ./index.d.ts --external-globals WebdriverIO",
+    "build:types": "api-extractor ./src/index.ts --out ./types/index.d.ts --external-globals WebdriverIO",
     "test": "yarn build:dist && yarn test:it",
     "test:it": "mocha --no-timeouts \"test/it/**/*.js\"",
     "test:coverage": "APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-webdriverio-4' APPLITOOLS_BATCH_ID=$(uuidgen) XUNIT_FILE=coverage-test-report.xml mocha --config .mocharc.cvg.js",

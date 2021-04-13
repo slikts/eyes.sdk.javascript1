@@ -30,7 +30,7 @@
     "email": "team@applitools.com"
   },
   "main": "./dist/index.js",
-  "types": "./index.d.ts",
+  "types": "./types/index.d.ts",
   "directories": {
     "lib": "./lib",
     "example": "./example",
@@ -39,7 +39,7 @@
   "files": [
     "dist",
     "commands",
-    "index.d.ts"
+    "types"
   ],
   "scripts": {
     "nightwatch": "nightwatch --config test/nightwatch.conf.js",
@@ -49,7 +49,7 @@
     "link": "node ../sdk-shared/scripts/link.js",
     "build": "yarn build:dist && yarn build:types",
     "build:dist": "tsc",
-    "build:types": "api-extractor ./index.ts --out ./index.d.ts --external-modules nightwatch",
+    "build:types": "api-extractor ./src/index.ts --out ./types/index.d.ts --external-modules nightwatch",
     "test": "yarn build:dist && yarn test:it && yarn test:e2e",
     "test:it": "yarn test:it:headless:jwp && yarn test:it:headless:w3c && yarn test:it:headed && yarn test:it:mobile",
     "test:it:headless:jwp": "yarn nightwatch test/it/spec-driver-headless-desktop.spec.js",

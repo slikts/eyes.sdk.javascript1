@@ -28,8 +28,10 @@ function build({entry, out, tsconfig, externalModules, externalGlobals}) {
 
   const string = dts({project, context, externalModules, externalGlobals})
 
+  const outPath = path.resolve(cwd, out)
+  fs.mkdirSync(path.dirname(outPath), {recursive: true})
   fs.writeFileSync(
-    path.resolve(cwd, out),
+    outPath,
     prettier.format(string, {
       parser: 'typescript',
       printWidth: 120,
