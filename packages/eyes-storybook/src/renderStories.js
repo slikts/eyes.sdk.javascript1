@@ -1,7 +1,9 @@
 'use strict';
 const getStoryUrl = require('./getStoryUrl');
 const getStoryTitle = require('./getStoryTitle');
+const ora = require('ora');
 const {presult} = require('@applitools/functional-commons');
+const {hasIE} = require('./shouldRenderIE');
 
 function makeRenderStories({
   getStoryData,
@@ -9,7 +11,7 @@ function makeRenderStories({
   renderStory,
   storybookUrl,
   logger,
-  spinner,
+  stream,
   waitForQueuedRenders,
   storyDataGap,
   getClientAPI,
@@ -23,10 +25,16 @@ function makeRenderStories({
     let allStoriesPromise = Promise.resolve();
     let currIndex = 0;
 
+    const spinner = ora({
+      text: `Done 0 stories out of ${stories.length} ${hasIE(config) ? '(IE)' : ''}`,
+      stream,
+    });
+    spinner.start();
     prepareNewPage();
 
     await processStoryLoop();
     await allStoriesPromise;
+    updateSpinnerEnd();
     return allTestResults;
 
     async function processStoryLoop() {
@@ -110,6 +118,19 @@ function makeRenderStories({
           return onDoneStory(ex, story);
         }
       }
+    }
+
+    function didTestPass({resultsOrErr}) {
+      return (
+        resultsOrErr.constructor.name !== 'Error' &&
+        resultsOrErr.every(
+          r => r.constructor.name !== 'Error' && r.getStatus && r.getStatus() === 'Passed',
+        )
+      );
+    }
+
+    function updateSpinnerEnd() {
+      allTestResults.every(didTestPass) ? spinner.succeed() : spinner.fail();
     }
 
     function onDoneStory(resultsOrErr, story) {

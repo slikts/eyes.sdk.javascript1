@@ -20,7 +20,6 @@ const {takeDomSnapshots} = require('@applitools/eyes-sdk-core');
 const {Driver} = require('@applitools/eyes-puppeteer');
 const {refineErrorMessage} = require('./errMessages');
 const makeExecuteRenders = require('./executeRenders');
-const updateSpinnerEnd = require('./updateTestResults');
 const {splitConfigsByBrowser} = require('./shouldRenderIE');
 
 const CONCURRENT_PAGES = 3;
@@ -121,18 +120,13 @@ async function eyesStorybook({
       reloadPagePerStory,
     });
 
-    const spinner = ora({
-      text: `Done 0 stories out of ${storiesIncludingVariations.length}`,
-      stream: outputStream,
-    });
-
     const renderStories = makeRenderStories({
       getStoryData,
       renderStory,
       getClientAPI,
       storybookUrl,
       logger,
-      spinner,
+      stream: outputStream,
       waitForQueuedRenders: globalState.waitForQueuedRenders,
       storyDataGap: config.storyDataGap,
       pagePool,
@@ -148,12 +142,8 @@ async function eyesStorybook({
 
     logger.log('finished creating functions');
 
-    spinner.start();
-
     const configs = splitConfigsByBrowser(config);
     const results = await executeRendersByBrowser(configs, setRenderIE);
-
-    updateSpinnerEnd(results, spinner);
 
     return results;
   } finally {
