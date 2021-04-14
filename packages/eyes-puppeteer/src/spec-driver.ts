@@ -23,8 +23,8 @@ async function handleToObject(handle: Puppeteer.JSHandle): Promise<any> {
     return handle.jsonValue()
   }
 }
-function transformSelector(selector: any): string {
-  if (utils.types.has(selector, ['type', 'selector'])) return `${selector.selector}`
+function transformSelector(selector: Selector): string {
+  if (utils.types.has(selector, ['type', 'selector'])) return selector.selector
   return selector
 }
 function isXpath(selector: string): boolean {
