@@ -49,7 +49,7 @@ function makeInitPage({iframeUrl, config, browser, logger, getRenderIE}) {
     }
 
     if (getRenderIE()) {
-      await fakeIE(page);
+      await fakeIE({logger, page});
     }
 
     return page;

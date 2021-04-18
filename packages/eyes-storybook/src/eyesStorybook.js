@@ -134,6 +134,7 @@ async function eyesStorybook({
 
     const executeRendersByBrowser = makeExecuteRenders({
       renderStories,
+      setRenderIE,
       logger,
       timeItAsync,
       closeBatch,
@@ -143,9 +144,7 @@ async function eyesStorybook({
     logger.log('finished creating functions');
 
     const configs = splitConfigsByBrowser(config);
-    const results = await executeRendersByBrowser(configs, setRenderIE);
-
-    return results;
+    return await executeRendersByBrowser(configs);
   } finally {
     logger.log('total time: ', performance['renderStories']);
     logger.log('perf results', performance);
