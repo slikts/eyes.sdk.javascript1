@@ -31,7 +31,7 @@ function makeExecuteRenders({
   };
 
   async function executeRenders(config) {
-    if (!shouldRenderIE(config)) setRenderIE(false);
+    if (shouldRenderIE(config)) setRenderIE(true);
     const [error, results] = await presult(
       timeItAsync('renderStories', () => renderStories(stories, config)),
     );
