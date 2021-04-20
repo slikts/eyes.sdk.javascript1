@@ -132,19 +132,26 @@ async function eyesStorybook({
       pagePool,
     });
 
-    const executeRendersByBrowser = makeExecuteRenders({
+    const executeRenders = makeExecuteRenders({
       renderStories,
       setRenderIE,
+      pagePool,
       logger,
       timeItAsync,
-      closeBatch,
       stories: storiesIncludingVariations,
     });
 
     logger.log('finished creating functions');
 
     const configs = splitConfigsByBrowser(config);
-    return await executeRendersByBrowser(configs);
+    const results = await executeRenders(configs);
+
+    const [closeBatchErr] = await presult(closeBatch());
+    if (closeBatchErr) {
+      logger.log('failed to close batch', closeBatchErr);
+    }
+
+    return results;
   } finally {
     logger.log('total time: ', performance['renderStories']);
     logger.log('perf results', performance);

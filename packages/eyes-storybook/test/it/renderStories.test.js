@@ -3,6 +3,7 @@
 const {describe, it} = require('mocha');
 const {expect} = require('chai');
 const makeRenderStories = require('../../src/renderStories');
+const getStoryTitle = require('../../src/getStoryTitle');
 const testStream = require('../util/testStream');
 const createPagePool = require('../../src/pagePool');
 const {delay} = require('@applitools/functional-commons');
@@ -13,20 +14,23 @@ const snap = require('@applitools/snaptdout');
 const waitForQueuedRenders = () => {};
 
 describe('renderStories', () => {
-  const spinner = {text: ''};
   it('returns empty array for 0 stories', async () => {
     const pagePool = createPagePool({
       logger,
       initPage: async ({pageId}) => ({evaluate: async () => pageId + 1}),
     });
+    const {stream, getEvents} = testStream();
     const renderStories = makeRenderStories({
+      stream,
       waitForQueuedRenders,
       pagePool,
       logger,
     });
 
-    const results = await renderStories([]);
+    const results = await renderStories([], {});
+
     expect(results).to.eql([]);
+    await snap(getEvents().join('\n'), 'empty');
   });
 
   it('returns results from renderStory', async () => {
@@ -46,13 +50,15 @@ describe('renderStories', () => {
     const renderStory = async arg => [{arg, getStatus: () => 'Passed'}];
 
     const storybookUrl = 'http://something';
+    const {stream, getEvents} = testStream();
+
     const renderStories = makeRenderStories({
       getStoryData,
       waitForQueuedRenders,
       renderStory,
       storybookUrl,
       logger,
-      spinner,
+      stream,
       pagePool,
     });
 
@@ -66,16 +72,16 @@ describe('renderStories', () => {
       {name: 's7', kind: 'k7'},
     ];
 
-    const results = await renderStories(stories, {});
+    const results = await renderStories(stories, {bla: true});
 
     const expectedResults = await Promise.all(
       stories.map(async (story, i) => {
         const storyUrl = `http://something/iframe.html?eyes-storybook=true&selectedKind=${story.kind}&selectedStory=${story.name}`;
         const page = i % 3 === 0 ? 1 : i % 3 === 1 ? 2 : 3;
         return {
+          config: {bla: true},
           snapshot: `snapshot_${story.name}_${story.kind}_${storyUrl}_${page}`,
           story,
-          config: {},
           url: storyUrl,
         };
       }),
@@ -88,6 +94,8 @@ describe('renderStories', () => {
         .map(({resultsOrErr}) => resultsOrErr[0].arg)
         .sort((a, b) => a.snapshot.localeCompare(b.snapshot)),
     ).to.eql(expectedResults);
+
+    await snap(getEvents().join('\n'), 'results');
   });
 
   it('passes waitBeforeScreenshot to getStoryData', async () => {
@@ -106,20 +114,22 @@ describe('renderStories', () => {
     const renderStory = async arg => [{arg, getStatus: () => 'Passed'}];
 
     const storybookUrl = 'http://something';
-    const spinner = {text: ''};
+    const {stream} = testStream();
+
     const renderStories = makeRenderStories({
       getStoryData,
       waitForQueuedRenders,
       renderStory,
       storybookUrl,
       logger,
-      spinner,
+      stream,
       pagePool,
     });
 
-    const results = await renderStories([
-      {name: 's1', kind: 'k1', parameters: {eyes: {waitBeforeScreenshot: 'wait_some_value'}}},
-    ]);
+    const results = await renderStories(
+      [{name: 's1', kind: 'k1', parameters: {eyes: {waitBeforeScreenshot: 'wait_some_value'}}}],
+      {},
+    );
 
     expect(_waitBeforeScreenshot).to.eql('wait_some_value');
     expect(results[0].title).to.eql('k1: s1');
@@ -145,6 +155,7 @@ describe('renderStories', () => {
     const renderStory = async () => {};
 
     const storybookUrl = 'http://something';
+    const {stream, getEvents} = testStream();
 
     const renderStories = makeRenderStories({
       getStoryData,
@@ -153,15 +164,17 @@ describe('renderStories', () => {
       renderStory,
       storybookUrl,
       logger,
-      spinner,
+      stream,
     });
 
     const story = {name: 's1', kind: 'k1'};
-    const results = await renderStories([story]);
+    const results = await renderStories([story], {});
 
     expect(results[0].title).to.eql('k1: s1');
     expect(results[0].resultsOrErr).to.be.an.instanceOf(Error);
+
     await snap(results[0].resultsOrErr.message, 'err message');
+    await snap(getEvents().join('\n'), 'getStoryData err');
   });
 
   it('returns errors from renderStory', async () => {
@@ -177,6 +190,7 @@ describe('renderStories', () => {
     };
 
     const storybookUrl = 'http://something';
+    const {stream, getEvents} = testStream();
 
     const renderStories = makeRenderStories({
       getStoryData,
@@ -185,14 +199,16 @@ describe('renderStories', () => {
       renderStory,
       storybookUrl,
       logger,
-      spinner,
+      stream,
     });
 
     const story = {name: 's1', kind: 'k1'};
-    const results = await renderStories([story]);
+    const results = await renderStories([story], {});
     expect(results[0].title).to.eql('k1: s1');
     expect(results[0].resultsOrErr).to.be.an.instanceOf(Error);
     expect(results[0].resultsOrErr.message).to.equal('bla');
+
+    await snap(getEvents().join('\n'), 'renderStory err');
   });
 
   describe('with puppeteer', () => {
@@ -218,6 +234,7 @@ describe('renderStories', () => {
         const renderStory = async arg => [{arg, getStatus: () => 'Passed'}];
 
         const storybookUrl = 'http://something';
+        const {stream, getEvents} = testStream();
 
         const renderStories = makeRenderStories({
           getStoryData,
@@ -226,24 +243,26 @@ describe('renderStories', () => {
           renderStory,
           storybookUrl,
           logger,
-          spinner,
+          stream,
           getClientAPI: () => {},
         });
 
         const story = {name: 's1', kind: 'k1'};
-        const results = await renderStories([story], {});
+        const results = await renderStories([story], {hello: 'world'});
 
         const storyUrl = `http://something/iframe.html?eyes-storybook=true&selectedKind=${story.kind}&selectedStory=${story.name}`;
         expect(results[0].title).to.eql('k1: s1');
         expect(results.map(({resultsOrErr}) => resultsOrErr[0].arg)).to.eql([
           {
+            config: {hello: 'world'},
             story,
-            config: {},
             url: storyUrl,
             snapshot:
               'snapshot_s1_k1_http://something/iframe.html?eyes-storybook=true&selectedKind=k1&selectedStory=s1_about:blank',
           },
         ]);
+
+        await snap(getEvents().join('\n'), 'pptr page close');
       } finally {
         await browser.close();
       }
@@ -288,6 +307,7 @@ describe('renderStories', () => {
         const renderStory = async arg => [{arg, getStatus: () => 'Passed'}];
 
         const storybookUrl = 'http://something';
+        const {stream, getEvents} = testStream();
 
         const renderStories = makeRenderStories({
           getStoryData,
@@ -296,7 +316,7 @@ describe('renderStories', () => {
           renderStory,
           storybookUrl,
           logger,
-          spinner,
+          stream,
           getClientAPI,
           maxPageTTL: 10,
         });
@@ -306,8 +326,8 @@ describe('renderStories', () => {
 
         const storyUrl = `http://something/iframe.html?eyes-storybook=true&selectedKind=${story.kind}&selectedStory=${story.name}`;
         const expectedStory = {
-          story,
           config: {},
+          story,
           url: storyUrl,
           snapshot:
             'snapshot_s1_k1_http://something/iframe.html?eyes-storybook=true&selectedKind=k1&selectedStory=s1_about:blank',
@@ -321,6 +341,8 @@ describe('renderStories', () => {
         expect(resultsOrErr0[0].arg).to.eql(expectedStory);
         expect(resultsOrErr1).not.to.be.an.instanceOf(Error);
         expect(resultsOrErr1[0].arg).to.eql(expectedStory);
+
+        await snap(getEvents().join('\n'), 'pttr page corrupted');
       } finally {
         await browser.close();
       }
@@ -372,7 +394,12 @@ describe('renderStories', () => {
     expect(results.map(result => result[0].arg)).to.eql(
       new Array(length).fill(JSON.stringify(JSON.parse(heavySnapshot).cdt).length),
     );
-    await snap(getEvents(), 'corrupted page');
+
+    expect(getEvents()).to.eql([
+      `- Done 0 stories out of ${length}\n`,
+      `✔ Done ${length} stories out of ${length}\n`,
+    ]);
+
     expect(usage.heapUsed).to.be.lessThan(1024 * 1024 * 80); // 80 MB
   });
 });

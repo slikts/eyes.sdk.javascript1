@@ -35,8 +35,8 @@ function makeInitPage({iframeUrl, config, browser, logger, getRenderIE}) {
           `Puppeteer page closed [page ${pageId}] while still in page pool, creating a new one instead`,
         );
         pagePool.removePage(pageId);
-        const {pageId} = await pagePool.createPage();
-        pagePool.addToPool(pageId);
+        const {pageId: newPageId} = await pagePool.createPage();
+        pagePool.addToPool(newPageId);
       }
     });
 

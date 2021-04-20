@@ -1,8 +1,10 @@
 'use strict';
 
+const fakeIE = require('./fakeIE');
+
 function createPagePool({initPage, logger}) {
   let counter = 0;
-  const fullPageObjs = [];
+  let fullPageObjs = [];
   logger.log(`[page pool] created`);
   let currWaitOnFreePage = Promise.resolve();
   const pagePool = {
@@ -27,6 +29,14 @@ function createPagePool({initPage, logger}) {
     isInPool: pageId => {
       const fullPageObj = fullPageObjs.find(p => p.pageId === pageId);
       return fullPageObj && fullPageObj.isInPool();
+    },
+    drain: async () => {
+      // only call pagePool.drain if you KNOW all pages are free
+      logger.log('[page pool] draining pool');
+      for (const {page} of fullPageObjs) {
+        await page.close();
+      }
+      fullPageObjs = [];
     },
   };
 

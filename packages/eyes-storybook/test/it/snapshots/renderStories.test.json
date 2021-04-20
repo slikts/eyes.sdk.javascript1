@@ -1,5 +1,41 @@
 {
+  "empty": [
+    "- Done 0 stories out of 0 ",
+    "",
+    "✔ Done 0 stories out of 0 ",
+    ""
+  ],
+  "results": [
+    "- Done 0 stories out of 7 ",
+    "",
+    "✔ Done 7 stories out of 7",
+    ""
+  ],
   "err message": [
     "[page 0] Failed to get story data for \"k1: s1\". Error: bla"
+  ],
+  "getStoryData err": [
+    "- Done 0 stories out of 1 ",
+    "",
+    "✖ Done 1 stories out of 1",
+    ""
+  ],
+  "renderStory err": [
+    "- Done 0 stories out of 1 ",
+    "",
+    "✖ Done 1 stories out of 1",
+    ""
+  ],
+  "pptr page close": [
+    "- Done 0 stories out of 1 ",
+    "",
+    "✔ Done 1 stories out of 1",
+    ""
+  ],
+  "pttr page corrupted": [
+    "- Done 0 stories out of 2 ",
+    "",
+    "✔ Done 2 stories out of 2",
+    ""
   ]
 }

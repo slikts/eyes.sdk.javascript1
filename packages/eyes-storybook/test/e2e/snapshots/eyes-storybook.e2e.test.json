@@ -6,7 +6,18 @@
     "Ignoring parameters for story: \"with some emoji Button\" since they are not serilizable. Error: \"Converting circular structure to JSON",
     "    --> starting at object with constructor 'Object'",
     "    --- property 'inner' closes the circle\"",
-    "browsers.reduce is not a function",
+    "",
+    "[EYES: TEST RESULTS]:",
+    "",
+    "Test is finished but no results returned.",
+    "",
+    "",
+    "Important notice: Your Applitools visual tests are currently running with a concurrency value of 5.",
+    "This means that only up to 5 visual tests can run in parallel, and therefore the execution might be slower.",
+    "If your Applitools license supports a higher concurrency level, learn how to configure it here: https://www.npmjs.com/package/@applitools/eyes-storybook#concurrency.",
+    "Need a higher concurrency in your account? Email us @ sdr@applitools.com with your required concurrency level.",
+    "",
+    "",
     ""
   ],
   "stderr": [
@@ -14,7 +25,6 @@
     "✔ Storybook was started",
     "- Reading stories",
     "✔ Reading stories",
-    "- Done 0 stories out of 20",
     ""
   ],
   "undetermined version stdout": [
@@ -81,7 +91,7 @@
     "✔ Storybook was started",
     "- Reading stories",
     "✔ Reading stories",
-    "- Done 0 stories out of 1",
+    "- Done 0 stories out of 1 ",
     "✔ Done 1 stories out of 1",
     ""
   ]

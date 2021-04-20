@@ -22,7 +22,8 @@ describe('init page', () => {
     const config = {
       viewportSize: {width: 400, height: 600},
     };
-    const initPage = makeInitPage({iframeUrl, config, browser, logger});
+
+    const initPage = makeInitPage({iframeUrl, config, browser, logger, getRenderIE: () => false});
 
     const page = await initPage({pageId: 0});
 
@@ -31,7 +32,13 @@ describe('init page', () => {
   });
 
   it('handles page error by removing errored page from page pool and replacing it with newly created page', async () => {
-    const initPage = makeInitPage({iframeUrl: 'about:blank', config: {}, browser, logger});
+    const initPage = makeInitPage({
+      iframeUrl: 'about:blank',
+      config: {},
+      browser,
+      logger,
+      getRenderIE: () => false,
+    });
     let counter = 0;
     const pagePool = {
       pages: [],
