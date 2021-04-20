@@ -29,16 +29,9 @@ function makeInitPage({iframeUrl, config, browser, logger, getRenderIE}) {
       pagePool.addToPool(newPageId);
     });
 
-    page.on('close', async () => {
-      if (pagePool.isInPool(pageId)) {
-        logger.log(
-          `Puppeteer page closed [page ${pageId}] while still in page pool, creating a new one instead`,
-        );
-        pagePool.removePage(pageId);
-        const {pageId: newPageId} = await pagePool.createPage();
-        pagePool.addToPool(newPageId);
-      }
-    });
+    if (getRenderIE()) {
+      await fakeIE({logger, page});
+    }
 
     const [err] = await presult(page.goto(iframeUrl, {timeout: config.readStoriesTimeout}));
     if (err) {
@@ -46,10 +39,6 @@ function makeInitPage({iframeUrl, config, browser, logger, getRenderIE}) {
       if (pagePool.isInPool(pageId)) {
         throw err;
       }
-    }
-
-    if (getRenderIE()) {
-      await fakeIE({logger, page});
     }
 
     return page;

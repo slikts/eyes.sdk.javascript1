@@ -31,10 +31,15 @@ function createPagePool({initPage, logger}) {
     drain: async () => {
       // only call pagePool.drain if you KNOW all pages are free
       logger.log('[page pool] draining pool');
-      for (const {page} of fullPageObjs) {
+      for (const {page, pageId} of [...fullPageObjs]) {
         await page.close();
+        logger.log(
+          `Puppeteer page closed [page ${pageId}] while still in page pool, creating a new one instead`,
+        );
+        pagePool.removePage(pageId);
+        const {pageId: newPageId} = await pagePool.createPage();
+        pagePool.addToPool(newPageId);
       }
-      fullPageObjs = [];
     },
   };
 
@@ -51,7 +56,7 @@ function createPagePool({initPage, logger}) {
           return p;
         }),
     );
-    console.log(await currWaitOnFreePage);
+
     const fullPageObj = await currWaitOnFreePage;
     fullPageObj.occupyPage();
     logger.log(`[page pool] free page found: ${fullPageObj.pageId}`);

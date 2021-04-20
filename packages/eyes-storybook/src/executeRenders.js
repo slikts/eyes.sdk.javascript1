@@ -15,8 +15,8 @@ function makeExecuteRenders({timeItAsync, renderStories, pagePool, stories, logg
 
   async function executeRenders(config) {
     if (shouldRenderIE(config)) {
-      pagePool.drain();
       setRenderIE(true);
+      await pagePool.drain();
     }
     const [error, results] = await presult(
       timeItAsync('renderStories', () => renderStories(stories, config)),
