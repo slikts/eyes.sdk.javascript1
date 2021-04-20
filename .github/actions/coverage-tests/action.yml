@@ -20,6 +20,7 @@ runs:
       env:
         MOCHA_GREP: ${{inputs.grep}}
       run: |
+        echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc
         yarn install --cwd "packages/sdk-shared"
         cd "packages/${{inputs.sdk}}"
         yarn run link --include ${{inputs.links}} --build --install --depth ${{inputs['linking-depth']}}
