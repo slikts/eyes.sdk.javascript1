@@ -107,7 +107,7 @@
     "ts-node": "^9.1.1",
     "tsconfig.js": "^3.0.0",
     "typescript": "^4.1.5",
-    "webdriverio": "^7.3.1",
+    "webdriverio": "^7.5.0",
     "webdriverio-5": "npm:webdriverio@^5.18.0",
     "webdriverio-6": "npm:webdriverio@^6.2.0",
     "webdriverio-7": "npm:webdriverio@^7.3.1"

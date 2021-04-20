@@ -1,11 +1,9 @@
 import * as utils from '@applitools/utils'
 import * as legacy from './legacy'
-import type * as Puppeteer from 'puppeteer-core'
 
 export type Driver = Applitools.WebdriverIO.Browser
 export type Element =
   | Applitools.WebdriverIO.Element
-  | Puppeteer.ElementHandle
   | {ELEMENT: string}
   | {'element-6066-11e4-a52e-4f735466cecf': string}
 export type Selector = Applitools.WebdriverIO.Selector | string | legacy.By | {type: string; selector: string}
@@ -30,36 +28,6 @@ function transformSelector(
     else return `${selector.type}:${selector.selector}`
   }
   return selector
-}
-function transformSelectorPptr(selector: Selector): string {
-  if (utils.types.has(selector, ['type', 'selector'])) {
-    return selector.selector
-  } else if (!utils.types.isFunction(selector)) {
-    let [using, value] = selector instanceof legacy.By ? [selector.using, selector.value] : selector.split(':', 2)
-    if (!value) {
-      if (using.startsWith('=')) {
-        value = using.slice(1)
-        using = 'link text'
-      } else if (using.startsWith('*=')) {
-        value = using.slice(2)
-        using = 'partial link text'
-      } else {
-        value = using
-        using = null
-      }
-    }
-
-    if (using === 'link text') {
-      return `//a[normalize-space() = "${value}"]`
-    } else if (using === 'partial link text') {
-      return `//a[contains(., "${value}")]`
-    } else {
-      return value
-    }
-  }
-}
-function isXpath(selector: string): boolean {
-  return selector.startsWith('//') || selector.startsWith('..')
 }
 function serializeArgs(args: any[]): [any[], ...Element[]] {
   const elements: Element[] = []
@@ -121,10 +89,7 @@ export function isDriver(browser: any): browser is Driver {
 }
 export function isElement(element: any): element is Element {
   if (!element) return false
-  return (
-    Boolean(element.elementId || element[ELEMENT_ID] || element[LEGACY_ELEMENT_ID]) ||
-    element.constructor.name === 'ElementHandle'
-  )
+  return Boolean(element.elementId || element[ELEMENT_ID] || element[LEGACY_ELEMENT_ID])
 }
 export function isSelector(selector: any): selector is Selector {
   return (
@@ -136,8 +101,6 @@ export function isSelector(selector: any): selector is Selector {
 }
 export function transformElement(element: Element): Element {
   const elementId = extractElementId(element)
-  console.log(elementId)
-  if (!elementId) return element
   return {[ELEMENT_ID]: elementId, [LEGACY_ELEMENT_ID]: elementId}
 }
 export function extractSelector(element: Element): Selector {
@@ -192,31 +155,11 @@ export async function childContext(browser: Driver, element: Element): Promise<D
   await browser.switchToFrame(element)
   return browser
 }
-export async function findElement(
-  browser: Driver,
-  selector: Selector,
-): Promise<Applitools.WebdriverIO.Element | Puppeteer.ElementHandle> {
-  if (browser.isDevTools) {
-    const pptr = await browser.getPuppeteer()
-    const [page] = await pptr.pages()
-    selector = transformSelectorPptr(selector)
-    const element = isXpath(selector) ? await page.$x(selector).then(elements => elements[0]) : await page.$(selector)
-    return element as any
-  }
+export async function findElement(browser: Driver, selector: Selector): Promise<Applitools.WebdriverIO.Element> {
   const element = await browser.$(transformSelector(selector))
   return !utils.types.has(element, 'error') ? element : null
 }
-export async function findElements(
-  browser: Driver,
-  selector: Selector,
-): Promise<Applitools.WebdriverIO.Element[] | Puppeteer.ElementHandle[]> {
-  if (browser.isDevTools) {
-    const pptr = await browser.getPuppeteer()
-    const [page] = await pptr.pages()
-    selector = transformSelectorPptr(selector)
-    const elements = isXpath(selector) ? await page.$x(selector) : await page.$$(selector)
-    return elements as any
-  }
+export async function findElements(browser: Driver, selector: Selector): Promise<Applitools.WebdriverIO.Element[]> {
   const elements = await browser.$$(transformSelector(selector))
   return Array.from(elements)
 }

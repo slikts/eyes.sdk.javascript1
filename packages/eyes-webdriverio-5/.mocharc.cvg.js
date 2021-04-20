@@ -16,8 +16,6 @@ const tags = {
 const protocol = process.env.APPLITOOLS_WEBDRIVERIO_PROTOCOL in tags ? process.env.APPLITOOLS_WEBDRIVERIO_PROTOCOL : 'wd'
 const grep = process.env.MOCHA_GREP
 
-console.log(process.env.APPLITOOLS_WEBDRIVERIO_PROTOCOL, protocol)
-
 module.exports = {
   spec: [
     './test/generic/*.spec.js',
