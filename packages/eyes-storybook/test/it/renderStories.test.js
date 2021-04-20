@@ -3,7 +3,6 @@
 const {describe, it} = require('mocha');
 const {expect} = require('chai');
 const makeRenderStories = require('../../src/renderStories');
-const getStoryTitle = require('../../src/getStoryTitle');
 const testStream = require('../util/testStream');
 const createPagePool = require('../../src/pagePool');
 const {delay} = require('@applitools/functional-commons');

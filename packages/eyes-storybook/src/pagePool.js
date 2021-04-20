@@ -1,7 +1,5 @@
 'use strict';
 
-const fakeIE = require('./fakeIE');
-
 function createPagePool({initPage, logger}) {
   let counter = 0;
   let fullPageObjs = [];

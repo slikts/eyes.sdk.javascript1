@@ -1,8 +1,8 @@
-const {describe, it, _before, _after} = require('mocha');
-const {expect} = require('chai');
+const {describe, it} = require('mocha');
 const path = require('path');
 const {delay: _psetTimeout, presult} = require('@applitools/functional-commons');
 const {sh} = require('@applitools/sdk-shared/src/process-commons');
+const {default: snap} = require('@applitools/snaptdout');
 
 describe('fake ie', () => {
   it('fake ie in storybook', async () => {
@@ -20,8 +20,6 @@ describe('fake ie', () => {
     const stdout = err ? err.stdout : result.stdout;
     const splittedResult = stdout.split('\n');
     const testResult = `${splittedResult[7]}\n${splittedResult[8]}`;
-    // expect(testResult).to.equal(
-    //   `Fake IE: Fake IE Page [Chrome 89.0] [800x600] - Passed\nFake IE: Fake IE Page [IE 11.0] [800x600] - Passed`,
-    // );
+    await snap(testResult, 'fake ie');
   });
 });

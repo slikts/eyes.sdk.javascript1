@@ -4,7 +4,6 @@ const path = require('path');
 const testServer = require('@applitools/sdk-shared/src/run-test-server');
 const {sh} = require('@applitools/sdk-shared/src/process-commons');
 const {delay: psetTimeout, presult} = require('@applitools/functional-commons');
-const {version} = require('../../package.json');
 const snap = require('@applitools/snaptdout');
 
 describe('eyes-storybook', () => {

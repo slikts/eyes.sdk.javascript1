@@ -1,7 +1,7 @@
 const {BrowserType} = require('@applitools/eyes-sdk-core');
 
 function splitConfigsByBrowser(config) {
-  const browsers = normalizeBrowsers(config);
+  const browsers = validateBrowsers(config);
   const result = browsers.reduce(
     (acc, browser) => {
       if (isIE(browser)) {
@@ -22,14 +22,14 @@ function shouldRenderIE(config) {
 }
 
 function hasIE(config) {
-  return normalizeBrowsers(config) && config.browser.some(isIE);
+  return validateBrowsers(config).some(isIE);
 }
 
 function isIE(browser) {
   return browser.name === BrowserType.IE_11;
 }
 
-function normalizeBrowsers(config) {
+function validateBrowsers(config) {
   if (config.browser) {
     return Array.isArray(config.browser) ? config.browser : [config.browser];
   } else {
