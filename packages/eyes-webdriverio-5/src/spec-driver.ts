@@ -245,8 +245,13 @@ export async function getUrl(browser: Driver): Promise<string> {
 export async function visit(browser: Driver, url: string): Promise<void> {
   await browser.url(url)
 }
-export async function takeScreenshot(driver: Driver): Promise<string> {
-  return driver.takeScreenshot()
+export async function takeScreenshot(browser: Driver): Promise<string | Buffer> {
+  if (browser.isDevTools) {
+    const puppeteer = await browser.getPuppeteer()
+    const [page] = await puppeteer.pages()
+    return page.screenshot() as Promise<Buffer>
+  }
+  return browser.takeScreenshot()
 }
 export async function click(browser: Driver, element: Element | Selector): Promise<void> {
   if (isSelector(element)) element = await findElement(browser, element)
