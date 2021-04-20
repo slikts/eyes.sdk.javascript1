@@ -51,6 +51,7 @@ function createPagePool({initPage, logger}) {
           return p;
         }),
     );
+    console.log(await currWaitOnFreePage);
     const fullPageObj = await currWaitOnFreePage;
     fullPageObj.occupyPage();
     logger.log(`[page pool] free page found: ${fullPageObj.pageId}`);
