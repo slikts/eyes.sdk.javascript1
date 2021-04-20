@@ -326,7 +326,11 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
   }
   if (browser === 'chrome' && protocol === 'cdp') {
     options.automationProtocol = 'devtools'
-    options.capabilities[browserOptionsNames.chrome] = {headless, args}
+    options.capabilities[browserOptionsNames.chrome] = {args}
+    options.capabilities['wdio:devtoolsOptions'] = {
+      headless,
+      ignoreDefaultArgs: ['--hide-scrollbars'],
+    }
   } else if (protocol === 'wd') {
     options.automationProtocol = 'webdriver'
     options.protocol = url.protocol ? url.protocol.replace(/:$/, '') : undefined
