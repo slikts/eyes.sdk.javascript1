@@ -150,6 +150,7 @@ describe('validateAndPopulateConfig', () => {
 
   it('shows a warning message when using fakeIE flag with no IE browsers in the config', async () => {
     let warningMessage;
+    const originConsoleLog = console.log;
     const config = {
       apiKey: 'bla',
       storybookUrl: 'url',
@@ -161,5 +162,6 @@ describe('validateAndPopulateConfig', () => {
     console.log = txt => (warningMessage = txt);
     await validateAndPopulateConfig({config});
     await snap(warningMessage, 'warning message fakeIE');
+    console.log = originConsoleLog;
   });
 });
