@@ -7,6 +7,7 @@ function createPagePool({initPage, logger}) {
   let currWaitOnFreePage = Promise.resolve();
   const pagePool = {
     getFreePage,
+    removeAndAddPage,
     createPage: async () => {
       const fullPageObj = await createPage();
       fullPageObjs.push(fullPageObj);
@@ -33,17 +34,18 @@ function createPagePool({initPage, logger}) {
       logger.log('[page pool] draining pool');
       for (const {page, pageId} of [...fullPageObjs]) {
         await page.close();
-        logger.log(
-          `Puppeteer page closed [page ${pageId}] while still in page pool, creating a new one instead`,
-        );
-        pagePool.removePage(pageId);
-        const {pageId: newPageId} = await pagePool.createPage();
-        pagePool.addToPool(newPageId);
+        await removeAndAddPage(pageId);
       }
     },
   };
 
   return pagePool;
+
+  async function removeAndAddPage(pageId) {
+    pagePool.removePage(pageId);
+    const {pageId: newPageId} = await pagePool.createPage();
+    pagePool.addToPool(newPageId);
+  }
 
   async function getFreePage() {
     logger.log(`[page pool] waiting for free page`);

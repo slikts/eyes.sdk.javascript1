@@ -22,6 +22,17 @@ function makeInitPage({iframeUrl, config, browser, logger, getRenderIE}) {
       });
     }
 
+    if (!getRenderIE()) {
+      page.on('close', async () => {
+        if (pagePool.isInPool(pageId)) {
+          logger.log(
+            `Puppeteer page closed [page ${pageId}] while still in page pool, creating a new one instead`,
+          );
+          await pagePool.removeAndAddPage(pageId);
+        }
+      });
+    }
+
     page.on('error', async err => {
       logger.log(`Puppeteer error for page ${pageId}:`, err);
       pagePool.removePage(pageId);

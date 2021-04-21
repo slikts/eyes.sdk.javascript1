@@ -2,7 +2,7 @@ const {describe, it} = require('mocha');
 const path = require('path');
 const {delay: _psetTimeout, presult} = require('@applitools/functional-commons');
 const {sh} = require('@applitools/sdk-shared/src/process-commons');
-const {default: snap} = require('@applitools/snaptdout');
+const snap = require('@applitools/snaptdout');
 
 describe('fake ie', () => {
   it('fake ie in storybook', async () => {
@@ -11,7 +11,7 @@ describe('fake ie', () => {
         `node ${path.resolve(__dirname, '../../bin/eyes-storybook')} -f ${path.resolve(
           __dirname,
           '../fixtures/fakeIE/applitools.config.js',
-        )} > test.log`,
+        )}`,
         {
           spawnOptions: {stdio: 'pipe'},
         },

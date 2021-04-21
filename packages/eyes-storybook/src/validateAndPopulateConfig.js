@@ -10,6 +10,7 @@ const {
   startStorybookFailMsg,
 } = require('./errMessages');
 const startStorybookServer = require('./startStorybookServer');
+const {BrowserType} = require('@applitools/eyes-sdk-core');
 
 async function validateAndPopulateConfig({config, packagePath, logger}) {
   if (!config.apiKey) {
@@ -57,7 +58,7 @@ async function validateAndPopulateConfig({config, packagePath, logger}) {
   }
 
   if (config.fakeIE) {
-    if (!config.browser.find(({name}) => name === 'ie' || name === 'ie11')) {
+    if (!config.browser.find(({name}) => name === BrowserType.IE_11)) {
       console.log(
         chalk.yellow(
           `\u26A0 fakeIE flag was set, but no IE browsers were found in the configuration`,
