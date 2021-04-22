@@ -11,7 +11,7 @@ describe('fakeIE', () => {
 
   const page = {
     setUserAgent: async ua => (userAgent = ua),
-    evaluate: async s => (script = s),
+    evaluateOnNewDocument: async s => (script = s.toString().match(/document\..*/)[0]),
   };
 
   it('should fake useragent and documentMode', async () => {

@@ -29,7 +29,45 @@ describe('renderStories', () => {
     const results = await renderStories([], {});
 
     expect(results).to.eql([]);
-    await snap(getEvents().join('\n'), 'empty');
+    await snap(getEvents().join(''), 'empty');
+  });
+
+  it('differentiates IE from non IE with different message', async () => {
+    const pagePool = createPagePool({
+      logger,
+      initPage: async ({pageId}) => ({evaluate: async () => pageId + 1}),
+    });
+    pagePool.addToPool((await pagePool.createPage()).pageId);
+
+    const getStoryData = async ({story, storyUrl, page}) => {
+      await delay(10);
+      return `snapshot_${story.name}_${story.kind}_${storyUrl}_${await page.evaluate()}`;
+    };
+
+    const renderStory = async arg => [{arg, getStatus: () => 'Passed'}];
+
+    const storybookUrl = 'http://something';
+    const {stream, getEvents} = testStream();
+
+    const renderStories = makeRenderStories({
+      getStoryData,
+      waitForQueuedRenders,
+      renderStory,
+      storybookUrl,
+      logger,
+      stream,
+      pagePool,
+    });
+
+    const stories = [{name: 's1', kind: 'k1'}];
+
+    await renderStories(stories, {
+      bla: true,
+      fakeIE: true,
+      browser: [{name: 'ie'}],
+    });
+
+    await snap(getEvents().join(''), 'IE rendering msg');
   });
 
   it('returns results from renderStory', async () => {
@@ -94,7 +132,7 @@ describe('renderStories', () => {
         .sort((a, b) => a.snapshot.localeCompare(b.snapshot)),
     ).to.eql(expectedResults);
 
-    await snap(getEvents().join('\n'), 'results');
+    await snap(getEvents().join(''), 'results');
   });
 
   it('passes waitBeforeScreenshot to getStoryData', async () => {
@@ -173,7 +211,7 @@ describe('renderStories', () => {
     expect(results[0].resultsOrErr).to.be.an.instanceOf(Error);
 
     await snap(results[0].resultsOrErr.message, 'err message');
-    await snap(getEvents().join('\n'), 'getStoryData err');
+    await snap(getEvents().join(''), 'getStoryData err');
   });
 
   it('returns errors from renderStory', async () => {
@@ -207,7 +245,7 @@ describe('renderStories', () => {
     expect(results[0].resultsOrErr).to.be.an.instanceOf(Error);
     expect(results[0].resultsOrErr.message).to.equal('bla');
 
-    await snap(getEvents().join('\n'), 'renderStory err');
+    await snap(getEvents().join(''), 'renderStory err');
   });
 
   describe('with puppeteer', () => {
@@ -261,7 +299,7 @@ describe('renderStories', () => {
           },
         ]);
 
-        await snap(getEvents().join('\n'), 'pptr page close');
+        await snap(getEvents().join(''), 'pptr page close');
       } finally {
         await browser.close();
       }
@@ -341,7 +379,7 @@ describe('renderStories', () => {
         expect(resultsOrErr1).not.to.be.an.instanceOf(Error);
         expect(resultsOrErr1[0].arg).to.eql(expectedStory);
 
-        await snap(getEvents().join('\n'), 'pttr page corrupted');
+        await snap(getEvents().join(''), 'pttr page corrupted');
       } finally {
         await browser.close();
       }

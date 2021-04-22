@@ -26,7 +26,7 @@ function makeRenderStories({
     let currIndex = 0;
 
     const spinner = ora({
-      text: `Done 0 stories out of ${stories.length} ${hasIE(config) ? '(IE)' : ''}`,
+      text: updateSpinnerText(0, stories.length),
       stream,
     });
     spinner.start();
@@ -133,8 +133,12 @@ function makeRenderStories({
       allTestResults.every(didTestPass) ? spinner.succeed() : spinner.fail();
     }
 
+    function updateSpinnerText(number, length) {
+      return `Done ${number} stories out of ${length} ${hasIE(config) ? '(IE)' : ''}`;
+    }
+
     function onDoneStory(resultsOrErr, story) {
-      spinner.text = `Done ${++doneStories} stories out of ${stories.length}`;
+      spinner.text = updateSpinnerText(++doneStories, stories.length);
       const title = getStoryTitle(story);
       allTestResults.push({title, resultsOrErr});
       return {title, resultsOrErr};
