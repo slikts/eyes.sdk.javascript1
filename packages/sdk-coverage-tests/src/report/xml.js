@@ -10,9 +10,9 @@ function convertJunitXmlToResultSchema({junit, browser, metadata}) {
     return acc
   }, metadata)
 
-  return Object.entries(allTests).reduce((acc, [testName, testMeta]) => {
+  return Object.entries(allTests).map(([testName, testMeta]) => {
     const isSkipped = testMeta.skip || testMeta.skipEmit || false // we explicitly set false to preserve backwards compatibility
-    acc.push({
+    return {
       test_name: testMeta.name || testName,
       parameters: {
         browser: browser || 'chrome',
@@ -22,10 +22,8 @@ function convertJunitXmlToResultSchema({junit, browser, metadata}) {
       passed: isSkipped ? undefined : !testMeta.failure,
       isGeneric: !!testMeta.isGeneric,
       isSkipped,
-    })
-
-    return acc
-  }, [])
+    }
+  })
 }
 
 function parseBareTestName(testCaseName) {
