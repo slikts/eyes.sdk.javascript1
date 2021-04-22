@@ -57,14 +57,12 @@ async function validateAndPopulateConfig({config, packagePath, logger}) {
     }
   }
 
-  if (config.fakeIE) {
-    if (!config.browser.find(({name}) => name === BrowserType.IE_11)) {
-      console.log(
-        chalk.yellow(
-          `\u26A0 fakeIE flag was set, but no IE browsers were found in the configuration`,
-        ),
-      );
-    }
+  if (config.fakeIE && !config.browser.find(({name}) => name === BrowserType.IE_11)) {
+    console.log(
+      chalk.yellow(
+        `\u26A0 fakeIE flag was set, but no IE browsers were found in the configuration`,
+      ),
+    );
   }
 }
 

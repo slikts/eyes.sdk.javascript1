@@ -41,7 +41,7 @@ function makeInitPage({iframeUrl, config, browser, logger, getRenderIE}) {
     });
 
     if (getRenderIE()) {
-      await fakeIE({logger, page});
+      await fakeIE({logger, page, pageId});
     }
 
     const [err] = await presult(page.goto(iframeUrl, {timeout: config.readStoriesTimeout}));
