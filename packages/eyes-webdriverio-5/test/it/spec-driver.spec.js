@@ -415,10 +415,16 @@ describe('spec driver', async () => {
     assert.deepStrictEqual(selector, expected)
   }
   async function executeScript() {
+    const element = await browser.$('html')
     const args = [0, 'string', {key: 'value'}, [0, 1, 2, 3]]
-    const expected = await browser.execute('return arguments', ...args)
-    const result = await spec.executeScript(browser, 'return arguments', ...args)
-    assert.deepStrictEqual(result, expected)
+    const [resultElement, ...resultArgs] = await spec.executeScript(
+      browser,
+      'return Array.from(arguments)',
+      element,
+      ...args,
+    )
+    assert.deepStrictEqual(resultArgs, args)
+    assert.ok(await browser.execute((element1, element2) => element1 === element2, resultElement, element))
   }
   async function mainContext() {
     try {
