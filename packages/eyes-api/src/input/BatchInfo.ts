@@ -1,4 +1,5 @@
 import * as utils from '@applitools/utils'
+import {PropertyData, PropertyDataData} from './PropertyData'
 
 export type BatchInfo = {
   id?: string
@@ -6,6 +7,7 @@ export type BatchInfo = {
   sequenceName?: string
   startedAt?: Date | string
   notifyOnCompletion?: boolean
+  properties?: PropertyData[]
 }
 
 export class BatchInfoData implements Required<BatchInfo> {
@@ -24,6 +26,7 @@ export class BatchInfoData implements Required<BatchInfo> {
     this.startedAt = batchOrName.startedAt ?? new Date()
     this.notifyOnCompletion =
       batchOrName.notifyOnCompletion ?? utils.general.getEnvValue('BATCH_NOTIFY', 'boolean') ?? false
+    this.properties = batchOrName.properties
   }
 
   get id(): string {
@@ -97,6 +100,25 @@ export class BatchInfoData implements Required<BatchInfo> {
   }
   setNotifyOnCompletion(notifyOnCompletion: boolean): this {
     this.notifyOnCompletion = notifyOnCompletion
+    return this
+  }
+
+  get properties(): PropertyData[] {
+    return this._batch.properties
+  }
+  set properties(properties: PropertyData[]) {
+    utils.guard.isArray(properties, {name: 'properties', strict: false})
+    this._batch.properties = properties
+  }
+  getProperties(): PropertyDataData[] {
+    return this.properties?.map(property => new PropertyDataData(property)) ?? []
+  }
+  setProperties(properties: PropertyData[]): this {
+    this.properties = properties
+    return this
+  }
+  addProperty(property: PropertyData): this {
+    this.properties.push(property)
     return this
   }
 
