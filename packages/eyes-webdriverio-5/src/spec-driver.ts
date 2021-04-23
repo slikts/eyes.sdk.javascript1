@@ -187,7 +187,8 @@ export async function getElementRect(
 }
 export async function getWindowRect(browser: Driver): Promise<{x: number; y: number; width: number; height: number}> {
   if (utils.types.isFunction(browser.getWindowRect)) {
-    return browser.getWindowRect()
+    const rect = await browser.getWindowRect()
+    return browser.isDevTools ? {x: 0, y: 0, width: rect.width, height: rect.height} : rect
   } else {
     const rect = {x: 0, y: 0, width: 0, height: 0}
     if (utils.types.isFunction(browser.getWindowPosition)) {
@@ -208,6 +209,7 @@ export async function setWindowRect(
   rect: {x?: number; y?: number; width?: number; height?: number},
 ): Promise<void> {
   const {x = null, y = null, width = null, height = null} = rect || {}
+  if (browser.isDevTools && (width === null || height === null)) return
   if (utils.types.isFunction(browser.setWindowRect)) {
     await browser.setWindowRect(x, y, width, height)
   } else {
@@ -249,7 +251,8 @@ export async function takeScreenshot(browser: Driver): Promise<string | Buffer> 
   if (browser.isDevTools) {
     const puppeteer = await browser.getPuppeteer()
     const [page] = await puppeteer.pages()
-    return page.screenshot() as Promise<Buffer>
+    const scr = await (page as any)._client.send('Page.captureScreenshot')
+    return scr.data
   }
   return browser.takeScreenshot()
 }
@@ -263,20 +266,20 @@ export async function type(browser: Driver, element: Element | Selector, keys: s
   const extendedElement = await browser.$(element as any)
   await extendedElement.setValue(keys)
 }
-export async function hover(
-  browser: Driver,
-  element: Element | Selector,
-  offset?: {x: number; y: number},
-): Promise<any> {
+export async function hover(browser: Driver, element: Element | Selector): Promise<any> {
   if (isSelector(element)) element = await findElement(browser, element)
-  const extendedElement = await browser.$(element as any)
-  // NOTE: WDIO6 changed the signature of moveTo method
-  if (process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION === '5') {
-    // @ts-ignore
-    await extendedElement.moveTo(offset?.x, offset?.y)
+
+  if (browser.isDevTools) {
+    const {x, y, width, height} = await browser.execute((element: any) => {
+      const rect = element.getBoundingClientRect()
+      return {x: rect.x, y: rect.y, width: rect.width, height: rect.height}
+    }, element)
+    const puppeteer = await browser.getPuppeteer()
+    const [page] = await puppeteer.pages()
+    await page.mouse.move(x + width / 2, y + height / 2)
   } else {
-    // @ts-ignore
-    await extendedElement.moveTo({xOffset: offset?.x, yOffset: offset?.y})
+    const extendedElement = await browser.$(element as any)
+    await extendedElement.moveTo()
   }
 }
 export async function scrollIntoView(browser: Driver, element: Element | Selector, align = false): Promise<void> {

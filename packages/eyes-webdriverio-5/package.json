@@ -48,7 +48,7 @@
     "build:dist": "tsc",
     "build:types": "api-extractor ./src/index.ts --out ./types/index.d.ts --external-globals WebdriverIO Applitools",
     "test": "yarn build:dist && yarn test:it && yarn test:service",
-    "test:it": "mocha -r ./test/util/version-alias.js --no-timeouts \"test/it/*.js\"",
+    "test:it": "mocha --no-timeouts \"test/it/*.js\"",
     "test:service": "mocha ./test/service/unit/*.spec.js && wdio \"test/service/wdio.conf.js\" && wdio \"test/service/no-config/wdio.no-config.conf.js\" && wdio \"test/service/vg/wdio.vg.conf.js\"",
     "test:coverage": "APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-webdriverio-5' APPLITOOLS_BATCH_ID=$(uuidgen) XUNIT_FILE=coverage-test-report.xml mocha --config .mocharc.cvg.js",
     "test:coverage:wd": "APPLITOOLS_WEBDRIVERIO_PROTOCOL=wd yarn test:coverage",
@@ -100,17 +100,13 @@
     "geckodriver": "^1.20.0",
     "husky": "^4.3.8",
     "mocha": "^8.0.1",
-    "module-alias": "^2.2.2",
     "prettier": "^2.1.2",
     "shared-examples-for": "^0.1.3",
     "spec-xunit-file": "0.0.1-3",
     "ts-node": "^9.1.1",
     "tsconfig.js": "^3.0.0",
     "typescript": "^4.1.5",
-    "webdriverio": "^7.5.0",
-    "webdriverio-5": "npm:webdriverio@^5.18.0",
-    "webdriverio-6": "npm:webdriverio@^6.2.0",
-    "webdriverio-7": "npm:webdriverio@^7.3.1"
+    "webdriverio": "^7.5.1"
   },
   "peerDependencies": {
     "webdriverio": "5.0.0 - 7.x.x"
