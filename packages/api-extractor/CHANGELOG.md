@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- add support for assignment export and default export
 
 ## 1.1.0 - 2021/4/13
 
