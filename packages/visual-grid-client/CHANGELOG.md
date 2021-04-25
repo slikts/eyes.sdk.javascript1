@@ -2,6 +2,15 @@
 
 ## Unreleased
 
+- rename `variantId` to `variationGroupId`
+
+## 15.8.1 - 2021/4/22
+
+- fix types for eyes open
+
+## 15.8.0 - 2021/4/22
+
+- added support for batch properties
 
 ## 15.7.1 - 2021/4/6
 

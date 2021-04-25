@@ -8,6 +8,12 @@
 - added full typescript support
 - introduced @applitools/eyes-api package with new api
 
+## 2.28.0 - 2021/4/22
+
+- add TestResults export from main
+- updated to @applitools/eyes-sdk-core@12.17.2 (from 12.14.2)
+- updated to @applitools/visual-grid-client@15.8.0 (from 15.5.14)
+
 ## 2.27.1 - 2021/1/29
 
 - chore: add husky
