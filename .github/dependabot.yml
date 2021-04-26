@@ -9,10 +9,6 @@
     schedule:
       interval: "daily"
   - package-ecosystem: "npm"
-    directory: "/packages/eyes-common-legacy"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "npm"
     directory: "/packages/eyes-cypress"
     schedule:
       interval: "daily"
@@ -42,10 +38,6 @@
       interval: "daily"
   - package-ecosystem: "npm"
     directory: "/packages/eyes-selenium"
-    schedule:
-      interval: "daily"
-  - package-ecosystem: "npm"
-    directory: "/packages/eyes-selenium-3"
     schedule:
       interval: "daily"
   - package-ecosystem: "npm"
