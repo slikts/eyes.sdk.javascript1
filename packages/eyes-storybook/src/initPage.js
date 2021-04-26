@@ -23,13 +23,11 @@ function makeInitPage({iframeUrl, config, browser, logger, getRenderIE}) {
     }
 
     page.on('close', async () => {
-      if (!getRenderIE()) {
-        if (pagePool.isInPool(pageId)) {
-          logger.log(
-            `Puppeteer page closed [page ${pageId}] while still in page pool, creating a new one instead`,
-          );
-          await pagePool.removeAndAddPage(pageId);
-        }
+      if (!getRenderIE() && pagePool.isInPool(pageId)) {
+        logger.log(
+          `Puppeteer page closed [page ${pageId}] while still in page pool, creating a new one instead`,
+        );
+        await pagePool.removeAndAddPage(pageId);
       }
     });
 
