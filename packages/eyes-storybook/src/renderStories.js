@@ -3,7 +3,7 @@ const getStoryUrl = require('./getStoryUrl');
 const getStoryTitle = require('./getStoryTitle');
 const ora = require('ora');
 const {presult} = require('@applitools/functional-commons');
-const {hasIE} = require('./shouldRenderIE');
+const {shouldRenderIE} = require('./shouldRenderIE');
 
 function makeRenderStories({
   getStoryData,
@@ -134,7 +134,8 @@ function makeRenderStories({
     }
 
     function updateSpinnerText(number, length) {
-      return `Done ${number} stories out of ${length} ${hasIE(config) ? '(IE)' : ''}`;
+      // console.log(shouldRenderIE(config));
+      return `Done ${number} stories out of ${length} ${shouldRenderIE(config) ? '(IE)' : ''}`;
     }
 
     function onDoneStory(resultsOrErr, story) {

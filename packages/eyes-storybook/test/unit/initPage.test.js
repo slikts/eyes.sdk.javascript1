@@ -56,7 +56,7 @@ describe('init page', () => {
       },
     };
     const page = await initPage({pageId: counter, pagePool});
-    pagePool.addToPool(counter++);
+    pagePool.addToPool(++counter);
     page.emit('error', new Error('bla'));
     await new Promise(r => setTimeout(r, 200)); // TODO yuck! but I just didn't have time and energy to invest in wiring the promise-based pagePool with the event-based browser
     expect(pagePool.pages).to.eql([1]);
