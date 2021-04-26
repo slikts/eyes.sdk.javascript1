@@ -24,15 +24,13 @@ describe('eyes-storybook accessibility', () => {
       storybookConfigDir: path.resolve(__dirname, '../fixtures/accessibilityStorybook'),
     });
   });
-  after(async () => {
-    await closeStorybook();
-  });
 
   let closeTestServer;
   before(async () => {
     closeTestServer = (await testServer({port: 7272})).close;
   });
   after(async () => {
+    await closeStorybook();
     await closeTestServer();
   });
 
