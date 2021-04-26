@@ -29,21 +29,21 @@ function transformSelector(
   }
   return selector
 }
-function serializeArgs(args: any[]): [any[], ...Element[]] {
+function transformArgument(arg: any): [any, ...Element[]] {
   const elements: Element[] = []
-  const argsWithElementMarkers = args.map(serializeArg)
+  const argWithElementMarkers = transform(arg)
 
-  return [argsWithElementMarkers, ...elements]
+  return [argWithElementMarkers, ...elements]
 
-  function serializeArg(arg: any): any {
+  function transform(arg: any): any {
     if (isElement(arg)) {
       elements.push(arg)
       return {isElement: true}
     } else if (utils.types.isArray(arg)) {
-      return arg.map(serializeArg)
+      return arg.map(transform)
     } else if (utils.types.isObject(arg)) {
       return Object.entries(arg).reduce((object, [key, value]) => {
-        return Object.assign(object, {[key]: serializeArg(value)})
+        return Object.assign(object, {[key]: transform(value)})
       }, {})
     } else {
       return arg
@@ -58,21 +58,20 @@ function serializeArgs(args: any[]): [any[], ...Element[]] {
 //    own argument. To account for this, we use a wrapper function to receive all
 //    of the arguments in a serialized structure, deserialize them, and call the script,
 //    and pass the arguments as originally intended
-function scriptRunner(script: string, argsWithElementMarkers: any[], ...elements: Element[]) {
-  /*eslint prefer-rest-params: "off", prefer-spread: "off"*/
+function scriptRunner(script: string, arg: any, ...elements: Element[]) {
   const func = new Function(script.startsWith('function') ? `return (${script}).apply(null, arguments)` : script)
-  return func.apply(null, argsWithElementMarkers.map(deserializeArg))
+  return func(transform(arg))
 
-  function deserializeArg(arg: any): any {
+  function transform(arg: any): any {
     if (!arg) {
       return arg
     } else if (arg.isElement) {
       return elements.shift()
     } else if (Array.isArray(arg)) {
-      return arg.map(deserializeArg)
+      return arg.map(transform)
     } else if (typeof arg === 'object') {
       return Object.entries(arg).reduce((object, [key, value]) => {
-        return Object.assign(object, {[key]: deserializeArg(value)})
+        return Object.assign(object, {[key]: transform(value)})
       }, {})
     } else {
       return arg
@@ -131,16 +130,12 @@ export async function isEqualElements(browser: Driver, element1: Element, elemen
 
 // #region COMMANDS
 
-export async function executeScript(
-  browser: Driver,
-  script: ((...args: any) => any) | string,
-  ...args: any[]
-): Promise<any> {
+export async function executeScript(browser: Driver, script: ((arg: any) => any) | string, arg: any): Promise<any> {
   if (browser.isDevTools) {
     script = utils.types.isString(script) ? script : script.toString()
-    return browser.execute(scriptRunner, script, ...serializeArgs(args))
+    return browser.execute(scriptRunner, script, ...transformArgument(arg))
   } else {
-    return browser.execute(script, ...args)
+    return browser.execute(script, arg)
   }
 }
 export async function mainContext(browser: Driver): Promise<Driver> {
