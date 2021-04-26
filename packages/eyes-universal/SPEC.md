@@ -1,0 +1,395 @@
+# Universal SDK Client
+
+## Introduction
+The main purpose of client implementation (*Client*) is to provide a language binding for the functionality core implemented in JavaScript (*Server*). *Server* controls everything, and *Client* doesn't need to know anything about how work is done.
+
+For the *Client* to be able to communicate with the *Server* it has to implement [WebSocket communication layer](##WebSocket). Though the WebSocket channel *Client* could send commands to the *Server* in order to perform any operations, at the same time *Server* will send commands to the *Client* in order to automate an environment. *Client* has to implement a set of commands ([SpecDriver](##SpecDriver)) and perform those commands when *Server* will ask for it. Since the execution of any command require knowing about the context this command should be executed in *Client* should pass some context references to the *Server*, to solve this problem *Client* have to implement a [Refer](##Refer) mechanism. Refer should help *Client* to send non-serializable data to the server, and when this data will be received back from the server easily deref it to the original non-serializable object.
+
+The biggest part of the client implementation is the actual user-facing [API layer](##API), it should not contain any specific logic, but only perform some input data validation, collecting, and processing before these data will be sent to the server. API layer should not have any binding to the automation framework it should be used with, it will help to re-use API layer for different frameworks.
+
+## WebSocket
+The client-server architecture of the universal sdk requires an implementation of the communication layer between the *Client* and the *Server*. Because of a major need for bidirectional communication, WebSocket protocol was chosen. Since WebSocket protocol operates only with messages, where each of those is an independent chunk of data and any kind of response on the message is not describing by the protocol. This is why the format of communication is determined by a proprietary request-response messaging interface (*Universal SDK messaging protocol*), which requires a specific format of client-server messages.
+
+All of the commands should be treated as requests, which means that response is always has to be sent after a request is received. But simple events are also allowed by the *Universal SDK messaging protocol*, which means that *Client*, as well as *Server*, could send a message which doesn't require any response.
+
+Reference implementation: [JS implementation](https://github.com/applitools/eyes.sdk.javascript1/blob/1a54c6b3f28b25b41a708f5b600ceabbf8fc9db6/packages/eyes-universal/src/socket.js)
+
+### Universal SDK messaging protocol
+The protocol describes the format of messages of different types such as [Request](####Request-format), [Response](####Response-format), and [Event](####Event-format). Each of the messages should be formated as a JSON string.
+
+> **`IDEA`** maybe it makes sense to also support something like UBJSON, it might be helpful in order to send screenshots from *Client* without conversion to the base64 string, which is an obvious overhead.
+
+The protocol also describes a way to represent different kinds of non-serializable objects such as drivers, elements, selectors, and errors/exceptions. See [Refer](##Refer) to know more about that.
+
+#### Request format
+```ts
+{
+  name: string, // could be any string, but recommended format is "<Domain>.<requestName>" (e.g. "Driver.executeScript")
+  key: string, // could be any random string, this value will be used to associate response with actual request.
+  payload?: any // any input data
+}
+```
+
+#### Response format
+```ts
+{
+  name: string, // name of the request this response sent for
+  key: string, // key value received in request
+  payload: {
+    result?: any, // result of the request if it was finished successfully
+    error?: { // error object if exception was thrown during action processing
+      message: string // error massage
+    }
+  }
+}
+```
+
+#### Event format
+```ts
+{
+  name: string, // could be any string, but recommended format is "<Domain>.<eventName>"
+  payload?: any // any event data
+}
+```
+### Client-initiated events
+In order to pass some data to the *Server* and let *Server* process it on its own *Client* could send lightweight events ([Event format](####Event-format)), which will not be responded in any way.
+
+#### Session.init
+This event has to be sent in the first place just after a connection between *Client* and *Server* will be established. *Client* should send an important metadata about itself in a format:
+```ts
+{
+    name: string, // name of the client sdk
+    version: string, // version of the client sdk
+    commands: string[], // array of command names that could be processed by the client sdk
+}
+```
+
+### Client-initiated commands
+In order to perform any action, the *Client* has to send a proper request to the *Server* in a specific format ([Request format](####Request-format)) and wait for the response in a format described here ([Response format](####Response-format)).
+
+#### EyesRunner.new
+This request should be sent to create a runner object. It expects input of type [RunnerConfiguration](https://github.com/applitools/eyes.sdk.javascript1/blob/63e2f6fd3a1751c0ac2edce5971391aad0a2fd78/packages/eyes-api/src/Runners.ts#L6-L10).
+
+In response client should expect to get a runner reference, this reference has to be used in runner related requests ([EyesRunner.open](####EyesRunner.open), [EyesRunner.close](####EyesRunner.close))
+
+> Do not send this command in a moment when `EyesRunner` is constructed but instead send it lazily when the actual eyes object has to be opened. Pay attention that in this architecture eyes could be created only from a runner instance, and creation and opening of the eyes are combined in one operation.
+
+#### EyesRunner.open
+This command has to be used in order to create an eyes object. It expects input with related RunnerRef (from [EyesRunner.new](####EyesRunner.new)), DriverRef, and [Configuration](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/Configuration.ts#L27-L104) in a format:
+```ts
+{
+    runner: RunnerRef,
+    driver: DriverRef, // reference to the driver that will be used by the server in order to perform automation
+    config?: Configuration, // configuration object that will be associated with a new eyes object, it could be overridden later
+}
+```
+
+In response client should expect to get an eyes reference, this reference has to be used in eyes related requests ([Eyes.check](####Eyes.check), [Eyes.locate](####Eyes.locate), [Eyes.extractTextRegions](####Eyes.extractTextRegions), [Eyes.extractText](####Eyes.extractText), [Eyes.close](####Eyes.close), [Eyes.abort](####Eyes.abort))
+
+##### EyesRunner.close
+This command is meant to be used to close all eyes objects created with this runner and return results from each of the eyes objects. It doesn't expect any input except a related RunnerRef (from [EyesRunner.new](####EyesRunner.new):
+```ts
+{
+    runner: RunnerRef,
+}
+```
+
+In response client will receive an array of [TestResultsContainer](https://github.com/applitools/eyes.sdk.javascript1/blob/63e2f6fd3a1751c0ac2edce5971391aad0a2fd78/packages/eyes-api/src/output/TestResultsContainer.ts#L3-L6)'s
+
+> There is no way to throw on diffs or new tests, this command will never throw an error in such cases.
+
+#### Eyes.check
+This command has to be used to perform a check/match action. It expects input with a related EyesRef, [CheckSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/CheckSettings.ts#L35-L60), and [Configuration](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/Configuration.ts#L27-L104) in a format:
+```ts
+{
+    eyes: EyesRef,
+    settings?: CheckSettings,
+    config?: Configuration,
+}
+```
+
+In a case of success, the client will receive a response with [MatchResult](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/output/MatchResult.ts#L4-L7) object.
+
+#### Eyes.locate
+This command has to be used to perform a locate action. It expects input with a related EyesRef [VisualLocatorSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/VisualLocatorSettings.ts#L1-L4) and [Configuration](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/Configuration.ts#L27-L104) in a format:
+```ts
+{
+    eyes: EyesRef,
+    settings: VisualLocatorSettings,
+    config?: Configuration,
+}
+```
+
+In a case of success, the client will receive a response with an object where locator names, passed in [VisualLocatorSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/VisualLocatorSettings.ts#L1-L4), are correlated with [Region](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/Region.ts#L5)'s.
+
+```ts
+{
+    [key: string]: Region,
+}
+```
+
+#### Eyes.extractTextRegions
+This command has to be used to extract text regions from a page. It expects input with a related EyesRef, [OCRSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/63e2f6fd3a1751c0ac2edce5971391aad0a2fd78/packages/eyes-api/src/input/OCRSettings.ts#L1-L6), and [Configuration](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/Configuration.ts#L27-L104) in a format:
+```ts
+{
+    eyes: EyesRef,
+    settings: OCRSettings,
+    config?: Configuration,
+}
+```
+
+In a case of success, the client will receive a response with an object where patterns, passed in [OCRSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/63e2f6fd3a1751c0ac2edce5971391aad0a2fd78/packages/eyes-api/src/input/OCRSettings.ts#L1-L6), are correlated with arrays of strings.
+
+```ts
+{
+    [key: string]: string[],
+}
+```
+
+#### Eyes.extractText
+This command has to be used to extract text regions from a page. It expects input with a related EyesRef, array of [OCRRegion](https://github.com/applitools/eyes.sdk.javascript1/blob/63e2f6fd3a1751c0ac2edce5971391aad0a2fd78/packages/eyes-api/src/input/OCRSettings.ts#L1-L6)'s, and [Configuration](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/Configuration.ts#L27-L104) in a format:
+```ts
+{
+    eyes: EyesRef,
+    regions: OCRRegion[],
+    config?: Configuration,
+}
+```
+
+In a case of success, the client will receive a response with arrays of strings.
+
+#### Eyes.close
+This command has to be used in order to close eyes object and finish the test. It doesn't expect any input except a related EyesRef.
+```ts
+{
+    eyes: EyesRef,
+}
+```
+
+In a case of success, the client will receive a response with [TestResults](https://github.com/applitools/eyes.sdk.javascript1/blob/63e2f6fd3a1751c0ac2edce5971391aad0a2fd78/packages/eyes-api/src/output/TestResults.ts#L16-L47) object.
+
+> There is no way to throw on diffs or new tests, this command will never throw an error in such cases.
+
+#### Eyes.abort
+This command has to be used to abort eyes object. It doesn't expect any input except a related EyesRef.
+```ts
+{
+    eyes: EyesRef,
+}
+```
+
+In a case of success, the client will receive a response with [TestResults](https://github.com/applitools/eyes.sdk.javascript1/blob/63e2f6fd3a1751c0ac2edce5971391aad0a2fd78/packages/eyes-api/src/output/TestResults.ts#L16-L47) object.
+
+### Server-initiated commands
+*Server* has to send a request to the *Client* in order to perform automation using driver api. It will be done through the special interface (a.k.a. [SpecDriver](##SpecDriver)) which abstracts out any framework specifics. Requests which *Server* could possibly send to the client limited only with a set of the [SpecDriver](##SpecDriver) commands.
+
+Since [SpecDriver](##SpecDriver) has a various number of commands, where some of the commands contradict others, *Server* should know the exact set of commands which it could send to the *Client*, this information should be passed in [Session.init](####Session.init) event.
+
+Each [SpecDriver](##SpecDriver) command will be received as request with name `"Driver.<commandName>"`, for examlple to call [findElement](####findElement) command *Server* will send `"Driver.findElement"` request to the *Client*. Arguments of the [SpecDriver](##SpecDriver) command will be send in payload, as an object where keys has the same names as arguments, for example to call [findElement](####findElement) command *Server* will send a payload with keys `driver` and `selector`. Result of the [SpecDriver](##SpecDriver) command has to be sent by the *Client* as a payload in the responce message.
+
+## SpecDriver
+Spec driver is a simple set of functions where each function performs automation by calling framework (e.g. selenium) API. We need this interface between our code and an actual driver to abstract out framework api.
+
+Down below is a list with descriptions of every method that could be implemented in the spec driver, but the need for implementation depends on the framework.
+
+### Utility commands
+
+#### `isDriver`
+This command accepts driver instance as an argument and should return `true` if this is a valid driver instance, otherwise `false`.
+
+Reference: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-selenium/src/spec-driver.ts#L32)
+
+#### `isElement`
+This command accepts element as an argument and should return `true` if this is a valid element, otherwise `false`.
+
+Reference: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-selenium/src/spec-driver.ts#L36), [Ruby Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/24c660e3cc7504d0547901f67a467324c45b2f25/rb/eyes-selenium/lib/applitools/selenium/spec-driver.rb#L6)
+
+#### `isSelector`
+This command accepts selector as an argument and should return `true` if this is a valid selector, otherwise `false`. Valid selectors should be one of three formats:
+
+1. The one supported by the framework (e.g. `By.css('html')` for selenium)
+2. JSON object with properties `type` with value `"css"` or `"xpath"` and `selector` with string value.
+3. Simple string, if the framework doesn't handle strings by itself, then the string should be treated as css selector.
+
+Reference: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-selenium/src/spec-driver.ts#L38)
+
+#### `transformDriver`
+This command is used only once for the driver in order to do some modifications or even replacements in a given driver instance. It might be helpful when some additional configuration is required before start working with the driver. If this method implemented whenever will be returned from it will be used instead of the driver.
+
+Reference: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-selenium/src/spec-driver.ts#L47)
+
+#### `transformElement`
+This command is used to transform elements before using them (e.g. as `executeScript` argument). It accepts a value that has to be treated as an element, but the framework itself can't handle this value on its own. Some frameworks might support more than one element format, and these formats might be not equal in terms of usage.
+
+> How to understand to which format you should transform? The correct way to understand which format is superior on others you should check which one works the best in those commands [executeScript](###executeScript) and [childContext](###childContext).
+
+Reference: [TS WDIO](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-webdriverio-5/src/spec-driver.ts#L100)
+
+#### `extractSelector`
+This command is used to extract a selector from an element object. Not all frameworks keep information about the selector which was used to find an element, but if does it will help to handle some edge cases with stale element errors.
+
+Reference: [TS WDIO](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-webdriverio-5/src/spec-driver.ts#L104)
+
+#### `isStaleElementError`
+This command is used to understand if an error is a stale element error, it accepts an error object and should return `true` if the error is thrown because of element reference was stale.
+
+Reference: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-selenium/src/spec-driver.ts#L55)
+
+#### `isEqualElements`
+This command is used to understand if two element objects are references to the same element on a web page (or in a native app), should return `true` if elements are the same.
+
+> **`WD!`** Elements could be compared by their IDs, since by the protocol specification element ID should be unique across all of the frames and the same for the same element, however not all WD implementation keep that rule (e.g. iOS Safari). In this case, elements could be compared in a browser by executing a script with those elements which will compare them, if a stale element error will be thrown, elements are obviously not equivalent.
+
+Reference: [TS WDIO](https://github.com/applitools/eyes.sdk.javascript1/blob/eyes-api/packages/eyes-webdriverio-5/src/spec-driver.ts#L112)
+
+### Core commands
+Each command in this section accepts driver/context as a first argument.
+
+#### `mainContext`
+This command is used to get access to the main/top-level frame from the current/given frame.
+
+> **`WD!`** This command has to change driver's current frame to the topmost frame, and not necessarily return driver.
+
+> **`CDP!`** This command has to return the topmost (the one which doesn't have a parent) frame in a hierarchy from the given frame.
+
+References: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-selenium/src/spec-driver.ts#L78), [TS Playwright](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-playwright/src/spec-driver.ts#L67), [Ruby Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/24c660e3cc7504d0547901f67a467324c45b2f25/rb/eyes-selenium/lib/applitools/selenium/spec-driver.rb#L21)
+
+#### `parentContext`
+This command is used to get access to the parent frame of the current/given frame.
+
+> **`WD!`** This command has to change driver's current frame to the parent frame of the current frame, and not necessarily return driver. Legacy implementations of some frameworks (e.g. selenium 3, wdio 4) don't have a dedicated api for this functionality, in this case, the only way to perform the action is by sending a request to the endpoint by yourself ([WD Spec](https://www.w3.org/TR/webdriver/#switch-to-parent-frame)).
+
+> **`CDP!`** This command have to return the parent frame (previous in a hierarchy) of the given frame.
+
+References: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-selenium/src/spec-driver.ts#L82), [TS Playwright](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-playwright/src/spec-driver.ts#L75), [Ruby Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/24c660e3cc7504d0547901f67a467324c45b2f25/rb/eyes-selenium/lib/applitools/selenium/spec-driver.rb#L25)
+
+#### `childContext`
+This command is used to get access to the child frame of the current/given frame by **element** which refer to the target iframe.
+
+> **`WD!`** This command has to change driver's current frame to the child frame using given element, and not necessarily return driver.
+
+> **`CDP!`** This command has to return the content frame of the given element, parent frame is still provided in arguments, but the protocol doesn't require to use of it.
+
+References: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-selenium/src/spec-driver.ts#L91), [TS Playwright](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-playwright/src/spec-driver.ts#L79), [Ruby Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/24c660e3cc7504d0547901f67a467324c45b2f25/rb/eyes-selenium/lib/applitools/selenium/spec-driver.rb#L29)
+
+#### `executeScript`
+This command executes a given script of type string with given arguments in a given context.
+
+> **`CDP!`** The protocol is not able to execute scripts that are not function declaration, this means that just function body or JS expression are not valid scripts, for example `return document. title`, has to be transformed to `function(){ return document.title }`.
+
+References: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-selenium/src/spec-driver.ts#L71), [TS Playwright](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-playwright/src/spec-driver.ts#L62), [Ruby Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/24c660e3cc7504d0547901f67a467324c45b2f25/rb/eyes-selenium/lib/applitools/selenium/spec-driver.rb#L14)
+
+#### `findElement`
+This command finds element by a given selector in a given context. If an element doesn't exist, `null` should be returned (**do not throw**). See [isSelector](###isSelector) command for selector formats.
+
+Reference: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-selenium/src/spec-driver.ts#L95), [Ruby Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/24c660e3cc7504d0547901f67a467324c45b2f25/rb/eyes-selenium/lib/applitools/selenium/spec-driver.rb#L33)
+
+#### `findElements`
+This command finds multiple elements by a given selector in a given context. If no elements don't exist, an empty array (`[]`) should be returned. See [isSelector](###isSelector) command for selector formats.
+
+Reference: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-selenium/src/spec-driver.ts#L103), [Ruby Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/24c660e3cc7504d0547901f67a467324c45b2f25/rb/eyes-selenium/lib/applitools/selenium/spec-driver.rb#L37)
+
+#### `getDriverInfo`
+This command is used to extract information about the driver and environment in the very beginning. Keep in mind that not all of the properties are required.
+
+Here is a schema of the JSON object this method should return.
+```ts
+{
+  sessionId?: string, // aut session id
+  isMobile?: boolean, // true if the environment is a mobile device (e.g. os is android or ios), this doesn't necessarily mean a native app is tested
+  isNative?: boolean, // true if the environment is a native app (so no browser)
+  deviceName?: string, // device name
+  platformName?: string, // os name
+  platformVersion?: string, // os version
+  browserName?: string, // browser name
+  browserVersion?: string, //browser version
+}
+```
+
+> In fact if your framework doesn't support native apps automation the whole method could be skipped, in this case, data will be extracted from a user agent, but better implement it, if possible. All of the information is contained in the capabilities of the driver. In the future, we might want to provide more information here.
+
+Reference: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-selenium/src/spec-driver.ts#L155)
+
+#### `getOrientation`
+This command is not required if the framework doesn't support native apps automation. This command should return `"landscape"` or `"portrait"` strings in **lowercase** depends on device orientation.
+
+> If the framework supports device rotation in runtime, then orientation should also be extracted in runtime and not from capabilities. ([Appium spec](https://appium.io/docs/en/commands/session/orientation/get-orientation/))
+
+Reference: [TS WDIO](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-webdriverio-5/src/spec-driver.ts#L220)
+
+#### `getTitle`
+This command should return the title of the page.
+
+Reference: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-selenium/src/spec-driver.ts#L179), [Ruby Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/24c660e3cc7504d0547901f67a467324c45b2f25/rb/eyes-selenium/lib/applitools/selenium/spec-driver.rb#L54)
+
+#### `getUrl`
+This command should return the current url of the page.
+
+Reference: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-selenium/src/spec-driver.ts#L182), [Ruby Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/24c660e3cc7504d0547901f67a467324c45b2f25/rb/eyes-selenium/lib/applitools/selenium/spec-driver.rb#L58)
+
+#### `takeScreenshot`
+This command should use the default framework api to take a screenshot of the viewport (**without any stabilization**). The result should be returned as base64 encoded string.
+
+Reference: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-selenium/src/spec-driver.ts#L188), [Ruby Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/24c660e3cc7504d0547901f67a467324c45b2f25/rb/eyes-selenium/lib/applitools/selenium/spec-driver.rb#L74)
+
+#### `getElementRect`
+This command is used to get metrics of the **native** element only. This command will not be used for the web, since a more complex algorithm is required. The result should be returned as a JSON object with properties `x`, `y`, `width` and `height`, values should remain fractional, no rounding is required.
+
+Reference: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-selenium/src/spec-driver.ts#L106)
+
+#### `setWindowRect`
+This command should set window position and/or size from a given JSON object with properties `x`, `y`, `width` and `height`, the argument could miss position or size properties.
+This command should not be implemented if [setViewportSize](###setViewportSize) is already implemented.
+
+> **`WD!`** Legacy implementations of selenium don't allow to set size and position with a single method, in this case, they should be set separately.
+
+> **`CDP!`** Protocol doesn't support window manipulations, but instead alow viewport manipulations, have a look at [setViewportSize](###setViewportSize).
+
+Reference: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-selenium/src/spec-driver.ts#L137), [Ruby Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/24c660e3cc7504d0547901f67a467324c45b2f25/rb/eyes-selenium/lib/applitools/selenium/spec-driver.rb#L45)
+
+#### `getWindowRect`
+This command should return the position and size of the window in the format of the JSON object with properties `x`, `y`, `width`, and `height`.
+The command **have** to be implemented if [setWindowRect](###setWindowRect) was implemented, and could be skipped if [setViewportSize](###setViewportSize) was implemented.
+
+> **`WD!`** Legacy implementations of selenium don't allow to get size and position with a single method, in this case, they should be gotten separately and combined later.
+
+> **`CDP!`** Protocol doesn't support window manipulations, but instead alow viewport manipulations, have a look at [getViewportSize](###getViewportSize).
+
+
+Reference: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-selenium/src/spec-driver.ts#L112), [Ruby Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/24c660e3cc7504d0547901f67a467324c45b2f25/rb/eyes-selenium/lib/applitools/selenium/spec-driver.rb#L41)
+
+#### `setViewportSize`
+This command should set viewport size from given JSON object with properties `width` and `height`.
+
+> **`WD!`** Protocol doesn't allow to manipulate viewport directly. Implement [setWindowRect](###setWindowRect) and [getWindowRect](###getWindowRect) instead.
+
+Reference: [TS Playwright](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-playwright/src/spec-driver.ts#L98)
+
+#### `getViewportSize`
+This command should return the size of the viewport in the format of the JSON object with the properties `width` and `height`. This command does not necessarily have to be implemented, since viewport size could be extracted from the browser, but if it is possibly better to have it implemented since the framework could already have this information.
+
+> **`WD!`** Protocol doesn't allow to manipulate viewport directly. Implement [setWindowRect](###setWindowRect) and [getWindowRect](###getWindowRect) instead.
+
+Reference: [TS Playwright](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-playwright/src/spec-driver.ts#L95)
+
+## Refer
+The most important objects that sdk has to operate with are non-serializable (e.g. driver object, eyes instantiation) and could not be sent through the WS protocol. It requires to implementation of a generic way for non-serializable object representation. Down below will be described a recommended way to create refs on such objects, this is also a way that will be used by the server.
+
+Reference implementation: [JS](https://github.com/applitools/eyes.sdk.javascript1/blob/1a54c6b3f28b25b41a708f5b600ceabbf8fc9db6/packages/eyes-universal/src/refer.js)
+
+### Ref format
+Each ref is a JSON object with only one property `applitools-ref-id` with a guid value.
+
+```ts
+{
+  'applitools-ref-id': string
+}
+```
+
+### Ref usage
+Refs generated by the client should be stored on the client-side as well as an object they are referring to. Each ref could produce other refs (e.g. driver could produce elements), the existence of which doesn't make sense without a parent. Each ref should be destroyed with all of the children when its usage is not expected anymore. The client should create refs before sending non-serialized objects to the server and deref before using them after receiving them back from the server.
+
+## API
+The API layer is the biggest part of the client implementation which should abstract the way end-user will use an sdk from the internal implementation. The main functional purpose of this layer should be to collect all of the configuration and inputs from a user and send them when actual action should be done. The biggest benefit of this architecture is that API (the biggest and the most chaotic part of the sdk) shouldn't be re-implemented again and again for each new framework.
+
+Reference implementation: [TS Eyes API](https://github.com/applitools/eyes.sdk.javascript1/tree/eyes-api/packages/eyes-api)
