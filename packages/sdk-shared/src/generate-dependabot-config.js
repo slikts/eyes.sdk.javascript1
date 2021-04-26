@@ -1,7 +1,7 @@
 const fs = require('fs').promises;
 const path = require('path');
 
-const skipList = ['eyes-universal-poc', 'eyes-leanft', 'eyes-images-legacy', 'eyes-sdk-core-legacy'];
+const skipList = ['eyes-universal-poc', 'eyes-leanft', 'eyes-images-legacy', 'eyes-sdk-core-legacy', 'eyes-common-legacy', 'eyes-selenium-3'];
 
 ;(async () => {
     const items = await fs.readdir(path.join(__dirname, '../../'));
