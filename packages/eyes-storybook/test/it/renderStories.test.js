@@ -70,6 +70,43 @@ describe('renderStories', () => {
     await snap(getEvents().join(''), 'IE rendering msg');
   });
 
+  it('does not show IE if no flag was provided', async () => {
+    const pagePool = createPagePool({
+      logger,
+      initPage: async ({pageId}) => ({evaluate: async () => pageId + 1}),
+    });
+    pagePool.addToPool((await pagePool.createPage()).pageId);
+
+    const getStoryData = async ({story, storyUrl, page}) => {
+      await delay(10);
+      return `snapshot_${story.name}_${story.kind}_${storyUrl}_${await page.evaluate()}`;
+    };
+
+    const renderStory = async arg => [{arg, getStatus: () => 'Passed'}];
+
+    const storybookUrl = 'http://something';
+    const {stream, getEvents} = testStream();
+
+    const renderStories = makeRenderStories({
+      getStoryData,
+      waitForQueuedRenders,
+      renderStory,
+      storybookUrl,
+      logger,
+      stream,
+      pagePool,
+    });
+
+    const stories = [{name: 's1', kind: 'k1'}];
+
+    await renderStories(stories, {
+      bla: true,
+      browser: [{name: 'chrome'}, {name: 'ie'}],
+    });
+
+    await snap(getEvents().join(''), 'rendering msg');
+  });
+
   it('returns results from renderStory', async () => {
     const pagePool = createPagePool({
       logger,

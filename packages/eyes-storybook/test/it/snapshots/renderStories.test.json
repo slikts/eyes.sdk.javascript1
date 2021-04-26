@@ -36,5 +36,10 @@
     "- Done 0 stories out of 2 ",
     "✔ Done 2 stories out of 2 ",
     ""
+  ],
+  "rendering msg": [
+    "- Done 0 stories out of 1 ",
+    "✔ Done 1 stories out of 1 ",
+    ""
   ]
 }
