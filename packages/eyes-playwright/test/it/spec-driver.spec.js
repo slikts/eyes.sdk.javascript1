@@ -1,5 +1,5 @@
 const assert = require('assert')
-const spec = require('../../dist/src/spec-driver')
+const spec = require('../../dist/spec-driver')
 
 describe('spec driver', async () => {
   let page, destroyPage

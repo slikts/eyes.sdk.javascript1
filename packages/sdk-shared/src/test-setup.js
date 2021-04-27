@@ -265,9 +265,9 @@ function Env(
     env.url = new URL(url || process.env.CVG_TESTS_WD_REMOTE || process.env.CVG_TESTS_REMOTE)
     env.capabilities = {
       browserName: browser,
-      app,
       ...env.capabilities,
     }
+    if (app) env.capabilities.app = app
     const preset = DEVICES[device] || BROWSERS[browser]
     if (preset) {
       env.url = preset.url ? new URL(preset.url) : env.url

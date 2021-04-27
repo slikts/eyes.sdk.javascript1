@@ -1,11 +1,12 @@
-const {Eyes, TestResultsSummary} = require('../../dist/index')
-const eyes = new Eyes()
 const assert = require('assert')
-const {getTestInfo} = require('@applitools/sdk-shared')
-process.env.APPLITOOLS_BATCH_NAME = 'JS Coverage Tests - eyes-testcafe (legacy API)'
-process.env.APPLITOOLS_BATCH_ID = require('uuid').v4()
 const path = require('path')
 const fs = require('fs')
+const utils = require('@applitools/utils')
+const {getTestInfo} = require('@applitools/sdk-shared')
+const {Eyes, TestResultsSummary} = require('../../dist')
+const eyes = new Eyes()
+process.env.APPLITOOLS_BATCH_NAME = 'JS Coverage Tests - eyes-testcafe (legacy API)'
+process.env.APPLITOOLS_BATCH_ID = utils.general.guid()
 
 // TODO
 // improve a11y test? https://github.com/applitools/eyes-testcafe/blob/master/tests/e2e/testcafe-tests/accessibility.testcafe.js

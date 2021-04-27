@@ -1,6 +1,5 @@
 const assert = require('assert')
-const spec = require('../../dist/src/spec-driver')
-const {EyesError} = require('@applitools/eyes-sdk-core')
+const spec = require('../../dist/spec-driver')
 
 describe('spec driver', () => {
   const url = 'https://applitools.github.io/demo/TestPages/FramesTestPage/'
@@ -50,27 +49,27 @@ describe('spec driver', () => {
       const {value: element2} = await driver.element('css selector', 'h1')
       assert.ok(!spec.isEqualElements(driver, element1, element2))
     })
-    it('executeScript(strings, ...args)', async function (driver) {
-      const script = 'return arguments'
+    it('executeScript(strings, args)', async function (driver) {
+      const script = 'return arguments[0]'
       const args = [0, 1, 2, 3]
       const result = await spec.executeScript(driver, script, args)
-      assert.deepStrictEqual(result[0], args)
+      assert.deepStrictEqual(result, args)
     })
-    it('executeScript(function, ...args)', async function (driver) {
+    it('executeScript(function, args)', async function (driver) {
       const script = function () {
-        return arguments
+        return arguments[0]
       }
       const args = [0, 1, 2, 3]
       const result = await spec.executeScript(driver, script, args)
-      assert.deepStrictEqual(result[0], args)
+      assert.deepStrictEqual(result, args)
     })
     it('executeScript(element) return', async function (driver) {
       const element = await driver.element('css selector', 'div')
       const script = function () {
-        return arguments
+        return arguments[0]
       }
       const result = await spec.executeScript(driver, script, element)
-      assert.deepStrictEqual(result[0].value, element.value)
+      assert.deepStrictEqual(result.value, element.value)
     })
     it('executeScript(element) use', async function (driver) {
       const element = await driver.element('css selector', 'html')
@@ -92,8 +91,8 @@ describe('spec driver', () => {
         },
         ['transform', '-webkit-transform'],
       ]
-      const result = await spec.executeScript(driver, 'return arguments', args)
-      assert.deepStrictEqual(result[0], args)
+      const result = await spec.executeScript(driver, 'return arguments[0]', args)
+      assert.deepStrictEqual(result, args)
     })
     it('findElement(selector)', async function (driver) {
       const element = await spec.findElement(driver, '#overflowing-div')
@@ -206,18 +205,7 @@ describe('spec driver', () => {
       await driver.refresh()
       const error = await new Promise(resolve => {
         driver.elementIdClick(elementId, err => {
-          resolve(err)
-        })
-      })
-      assert.ok(spec.isStaleElementError(error))
-    })
-    it('isStaleElementError(eyesErr)', async function (driver) {
-      const {value: element} = await driver.element('css selector', '#overflowing-div')
-      const elementId = element.ELEMENT || element['element-6066-11e4-a52e-4f735466cecf']
-      await driver.refresh()
-      const error = await new Promise(resolve => {
-        driver.elementIdClick(elementId, err => {
-          resolve(new EyesError('bla', err))
+          resolve(err.value)
         })
       })
       assert.ok(spec.isStaleElementError(error))

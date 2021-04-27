@@ -74,12 +74,8 @@ export function isEqualElements(_browser: Driver, element1: Element, element2: E
 
 // #region COMMANDS
 
-export async function executeScript(
-  browser: Driver,
-  script: ((...args: any) => any) | string,
-  ...args: any[]
-): Promise<any> {
-  const {value} = await browser.execute(script, ...args)
+export async function executeScript(browser: Driver, script: ((arg: any) => any) | string, arg: any): Promise<any> {
+  const {value} = await browser.execute(script, arg)
   return value
 }
 export async function mainContext(browser: Driver): Promise<void> {

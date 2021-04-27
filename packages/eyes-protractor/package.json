@@ -31,7 +31,7 @@
     "email": "team@applitools.com"
   },
   "main": "./dist/index.js",
-  "types": "./index.d.ts",
+  "types": "./types/index.d.ts",
   "directories": {
     "lib": "./lib",
     "example": "./example",
@@ -39,7 +39,7 @@
   },
   "files": [
     "dist",
-    "index.d.ts"
+    "types"
   ],
   "scripts": {
     "lint": "eslint '**/*.ts' '**/*.js'",
@@ -47,7 +47,7 @@
     "link": "node ../sdk-shared/scripts/link.js",
     "build": "yarn build:dist && yarn build:types",
     "build:dist": "tsc",
-    "build:types": "api-extractor ./index.ts --out ./index.d.ts --external-modules protractor selenium-webdriver",
+    "build:types": "api-extractor ./src/index.ts --out ./types/index.d.ts --external-modules protractor selenium-webdriver",
     "test": "yarn build:dist && yarn test:it",
     "test:it": "mocha --timeout 120000 './test/it/**/*.spec.js'",
     "test:coverage": "APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-protractor' APPLITOOLS_BATCH_ID=$(uuidgen) XUNIT_FILE=coverage-test-report.xml mocha --config .mocharc.cvg.js",

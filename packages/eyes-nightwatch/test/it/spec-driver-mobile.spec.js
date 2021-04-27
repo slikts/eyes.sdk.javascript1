@@ -1,5 +1,5 @@
 const assert = require('assert')
-const spec = require('../../dist/src/spec-driver')
+const spec = require('../../dist/spec-driver')
 const fakeCaps = require('./fixtures/fake-caps-android')
 
 // NOTE: to run this against a real mobile configuration

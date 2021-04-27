@@ -1,5 +1,5 @@
 const assert = require('assert')
-const {transformConfig, transformCheckSettings} = require('../../dist/src/legacy')
+const {transformConfig, transformCheckSettings} = require('../../dist/legacy')
 
 describe('util', () => {
   describe('translate check args to check settings', () => {

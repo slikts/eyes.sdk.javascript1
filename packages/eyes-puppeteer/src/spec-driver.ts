@@ -23,28 +23,28 @@ async function handleToObject(handle: Puppeteer.JSHandle): Promise<any> {
     return handle.jsonValue()
   }
 }
-function transformSelector(selector: any): string {
-  if (utils.types.has(selector, ['type', 'selector'])) return `${selector.selector}`
+function transformSelector(selector: Selector): string {
+  if (utils.types.has(selector, ['type', 'selector'])) return selector.selector
   return selector
 }
 function isXpath(selector: string): boolean {
   return selector.startsWith('//') || selector.startsWith('..')
 }
-function serializeArgs(args: any[]) {
+function transformArgument(arg: any) {
   const elements: Element[] = []
-  const argsWithElementMarkers = args.map(serializeArg)
+  const argWithElementMarkers = transform(arg)
 
-  return [argsWithElementMarkers, ...elements]
+  return [argWithElementMarkers, ...elements]
 
-  function serializeArg(arg: any): any {
+  function transform(arg: any): any {
     if (isElement(arg)) {
       elements.push(arg)
       return {isElement: true}
     } else if (utils.types.isArray(arg)) {
-      return arg.map(serializeArg)
+      return arg.map(transform)
     } else if (utils.types.isObject(arg)) {
       return Object.entries(arg).reduce((object, [key, value]) => {
-        return Object.assign(object, {[key]: serializeArg(value)})
+        return Object.assign(object, {[key]: transform(value)})
       }, {})
     } else {
       return arg
@@ -59,21 +59,20 @@ function serializeArgs(args: any[]) {
 //    own argument. To account for this, we use a wrapper function to receive all
 //    of the arguments in a serialized structure, deserialize them, and call the script,
 //    and pass the arguments as originally intended
-function scriptRunner(script: string, argsWithElementMarkers: any[], ...elements: HTMLElement[]) {
-  /*eslint prefer-rest-params: "off", prefer-spread: "off"*/
+function scriptRunner(script: string, arg: any, ...elements: HTMLElement[]) {
   const func = new Function(script.startsWith('function') ? `return (${script}).apply(null, arguments)` : script)
-  return func.apply(null, argsWithElementMarkers.map(deserializeArg))
+  return func(transform(arg))
 
-  function deserializeArg(arg: any): any {
+  function transform(arg: any): any {
     if (!arg) {
       return arg
     } else if (arg.isElement) {
       return elements.shift()
     } else if (Array.isArray(arg)) {
-      return arg.map(deserializeArg)
+      return arg.map(transform)
     } else if (typeof arg === 'object') {
       return Object.entries(arg).reduce((object, [key, value]) => {
-        return Object.assign(object, {[key]: deserializeArg(value)})
+        return Object.assign(object, {[key]: transform(value)})
       }, {})
     } else {
       return arg
@@ -114,15 +113,10 @@ export async function isEqualElements(frame: Context, element1: Element, element
 
 // #region COMMANDS
 
-export async function executeScript(
-  frame: Context,
-  script: ((...args: any) => any) | string,
-  ...args: any[]
-): Promise<any> {
-  // a function is not serializable, so we pass it as a string instead
+export async function executeScript(frame: Context, script: ((arg: any) => any) | string, arg: any): Promise<any> {
   script = utils.types.isString(script) ? script : script.toString()
-  const result = await frame.evaluateHandle(scriptRunner, script, ...serializeArgs(args))
-  return await handleToObject(result)
+  const result = await frame.evaluateHandle(scriptRunner, script, ...transformArgument(arg))
+  return handleToObject(result)
 }
 export async function mainContext(frame: Context): Promise<Context> {
   frame = extractContext(frame)
@@ -170,8 +164,8 @@ export async function getUrl(page: Driver): Promise<string> {
 export async function visit(page: Driver, url: string): Promise<void> {
   await page.goto(url)
 }
-export async function takeScreenshot(page: Driver): Promise<string> {
-  return page.screenshot()
+export async function takeScreenshot(page: Driver): Promise<Buffer> {
+  return page.screenshot() as Promise<Buffer>
 }
 export async function click(frame: Context, element: Element | Selector): Promise<void> {
   if (isSelector(element)) element = await findElement(frame, element)

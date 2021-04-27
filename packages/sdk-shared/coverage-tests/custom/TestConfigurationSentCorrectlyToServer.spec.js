@@ -2,7 +2,7 @@
 const cwd = process.cwd()
 const path = require('path')
 const {getEyes} = require('../../src/test-setup')
-const spec = require(path.resolve(cwd, 'dist/src/spec-driver'))
+const spec = require(path.resolve(cwd, 'dist/spec-driver'))
 const assert = require('assert')
 const {Target, BatchInfo, MatchLevel} = require(cwd)
 const {getApiData} = require('../util/ApiAssertions')
