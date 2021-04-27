@@ -85,7 +85,7 @@ describe('executeRenders', () => {
       timeItAsync: (_a, cb) => cb(),
       renderStories: async function(stories, config) {
         Object.assign(results[counter], {stories, config});
-        return [err, stories];
+        return [undefined, stories];
       },
       pagePool: {drain: () => (poolDrained = true)},
       configs,
