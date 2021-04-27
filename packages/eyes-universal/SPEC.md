@@ -3,12 +3,12 @@
 ## Introduction
 The main purpose of client implementation (*Client*) is to provide a language binding for the functionality core implemented in JavaScript (*Server*). *Server* controls everything, and *Client* doesn't need to know anything about how work is done.
 
-For the *Client* to be able to communicate with the *Server* it has to implement [WebSocket communication layer](##WebSocket). Though the WebSocket channel *Client* could send commands to the *Server* in order to perform any operations, at the same time *Server* will send commands to the *Client* in order to automate an environment. *Client* has to implement a set of commands ([SpecDriver](##SpecDriver)) and perform those commands when *Server* will ask for it. Since the execution of any command require knowing about the context this command should be executed in *Client* should pass some context references to the *Server*, to solve this problem *Client* have to implement a [Refer](##Refer) mechanism. Refer should help *Client* to send non-serializable data to the server, and when this data will be received back from the server easily deref it to the original non-serializable object.
+For the *Client* to be able to communicate with the *Server* it has to implement [WebSocket communication layer](#WebSocket). Through the WebSocket channel *Client* could send commands to the *Server* in order to perform any operations, at the same time *Server* will send commands to the *Client* in order to automate an environment. *Client* has to implement a set of commands ([SpecDriver](#SpecDriver)) and perform those commands when *Server* will ask for it. Since the execution of any command requires knowing about the context this command should be executed in, *Client* should pass some context references to the *Server*. To solve this problem *Client* have to implement a [Refer](#Refer) mechanism. Refer should help *Client* to send non-serializable data to the server, and when this data will be received back from the server easily deref it to the original non-serializable object.
 
 The biggest part of the client implementation is the actual user-facing [API layer](##API), it should not contain any specific logic, but only perform some input data validation, collecting, and processing before these data will be sent to the server. API layer should not have any binding to the automation framework it should be used with, it will help to re-use API layer for different frameworks.
 
 ## WebSocket
-The client-server architecture of the universal sdk requires an implementation of the communication layer between the *Client* and the *Server*. Because of a major need for bidirectional communication, WebSocket protocol was chosen. Since WebSocket protocol operates only with messages, where each of those is an independent chunk of data and any kind of response on the message is not describing by the protocol. This is why the format of communication is determined by a proprietary request-response messaging interface (*Universal SDK messaging protocol*), which requires a specific format of client-server messages.
+The client-server architecture of the universal sdk requires an implementation of the communication layer between the *Client* and the *Server*. Because of a major need for bidirectional communication, WebSocket protocol was chosen. WebSocket protocol operates only with messages, and each of those is an independent chunk of data. The protocol doesn't support getting a response on a message. This is why the format of communication is determined by a proprietary request-response messaging interface (*Universal SDK messaging protocol*), which requires a specific format of client-server messages.
 
 All of the commands should be treated as requests, which means that response is always has to be sent after a request is received. But simple events are also allowed by the *Universal SDK messaging protocol*, which means that *Client*, as well as *Server*, could send a message which doesn't require any response.
 
@@ -52,7 +52,7 @@ The protocol also describes a way to represent different kinds of non-serializab
 }
 ```
 ### Client-initiated events
-In order to pass some data to the *Server* and let *Server* process it on its own *Client* could send lightweight events ([Event format](####Event-format)), which will not be responded in any way.
+In order to pass some data to the *Server* and let *Server* process it on its own *Client* could send lightweight events ([Event format](#Event-format)), which will not be responded in any way.
 
 #### Session.init
 This event has to be sent in the first place just after a connection between *Client* and *Server* will be established. *Client* should send an important metadata about itself in a format:
@@ -65,7 +65,7 @@ This event has to be sent in the first place just after a connection between *Cl
 ```
 
 ### Client-initiated commands
-In order to perform any action, the *Client* has to send a proper request to the *Server* in a specific format ([Request format](####Request-format)) and wait for the response in a format described here ([Response format](####Response-format)).
+In order to perform any action, the *Client* has to send a proper request to the *Server* in a specific format ([Request format](#Request-format)) and wait for the response in a format described here ([Response format](#Response-format)).
 
 #### EyesRunner.new
 This request should be sent to create a runner object. It expects input of type [RunnerConfiguration](https://github.com/applitools/eyes.sdk.javascript1/blob/63e2f6fd3a1751c0ac2edce5971391aad0a2fd78/packages/eyes-api/src/Runners.ts#L6-L10).
@@ -99,7 +99,7 @@ In response client will receive an array of [TestResultsContainer](https://githu
 > There is no way to throw on diffs or new tests, this command will never throw an error in such cases.
 
 #### Eyes.check
-This command has to be used to perform a check/match action. It expects input with a related EyesRef, [CheckSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/CheckSettings.ts#L35-L60), and [Configuration](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/Configuration.ts#L27-L104) in a format:
+This command is used to perform a check/match action. It expects input with a related EyesRef, [CheckSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/CheckSettings.ts#L35-L60), and [Configuration](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/Configuration.ts#L27-L104) in a format:
 ```ts
 {
     eyes: EyesRef,
@@ -111,7 +111,7 @@ This command has to be used to perform a check/match action. It expects input wi
 In a case of success, the client will receive a response with [MatchResult](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/output/MatchResult.ts#L4-L7) object.
 
 #### Eyes.locate
-This command has to be used to perform a locate action. It expects input with a related EyesRef [VisualLocatorSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/VisualLocatorSettings.ts#L1-L4) and [Configuration](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/Configuration.ts#L27-L104) in a format:
+This command is used to perform a locate action. It expects input with a related EyesRef [VisualLocatorSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/VisualLocatorSettings.ts#L1-L4) and [Configuration](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/Configuration.ts#L27-L104) in a format:
 ```ts
 {
     eyes: EyesRef,
@@ -185,7 +185,7 @@ In a case of success, the client will receive a response with [TestResults](http
 
 Since [SpecDriver](##SpecDriver) has a various number of commands, where some of the commands contradict others, *Server* should know the exact set of commands which it could send to the *Client*, this information should be passed in [Session.init](####Session.init) event.
 
-Each [SpecDriver](##SpecDriver) command will be received as request with name `"Driver.<commandName>"`, for examlple to call [findElement](####findElement) command *Server* will send `"Driver.findElement"` request to the *Client*. Arguments of the [SpecDriver](##SpecDriver) command will be send in payload, as an object where keys has the same names as arguments, for example to call [findElement](####findElement) command *Server* will send a payload with keys `driver` and `selector`. Result of the [SpecDriver](##SpecDriver) command has to be sent by the *Client* as a payload in the responce message.
+Each [SpecDriver](##SpecDriver) command will be received as request with name `"Driver.<commandName>"`, for examlple to call [findElement](####findElement) command *Server* will send `"Driver.findElement"` request to the *Client*. Arguments of the [SpecDriver](##SpecDriver) command will be sent in payload, as an object where keys has the same names as arguments, for example to call [findElement](####findElement) command *Server* will send a payload with keys `driver` and `selector`. Result of the [SpecDriver](##SpecDriver) command has to be sent by the *Client* as a payload in the response message.
 
 ## SpecDriver
 Spec driver is a simple set of functions where each function performs automation by calling framework (e.g. selenium) API. We need this interface between our code and an actual driver to abstract out framework api.
