@@ -2,7 +2,7 @@
 
 function createPagePool({initPage, logger}) {
   let counter = 0;
-  let fullPageObjs = [];
+  const fullPageObjs = [];
   logger.log(`[page pool] created`);
   let currWaitOnFreePage = Promise.resolve();
   const pagePool = {

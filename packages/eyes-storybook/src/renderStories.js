@@ -134,7 +134,6 @@ function makeRenderStories({
     }
 
     function updateSpinnerText(number, length) {
-      // console.log(shouldRenderIE(config));
       return `Done ${number} stories out of ${length} ${shouldRenderIE(config) ? '(IE)' : ''}`;
     }
 

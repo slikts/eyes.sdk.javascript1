@@ -17,18 +17,15 @@ const fetch = require('node-fetch');
 const snap = require('@applitools/snaptdout');
 
 describe('eyes-storybook accessibility', () => {
-  let closeStorybook;
+  let closeStorybook, closeTestServer;
   before(async () => {
+    closeTestServer = (await testServer({port: 7272})).close;
     closeStorybook = await testStorybook({
       port: 9001,
       storybookConfigDir: path.resolve(__dirname, '../fixtures/accessibilityStorybook'),
     });
   });
 
-  let closeTestServer;
-  before(async () => {
-    closeTestServer = (await testServer({port: 7272})).close;
-  });
   after(async () => {
     await closeStorybook();
     await closeTestServer();

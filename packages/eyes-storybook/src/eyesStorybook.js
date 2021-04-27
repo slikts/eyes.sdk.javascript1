@@ -21,6 +21,7 @@ const {Driver} = require('@applitools/eyes-puppeteer');
 const {refineErrorMessage} = require('./errMessages');
 const makeExecuteRenders = require('./executeRenders');
 const {splitConfigsByBrowser} = require('./shouldRenderIE');
+const executeRenders = require('./executeRenders');
 
 const CONCURRENT_PAGES = 3;
 
@@ -132,19 +133,19 @@ async function eyesStorybook({
       pagePool,
     });
 
-    const executeRenders = makeExecuteRenders({
-      renderStories,
-      setRenderIE,
-      pagePool,
-      logger,
-      timeItAsync,
-      stories: storiesIncludingVariations,
-    });
-
     logger.log('finished creating functions');
 
     const configs = splitConfigsByBrowser(config);
-    const results = await executeRenders(configs);
+
+    const results = await executeRenders({
+      renderStories,
+      setRenderIE,
+      configs,
+      stories: storiesIncludingVariations,
+      pagePool,
+      logger,
+      timeItAsync,
+    });
 
     const [closeBatchErr] = await presult(closeBatch());
     if (closeBatchErr) {

@@ -40,4 +40,4 @@ function validateBrowsers(config) {
   }
 }
 
-module.exports = {splitConfigsByBrowser, hasIE, shouldRenderIE};
+module.exports = {splitConfigsByBrowser, shouldRenderIE};

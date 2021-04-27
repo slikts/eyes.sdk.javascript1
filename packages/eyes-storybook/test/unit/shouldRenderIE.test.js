@@ -1,7 +1,7 @@
 'use strict';
 const {describe, it} = require('mocha');
 const {expect} = require('chai');
-const {splitConfigsByBrowser, hasIE, shouldRenderIE} = require('../../src/shouldRenderIE');
+const {splitConfigsByBrowser, shouldRenderIE} = require('../../src/shouldRenderIE');
 
 describe('shouldRenderIE', () => {
   describe('splitConfigsByBrowser', () => {
@@ -34,28 +34,23 @@ describe('shouldRenderIE', () => {
       ]);
     });
 
+    it('should work only with ie', () => {
+      const config = {
+        browser: [{name: 'ie'}, {name: 'ie'}],
+      };
+      expect(splitConfigsByBrowser(config)).to.eql([
+        {
+          browser: [{name: 'ie'}, {name: 'ie'}],
+        },
+      ]);
+    });
+
     it('should work with object', () => {
       const config = {
         browser: {name: 'chrome'},
       };
 
       expect(splitConfigsByBrowser(config)).to.eql([{browser: [{name: 'chrome'}]}]);
-    });
-  });
-
-  describe('hasIE', () => {
-    it('should return true when ie is in browser config', () => {
-      const config = {
-        browser: [{name: 'chrome'}, {name: 'firefox'}, {name: 'ie'}],
-      };
-      expect(hasIE(config)).to.be.true;
-    });
-
-    it('should return false when ie is not in browser config', () => {
-      const config = {
-        browser: [{name: 'chrome'}, {name: 'firefox'}],
-      };
-      expect(hasIE(config)).to.be.false;
     });
   });
 

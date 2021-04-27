@@ -7,35 +7,35 @@ describe('executeRenders', () => {
     const results = {};
     let counter = 0;
     const executeRenders = makeExecuteRenders({
-      timeItAsync: (_a, b) => b(),
+      timeItAsync: (_a, cb) => cb(),
       renderStories: async function(stories, config) {
-        Object.assign(results[counter], {stories, config});
+        Object.assign(results[counter], {config});
         return stories;
       },
       pagePool: {},
-      stories: [{hello: 'world'}],
       logger: {
-        verbose: function(log) {
+        verbose: function(txt) {
           counter++;
-          results[counter] = {log};
+          if (!results[counter]) {
+            results[counter] = {log: [txt]};
+          } else {
+            results[counter].log.push(txt);
+          }
         },
       },
-      setRenderIE: {},
+      setRenderIE: () => {},
     });
     const viewport = {width: 800, height: 600};
 
-    await executeRenders([
-      {browser: [{name: 'chrome', ...viewport}]},
-      {browser: [{name: 'firefox', ...viewport}]},
-    ]);
+    await executeRenders(
+      [{hello: 'world'}],
+      [{browser: [{name: 'chrome', ...viewport}]}, {browser: [{name: 'firefox', ...viewport}]}],
+    );
     expect(results.pagePoolDrained).to.be.undefined;
     expect(results).to.deep.equal({
       '1': {
-        log: 'executing render story with {"browser":[{"name":"chrome","width":800,"height":600}]}',
-        stories: [
-          {
-            hello: 'world',
-          },
+        log: [
+          'executing render story with {"browser":[{"name":"chrome","width":800,"height":600}]}',
         ],
         config: {
           browser: [
@@ -48,12 +48,8 @@ describe('executeRenders', () => {
         },
       },
       '2': {
-        log:
+        log: [
           'executing render story with {"browser":[{"name":"firefox","width":800,"height":600}]}',
-        stories: [
-          {
-            hello: 'world',
-          },
         ],
         config: {
           browser: [
@@ -75,33 +71,41 @@ describe('executeRenders', () => {
     let renderIE = false;
 
     const executeRenders = makeExecuteRenders({
-      timeItAsync: (_a, b) => b(),
+      timeItAsync: (_a, cb) => cb(),
       renderStories: async function(stories, config) {
         Object.assign(results[counter], {stories, config});
         return stories;
       },
       pagePool: {drain: () => (poolDrained = true)},
-      stories: [{hello: 'world'}],
       logger: {
-        verbose: function(log) {
+        verbose: function(txt) {
           counter++;
-          results[counter] = {log};
+          if (!results[counter]) {
+            results[counter] = {log: [txt]};
+          } else {
+            results[counter].log.push(txt);
+          }
         },
       },
       setRenderIE: value => (renderIE = value),
     });
     const viewport = {width: 800, height: 600};
 
-    await executeRenders([
-      {browser: [{name: 'chrome', ...viewport}]},
-      {browser: [{name: 'ie', ...viewport}], fakeIE: true},
-    ]);
+    await executeRenders(
+      [{hello: 'world'}],
+      [
+        {browser: [{name: 'chrome', ...viewport}]},
+        {browser: [{name: 'ie', ...viewport}], fakeIE: true},
+      ],
+    );
 
     expect(poolDrained).to.be.true;
     expect(renderIE).to.be.true;
     expect(results).to.deep.equal({
       '1': {
-        log: 'executing render story with {"browser":[{"name":"chrome","width":800,"height":600}]}',
+        log: [
+          'executing render story with {"browser":[{"name":"chrome","width":800,"height":600}]}',
+        ],
         stories: [
           {
             hello: 'world',
@@ -118,8 +122,9 @@ describe('executeRenders', () => {
         },
       },
       '2': {
-        log:
+        log: [
           'executing render story with {"browser":[{"name":"ie","width":800,"height":600}],"fakeIE":true}',
+        ],
         stories: [
           {
             hello: 'world',
