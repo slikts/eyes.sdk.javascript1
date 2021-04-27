@@ -15,6 +15,7 @@ jobs:
         with:
           node-version: 14
       - run: |
+          echo ${{github.event.head_commit.message}}
           echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc
           cd packages/
           packages=$(git diff HEAD~ --name-only | cut -d "/" -f 2 | uniq)
