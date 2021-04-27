@@ -51,7 +51,7 @@
     "build:dist": "tsc",
     "build:types": "api-extractor ./src/index.ts --out ./types/index.d.ts --external-modules selenium-webdriver",
     "test": "yarn build:dist && yarn test:it",
-    "test:it": "mocha -r ./test/util/version-alias.js --no-timeouts --parallel --jobs 15 './test/it/**/*.spec.js'",
+    "test:it": "mocha --no-timeouts --parallel --jobs 15 './test/it/**/*.spec.js'",
     "test:coverage": "APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-selenium' APPLITOOLS_BATCH_ID=$(uuidgen) XUNIT_FILE=coverage-test-report.xml mocha --config .mocharc.cvg.js",
     "coverage:generate": "coverage-tests generate node_modules/@applitools/sdk-shared/coverage-tests/generic/index.js --name 'eyes-selenium'",
     "coverage:report": "coverage-tests report node_modules/@applitools/sdk-shared/coverage-tests/generic/index.js --name 'eyes-selenium'",

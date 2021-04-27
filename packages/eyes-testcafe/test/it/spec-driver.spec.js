@@ -94,14 +94,14 @@ test('findElements(non-existent)', async driver => {
 test('executeScript(string)', async driver => {
   assert.deepStrictEqual(await spec.executeScript(driver, 'return 4'), 4)
 })
-test('executeScript(string, ...args)', async driver => {
-  assert.deepStrictEqual(await spec.executeScript(driver, 'return arguments[0] + arguments[1]', 4, 5), 9)
+test('executeScript(string, {a, b})', async driver => {
+  assert.deepStrictEqual(await spec.executeScript(driver, 'return arguments[0].a + arguments[0].b', {a: 4, b: 5}), 9)
 })
-test('executeScript(function, ...args)', async driver => {
-  const script = function () {
-    return arguments[0] + arguments[1]
+test('executeScript(function, {a, b})', async driver => {
+  const script = function (arg) {
+    return arg.a + arg.b
   }
-  assert.deepStrictEqual(await spec.executeScript(driver, script, 4, 5), 9)
+  assert.deepStrictEqual(await spec.executeScript(driver, script, {a: 4, b: 5}), 9)
 })
 test('executeScript w/ Selector', async driver => {
   const script = 'return arguments[0].style.width'

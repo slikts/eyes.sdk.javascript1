@@ -41,7 +41,7 @@ describe('spec driver', async () => {
         expected: false,
       }),
     )
-    it('executeScript(strings, ...args)', executeScript())
+    it('executeScript(strings, args)', executeScript())
     it('findElement(string)', findElement({input: By.id('overflowing-div')}))
     it('findElements(string)', findElements({input: By.css('div')}))
     it('findElement(non-existent)', findElement({input: By.css('non-existent'), expected: null}))
@@ -170,8 +170,8 @@ describe('spec driver', async () => {
   function executeScript() {
     return async () => {
       const args = [0, 'string', {key: 'value'}, [0, 1, 2, 3]]
-      const expected = await driver.executeScript('return arguments', ...args)
-      const result = await spec.executeScript(driver, 'return arguments', ...args)
+      const expected = await driver.executeScript('return arguments[0]', args)
+      const result = await spec.executeScript(driver, 'return arguments[0]', args)
       assert.deepStrictEqual(result, expected)
     }
   }

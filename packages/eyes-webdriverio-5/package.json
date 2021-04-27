@@ -47,7 +47,7 @@
     "build:tsconfig:5": "APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION=5 tsconfig.js --once",
     "build:dist": "tsc",
     "build:types": "api-extractor ./src/index.ts --out ./types/index.d.ts --external-globals WebdriverIO Applitools",
-    "test": "yarn build:dist && yarn test:it && yarn test:service",
+    "test": "yarn build:tsconfig && yarn build:dist && yarn test:it && yarn test:service",
     "test:it": "mocha --no-timeouts \"test/it/*.js\"",
     "test:service": "mocha ./test/service/unit/*.spec.js && wdio \"test/service/wdio.conf.js\" && wdio \"test/service/no-config/wdio.no-config.conf.js\" && wdio \"test/service/vg/wdio.vg.conf.js\"",
     "test:coverage": "APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-webdriverio-5' APPLITOOLS_BATCH_ID=$(uuidgen) XUNIT_FILE=coverage-test-report.xml mocha --config .mocharc.cvg.js",
@@ -106,7 +106,7 @@
     "ts-node": "^9.1.1",
     "tsconfig.js": "^3.0.0",
     "typescript": "^4.1.5",
-    "webdriverio": "^7.5.1"
+    "webdriverio": "^7.5.2"
   },
   "peerDependencies": {
     "webdriverio": "5.0.0 - 7.x.x"

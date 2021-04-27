@@ -94,7 +94,7 @@ export function isEqualElements(_driver: Driver, element1: Element, element2: El
 //// #region COMMANDS
 
 export async function executeScript(driver: Driver, script: ((arg: any) => any) | string, arg: any): Promise<any> {
-  return call(driver, 'execute', script, arg)
+  return call(driver, 'execute', script, [arg])
 }
 export async function mainContext(driver: Driver): Promise<void> {
   await call(driver, 'frame')

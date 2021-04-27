@@ -68,7 +68,7 @@ describe('spec driver', async () => {
     it('extractSelector(extended-element)', async () => {
       await extractSelector({input: () => browser.$('div'), expected: 'div'})
     })
-    it('executeScript(strings, ...args)', async () => {
+    it('executeScript(strings, args)', async () => {
       await executeScript()
     })
     it('findElement(string)', async () => {
@@ -310,7 +310,7 @@ describe('spec driver', async () => {
     it('extractSelector(extended-element)', async () => {
       await extractSelector({input: () => browser.$('div'), expected: 'div'})
     })
-    it('executeScript(strings, ...args)', async () => {
+    it('executeScript(strings, args)', async () => {
       await executeScript()
     })
     it('mainContext()', async () => {
@@ -417,12 +417,7 @@ describe('spec driver', async () => {
   async function executeScript() {
     const element = await browser.$('html')
     const args = [0, 'string', {key: 'value'}, [0, 1, 2, 3]]
-    const [resultElement, ...resultArgs] = await spec.executeScript(
-      browser,
-      'return Array.from(arguments)',
-      element,
-      ...args,
-    )
+    const [resultElement, ...resultArgs] = await spec.executeScript(browser, 'return arguments[0]', [element, ...args])
     assert.deepStrictEqual(resultArgs, args)
     assert.ok(await browser.execute((element1, element2) => element1 === element2, resultElement, element))
   }
