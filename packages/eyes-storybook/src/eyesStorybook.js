@@ -19,7 +19,6 @@ const getClientAPI = require('../dist/getClientAPI');
 const {takeDomSnapshots} = require('@applitools/eyes-sdk-core');
 const {Driver} = require('@applitools/eyes-puppeteer');
 const {refineErrorMessage} = require('./errMessages');
-const makeExecuteRenders = require('./executeRenders');
 const {splitConfigsByBrowser} = require('./shouldRenderIE');
 const executeRenders = require('./executeRenders');
 

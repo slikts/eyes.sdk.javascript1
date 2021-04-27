@@ -1,18 +1,27 @@
 const {describe, it} = require('mocha');
 const {expect} = require('chai');
-const makeExecuteRenders = require('../../src/executeRenders');
+const executeRenders = require('../../src/executeRenders');
+const {presult} = require('@applitools/functional-commons');
 
 describe('executeRenders', () => {
   it('should call executeRender for each config', async () => {
     const results = {};
     let counter = 0;
-    const executeRenders = makeExecuteRenders({
+    const stories = [{hello: 'world'}];
+    const viewport = {width: 800, height: 600};
+    const configs = [
+      {browser: [{name: 'chrome', ...viewport}]},
+      {browser: [{name: 'firefox', ...viewport}]},
+    ];
+    const [err, result] = await executeRenders({
       timeItAsync: (_a, cb) => cb(),
       renderStories: async function(stories, config) {
         Object.assign(results[counter], {config});
-        return stories;
+        return [undefined, stories];
       },
       pagePool: {},
+      stories,
+      configs,
       logger: {
         verbose: function(txt) {
           counter++;
@@ -25,12 +34,9 @@ describe('executeRenders', () => {
       },
       setRenderIE: () => {},
     });
-    const viewport = {width: 800, height: 600};
 
-    await executeRenders(
-      [{hello: 'world'}],
-      [{browser: [{name: 'chrome', ...viewport}]}, {browser: [{name: 'firefox', ...viewport}]}],
-    );
+    expect(err).to.be.undefined;
+    expect(result).to.deep.equal(stories);
     expect(results.pagePoolDrained).to.be.undefined;
     expect(results).to.deep.equal({
       '1': {
@@ -69,14 +75,21 @@ describe('executeRenders', () => {
     let counter = 0;
     let poolDrained = false;
     let renderIE = false;
-
-    const executeRenders = makeExecuteRenders({
+    const viewport = {width: 800, height: 600};
+    const stories = [{hello: 'world'}];
+    const configs = [
+      {browser: [{name: 'chrome', ...viewport}]},
+      {browser: [{name: 'ie', ...viewport}], fakeIE: true},
+    ];
+    const [err, result] = await executeRenders({
       timeItAsync: (_a, cb) => cb(),
       renderStories: async function(stories, config) {
         Object.assign(results[counter], {stories, config});
-        return stories;
+        return [err, stories];
       },
       pagePool: {drain: () => (poolDrained = true)},
+      configs,
+      stories,
       logger: {
         verbose: function(txt) {
           counter++;
@@ -89,16 +102,9 @@ describe('executeRenders', () => {
       },
       setRenderIE: value => (renderIE = value),
     });
-    const viewport = {width: 800, height: 600};
 
-    await executeRenders(
-      [{hello: 'world'}],
-      [
-        {browser: [{name: 'chrome', ...viewport}]},
-        {browser: [{name: 'ie', ...viewport}], fakeIE: true},
-      ],
-    );
-
+    expect(err).to.be.undefined;
+    expect(result).to.deep.equal(stories);
     expect(poolDrained).to.be.true;
     expect(renderIE).to.be.true;
     expect(results).to.deep.equal({
@@ -142,5 +148,32 @@ describe('executeRenders', () => {
         },
       },
     });
+  });
+
+  it('should handle exceptions in renderStories', async () => {
+    const stories = [{hello: 'world'}];
+    const viewport = {width: 800, height: 600};
+    const configs = [
+      {browser: [{name: 'chrome', ...viewport}]},
+      {browser: [{name: 'firefox', ...viewport}]},
+    ];
+    const [err, _result] = await presult(
+      executeRenders({
+        timeItAsync: (_a, cb) => cb(),
+        renderStories: async function(_stories, _config) {
+          throw new Error('omg! something went wrong');
+        },
+        pagePool: {},
+        stories,
+        configs,
+        logger: {
+          verbose: () => {},
+          log: () => {},
+        },
+        setRenderIE: () => {},
+      }),
+    );
+
+    expect(err.message).to.equal('Error in renderStories: omg! something went wrong');
   });
 });
