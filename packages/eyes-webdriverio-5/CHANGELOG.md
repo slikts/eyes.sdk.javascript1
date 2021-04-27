@@ -6,6 +6,11 @@
 - added full typescript support
 - introduced @applitools/eyes-api package with new api
 
+## 5.30.0 - 2021/4/26
+
+- updated to @applitools/eyes-sdk-core@12.17.4 (from 12.16.3)
+- updated to @applitools/visual-grid-client@15.8.2 (from 15.6.4)
+
 ## 5.29.8 - 2021/3/22
 
 - updated to @applitools/eyes-sdk-core@12.16.3 (from 12.16.2)
