@@ -4,6 +4,7 @@ declare namespace Applitools {
   namespace WebdriverIO {
     type Browser = globalThis.WebdriverIOAsync.BrowserObject & {
       isDevTools: boolean,
+      getPuppeteer(): Promise<any>
       getUrl(): Promise<string>
       getTitle(): Promise<string>
       getOrientation(): Promise<string>
@@ -13,7 +14,7 @@ declare namespace Applitools {
       setWindowPosition(x: number, y: number): Promise<void>
       switchToFrame(frameId?: any): Promise<void>
       switchToParentFrame(): Promise<void>
-      takeScreenshot(): Promise<string>,
+      takeScreenshot(): Promise<string>
     }
     type Element = globalThis.WebdriverIOAsync.Element
     type Selector = string | ((element: HTMLElement) => HTMLElement) | ((element: HTMLElement) => HTMLElement[])

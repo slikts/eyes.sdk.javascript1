@@ -3,7 +3,8 @@
 declare namespace Applitools {
   namespace WebdriverIO {
     type Browser = globalThis.WebdriverIO.BrowserObject & {
-      isDevTools: boolean,
+      isDevTools: boolean
+      getPuppeteer(): any
       getUrl(): string
       getTitle(): string
       getOrientation(): string
@@ -13,7 +14,7 @@ declare namespace Applitools {
       setWindowPosition(x: number, y: number): void
       switchToFrame(frameId?: any): void
       switchToParentFrame(): void
-      takeScreenshot(): string,
+      takeScreenshot(): string
     }
     type Element = globalThis.WebdriverIO.Element
     type Selector = string | ((element: HTMLElement) => HTMLElement) | ((element: HTMLElement) => HTMLElement[])

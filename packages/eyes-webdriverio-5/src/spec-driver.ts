@@ -29,7 +29,8 @@ function transformSelector(
   }
   return selector
 }
-function transformArgument(arg: any): [any, ...Element[]] {
+function transformArgument(arg: any): [any?, ...Element[]] {
+  if (!arg) return []
   const elements: Element[] = []
   const argWithElementMarkers = transform(arg)
 
@@ -130,7 +131,7 @@ export async function isEqualElements(browser: Driver, element1: Element, elemen
 
 // #region COMMANDS
 
-export async function executeScript(browser: Driver, script: ((arg: any) => any) | string, arg: any): Promise<any> {
+export async function executeScript(browser: Driver, script: ((arg: any) => any) | string, arg?: any): Promise<any> {
   if (browser.isDevTools) {
     script = utils.types.isString(script) ? script : script.toString()
     return browser.execute(scriptRunner, script, ...transformArgument(arg))
