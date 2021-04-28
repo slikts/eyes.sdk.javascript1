@@ -2,7 +2,7 @@ const {presult} = require('@applitools/functional-commons');
 const browserLog = require('./browserLog');
 const fakeIE = require('./fakeIE');
 
-function makeInitPage({iframeUrl, config, browser, logger, getRenderIE}) {
+function makeInitPage({iframeUrl, config, browser, logger, getTransitiongIntoIE, getRenderIE}) {
   return async function initPage({pageId, pagePool}) {
     logger.log('initializing puppeteer page number ', pageId);
     const page = await browser.newPage();
@@ -23,7 +23,7 @@ function makeInitPage({iframeUrl, config, browser, logger, getRenderIE}) {
     }
 
     page.on('close', async () => {
-      if (!getRenderIE() && pagePool.isInPool(pageId)) {
+      if (!getTransitiongIntoIE() && pagePool.isInPool(pageId)) {
         logger.log(
           `Puppeteer page closed [page ${pageId}] while still in page pool, creating a new one instead`,
         );

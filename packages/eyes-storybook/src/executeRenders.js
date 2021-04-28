@@ -4,8 +4,9 @@ const {refineErrorMessage} = require('./errMessages');
 
 async function executeRenders({
   timeItAsync,
-  configs,
+  setTransitioningIntoIE,
   renderStories,
+  configs,
   pagePool,
   stories,
   logger,
@@ -16,7 +17,9 @@ async function executeRenders({
     logger.verbose(`executing render story with ${JSON.stringify(config)}`);
     if (shouldRenderIE(config)) {
       setRenderIE(true);
+      setTransitioningIntoIE(true);
       await pagePool.drain();
+      setTransitioningIntoIE(false);
     }
     const [error, result] = await presult(
       timeItAsync('renderStories', () => renderStories(stories, config)),

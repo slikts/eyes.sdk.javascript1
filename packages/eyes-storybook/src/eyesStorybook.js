@@ -33,6 +33,7 @@ async function eyesStorybook({
 }) {
   let memoryTimeout;
   let renderIE = false;
+  let transitioning = false;
   takeMemLoop();
   logger.log('eyesStorybook started');
   const {storybookUrl, waitBeforeScreenshot, readStoriesTimeout, reloadPagePerStory} = config;
@@ -63,7 +64,14 @@ async function eyesStorybook({
     logger: logger.extend('vgc'),
   });
 
-  const initPage = makeInitPage({iframeUrl, config, browser, logger, getRenderIE});
+  const initPage = makeInitPage({
+    iframeUrl,
+    config,
+    browser,
+    logger,
+    getTransitiongIntoIE,
+    getRenderIE,
+  });
   const pagePool = createPagePool({initPage, logger});
 
   const doTakeDomSnapshots = async ({page, layoutBreakpoints}) => {
@@ -136,22 +144,27 @@ async function eyesStorybook({
 
     const configs = splitConfigsByBrowser(config);
 
-    const results = await executeRenders({
-      renderStories,
-      setRenderIE,
-      configs,
-      stories: storiesIncludingVariations,
-      pagePool,
-      logger,
-      timeItAsync,
-    });
+    const [err, results] = await presult(
+      executeRenders({
+        renderStories,
+        setRenderIE,
+        setTransitioningIntoIE,
+        configs,
+        stories: storiesIncludingVariations,
+        pagePool,
+        logger,
+        timeItAsync,
+      }),
+    );
 
-    const [closeBatchErr] = await presult(closeBatch());
-    if (closeBatchErr) {
-      logger.log('failed to close batch', closeBatchErr);
+    if (err) {
+      const [closeBatchErr] = await presult(closeBatch());
+      if (closeBatchErr) {
+        logger.log('failed to close batch', closeBatchErr);
+      }
+    } else {
+      return results;
     }
-
-    return results;
   } finally {
     logger.log('total time: ', performance['renderStories']);
     logger.log('perf results', performance);
@@ -227,6 +240,14 @@ async function eyesStorybook({
 
   function setRenderIE(value) {
     renderIE = value;
+  }
+
+  function setTransitioningIntoIE(value) {
+    transitioning = value;
+  }
+
+  function getTransitiongIntoIE() {
+    return transitioning;
   }
 }
 
