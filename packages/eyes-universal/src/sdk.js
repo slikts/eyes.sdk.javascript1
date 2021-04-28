@@ -90,7 +90,7 @@ async function makeAPI({idleTimeout = IDLE_TIMEOUT, ...serverConfig} = {}) {
     socket.command('Util.setViewportSize', async ({driver, viewportSize}) => {
       return socket.sdk.setViewportSize(driver, viewportSize)
     })
-    socket.command('Util.closeBatch', config => {
+    socket.command('Util.closeBatches', config => {
       return socket.sdk.closeBatch(config)
     })
     socket.command('Util.deleteTestResults', config => {
