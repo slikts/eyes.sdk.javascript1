@@ -1,6 +1,6 @@
 const {describe, it} = require('mocha');
 const path = require('path');
-const {delay: _psetTimeout, presult} = require('@applitools/functional-commons');
+const {presult} = require('@applitools/functional-commons');
 const {sh} = require('@applitools/sdk-shared/src/process-commons');
 const snap = require('@applitools/snaptdout');
 

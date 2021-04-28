@@ -5,7 +5,6 @@ module.exports = {
   appName: 'faking IE',
   batchName: 'Fake IE story',
   storybookConfigDir: dir,
-  storybookStaticDir: dir,
   fakeIE: true,
   browser: [
     {width: 800, height: 600, name: 'ie'},
