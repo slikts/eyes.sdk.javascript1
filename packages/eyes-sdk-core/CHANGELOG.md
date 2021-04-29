@@ -4,6 +4,14 @@
 
 fixed image cropping algorithm to not copy data into a heap
 
+## 12.17.4 - 2021/4/25
+
+- fix `variationGroupId`
+
+## 12.17.3 - 2021/4/23
+
+- rename `variantId` to `variationGroupId`
+
 ## 12.17.2 - 2021/4/6
 
 - updated to @applitools/dom-snapshot@4.5.0 (from 4.4.14)
