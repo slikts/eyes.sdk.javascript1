@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+fixed image cropping algorithm to not copy data into a heap
 
 ## 12.17.2 - 2021/4/6
 
