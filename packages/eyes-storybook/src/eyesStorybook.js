@@ -157,11 +157,14 @@ async function eyesStorybook({
       }),
     );
 
+    const [closeBatchErr] = await presult(closeBatch());
+
+    if (closeBatchErr) {
+      logger.log('failed to close batch', closeBatchErr);
+    }
+
     if (err) {
-      const [closeBatchErr] = await presult(closeBatch());
-      if (closeBatchErr) {
-        logger.log('failed to close batch', closeBatchErr);
-      }
+      logger.log(err);
     } else {
       return results;
     }

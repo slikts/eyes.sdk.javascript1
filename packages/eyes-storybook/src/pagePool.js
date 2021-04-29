@@ -32,8 +32,9 @@ function createPagePool({initPage, logger}) {
     drain: async () => {
       // only call pagePool.drain if you KNOW all pages are free
       logger.log('[page pool] draining pool');
-      for (const {page} of [...fullPageObjs]) {
+      for (const {page, pageId} of [...fullPageObjs]) {
         await page.close();
+        await removeAndAddPage(pageId);
       }
     },
   };
