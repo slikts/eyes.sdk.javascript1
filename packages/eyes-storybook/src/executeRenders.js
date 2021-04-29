@@ -1,6 +1,4 @@
-const {presult} = require('@applitools/functional-commons');
 const {shouldRenderIE} = require('./shouldRenderIE');
-const {refineErrorMessage} = require('./errMessages');
 
 async function executeRenders({
   timeItAsync,
@@ -21,15 +19,8 @@ async function executeRenders({
       await pagePool.drain();
       setTransitioningIntoIE(false);
     }
-    const [error, result] = await presult(
-      timeItAsync('renderStories', () => renderStories(stories, config)),
-    );
 
-    if (error) {
-      const msg = refineErrorMessage({prefix: 'Error in renderStories:', error});
-      logger.log(error);
-      throw new Error(msg);
-    }
+    const result = await timeItAsync('renderStories', () => renderStories(stories, config));
 
     results.push(...result);
   }

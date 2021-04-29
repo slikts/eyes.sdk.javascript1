@@ -144,7 +144,7 @@ async function eyesStorybook({
 
     const configs = splitConfigsByBrowser(config);
 
-    const [err, results] = await presult(
+    const [error, results] = await presult(
       executeRenders({
         renderStories,
         setRenderIE,
@@ -163,8 +163,10 @@ async function eyesStorybook({
       logger.log('failed to close batch', closeBatchErr);
     }
 
-    if (err) {
-      logger.log(err);
+    if (error) {
+      const msg = refineErrorMessage({prefix: 'Error in executeRenders:', error});
+      logger.log(error);
+      throw new Error(msg);
     } else {
       return results;
     }

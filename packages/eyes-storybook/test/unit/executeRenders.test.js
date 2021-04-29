@@ -152,6 +152,7 @@ describe('executeRenders', () => {
   });
 
   it('should handle exceptions in renderStories', async () => {
+    let counter = 0;
     const stories = [{hello: 'world'}];
     const viewport = {width: 800, height: 600};
     const configs = [
@@ -162,8 +163,13 @@ describe('executeRenders', () => {
       executeRenders({
         setTransitioningIntoIE: () => {},
         timeItAsync: (_a, cb) => cb(),
-        renderStories: async function(_stories, _config) {
-          throw new Error('omg! something went wrong');
+        renderStories: async function(stories, _config) {
+          if (counter === 0) {
+            counter++;
+            throw new Error('omg! something went wrong');
+          } else {
+            return stories;
+          }
         },
         pagePool: {},
         stories,
@@ -175,7 +181,6 @@ describe('executeRenders', () => {
         setRenderIE: () => {},
       }),
     );
-
-    expect(err.message).to.equal('Error in renderStories: omg! something went wrong');
+    expect(err.message).to.equal('omg! something went wrong');
   });
 });
