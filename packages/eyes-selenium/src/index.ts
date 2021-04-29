@@ -4,4 +4,4 @@ if (!process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION) {
   process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION = major
 }
 
-export * from './src/api'
+export * from './api'

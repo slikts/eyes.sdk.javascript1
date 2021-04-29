@@ -58,10 +58,10 @@ function deserializeResult(result: any, elements: Element[]): any {
 }
 const scriptRunner = testcafe.ClientFunction(() => {
   // @ts-ignore
-  const {script, args} = input as {script: string; args: any[]}
+  const {script, arg} = input as {script: string; arg: any}
   const func = new Function(script.startsWith('function') ? `return (${script}).apply(null, arguments)` : script)
   const elements: HTMLElement[] = []
-  const result = serializeResult(func(...args.map(deserializeArg)))
+  const result = serializeResult(func(deserializeArg(arg)))
 
   const resultId = elements.length > 0 ? String(Math.floor(Math.random() * 1000)) : null
   if (resultId) {
@@ -161,12 +161,12 @@ export async function isEqualElements(t: Driver, element1: Element, element2: El
 
 // #region COMMANDS
 
-export async function executeScript(t: Driver, script: ((...args: any) => any) | string, ...args: any[]): Promise<any> {
+export async function executeScript(t: Driver, script: ((arg: any) => any) | string, arg?: any): Promise<any> {
   script = utils.types.isFunction(script) ? script.toString() : script
 
   const {result, resultId, elementsCount} = await scriptRunner.with({
     boundTestRun: t,
-    dependencies: {input: {script, args}},
+    dependencies: {input: {script, arg}},
   })()
 
   if (!result || !resultId) return result
@@ -224,7 +224,10 @@ export async function getTitle(t: Driver): Promise<string> {
   }
 }
 export async function getUrl(t: Driver): Promise<string> {
-  return executeScript(t, 'return document.location.href')
+  const getUrl = testcafe.ClientFunction(() => document.location.href, {
+    boundTestRun: t,
+  })
+  return getUrl()
 }
 export async function visit(t: Driver, url: string): Promise<void> {
   await t.navigateTo(url)
@@ -258,7 +261,12 @@ export async function hover(t: Driver, element: Element | Selector): Promise<voi
 }
 export async function scrollIntoView(t: Driver, element: Element | Selector, align = false): Promise<void> {
   if (isSelector(element)) element = await findElement(t, element)
-  await executeScript(t, 'return arguments[0].scrollIntoView(arguments[1])', element, align)
+  // @ts-ignore
+  const scrollIntoView = testcafe.ClientFunction(() => element().scrollIntoView(align), {
+    boundTestRun: t,
+    dependencies: {element, align},
+  })
+  await scrollIntoView()
 }
 export async function waitUntilDisplayed(t: Driver, selector: Selector): Promise<void> {
   await transformSelector(selector).with({boundTestRun: t, visibilityCheck: true})

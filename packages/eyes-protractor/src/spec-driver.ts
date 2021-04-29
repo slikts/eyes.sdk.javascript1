@@ -72,12 +72,8 @@ export async function isEqualElements(_driver: Driver, element1: Element, elemen
 
 // #region COMMANDS
 
-export async function executeScript(
-  driver: Driver,
-  script: ((...args: any[]) => any) | string,
-  ...args: any[]
-): Promise<any> {
-  return driver.executeScript(script, ...args)
+export async function executeScript(driver: Driver, script: ((arg: any) => any) | string, arg: any): Promise<any> {
+  return driver.executeScript(script, arg)
 }
 export async function mainContext(driver: Driver): Promise<Driver> {
   await driver.switchTo().defaultContent()
@@ -170,15 +166,11 @@ export async function click(driver: Driver, element: Element | Selector): Promis
   if (isSelector(element)) element = await findElement(driver, element)
   await (element as Element).click()
 }
-export async function hover(
-  driver: Driver,
-  element: Element | Selector,
-  offset?: {x: number; y: number},
-): Promise<void> {
+export async function hover(driver: Driver, element: Element | Selector): Promise<void> {
   if (isSelector(element)) element = await findElement(driver, element)
   await driver
     .actions()
-    .mouseMove(element as Element, offset)
+    .mouseMove(element as Element)
     .perform()
 }
 export async function type(driver: Driver, element: Element | Selector, keys: string): Promise<void> {
