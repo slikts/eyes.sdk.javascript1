@@ -19,6 +19,7 @@ Applitools Eyes SDK for [Storybook](http://storybook.js.org).
   * [Previous browser versions](#previous-browser-versions)
   * [Getting a screenshot of multiple browsers in parallel](#getting-a-screenshot-of-multiple-browsers-in-parallel)
   * [Device emulation](#device-emulation)
+  * [Faking IE Browser](#faking-ie-browser)
 - [Per component configuration](#per-component-configuration)
   * [`include`](#include)
   * [`variations`](#variations)
