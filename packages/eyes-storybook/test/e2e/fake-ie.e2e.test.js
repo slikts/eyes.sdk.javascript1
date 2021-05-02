@@ -5,7 +5,7 @@ const {sh} = require('@applitools/sdk-shared/src/process-commons');
 const snap = require('@applitools/snaptdout');
 const {version} = require('../../package.json');
 
-describe.skip('fake ie', () => {
+describe('fake ie', () => {
   it('fake ie in storybook', async () => {
     const [err, result] = await presult(
       sh(
@@ -20,7 +20,7 @@ describe.skip('fake ie', () => {
     );
     const stdout = err ? err.stdout : result.stdout;
     const output = stdout
-      .replace(/\/.*.bin\/start-storybook/, '<story-book path>')
+      .replace(/\/.*.bin\/start-storybook/, '<story_book_path>')
       .replace(/Total time\: \d+ seconds/, 'Total time: <some_time> seconds')
       .replace(
         /See details at https\:\/\/.+.applitools.com\/app\/test-results\/.+/g,
