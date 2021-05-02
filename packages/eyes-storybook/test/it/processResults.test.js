@@ -86,7 +86,10 @@ describe('processResults', () => {
       },
     ];
     const {outputStr, exitCode} = processResults({results, totalTime: 10000, concurrency: 1});
-    await snap(outputStr, 'single diff');
+    await snap(
+      outputStr.replace(/Total time\: \d+ seconds/, 'Total time: <some_time> seconds'),
+      'single diff',
+    );
     expect(exitCode).to.eql(1);
   });
 
@@ -120,7 +123,10 @@ describe('processResults', () => {
       },
     ];
     const {outputStr, exitCode} = processResults({results, totalTime: 10000, concurrency: 1});
-    await snap(outputStr, 'multi diff');
+    await snap(
+      outputStr.replace(/Total time\: \d+ seconds/, 'Total time: <some_time> seconds'),
+      'multi diff',
+    );
     expect(exitCode).to.eql(1);
   });
 
@@ -200,7 +206,10 @@ describe('processResults', () => {
       },
     ];
     const {outputStr, exitCode} = processResults({results, totalTime: 10000, concurrency: 1});
-    await snap(outputStr, 'diffs and errors');
+    await snap(
+      outputStr.replace(/Total time\: \d+ seconds/, 'Total time: <some_time> seconds'),
+      'diffs and errors',
+    );
     expect(exitCode).to.eql(1);
   });
 

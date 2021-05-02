@@ -12,7 +12,7 @@
     "\u001b[38;5;214m\u001b[39m",
     "\u001b[38;5;214mA total of 1 difference was found.\u001b[39m",
     "See details at https://eyes.com/results",
-    "Total time: 10 seconds",
+    "Total time: <some_time> seconds",
     ""
   ],
   "multi diff": [
@@ -27,7 +27,7 @@
     "\u001b[38;5;214m\u001b[39m",
     "\u001b[38;5;214mA total of 2 differences were found.\u001b[39m",
     "See details at https://eyes.com/results",
-    "Total time: 10 seconds",
+    "Total time: <some_time> seconds",
     ""
   ],
   "single err": [
@@ -74,7 +74,7 @@
     "\u001b[31m\u001b[39m",
     "\u001b[31mA total of 1 difference was found and 2 stories failed for unexpected errors.\u001b[39m",
     "See details at https://eyes.com/results",
-    "Total time: 10 seconds",
+    "Total time: <some_time> seconds",
     ""
   ],
   "no diff no errors": [

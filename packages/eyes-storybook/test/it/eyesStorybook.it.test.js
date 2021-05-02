@@ -259,7 +259,7 @@ describe('eyesStorybook', () => {
     expect(maxRunning).to.equal(3);
   });
 
-  it('enforces legacy concurrency', async () => {
+  it.only('enforces legacy concurrency', async () => {
     const {stream} = testStream();
     const configPath = path.resolve(
       __dirname,
@@ -283,7 +283,7 @@ describe('eyesStorybook', () => {
     expect(maxRunning).to.equal(10);
   });
 
-  it('sends parentBranchBaselineSavedBefore when branchName and parentBranchName are specified, and there is a merge-base time for them', async () => {
+  it.only('sends parentBranchBaselineSavedBefore when branchName and parentBranchName are specified, and there is a merge-base time for them', async () => {
     const {stream} = testStream();
     const configPath = path.resolve(
       __dirname,
