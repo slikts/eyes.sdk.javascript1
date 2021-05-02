@@ -319,6 +319,16 @@ Possible values for `iosVersion` are:
 - `'latest-1'` - one version prior to the latest version
 - `undefined` - the UFG's default
 
+## Faking IE Browser
+
+Some pages render differently on Internet Explorer and as such, it may be important to take the dom-snapshot while running on a fake IE browser using the ultrafast grid.
+
+Using the `fakeIE` flag - you can render the stories on a chrome masquerading as IE.
+
+We do this by simulating the `userAgent` and `documentMode` of the page - making the page believe it is being rendered on IE.
+
+There is a small performance impact when using fake IE tests - since the browser needs to fake IE for each story it renders.
+
 ## Per component configuration
 
 **_Only supported in Storybook version >= 4_**
