@@ -17,20 +17,15 @@ const fetch = require('node-fetch');
 const snap = require('@applitools/snaptdout');
 
 describe('eyesStorybook', () => {
-  let closeStorybook;
+  let closeStorybook, closeTestServer;
   before(async () => {
     closeStorybook = await testStorybook({port: 9001});
-  });
-  after(async () => {
-    await closeStorybook();
-  });
-
-  let closeTestServer;
-  before(async () => {
     closeTestServer = (await testServer({port: 7272})).close;
   });
+
   after(async () => {
     await closeTestServer();
+    await closeStorybook();
   });
 
   let serverUrl, closeEyesServer;
@@ -259,7 +254,7 @@ describe('eyesStorybook', () => {
     expect(maxRunning).to.equal(3);
   });
 
-  it.only('enforces legacy concurrency', async () => {
+  it('enforces legacy concurrency', async () => {
     const {stream} = testStream();
     const configPath = path.resolve(
       __dirname,
@@ -283,7 +278,7 @@ describe('eyesStorybook', () => {
     expect(maxRunning).to.equal(10);
   });
 
-  it.only('sends parentBranchBaselineSavedBefore when branchName and parentBranchName are specified, and there is a merge-base time for them', async () => {
+  it('sends parentBranchBaselineSavedBefore when branchName and parentBranchName are specified, and there is a merge-base time for them', async () => {
     const {stream} = testStream();
     const configPath = path.resolve(
       __dirname,
