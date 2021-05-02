@@ -169,7 +169,7 @@ function makeCheckWindow({
       }
 
       const hooks = scriptHooksToArray(scriptHooks.beforeCaptureScreenshot)
-      console.log('hooks', hooks)
+
       const renderRequest = createRenderRequest({
         url,
         browser: browsers[index],
@@ -178,7 +178,7 @@ function makeCheckWindow({
         selector,
         selectorsToFindRegionsFor,
         region,
-        scriptHooks: hooks[index],
+        scriptHooks: {beforeCaptureScreenshot: hooks[index]},
         sendDom,
         visualGridOptions,
       })
