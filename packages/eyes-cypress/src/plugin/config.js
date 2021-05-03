@@ -37,7 +37,7 @@ function makeConfig() {
     eyesFailCypressOnDiff:
       config.failCypressOnDiff === undefined ? true : !!config.failCypressOnDiff,
     eyesDisableBrowserFetching: !!config.disableBrowserFetching,
-    eyesLegacyHooks: true,
+    eyesLegacyHooks: !!config.eyesLegacyHooks,
     eyesTestConcurrency: config.testConcurrency || DEFAULT_TEST_CONCURRENCY,
   };
 
