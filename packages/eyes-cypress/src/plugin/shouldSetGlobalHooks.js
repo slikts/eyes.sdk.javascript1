@@ -2,7 +2,7 @@ const CYPRESS_SUPPORTED_VERSION = '6.2.0';
 const CYPRESS_NO_FLAG_VERSION = '6.7.0';
 
 function shouldSetGlobalHooks(config) {
-  const {version, experimentalRunEvents, eyesLegacyHooks} = config;
+  const {version, experimentalRunEvents, eyesLegacyHooks, isInteractive} = config;
 
   if (eyesLegacyHooks) {
     return false;
@@ -10,7 +10,7 @@ function shouldSetGlobalHooks(config) {
 
   return (
     version >= CYPRESS_NO_FLAG_VERSION ||
-    (version >= CYPRESS_SUPPORTED_VERSION && experimentalRunEvents)
+    (version >= CYPRESS_SUPPORTED_VERSION && !!experimentalRunEvents && !isInteractive)
   );
 }
 
