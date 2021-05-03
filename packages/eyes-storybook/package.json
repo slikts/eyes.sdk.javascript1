@@ -105,8 +105,5 @@
     "hooks": {
       "pre-push": "yarn bongo lint"
     }
-  },
-  "snaptdout": {
-    "ignoreAnsi": true
   }
 }
