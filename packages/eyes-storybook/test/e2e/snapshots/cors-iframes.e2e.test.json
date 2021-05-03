@@ -1,6 +1,5 @@
 {
   "cors": [
-    "1",
     "Using @applitools/eyes-storybook version <version>.",
     "",
     "<story-book path>",
