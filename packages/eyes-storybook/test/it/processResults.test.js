@@ -3,6 +3,7 @@ const {expect} = require('chai');
 const processResults = require('../../src/processResults');
 const {TestResultsStatus, TestResults} = require('@applitools/eyes-sdk-core');
 const snap = require('@applitools/snaptdout');
+process.env.FORCE_COLOR = 2;
 
 describe('processResults', () => {
   it('works', async () => {
