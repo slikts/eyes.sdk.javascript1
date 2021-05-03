@@ -278,7 +278,7 @@ describe('eyesStorybook', () => {
     expect(maxRunning).to.equal(10);
   });
 
-  it('sends parentBranchBaselineSavedBefore when branchName and parentBranchName are specified, and there is a merge-base time for them', async () => {
+  it.only('sends parentBranchBaselineSavedBefore when branchName and parentBranchName are specified, and there is a merge-base time for them', async () => {
     const {stream} = testStream();
     const configPath = path.resolve(
       __dirname,
@@ -309,6 +309,7 @@ describe('eyesStorybook', () => {
       )}/${encodeURIComponent(testResults.getId())}`;
 
       const session = await fetch(sessionUrl).then(r => r.json());
+      console.log(session.startInfo);
       expect(session.startInfo.parentBranchBaselineSavedBefore).to.match(
         /\d{4}-\d{2}-\d{2}T\d{2}\:\d{2}:\d{2}\+\d{2}\:\d{2}/,
       );
