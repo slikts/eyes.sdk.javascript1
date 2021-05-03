@@ -36,5 +36,4 @@ jobs:
       SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
       NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
       AZURE_STORAGE_CONNECTION_STRING: ${{secrets.AZURE_STORAGE_CONNECTION_STRING}}
-      TERM: xterm-256color
-      FORCE_COLOR: 3
+      FORCE_COLOR: 1
