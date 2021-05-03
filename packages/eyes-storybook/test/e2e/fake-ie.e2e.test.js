@@ -27,6 +27,7 @@ describe('fake ie', () => {
         'See details at <some_url>',
       )
       .replace(version, '<version>');
+    console.log('raw output is', output);
     await snap(output, 'fake ie');
   });
 });
