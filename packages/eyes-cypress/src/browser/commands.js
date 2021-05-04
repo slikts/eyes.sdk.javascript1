@@ -10,7 +10,6 @@ const makeSend = require('./makeSend');
 const send = makeSend(Cypress.config('eyesPort'), window.fetch);
 const makeSendRequest = require('./sendRequest');
 const sendRequest = makeSendRequest(send);
-const shouldSetGlobalHooks = require('../plugin/shouldSetGlobalHooks');
 
 const eyesCheckWindow = makeEyesCheckWindow({sendRequest, processPage, domSnapshotOptions});
 
@@ -19,7 +18,7 @@ function getGlobalConfigProperty(prop) {
   const shouldParse = ['eyesBrowser', 'eyesLayoutBreakpoints'];
   return property ? (shouldParse.includes(prop) ? JSON.parse(property) : property) : undefined;
 }
-if (!getGlobalConfigProperty('eyesIsDisabled') && !shouldSetGlobalHooks(Cypress.config())) {
+if (!getGlobalConfigProperty('eyesIsDisabled') && getGlobalConfigProperty('eyesLegacyHooks')) {
   const batchEnd = poll(() => {
     return sendRequest({command: 'batchEnd'});
   });
