@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- fix `accessibilityValidation`
 
 ## 3.21.0 - 2021/4/22
 
