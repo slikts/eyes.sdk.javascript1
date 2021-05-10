@@ -13,8 +13,7 @@ function makePluginExport({startServer, eyesConfig, visualGridClient, logger}) {
       const [on, config] = args;
 
       if (shouldSetGlobalHooks({...config, ...eyesConfig})) {
-        setGlobalRunHooks(on, {visualGridClient, logger});
-        eyesConfig.eyesLegacyHooks = false;
+        setGlobalRunHooks(on, {visualGridClient, logger, eyesConfig});
       }
 
       return Object.assign({}, eyesConfig, {eyesPort}, moduleExportsResult);
