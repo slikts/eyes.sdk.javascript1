@@ -32,6 +32,7 @@ function makeConfig() {
 
   if (config.accessibilityValidation) {
     config.accessibilitySettings = config.accessibilityValidation;
+    delete config.accessiblityValidation;
   }
 
   const eyesConfig = {
