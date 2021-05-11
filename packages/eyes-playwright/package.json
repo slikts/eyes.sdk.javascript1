@@ -44,17 +44,15 @@
     "build": "yarn build:dist && yarn build:types",
     "build:dist": "tsc",
     "build:types": "api-extractor ./src/index.ts --out ./types/index.d.ts --external-modules playwright",
-    "test": "yarn build:dist && yarn test:it",
+    "generate:tests": "coverage-tests generate node_modules/@applitools/sdk-shared/coverage-tests/generic/index.js --name 'eyes-playwright'",
+    "test": "yarn build:dist && yarn test:it && yarn test:coverage:generate && yarn test:coverage",
     "test:it": "mocha --no-timeouts ./test/it/*.spec.js",
     "test:coverage": "APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-playwright' APPLITOOLS_BATCH_ID=$(uuidgen) XUNIT_FILE=coverage-test-report.xml mocha --config .mocharc.cvg.js",
-    "coverage:generate": "coverage-tests generate node_modules/@applitools/sdk-shared/coverage-tests/generic/index.js --name 'eyes-playwright'",
-    "coverage:report": "coverage-tests report node_modules/@applitools/sdk-shared/coverage-tests/generic/index.js --name 'eyes-playwright'",
-    "coverage:sandbox": "yarn coverage:generate && yarn test:coverage && yarn coverage:report --sandbox",
-    "coverage:prod": "yarn coverage:generate && yarn test:coverage && yarn coverage:report",
-    "preversion": "bongo preversion && yarn build && yarn test && yarn coverage:prod",
+    "report": "coverage-tests report node_modules/@applitools/sdk-shared/coverage-tests/generic/index.js --name 'eyes-playwright'",
+    "deps": "bongo deps",
+    "preversion": "bongo preversion && yarn build",
     "version": "bongo version",
-    "postversion": "bongo postversion",
-    "deps": "bongo deps"
+    "postversion": "bongo postversion"
   },
   "husky": {
     "hooks": {

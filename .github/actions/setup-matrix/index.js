@@ -1,6 +1,6 @@
 const core = require('@actions/core')
 
-const ALIASES = {
+const SDK_ALIAS = {
   'playwright': ['eyes-playwright', '@applitools/eyes-playwright'],
   'puppeteer': ['pptr', 'eyes-puppeteer', '@applitools/eyes-puppeteer'],
   'webdriverio': ['wdio', 'eyes-webdriverio-5', 'eyes-webdriverio', '@applitools/eyes-webdriverio'],
@@ -33,12 +33,20 @@ const FRAMEWORK_NAME = {
   'testcafe': 'testcafe',
 }
 
-const settings = core.getInput('settings', {required: true})
+const sdks = core.getInput('sdks', {required: true})
+const allowModifiers = core.getInput('allow-modifiers')
 
-const include = settings.split(/[\s,]+/).reduce((output, setting) => {
-  const [_, name, version, protocol] = setting.match(/^(.*?)(?:@([\d.]+))?(?::(.+?))?$/i)
-  const package = Object.keys(ALIASES).find(dirname => dirname === name || ALIASES[dirname].includes(name))
-  if (!package) return output
+const include = sdks.split(/[\s,]+/).reduce((output, sdk) => {
+  const [_, name, version, protocol] = sdk.match(/^(.*?)(?:@([\d.]+))?(?::(.+?))?$/i)
+  if (!allowModifiers && (version | protocol)) {
+    console.warn(`Modifiers are not allowed! SDK configured as "${sdk}" will be skipped!`)
+    return output
+  }
+  const package = Object.keys(SDK_ALIAS).find(dirname => dirname === name || SDK_ALIAS[dirname].includes(name))
+  if (!package) {
+    console.warn(`Package name is unknown! SDK configured as "${sdk}" will be skipped!`)
+    return output
+  }
   const modifiers = Object.entries({version, protocol})
     .reduce((parts, [key, value]) => value ? [...parts, `${key}: ${value}`] : parts, [])
     .join('; ')
