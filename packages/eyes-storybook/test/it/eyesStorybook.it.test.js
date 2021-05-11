@@ -14,22 +14,18 @@ const logger = require('../util/testLogger');
 const testStream = require('../util/testStream');
 const {performance, timeItAsync} = makeTiming();
 const fetch = require('node-fetch');
+const snap = require('@applitools/snaptdout');
 
 describe('eyesStorybook', () => {
-  let closeStorybook;
+  let closeStorybook, closeTestServer;
   before(async () => {
     closeStorybook = await testStorybook({port: 9001});
-  });
-  after(async () => {
-    await closeStorybook();
-  });
-
-  let closeTestServer;
-  before(async () => {
     closeTestServer = (await testServer({port: 7272})).close;
   });
+
   after(async () => {
     await closeTestServer();
+    await closeStorybook();
   });
 
   let serverUrl, closeEyesServer;
@@ -53,6 +49,7 @@ describe('eyesStorybook', () => {
         serverUrl,
         storybookUrl: 'http://localhost:9001',
         ...config,
+        browser: [{name: 'chrome', width: 800, height: 600}],
         // puppeteerOptions: {headless: false, devtools: true},
         // include: (() => {
         //   let counter = 0;
@@ -188,11 +185,7 @@ describe('eyesStorybook', () => {
         .sort((a, b) => (a.name < b.name ? -1 : 1)),
     ).to.eql(expectedResults);
 
-    expect(getEvents().join('')).to.equal(`- Reading stories
-✔ Reading stories
-- Done 0 stories out of 20
-✔ Done 20 stories out of 20
-`);
+    await snap(getEvents().join(''), 'fake eyes');
   });
 
   it('enforces default concurrency', async () => {
@@ -202,6 +195,7 @@ describe('eyesStorybook', () => {
     await eyesStorybook({
       config: {
         ...config,
+        browser: [{name: 'chrome', width: 800, height: 600}],
         serverUrl,
         storybookUrl: 'http://localhost:9001',
       },
@@ -222,6 +216,7 @@ describe('eyesStorybook', () => {
     await eyesStorybook({
       config: {
         ...config,
+        browser: [{name: 'chrome', width: 800, height: 600}],
         serverUrl,
         storybookUrl: 'http://localhost:9001',
         testConcurrency: 3,
@@ -243,6 +238,7 @@ describe('eyesStorybook', () => {
     await eyesStorybook({
       config: {
         ...config,
+        browser: [{name: 'chrome', width: 800, height: 600}],
         serverUrl,
         storybookUrl: 'http://localhost:9001',
         testConcurrency: 3,
@@ -268,6 +264,7 @@ describe('eyesStorybook', () => {
     await eyesStorybook({
       config: {
         ...config,
+        browser: [{name: 'chrome', width: 800, height: 600}],
         storybookUrl: 'http://localhost:9001',
         serverUrl,
       },
@@ -296,6 +293,7 @@ describe('eyesStorybook', () => {
     let results = await eyesStorybook({
       config: {
         serverUrl,
+        browser: [{name: 'chrome', width: 800, height: 600}],
         storybookUrl: 'http://localhost:9001',
         ...config,
       },
@@ -329,6 +327,7 @@ describe('eyesStorybook', () => {
     let results = await eyesStorybook({
       config: {
         serverUrl,
+        browser: [{name: 'chrome', width: 800, height: 600}],
         storybookUrl: 'http://localhost:9001',
         ...config,
       },

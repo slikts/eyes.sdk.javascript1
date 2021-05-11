@@ -1,5 +1,5 @@
 'use strict';
-const chalk = require('chalk');
+const chalk = require('./chalkify');
 const fs = require('fs');
 const detect = require('detect-port');
 const {version: packageVersion} = require('../package.json');
@@ -10,6 +10,7 @@ const {
   startStorybookFailMsg,
 } = require('./errMessages');
 const startStorybookServer = require('./startStorybookServer');
+const {isIE} = require('./shouldRenderIE');
 
 async function validateAndPopulateConfig({config, packagePath, logger}) {
   if (!config.apiKey) {
@@ -54,6 +55,14 @@ async function validateAndPopulateConfig({config, packagePath, logger}) {
     if (!config.puppeteerOptions.args.includes('--disable-dev-shm-usage')) {
       config.puppeteerOptions.args.push('--disable-dev-shm-usage');
     }
+  }
+
+  if (config.fakeIE && !config.browser.find(isIE)) {
+    console.log(
+      chalk.yellow(
+        `\u26A0 fakeIE flag was set, but no IE browsers were found in the configuration`,
+      ),
+    );
   }
 }
 
