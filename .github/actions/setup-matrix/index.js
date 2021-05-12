@@ -117,7 +117,7 @@ const output = packageSettings.split(/[\s,]+/).reduce((output, packageSetting) =
     .reduce((parts, [key, value]) => value ? [...parts, `${key}: ${value}`] : parts, [])
     .join('; ')
   output[packageName] = {
-    displayName: `${packageName}${defaultReleaseVersion ? `:${releaseVersion}` : ''}${modifiers ? ` (${modifiers})` : ''}`,
+    displayName: `${packageName}${releaseVersion ? `:${releaseVersion}` : ''}${modifiers ? ` (${modifiers})` : ''}`,
     name: packageName,
     package: packageInfo.dirname,
     sdk: packageInfo.sdk,

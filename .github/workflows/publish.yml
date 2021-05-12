@@ -47,14 +47,16 @@ jobs:
         name: Setup Node.js
         with:
           node-version: 14
+      - run: |
+        echo ${{needs.setup.outputs.packages}}
       - uses: ./.github/actions/tests
         name: Run tests
         with:
-          package: fromJSON(needs.setup.outputs.packages).utils.package
+          package: ${{fromJSON(needs.setup.outputs.packages).utils.package}}
       - uses: ./.github/actions/release
         name: Publish
         with:
-          package: utils
+          package: ${{fromJSON(needs.setup.outputs.packages).logger.package}}
           version: ${{fromJSON(needs.setup.outputs.packages).utils.release-version}}
   logger:
     needs: setup
@@ -73,11 +75,11 @@ jobs:
       - uses: ./.github/actions/tests
         name: Run tests
         with:
-          package: fromJSON(needs.setup.outputs.packages).logger.package
+          package: ${{fromJSON(needs.setup.outputs.packages).logger.package}]
       - uses: ./.github/actions/release
         name: Publish
         with:
-          package: fromJSON(needs.setup.outputs.packages).logger.package
+          package: ${{fromJSON(needs.setup.outputs.packages).logger.package}}
           version: ${{fromJSON(needs.setup.outputs.packages).logger.release-version}}
 
   sdks:
