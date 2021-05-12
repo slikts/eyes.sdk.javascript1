@@ -24,7 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       sdk-matrix: ${{steps.setup.outputs.sdk-matrix}}
-      package-matrixes: ${{needs.setup.outputs.package-matrixes}}
+      package-matrixes: ${{steps.setup.outputs.package-matrixes}}
     steps:
       - uses: actions/checkout@v2
         with:
