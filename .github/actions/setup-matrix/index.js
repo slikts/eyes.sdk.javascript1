@@ -91,7 +91,7 @@ const output = packageSettings.split(/[\s,]+/).reduce((output, packageSetting) =
     releaseVersion = defaultReleaseVersion,
     frameworkVersion,
     frameworkProtocol
-  ] = packageSetting.match(/^(.*?)(?::(patch|minor|major))(?:@([\d.]+))?(?:\+(.+?))?$/i)
+  ] = packageSetting.match(/^(.*?)(?::(patch|minor|major))?(?:@([\d.]+))?(?:\+(.+?))?$/i)
   const packageName = Object.keys(PACKAGES).find(packageName => {
     return packageName === packageKey || packageName.dirname === packageKey || PACKAGES[packageName].aliases.includes(packageKey)
   })
