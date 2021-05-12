@@ -61,8 +61,6 @@ jobs:
     needs: setup
     strategy:
       matrix:
-        include:
-          - ${{fromJSON(needs.setup.outputs.packages).logger}}
     name: ${{matrix.displayName}}
     runs-on: ubuntu-latest
     steps:
