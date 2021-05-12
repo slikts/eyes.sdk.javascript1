@@ -94,26 +94,6 @@ jobs:
         with:
           package: ${{fromJSON(needs.setup.outputs.packages).logger.package}}
           version: ${{fromJSON(needs.setup.outputs.packages).logger.release-version}}
-  driver:
-    needs: [setup, utils, snippets]
-    if: ${{!fromJSON(needs.setup.outputs.packages).driver.skip}}
-    runs-on: ubuntu-latest
-    steps:
-      - name: Check-out repository
-        uses: actions/checkout@v2
-      - name: Setup Node.js
-        uses: actions/setup-node@v1
-        with:
-          node-version: 14
-      - name: Run tests
-        uses: ./.github/actions/tests
-        with:
-          package: ${{fromJSON(needs.setup.outputs.packages).driver.package}}
-      - name: Publish
-        uses: ./.github/actions/release
-        with:
-          package: ${{fromJSON(needs.setup.outputs.packages).driver.package}}
-          version: ${{fromJSON(needs.setup.outputs.packages).driver.release-version}}
   screenshoter:
     needs: [setup, utils]
     if: ${{!fromJSON(needs.setup.outputs.packages).screenshoter.skip}}
@@ -219,7 +199,7 @@ jobs:
 
   sdks:
     if: ${{fromJSON(needs.setup.outputs.sdk-matrix).includes[0] != null}}
-    needs: [setup, utils]
+    needs: [setup, utils, api, core, vgc]
     strategy:
       matrix: ${{fromJSON(needs.setup.outputs.sdk-matrix)}}
       fail-fast: false
