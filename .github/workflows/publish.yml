@@ -47,8 +47,9 @@ jobs:
         name: Setup Node.js
         with:
           node-version: 14
-      - run: |
-        echo ${{needs.setup.outputs.packages}}
+      - name: Debug
+        run: |
+          echo ${{needs.setup.outputs.packages}}
       - uses: ./.github/actions/tests
         name: Run tests
         with:
