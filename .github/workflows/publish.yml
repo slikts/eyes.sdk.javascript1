@@ -35,7 +35,6 @@ jobs:
 
   utils:
     needs: setup
-    if: fromJSON(needs.setup.outputs.packages).utils
     strategy:
       matrix:
         include:
@@ -60,7 +59,6 @@ jobs:
           version: ${{matrix.releaseVersion}}
   logger:
     needs: setup
-    if: fromJSON(needs.setup.outputs.packages).logger
     strategy:
       matrix:
         include:
