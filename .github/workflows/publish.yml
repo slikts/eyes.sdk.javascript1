@@ -1,0 +1,68 @@
+name: Release SDKs
+
+on:
+  workflow_dispatch:
+    inputs:
+      sdks:
+        description: "sdk names (aliases)"
+        required: true
+      version:
+        description: "version type (specify 'major', 'minor, or 'patch')"
+        required: true
+env:
+  CVG_TESTS_REMOTE: http://localhost:4444/wd/hub
+  APPLITOOLS_API_KEY_SDK: ${{secrets.APPLITOOLS_API_KEY_SDK}}
+  APPLITOOLS_API_KEY: ${{secrets.APPLITOOLS_API_KEY}}
+  APPLITOOLS_API_KEY_READ: ${{secrets.APPLITOOLS_API_KEY_READ}}
+  SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
+  SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
+  NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
+  AZURE_STORAGE_CONNECTION_STRING: ${{secrets.AZURE_STORAGE_CONNECTION_STRING}}
+jobs:
+  setup:
+    name: Setup
+    runs-on: ubuntu-latest
+    outputs:
+      matrix: ${{steps.setup.outputs.matrix}}
+    steps:
+      - uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - uses: ./.github/actions/setup-matrix
+        id: setup
+        with:
+          sdks: ${{github.event.inputs.sdks}}
+  publish:
+    needs: setup
+    strategy:
+      matrix: ${{fromJSON(needs.setup.outputs.matrix)}}
+      fail-fast: false
+    name: ${{matrix.name}}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        name: Check-out repository
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v1
+        name: Setup Node.js
+        with:
+          node-version: 14
+      - uses: ./.github/actions/tests
+        name: Run tests
+        with:
+          sdk: ${{matrix.sdk}}
+        env: ${{matrix.env}}
+      - uses: ./.github/actions/release
+        name: Publish
+        with:
+          sdk: ${{matrix.sdk}}
+          version: ${{github.event.inputs.version}}
+      - uses: actions/upload-artifact@v2
+        name: Save release and testing artifacts
+        with:
+          name: coverage-tests-report
+          retention-days: 30
+          path: |
+            packages/${{matrix.sdk}}/coverage-tests-metadata.json
+            packages/${{matrix.sdk}}/coverage-test-report.xml
