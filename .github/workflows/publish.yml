@@ -22,8 +22,8 @@ jobs:
     name: Setup
     runs-on: ubuntu-latest
     outputs:
-      matrix: ${{steps.setup.outputs.matrix}}
-      list: ${{steps.setup.outputs.list}}
+      sdk-matrix: ${{steps.setup.outputs.sdk-matrix}}
+      packages: ${{steps.setup.outputs.packages}}
     steps:
       - uses: actions/checkout@v2
         with:
