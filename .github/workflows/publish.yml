@@ -34,12 +34,13 @@ jobs:
         with:
           packages: ${{github.event.inputs.packages}}
           release-version: ${{github.event.inputs.version}}
-      
+
   utils:
     needs: setup
     strategy:
-      matrix: 
-          include: ${{fromJSON(needs.setup.outputs.package-matrixes).utils.include}}
+      matrix:
+          include:
+              - ${{fromJSON(needs.setup.outputs.package-matrixes).utils.include}}
     name: ${{matrix.displayName}}
     runs-on: ubuntu-latest
     steps:
@@ -62,7 +63,8 @@ jobs:
     needs: setup
     strategy:
       matrix:
-        include: ${{fromJSON(needs.setup.outputs.package-matrixes).logger.include}}
+        include:
+          - ${{fromJSON(needs.setup.outputs.package-matrixes).logger.include}}
     name: ${{matrix.displayName}}
     runs-on: ubuntu-latest
     steps:
