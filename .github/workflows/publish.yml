@@ -35,11 +35,8 @@ jobs:
 
   utils:
     needs: setup
-    strategy:
-      matrix:
-        include:
-          - ${{fromJSON(needs.setup.outputs.packages).utils}}
-    name: ${{matrix.displayName}}
+    if: ${{!fromJSON(needs.setup.outputs.packages).utils.skip}}
+    name: ${{fromJSON(needs.setup.outputs.packages).utils.displayName}}
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -51,17 +48,16 @@ jobs:
       - name: Run tests
         uses: ./.github/actions/tests
         with:
-          package: ${{matrix.package}}
+          package: ${{fromJSON(needs.setup.outputs.packages).utils.package}}
       - name: Publish
         uses: ./.github/actions/release
         with:
-          package: ${{matrix.package}}
-          version: ${{matrix.releaseVersion}}
+          package: ${{fromJSON(needs.setup.outputs.packages).utils.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).utils.releaseVersion}}
   logger:
     needs: setup
-    strategy:
-      matrix:
-    name: ${{matrix.displayName}}
+    if: ${{!fromJSON(needs.setup.outputs.packages).logger}}
+    name: ${{fromJSON(needs.setup.outputs.packages).logger.displayName}}
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -73,15 +69,16 @@ jobs:
       - name: Run tests
         uses: ./.github/actions/tests
         with:
-          package: ${{matrix.package}}
+          package: ${{fromJSON(needs.setup.outputs.packages).logger.package}}
       - name: Publish
         uses: ./.github/actions/release
         with:
-          package: ${{matrix.package}}
-          version: ${{matrix.release-version}}
+          package: ${{fromJSON(needs.setup.outputs.packages).logger.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).logger.release-version}}
 
   sdks:
     needs: [setup, utils]
+    if: ${{fromJSON(needs.setup.outputs.sdk-matrix).includes[0] != null}}
     strategy:
       matrix: ${{fromJSON(needs.setup.outputs.sdk-matrix)}}
       fail-fast: false
