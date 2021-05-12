@@ -23,8 +23,8 @@ jobs:
     name: Setup
     runs-on: ubuntu-latest
     outputs:
-      sdk-matrix: ${{steps.setup.outputs.sdk-matrix}}
-      package-matrixes: ${{steps.setup.outputs.package-matrixes}}
+      sdk-matrix: ${{fromJSON(steps.setup.outputs.sdk-matrix)}}
+      packages: ${{fromJSON(steps.setup.outputs.packages)}}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -37,10 +37,11 @@ jobs:
 
   utils:
     needs: setup
+    if: needs.setup.outputs.packages.utils
     strategy:
       matrix:
-          include:
-              - ${{fromJSON(needs.setup.outputs.package-matrixes).utils.include}}
+        include:
+          - ${{needs.setup.outputs.packages.utils}}
     name: ${{matrix.displayName}}
     runs-on: ubuntu-latest
     steps:
@@ -61,11 +62,11 @@ jobs:
           version: ${{matrix.releaseVersion}}
   logger:
     needs: setup
-    if: fromJSON(needs.setup.outputs.package-matrixes).logger
+    if: needs.setup.outputs.packages.logger
     strategy:
       matrix:
         include:
-          - ${{fromJSON(needs.setup.outputs.package-matrixes).logger.include}}
+          - ${{needs.setup.outputs.packages.logger}}
     name: ${{matrix.displayName}}
     runs-on: ubuntu-latest
     steps:
