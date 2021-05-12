@@ -55,9 +55,9 @@ jobs:
           package: ${{fromJSON(needs.setup.outputs.packages).utils.package}}
           version: ${{fromJSON(needs.setup.outputs.packages).utils.releaseVersion}}
   logger:
+    name: ${{fromJSON(needs.setup.outputs.packages).logger.displayName}}
     needs: setup
     if: ${{!fromJSON(needs.setup.outputs.packages).logger.skip}}
-    name: ${{fromJSON(needs.setup.outputs.packages).logger.displayName}}
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -77,8 +77,8 @@ jobs:
           version: ${{fromJSON(needs.setup.outputs.packages).logger.release-version}}
 
   sdks:
-    needs: [setup, utils]
     if: ${{fromJSON(needs.setup.outputs.sdk-matrix).includes[0] != null}}
+    needs: [setup, utils]
     strategy:
       matrix: ${{fromJSON(needs.setup.outputs.sdk-matrix)}}
       fail-fast: false

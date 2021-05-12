@@ -127,6 +127,11 @@ const output = packageSettings.split(/[\s,]+/).reduce((output, packageSetting) =
 }, {})
 
 core.setOutput('sdk-matrix', {include: Object.values(output).filter(pkg => pkg.sdk)})
-core.setOutput('packages', Object.keys(PACKAGES).reduce((packages, packageName) => Object.assign(packages, {
-  [packageName]: output[packageName] || {displayName: packageName, skip: true}
-}), {}))
+
+const g = Object.keys(PACKAGES).reduce((packages, packageName) => Object.assign(packages, {
+  [packageName]: output[packageName] || {displayName: `${packageName} (skipped)`, skip: true}
+}), {})
+
+core.setOutput('packages', g)
+
+console.log(g)
