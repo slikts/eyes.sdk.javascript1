@@ -157,7 +157,7 @@ jobs:
           version: ${{fromJSON(needs.setup.outputs.packages).api.release-version}}
   core:
     needs: [setup, driver, screenshoter, snippets]
-    if: ${{!failure() && !cancelled() && !fromJSON(needs.setup.outputs.packages).core.skip}}
+    if: ${{!fromJSON(needs.setup.outputs.packages).core.skip && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
