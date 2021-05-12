@@ -8,6 +8,7 @@ on:
         required: true
       version:
         description: "version type (specify 'major', 'minor, or 'patch')"
+        default: "patch"
 env:
   CVG_TESTS_REMOTE: http://localhost:4444/wd/hub
   APPLITOOLS_API_KEY_SDK: ${{secrets.APPLITOOLS_API_KEY_SDK}}
