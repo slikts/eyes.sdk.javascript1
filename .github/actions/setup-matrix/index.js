@@ -85,11 +85,8 @@ const allowModifiers = core.getInput('allow-modifiers')
 const defaultReleaseVersion = core.getInput('release-version')
 
 const output = packageSettings.split(/[\s,]+/).reduce((output, packageSetting) => {
-  let [_, packageKey, releaseVersion, frameworkVersion, frameworkProtocol]
+  const [_, packageKey, releaseVersion = defaultReleaseVersion, frameworkVersion, frameworkProtocol]
     = packageSetting.match(/^(.*?)(?::(patch|minor|major))?(?:@([\d.]+))?(?:\+(.+?))?$/i)
-  console.log(packageKey, releaseVersion, frameworkVersion, frameworkProtocol)
-  console.log(defaultReleaseVersion)
-  releaseVersion = releaseVersion || defaultReleaseVersion
   const packageName = Object.keys(PACKAGES).find(packageName => {
     return packageName === packageKey || packageName.dirname === packageKey || PACKAGES[packageName].aliases.includes(packageKey)
   })

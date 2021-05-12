@@ -37,7 +37,7 @@ jobs:
   utils:
     needs: setup
     if: fromJSON(needs.setup.outputs.packages).utils
-    name: ${{fromJSON(needs.setup.outputs.packages).utils.display-name}}
+    name: ${{fromJSON(needs.setup.outputs.packages).utils.displayName}}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -63,7 +63,7 @@ jobs:
   logger:
     needs: setup
     if: fromJSON(needs.setup.outputs.packages).logger
-    name: ${{fromJSON(needs.setup.outputs.packages).logger.display-name}}
+    name: ${{fromJSON(needs.setup.outputs.packages).logger.display-name || "logger"}}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2

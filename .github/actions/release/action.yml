@@ -1,12 +1,12 @@
 name: 'Publish'
 description: 'Publish a package to NPM'
 inputs:
-  sdk:
+  package:
     description: "name of the package"
     required: true
   version:
     description: "version type"
-    default: "patch"
+    required: true
 runs:
   using: "composite"
   steps:
@@ -26,13 +26,13 @@ runs:
         echo "::group::Create temp branch"
         GH_REF=${{github.ref}}
         CURRENT_BRANCH=${GH_REF#refs/heads/}
-        BRANCH="${{inputs.sdk}}_$(date +%F_%H-%M)"
+        BRANCH="${{inputs.package}}_$(date +%F_%H-%M)"
         git checkout -b $BRANCH
         git push -u origin $BRANCH
         echo "::endgroup::"
 
-        echo "::group::Publish ${{inputs.sdk}}"
-        cd "packages/${{inputs.sdk}}"
+        echo "::group::Publish ${{inputs.package}}"
+        cd "packages/${{inputs.package}}"
         git status
         yarn install
         git status
