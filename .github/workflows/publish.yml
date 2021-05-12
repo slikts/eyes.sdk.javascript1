@@ -76,7 +76,7 @@ jobs:
 
   logger:
     needs: [setup, utils]
-    if: ${{!fromJSON(needs.setup.outputs.packages).logger.skip}}
+    if: ${{!failure() && !fromJSON(needs.setup.outputs.packages).logger.skip}}
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
