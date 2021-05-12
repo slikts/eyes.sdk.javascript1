@@ -76,7 +76,7 @@ jobs:
 
   logger:
     needs: [setup, utils]
-    if: ${{cancelled() && !fromJSON(needs.setup.outputs.packages).logger.skip}}
+    if: ${{always() && needs.utils.result == "skipped"  && !fromJSON(needs.setup.outputs.packages).logger.skip}}
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
