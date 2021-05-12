@@ -34,9 +34,9 @@ jobs:
           release-version: ${{github.event.inputs.version}}
 
   utils:
+    name: ${{fromJSON(needs.setup.outputs.packages).utils.displayName}}
     needs: setup
     if: ${{!fromJSON(needs.setup.outputs.packages).utils.skip}}
-    name: ${{fromJSON(needs.setup.outputs.packages).utils.displayName}}
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -57,24 +57,27 @@ jobs:
   logger:
     name: ${{fromJSON(needs.setup.outputs.packages).logger.displayName}}
     needs: setup
-    if: ${{!fromJSON(needs.setup.outputs.packages).logger.skip}}
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
         uses: actions/checkout@v2
+        if: ${{!fromJSON(needs.setup.outputs.packages).logger.skip}}
       - name: Setup Node.js
         uses: actions/setup-node@v1
         with:
           node-version: 14
+        if: ${{!fromJSON(needs.setup.outputs.packages).logger.skip}}
       - name: Run tests
         uses: ./.github/actions/tests
         with:
           package: ${{fromJSON(needs.setup.outputs.packages).logger.package}}
+        if: ${{!fromJSON(needs.setup.outputs.packages).logger.skip}}
       - name: Publish
         uses: ./.github/actions/release
         with:
           package: ${{fromJSON(needs.setup.outputs.packages).logger.package}}
           version: ${{fromJSON(needs.setup.outputs.packages).logger.release-version}}
+        if: ${{!fromJSON(needs.setup.outputs.packages).logger.skip}}
 
   sdks:
     if: ${{fromJSON(needs.setup.outputs.sdk-matrix).includes[0] != null}}
