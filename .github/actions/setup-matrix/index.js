@@ -127,4 +127,4 @@ const output = packageSettings.split(/[\s,]+/).reduce((output, packageSetting) =
 }, {})
 
 core.setOutput('sdk-matrix', {include: Object.values(output).filter(pkg => pkg.sdk)})
-core.setOutput('packages', output)
+core.setOutput('package-matrixes', Object.entries(output).filter(pkg => ({include: pkg})))

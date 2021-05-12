@@ -10,8 +10,8 @@ inputs:
 outputs:
   sdk-matrix:
     description: "matrix of the sdks"
-  packages:
-    description: "map of all packages"
+  package-matrixes:
+    description: "map of matrixes for each package"
 runs:
   using: "node12"
   main: "index.js"
