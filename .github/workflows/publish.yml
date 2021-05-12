@@ -58,9 +58,10 @@ jobs:
         uses: ./.github/actions/release
         with:
           package: ${{matrix.package}}
-          version: ${{matrix.release-version}}
+          version: ${{matrix.releaseVersion}}
   logger:
     needs: setup
+    if: fromJSON(needs.setup.outputs.package-matrixes).logger
     strategy:
       matrix:
         include:
