@@ -33,7 +33,7 @@ jobs:
         with:
           packages: ${{github.event.inputs.sdks}}
           release-version: ${{github.event.inputs.version}}
-  publish-utils:
+  utils:
     needs: setup
     if: fromJSON(needs.setup.outputs.packages).utils
     name: fromJSON(needs.setup.outputs.packages).utils.displayName
@@ -57,7 +57,7 @@ jobs:
           package: utils
           version: ${{fromJSON(needs.setup.outputs.packages).utils.release-version}}
 
-  publish-sdks:
+  sdks:
     needs: [setup, utils]
     strategy:
       matrix: ${{fromJSON(needs.setup.outputs.sdk-matrix)}}
