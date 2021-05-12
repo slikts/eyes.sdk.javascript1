@@ -108,11 +108,11 @@ const output = packageSettings.split(/[\s,]+/).reduce((output, packageSetting) =
   }
 
 
-  const modifiers = Object.entries({version: frameworkVersion, protocol: frameworkProtocol})
+  const modifiers = Object.entries({release: releaseVersion, version: frameworkVersion, protocol: frameworkProtocol})
     .reduce((parts, [key, value]) => value ? [...parts, `${key}: ${value}`] : parts, [])
     .join('; ')
   output[packageName] = {
-    displayName: `${packageName}${releaseVersion ? `:${releaseVersion}` : ''}${modifiers ? ` (${modifiers})` : ''}`,
+    displayName: `${packageName} ${modifiers ? `(${modifiers})` : ''}`,
     name: packageName,
     package: packageInfo.dirname,
     sdk: packageInfo.sdk,

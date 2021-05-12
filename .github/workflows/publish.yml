@@ -23,8 +23,8 @@ jobs:
     name: Setup
     runs-on: ubuntu-latest
     outputs:
-      sdk-matrix: ${{steps.setup.outputs.sdk-matrix}}
-      packages: ${{steps.setup.outputs.packages}}
+      sdk-matrix: ${{fromJSON(steps.setup.outputs.sdk-matrix)}}
+      packages: ${{fromJSON(needs.setup.outputs.packages)}}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -36,58 +36,55 @@ jobs:
           release-version: ${{github.event.inputs.version}}
   utils:
     needs: setup
-    if: fromJSON(needs.setup.outputs.packages).utils
-    name: ${{fromJSON(needs.setup.outputs.packages).utils.displayName}}
+    strategy:
+      matrix:
+        include: needs.setup.outputs.packages.utils
+    name: ${{matrix.displayName}}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-        name: Check-out repository
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v1
-        name: Setup Node.js
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
         with:
           node-version: 14
-      - name: Debug
-        run: |
-          echo ${{needs.setup.outputs.packages}}
-      - uses: ./.github/actions/tests
-        name: Run tests
+      - name: Run tests
+        uses: ./.github/actions/tests
         with:
-          package: ${{fromJSON(needs.setup.outputs.packages).utils.package}}
-      - uses: ./.github/actions/release
-        name: Publish
+          package: ${{matrix.package}}
+      - name: Publish
+        uses: ./.github/actions/release
         with:
-          package: ${{fromJSON(needs.setup.outputs.packages).logger.package}}
-          version: ${{fromJSON(needs.setup.outputs.packages).utils.release-version}}
+          package: ${{matrix.package}}
+          version: ${{matrix.release-version}}
   logger:
     needs: setup
-    if: fromJSON(needs.setup.outputs.packages).logger
-    name: ${{fromJSON(needs.setup.outputs.packages).logger.display-name}}
+    strategy:
+      matrix:
+        include: needs.setup.outputs.packages.logger
+    name: ${{matrix.displayName}}
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
-        name: Check-out repository
-        with:
-          fetch-depth: 0
-      - uses: actions/setup-node@v1
-        name: Setup Node.js
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
         with:
           node-version: 14
-      - uses: ./.github/actions/tests
-        name: Run tests
+      - name: Run tests
+        uses: ./.github/actions/tests
         with:
-          package: ${{fromJSON(needs.setup.outputs.packages).logger.package}}
-      - uses: ./.github/actions/release
-        name: Publish
+          package: ${{matrix.package}}
+      - name: Publish
+        uses: ./.github/actions/release
         with:
-          package: ${{fromJSON(needs.setup.outputs.packages).logger.package}}
-          version: ${{fromJSON(needs.setup.outputs.packages).logger.release-version}}
+          package: ${{matrix.package}}
+          version: ${{matrix.release-version}}
 
   sdks:
     needs: [setup, utils]
     strategy:
-      matrix: ${{fromJSON(needs.setup.outputs.sdk-matrix)}}
+      matrix: ${{needs.setup.outputs.sdk-matrix}}
       fail-fast: false
     name: ${{matrix.display-name}}
     runs-on: ubuntu-latest
