@@ -24,6 +24,7 @@ jobs:
     runs-on: ubuntu-latest
     outputs:
       matrix: ${{steps.setup.outputs.matrix}}
+      list: ${{steps.setup.outputs.list}}
     steps:
       - uses: actions/checkout@v2
         with:
@@ -31,13 +32,12 @@ jobs:
       - uses: ./.github/actions/setup-matrix
         id: setup
         with:
-          sdks: ${{github.event.inputs.sdks}}
-  publish:
+          packages: ${{github.event.inputs.sdks}}
+          release-version: ${{github.event.inputs.version}}
+  publish utils:
     needs: setup
-    strategy:
-      matrix: ${{fromJSON(needs.setup.outputs.matrix)}}
-      fail-fast: false
-    name: ${{matrix.name}}
+    if: fromJSON(needs.setup.outputs.packages).utils
+    name: fromJSON(needs.setup.outputs.packages).utils.displayName
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -51,18 +51,45 @@ jobs:
       - uses: ./.github/actions/tests
         name: Run tests
         with:
-          sdk: ${{matrix.sdk}}
+          package: utils
+      - uses: ./.github/actions/release
+        name: Publish
+        with:
+          package: utils
+          version: ${{fromJSON(needs.setup.outputs.packages).utils.release-version}}
+
+  publish sdks:
+    needs: [setup, core, api, utils, vgc]
+    strategy:
+      matrix: ${{fromJSON(needs.setup.outputs.sdk-matrix)}}
+      fail-fast: false
+    name: ${{matrix.display-name}}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        name: Check-out repository
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v1
+        name: Setup Node.js
+        with:
+          node-version: 14
+      - uses: ./.github/actions/tests
+        name: Run tests
+        with:
+          package: ${{matrix.package}}
+          report: prod
         env: ${{matrix.env}}
       - uses: ./.github/actions/release
         name: Publish
         with:
-          sdk: ${{matrix.sdk}}
-          version: ${{github.event.inputs.version}}
+          sdk: ${{matrix.package}}
+          version: ${{matrix.release-version}}
       - uses: actions/upload-artifact@v2
         name: Save release and testing artifacts
         with:
-          name: coverage-tests-report
+          name: coverage-tests-report-${{matrix.package}}
           retention-days: 30
           path: |
-            packages/${{matrix.sdk}}/coverage-tests-metadata.json
-            packages/${{matrix.sdk}}/coverage-test-report.xml
+            packages/${{matrix.package}}/coverage-tests-metadata.json
+            packages/${{matrix.package}}/coverage-test-report.xml
