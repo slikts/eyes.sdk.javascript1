@@ -38,7 +38,8 @@ jobs:
     needs: setup
     strategy:
       matrix:
-        include: [${{needs.setup.outputs.packages.utils}}]
+        include:
+          - ${{needs.setup.outputs.packages.utils}}
     name: ${{matrix.displayName}}
     runs-on: ubuntu-latest
     steps:
@@ -61,7 +62,8 @@ jobs:
     needs: setup
     strategy:
       matrix:
-        include: [${{needs.setup.outputs.packages.logger}}]
+        include: 
+          - ${{needs.setup.outputs.packages.logger}}
     name: ${{matrix.displayName}}
     runs-on: ubuntu-latest
     steps:
