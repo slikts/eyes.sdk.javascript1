@@ -38,7 +38,8 @@ jobs:
   utils:
     needs: setup
     strategy:
-      matrix: ${{fromJSON(needs.setup.outputs.package-matrixes).utils}}
+      matrix: 
+          include: ${{fromJSON(needs.setup.outputs.package-matrixes).utils.include}}
     name: ${{matrix.displayName}}
     runs-on: ubuntu-latest
     steps:
@@ -60,7 +61,8 @@ jobs:
   logger:
     needs: setup
     strategy:
-      matrix: ${{fromJSON(needs.setup.outputs.package-matrixes).logger}}
+      matrix:
+        include: ${{fromJSON(needs.setup.outputs.package-matrixes).logger.include}}
     name: ${{matrix.displayName}}
     runs-on: ubuntu-latest
     steps:
