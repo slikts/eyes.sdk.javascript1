@@ -127,4 +127,6 @@ const output = packageSettings.split(/[\s,]+/).reduce((output, packageSetting) =
 }, {})
 
 core.setOutput('sdk-matrix', {include: Object.values(output).filter(pkg => pkg.sdk)})
-core.setOutput('package-matrixes', Object.entries(output).filter(pkg => ({include: pkg})))
+core.setOutput('package-matrixes', Object.entries(output).reduce((matrixes, [key, pkg]) => {
+  return Object.assign(matrixes, {[key]: {include: pkg}})
+}, {}))
