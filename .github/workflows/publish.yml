@@ -63,7 +63,7 @@ jobs:
   logger:
     needs: setup
     if: fromJSON(needs.setup.outputs.packages).logger
-    name: ${{fromJSON(needs.setup.outputs.packages).logger.display-name || "logger"}}
+    name: ${{fromJSON(needs.setup.outputs.packages).logger.display-name}}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
