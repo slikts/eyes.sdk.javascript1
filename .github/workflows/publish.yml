@@ -31,12 +31,12 @@ jobs:
       - uses: ./.github/actions/setup-matrix
         id: setup
         with:
-          packages: ${{github.event.inputs.sdks}}
+          packages: ${{github.event.inputs.packages}}
           release-version: ${{github.event.inputs.version}}
   utils:
     needs: setup
     if: fromJSON(needs.setup.outputs.packages).utils
-    name: fromJSON(needs.setup.outputs.packages).utils.displayName
+    name: ${{fromJSON(needs.setup.outputs.packages).utils.displayName}}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
