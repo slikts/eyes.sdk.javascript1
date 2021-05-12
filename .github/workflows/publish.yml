@@ -36,7 +36,7 @@ jobs:
   utils:
     needs: setup
     if: fromJSON(needs.setup.outputs.packages).utils
-    name: ${{fromJSON(needs.setup.outputs.packages).utils.displayName}}
+    name: ${{fromJSON(needs.setup.outputs.packages).utils.display-name}}
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
@@ -50,12 +50,35 @@ jobs:
       - uses: ./.github/actions/tests
         name: Run tests
         with:
-          package: utils
+          package: fromJSON(needs.setup.outputs.packages).utils.package
       - uses: ./.github/actions/release
         name: Publish
         with:
           package: utils
           version: ${{fromJSON(needs.setup.outputs.packages).utils.release-version}}
+  logger:
+    needs: setup
+    if: fromJSON(needs.setup.outputs.packages).logger
+    name: ${{fromJSON(needs.setup.outputs.packages).logger.display-name}}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+        name: Check-out repository
+        with:
+          fetch-depth: 0
+      - uses: actions/setup-node@v1
+        name: Setup Node.js
+        with:
+          node-version: 14
+      - uses: ./.github/actions/tests
+        name: Run tests
+        with:
+          package: fromJSON(needs.setup.outputs.packages).logger.package
+      - uses: ./.github/actions/release
+        name: Publish
+        with:
+          package: fromJSON(needs.setup.outputs.packages).logger.package
+          version: ${{fromJSON(needs.setup.outputs.packages).logger.release-version}}
 
   sdks:
     needs: [setup, utils]

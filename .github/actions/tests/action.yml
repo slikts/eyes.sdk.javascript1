@@ -29,7 +29,7 @@ runs:
         echo "always-auth=true" >> .npmrc
         echo "::endgroup::"
 
-        cd "packages/${{inputs.sdk}}"
+        cd "packages/${{inputs.package}}"
         yarn install
         npm run deps --if-present -- --skip-commit
 
