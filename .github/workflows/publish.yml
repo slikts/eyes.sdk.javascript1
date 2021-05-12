@@ -34,7 +34,6 @@ jobs:
           release-version: ${{github.event.inputs.version}}
 
   utils:
-    name: ${{fromJSON(needs.setup.outputs.packages).utils.displayName}}
     needs: setup
     if: ${{!fromJSON(needs.setup.outputs.packages).utils.skip}}
     runs-on: ubuntu-latest
@@ -55,7 +54,6 @@ jobs:
           package: ${{fromJSON(needs.setup.outputs.packages).utils.package}}
           version: ${{fromJSON(needs.setup.outputs.packages).utils.releaseVersion}}
   logger:
-    name: logger ${{fromJSON(needs.setup.outputs.packages).logger.displayName}}
     needs: setup
     if: ${{!fromJSON(needs.setup.outputs.packages).logger.skip}}
     runs-on: ubuntu-latest
