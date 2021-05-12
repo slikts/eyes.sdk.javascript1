@@ -1,17 +1,17 @@
 name: 'Setup matrix'
 inputs:
   packages:
-    description: 'list of package names (aliases) with modifiers such as version or aut protocol'
+    description: "list of package names (aliases) with modifiers such as version or aut protocol"
     required: true
   allow-modifiers:
-    description: 'boolean value to allows use of modified sdks (e.g. wdio:cdp or selenium@3)'
+    description: "boolean value to allows use of modified sdks (e.g. wdio:cdp or selenium@3)"
   release-version:
-    description: 'default release version type (e.g. 'major', 'minor, or 'patch')'
+    description: "default release version type (e.g. 'major', 'minor, or 'patch')"
 outputs:
   sdk-matrix:
-    description: 'matrix of the sdks'
+    description: "matrix of the sdks"
   packages:
-    description: 'map of all packages'
+    description: "map of all packages"
 runs:
-  using: 'node12'
-  main: 'index.js'
+  using: "node12"
+  main: "index.js"
