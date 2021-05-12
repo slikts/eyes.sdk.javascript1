@@ -5,17 +5,21 @@ const PACKAGES = {
     aliases: ['@applitools/utils'],
     dirname: 'utils',
   },
+  'snippets': {
+    aliases: ['@applitools/snippets'],
+    dirname: 'snippets',
+  },
   'logger': {
     aliases: ['@applitools/logger'],
     dirname: 'logger',
   },
-  'driver': {
-    aliases: ['@applitools/driver'],
-    dirname: 'driver',
-  },
   'screenshoter': {
     aliases: ['@applitools/screenshoter'],
     dirname: 'screenshoter',
+  },
+  'driver': {
+    aliases: ['@applitools/driver'],
+    dirname: 'driver',
   },
   'api': {
     aliases: ['@applitools/eyes-api'],

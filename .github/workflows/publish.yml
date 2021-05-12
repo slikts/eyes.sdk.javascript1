@@ -53,8 +53,29 @@ jobs:
         with:
           package: ${{fromJSON(needs.setup.outputs.packages).utils.package}}
           version: ${{fromJSON(needs.setup.outputs.packages).utils.releaseVersion}}
-  logger:
+  snippets:
     needs: setup
+    if: ${{!fromJSON(needs.setup.outputs.packages).snippets.skip}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).snippets.package}}
+      - name: Publish
+        uses: ./.github/actions/release
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).snippets.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).snippets.releaseVersion}}
+
+  logger:
+    needs: [setup, utils]
     if: ${{!fromJSON(needs.setup.outputs.packages).logger.skip}}
     runs-on: ubuntu-latest
     steps:
@@ -73,6 +94,128 @@ jobs:
         with:
           package: ${{fromJSON(needs.setup.outputs.packages).logger.package}}
           version: ${{fromJSON(needs.setup.outputs.packages).logger.release-version}}
+  driver:
+    needs: [setup, utils, snippets]
+    if: ${{!fromJSON(needs.setup.outputs.packages).driver.skip}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).driver.package}}
+      - name: Publish
+        uses: ./.github/actions/release
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).driver.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).driver.release-version}}
+  screenshoter:
+    needs: [setup, utils]
+    if: ${{!fromJSON(needs.setup.outputs.packages).screenshoter.skip}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).screenshoter.package}}
+      - name: Publish
+        uses: ./.github/actions/release
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).screenshoter.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).screenshoter.release-version}}
+  driver:
+    needs: [setup, utils, snippets]
+    if: ${{!fromJSON(needs.setup.outputs.packages).driver.skip}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).driver.package}}
+      - name: Publish
+        uses: ./.github/actions/release
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).driver.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).driver.release-version}}
+
+  api:
+    needs: [setup, utils, logger]
+    if: ${{!fromJSON(needs.setup.outputs.packages).api.skip}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).api.package}}
+      - name: Publish
+        uses: ./.github/actions/release
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).api.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).api.release-version}}
+  core:
+    needs: [setup, driver, screenshoter, snippets]
+    if: ${{!fromJSON(needs.setup.outputs.packages).core.skip}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).core.package}}
+      - name: Publish
+        uses: ./.github/actions/release
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).core.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).core.release-version}}
+  
+  vgc:
+    needs: [setup, core]
+    if: ${{!fromJSON(needs.setup.outputs.packages).vgc.skip}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).vgc.package}}
+      - name: Publish
+        uses: ./.github/actions/release
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).vgc.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).vgc.release-version}}
 
   sdks:
     if: ${{fromJSON(needs.setup.outputs.sdk-matrix).includes[0] != null}}
