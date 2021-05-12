@@ -76,7 +76,7 @@ jobs:
       - uses: ./.github/actions/tests
         name: Run tests
         with:
-          package: ${{fromJSON(needs.setup.outputs.packages).logger.package}]
+          package: ${{fromJSON(needs.setup.outputs.packages).logger.package}}
       - uses: ./.github/actions/release
         name: Publish
         with:
