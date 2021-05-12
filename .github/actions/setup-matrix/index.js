@@ -124,8 +124,8 @@ const output = packageSettings.split(/[\s,]+/).reduce((output, packageSetting) =
     install: frameworkVersion ? `${packageName.framework}@${frameworkVersion}` : '',
     releaseVersion,
     env: {
-      [`APPLITOOLS_${package.toUpperCase()}_MAJOR_VERSION`]: frameworkVersion,
-      [`APPLITOOLS_${package.toUpperCase()}_PROTOCOL`]: frameworkProtocol
+      [`APPLITOOLS_${packageName.toUpperCase()}_MAJOR_VERSION`]: frameworkVersion,
+      [`APPLITOOLS_${packageName.toUpperCase()}_PROTOCOL`]: frameworkProtocol
     }
   }
   return output
