@@ -57,6 +57,7 @@ jobs:
         uses: ./.github/actions/tests
         with:
           package: ${{matrix.package}}
+          type: ${{github.event.inputs.type}}
           install: ${{matrix.install}}
           links: ${{github.event.inputs.links}}
           linking-depth: ${{github.event.inputs['linking-depth']}}
