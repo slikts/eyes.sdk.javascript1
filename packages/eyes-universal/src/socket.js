@@ -19,7 +19,7 @@ function makeSocket(ws) {
 
       socket.on('message', message => {
         const {name, key, payload} = deserialize(message)
-        //console.log(`[MESSAGE] ${name}, ${key}, ${JSON.stringify(payload, null, 2)}`)
+        // console.log(`[MESSAGE] ${name}, ${key}, ${JSON.stringify(payload, null, 2).substr(0, 500)}`)
         const fns = listeners.get(name)
         if (fns) fns.forEach(fn => fn(payload, key))
         if (key) {
@@ -48,6 +48,7 @@ function makeSocket(ws) {
   function request(name, payload) {
     return new Promise((resolve, reject) => {
       const key = utils.general.guid()
+      // console.log(`[REQUEST] ${name}, ${key}, ${JSON.stringify(payload, null, 2).substr(0, 500)}`)
       emit({name, key}, payload)
       once({name, key}, response => {
         if (response.error) return reject(response.error)

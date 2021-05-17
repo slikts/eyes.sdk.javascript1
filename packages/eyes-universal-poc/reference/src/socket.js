@@ -70,6 +70,8 @@ class Socket {
         const result = await fn(payload)
         this.emit(name, {result}, key)
       } catch (error) {
+        console.log(`${chalk.red('[COMMAND]')} ${name} ${key} ${error}`)
+        console.log(error)
         this.emit(name, {error}, key)
       }
     })

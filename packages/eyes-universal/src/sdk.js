@@ -49,15 +49,15 @@ async function makeAPI({idleTimeout = IDLE_TIMEOUT, ...serverConfig} = {}) {
       })
     })
 
-    socket.command('EyesRunner.new', async config => {
+    socket.command('Agent.new', async config => {
       const eyes = socket.sdk.makeEyes(config)
       return refer.ref(eyes)
     })
-    socket.command('EyesRunner.open', async ({eyes, driver, config}) => {
-      const commands = await refer.deref(eyes).open(driver, config)
-      return refer.ref(commands, eyes)
+    socket.command('Agent.open', async ({agent, driver, config}) => {
+      const commands = await refer.deref(agent).open({driver, config})
+      return refer.ref(commands, agent)
     })
-    socket.command('EyesRunner.close', async ({eyes}) => {
+    socket.command('Agent.close', async ({eyes}) => {
       return await refer.deref(eyes).getResults()
     })
 
