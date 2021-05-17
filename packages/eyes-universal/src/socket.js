@@ -19,6 +19,7 @@ function makeSocket(ws) {
 
       socket.on('message', message => {
         const {name, key, payload} = deserialize(message)
+        //console.log(`[MESSAGE] ${name}, ${key}, ${JSON.stringify(payload, null, 2)}`)
         const fns = listeners.get(name)
         if (fns) fns.forEach(fn => fn(payload, key))
         if (key) {

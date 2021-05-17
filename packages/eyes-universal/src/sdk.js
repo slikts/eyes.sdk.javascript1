@@ -49,7 +49,7 @@ async function makeAPI({idleTimeout = IDLE_TIMEOUT, ...serverConfig} = {}) {
       })
     })
 
-    socket.command('EyesRunner.new', async ({config}) => {
+    socket.command('EyesRunner.new', async config => {
       const eyes = socket.sdk.makeEyes(config)
       return refer.ref(eyes)
     })
