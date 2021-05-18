@@ -1,6 +1,6 @@
 'use strict'
 
-// const {describe, it} = require('mocha')
+const {describe, it} = require('mocha')
 const {expect} = require('chai')
 const makeRenderingGridClient = require('../../../src/sdk/renderingGridClient')
 const createFakeWrapper = require('../../util/createFakeWrapper')
