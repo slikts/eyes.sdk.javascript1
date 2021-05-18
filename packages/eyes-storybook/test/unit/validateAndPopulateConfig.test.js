@@ -12,6 +12,7 @@ const {
   missingAppNameInPackageJsonFailMsg,
 } = require('../../src/errMessages');
 const snap = require('@applitools/snaptdout');
+const makeRenderingGridClient = require('../../../visual-grid-client/src/sdk/renderingGridClient');
 
 describe('validateAndPopulateConfig', () => {
   it('throws error on missing apiKey', async () => {
@@ -163,5 +164,22 @@ describe('validateAndPopulateConfig', () => {
     await validateAndPopulateConfig({config});
     await snap(warningMessage, 'warning message fakeIE');
     console.log = originConsoleLog;
+  });
+
+  it('Fail immediately, wrong api key', async() => {
+    let apiKey = '123'
+    let errorMessage;
+
+    const {getSetRenderInfo} = await makeRenderingGridClient({
+      apiKey
+    })
+
+    try{
+      await getSetRenderInfo()
+    } catch(e){
+      errorMessage = e.message
+    } finally{ 
+      expect(errorMessage).to.equal("Request failed with status code 401(Unauthorized)")
+    }
   });
 });

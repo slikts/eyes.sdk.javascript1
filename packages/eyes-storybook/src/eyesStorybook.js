@@ -58,11 +58,14 @@ async function eyesStorybook({
     getIosDevicesSizes,
     getEmulatedDevicesSizes,
     getResourceUrlsInCache,
+    getSetRenderInfo,
   } = makeVisualGridClient({
     userAgent,
     ...config,
     logger: logger.extend('vgc'),
   });
+
+  await getSetRenderInfo();
 
   const initPage = makeInitPage({
     iframeUrl,
