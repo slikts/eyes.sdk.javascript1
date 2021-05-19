@@ -39,8 +39,6 @@
   ],
   "scripts": {
     "lint": "eslint '**/*.ts' '**/*.js'",
-    "render": "node ../sdk-shared/scripts/render.js",
-    "link": "node ../sdk-shared/scripts/link.js",
     "build": "yarn build:dist && yarn build:types",
     "build:dist": "tsc",
     "build:types": "api-extractor ./src/index.ts --out ./types/index.d.ts --external-modules playwright",
@@ -69,10 +67,12 @@
   },
   "devDependencies": {
     "@applitools/api-extractor": "1.1.1",
+    "@applitools/scripts": "link:../scripts",
     "@applitools/sdk-coverage-tests": "2.3.11",
     "@applitools/sdk-fake-eyes-server": "2.1.1",
     "@applitools/sdk-release-kit": "0.13.0",
     "@applitools/sdk-shared": "0.8.10",
+    "@applitools/test-utils": "link:../test-utils",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
     "@typescript-eslint/parser": "^4.15.1",
     "eslint": "^7.9.0",
