@@ -45,7 +45,7 @@ runs:
           echo "::endgroup::"
         fi
 
-        echo "::group:Building package"
+        echo "::group::Building package"
         npm run build --if-present
         echo "::endgroup::"
 
