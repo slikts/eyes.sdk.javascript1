@@ -197,7 +197,7 @@ const browserOptionsNames: Record<string, string> = {
 }
 export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
   const {Builder, Runner} = require('protractor')
-  const parseEnv = require('@applitools/test-utils/srs/parse-env')
+  const parseEnv = require('@applitools/test-utils/src/parse-env')
 
   const {
     browser = '',

@@ -225,7 +225,7 @@ const browserOptionsNames: Record<string, string> = {
 }
 export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
   // config prep
-  const parseEnv = require('@applitools/test-utils/srs/parse-env')
+  const parseEnv = require('@applitools/test-utils/src/parse-env')
   const {browser = '', capabilities, url, configurable = true, args = [], headless} = parseEnv({
     ...env,
     legacy: true,
