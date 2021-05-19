@@ -1,7 +1,7 @@
 const fs = require('fs')
 const path = require('path')
 const cwd = process.cwd()
-const {Eyes, VisualGridRunner} = require(cwd)
+const {Eyes, VisualGridRunner} = require(path.resolve(cwd, './dist'))
 
 const batch = {
   name: process.env.APPLITOOLS_BATCH_NAME || 'JS Coverage Tests',
