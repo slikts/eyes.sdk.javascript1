@@ -23,9 +23,9 @@
   "scripts": {
     "lint": "eslint . --ext .js",
     "preversion": "bongo preversion",
+    "deps": "bongo deps",
     "version": "bongo version",
-    "postversion": "bongo postversion --skip-release-notification",
-    "deps": "bongo deps"
+    "postversion": "bongo postversion --skip-release-notification"
   },
   "husky": {
     "hooks": {
@@ -35,7 +35,7 @@
   "dependencies": {
     "chalk": "3.0.0",
     "yargs": "15.3.1",
-    "@applitools/test-utils": "link:../test-utils"
+    "@applitools/test-utils": "file:../test-utils"
   },
   "devDependencies": {
     "@applitools/sdk-release-kit": "0.13.0",
