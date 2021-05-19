@@ -25,6 +25,6 @@ module.exports = {
   jobs: 15,
   timeout: 0,
   reporter: 'spec-xunit-file',
-  require: ['../sdk-shared/coverage-tests/util/mocha-hooks.js'],
+  require: ['@applitools/test-utils/mocha-hooks/docker.js'],
   grep: new RegExp(`^${grep ? `.*?${grep}.*?` : '[^(]*?'}(\\((?:@(${tags[protocol].join('|')}) ?)+\\))?$`, 'i'),
 }

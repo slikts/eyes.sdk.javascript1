@@ -42,7 +42,9 @@ function setupEyes({runner, vg, showLogs, saveLogs, saveDebugScreenshots, ...con
     }
   }
 
-  return new Eyes(runner, configuration)
+  const eyes = new Eyes(runner)
+  eyes.setConfiguration(configuration)
+  return eyes
 }
 
 module.exports = setupEyes

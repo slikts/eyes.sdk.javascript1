@@ -12,7 +12,9 @@
   "license": "SEE LICENSE IN LICENSE",
   "author": "Applitools team <team@applitools.com>",
   "files": [
-    "src"
+    "src",
+    "mocha-hooks",
+    "index.js"
   ],
   "scripts": {
     "lint": "eslint . --ext .js",
@@ -27,7 +29,8 @@
     }
   },
   "dependencies": {
-    "node-fetch": "^2.6.1"
+    "node-fetch": "^2.6.1",
+    "chalk": "^3.0.0"
   },
   "devDependencies": {
     "@applitools/sdk-release-kit": "0.13.0",
