@@ -13,7 +13,8 @@
   "license": "SEE LICENSE IN LICENSE",
   "author": "Applitools team <team@applitools.com>",
   "bin": {
-    "render": "./cli/render.js"
+    "render": "./cli/render.js",
+    "link": "./cli/link.js"
   },
   "files": [
     "cli",

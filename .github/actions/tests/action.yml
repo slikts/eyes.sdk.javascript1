@@ -37,8 +37,7 @@ runs:
 
         if [ ! -z "${{inputs.links}}" ]
         then
-          yarn install --cwd "../sdk-shared"
-          npm run link --if-present -- --include ${{inputs.links}} --build --install --depth ${{inputs['linking-depth']}}
+          npx link --if-present -- --include ${{inputs.links}} --build --install --depth ${{inputs['linking-depth']}}
         fi
 
         if [ ! -z "${{inputs.install}}" ]; then yarn add --dev ${{inputs.install}}; fi
