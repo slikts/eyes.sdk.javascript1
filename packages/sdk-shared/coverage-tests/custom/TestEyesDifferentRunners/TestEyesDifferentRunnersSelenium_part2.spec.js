@@ -1,7 +1,7 @@
 'use strict'
 const cwd = process.cwd()
 const path = require('path')
-const {getEyes} = require('../../../src/test-setup')
+const {getEyes} = require('@applitools/test-utils')
 const {assertImages} = require('../../util/ApiAssertions')
 const spec = require(path.resolve(cwd, 'dist/spec-driver'))
 const {MatchLevel} = require(cwd)

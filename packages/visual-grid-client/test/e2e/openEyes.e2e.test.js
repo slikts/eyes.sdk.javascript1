@@ -11,7 +11,7 @@ const {getProcessPageAndSerialize} = require('@applitools/dom-snapshot')
 const fs = require('fs')
 const {resolve} = require('path')
 const testLogger = require('../util/testLogger')
-const {ApiAssertions} = require('@applitools/sdk-shared')
+const {getTestInfo} = require('@applitools/test-utils')
 
 describe('openEyes', () => {
   let baseUrl, closeServer, openEyes
@@ -170,7 +170,7 @@ describe('openEyes', () => {
     ]
 
     for (const [index, testResults] of results.entries()) {
-      const testData = await ApiAssertions.getApiData(testResults, apiKey)
+      const testData = await getTestInfo(testResults, apiKey)
       expect(testData.actualAppOutput[0].imageMatchSettings.ignore).to.eql(
         expectedIgnoreRegions[index],
       )

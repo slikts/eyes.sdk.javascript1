@@ -5,7 +5,7 @@ const cwd = process.cwd()
 const startTestServer = require('../../src/test-server')
 const {Target} = require(cwd)
 const spec = require(path.resolve(cwd, 'dist/spec-driver'))
-const {getEyes} = require('../../src/test-setup')
+const {setupEyes} = require('@applitools/test-utils')
 const adjustUrlToDocker = require('../util/adjust-url-to-docker')
 
 describe('TestDisableBrowserFetching', () => {
@@ -36,7 +36,7 @@ describe('TestDisableBrowserFetching', () => {
   it('sends dontFetchResources to dom snapshot', async () => {
     const url = adjustUrlToDocker('http://localhost:5557/ua.html')
     await spec.visit(driver, url)
-    const eyes = getEyes({vg: true, disableBrowserFetching: true})
+    const eyes = setupEyes({vg: true, disableBrowserFetching: true})
     await eyes.open(driver, 'VgFetch', 'TestDisableBrowserFetching', {width: 800, height: 600})
     await eyes.check(Target.window())
     await eyes.close()

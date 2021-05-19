@@ -76,6 +76,11 @@
     prettier "1.18.2"
     yargs "15.3.1"
 
+"@applitools/test-utils@file:../test-utils":
+  version "1.0.0"
+  dependencies:
+    node-fetch "^2.6.1"
+
 "@azure/abort-controller@^1.0.0":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@azure/abort-controller/-/abort-controller-1.0.1.tgz#8510935b25ac051e58920300e9d7b511ca6e656a"
