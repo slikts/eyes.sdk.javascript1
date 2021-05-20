@@ -1,198 +1,188 @@
-version: 2
-updates:
-  - package-ecosystem: "npm"
+version: 1
+update_configs:
+  - package_manager: "javascript"
+    directory: "/packages/api-extractor"
+    update_schedule: "live"
+    allowed_updates:
+      - match:
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/driver"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/eyes-api"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/eyes-cypress"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/eyes-images"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/eyes-nightwatch"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/eyes-playwright"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/eyes-protractor"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/eyes-puppeteer"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/eyes-sdk-core"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/eyes-selenium"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/eyes-storybook"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/eyes-testcafe"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/eyes-universal"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/eyes-webdriverio-4"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/eyes-webdriverio-4-service"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/eyes-webdriverio-5"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/eyes-webdriverio-5-service"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/fancy"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
+    directory: "/packages/logger"
+    update_schedule: "live"
+    allowed_updates:
+      - match:
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/screenshoter"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/sdk-coverage-tests"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/sdk-fake-eyes-server"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/sdk-release-kit"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/sdk-shared"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/side-eyes"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/snaptdout"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/snippets"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
+    directory: "/packages/test.log"
+    update_schedule: "live"
+    allowed_updates:
+      - match:
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/utils"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
-  - package-ecosystem: "npm"
+          update_type: "security"
+  - package_manager: "javascript"
     directory: "/packages/visual-grid-client"
-    schedule:
-      interval: "daily"
+    update_schedule: "live"
     allowed_updates:
       - match:
-        update_type: "security"
+          update_type: "security"

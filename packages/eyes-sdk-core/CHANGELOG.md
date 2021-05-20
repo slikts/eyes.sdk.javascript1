@@ -4,6 +4,24 @@
 
 - add wrappers to work with new internal api
 
+## 12.19.3 - 2021/5/13
+
+fixed image cropping algorithm to not copy data into a heap
+- updated to @applitools/screenshoter@3.0.7 (from 3.0.6)
+
+## 12.19.2 - 2021/5/12
+
+- updated to @applitools/dom-snapshot@4.5.1 (from 4.5.0)
+
+## 12.19.1 - 2021/5/11
+
+- updated to @applitools/driver@1.0.5 (from 1.0.4)
+- updated to @applitools/screenshoter@3.0.6 (from 3.0.5)
+
+## 12.19.0 - 2021/5/11
+
+- add wrappers to work with new internal api
+
 ## 12.17.4 - 2021/4/25
 
 - fix `variationGroupId`

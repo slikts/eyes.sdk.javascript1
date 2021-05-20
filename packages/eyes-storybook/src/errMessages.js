@@ -1,5 +1,5 @@
 'use strict';
-const chalk = require('chalk');
+const chalk = require('./chalkify');
 
 const missingApiKeyFailMsg = `
 ${chalk.red('Environment variable APPLITOOLS_API_KEY is not set.')}
@@ -37,9 +37,14 @@ const startStorybookFailMsg = chalk.red(
   'Could not find a storybook URL to test. This might be either because there was an error when starting the storybook dev server, or the parameter "storybookUrl" was not specified. Specify a URL with the "-u" parameter, or with "storybookUrl" in the config file (by default the config file is located at <project-folder>/applitools.config.js>).\n',
 );
 
+function refineErrorMessage({prefix, error}) {
+  return `${prefix} ${error.message.replace('Evaluation failed: ', '')}`;
+}
+
 module.exports = {
   missingApiKeyFailMsg,
   missingAppNameAndPackageJsonFailMsg,
   missingAppNameInPackageJsonFailMsg,
   startStorybookFailMsg,
+  refineErrorMessage,
 };

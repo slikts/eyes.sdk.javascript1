@@ -1,0 +1,51 @@
+name: Tests
+description: Run tests for a package
+inputs:
+  package:
+    description: name of the package
+    required: true
+  type:
+    description: type of the testing (unit, it, e2e, coverage)
+  install:
+    description: names of packages to install before testing
+  links:
+    description: names of packages to link before testing
+  linking-depth:
+    description: linking depth
+    default: 0
+  grep:
+    description: grep pattern to filter tests
+  report:
+    description: report level
+    default: sandbox
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        MOCHA_GREP: ${{inputs.grep}}
+      run: |
+        echo "::group::Configure NPM"
+        echo "//registry.npmjs.org/:_authToken=${NODE_AUTH_TOKEN}" > .npmrc
+        echo "registry=https://registry.npmjs.org/" >> .npmrc
+        echo "always-auth=true" >> .npmrc
+        echo "::endgroup::"
+
+        cd "packages/${{inputs.package}}"
+        yarn install
+        npm run deps --if-present -- --skip-commit
+
+        if [ ! -z "${{inputs.links}}" ]
+        then
+          yarn install --cwd "../sdk-shared"
+          npm run link --if-present -- --include ${{inputs.links}} --build --install --depth ${{inputs['linking-depth']}}
+        fi
+
+        if [ ! -z "${{inputs.install}}" ]; then yarn add --dev ${{inputs.install}}; fi
+
+        npm run build --if-present
+        npm run setup --if-present
+
+        if [ ! -z "${{inputs.type}}" ]; then npm run test:${{inputs.type}}; else npm run test; fi
+
+        if [ "${{inputs.sandbox}}" = "sandbox" ]; then npm run report --if-present -- --sandbox; else npm run report --if-present; fi

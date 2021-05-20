@@ -2,6 +2,13 @@
 
 ## Unreleased
 
+
+## 1.0.1 - 2021/5/12
+
+- allow VisualGridRunner to be constructed without argument
+
+## 1.0.0 - 2021/5/11
+
 - rename variantId to variationGroupId
 - added strict type definition of CheckSettings.hooks
 
