@@ -1,7 +1,7 @@
 const fetch = require('node-fetch')
 
 async function getTestDom(result, domId) {
-  const sessionUrl = new URL(result.apiUrls.session)
+  const sessionUrl = new URL(result.appUrls.session)
   const accountId = sessionUrl.searchParams.get('accountId')
   const url = `${sessionUrl.origin}/api/images/dom/${domId}/?accountId=${accountId}&apiKey=${process.env.APPLITOOLS_API_KEY_READ}`
 

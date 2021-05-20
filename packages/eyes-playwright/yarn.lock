@@ -51,16 +51,16 @@
     "@applitools/logger" "1.0.0"
     "@applitools/utils" "1.1.3"
 
-"@applitools/eyes-sdk-core@12.19.2":
-  version "12.19.2"
-  resolved "https://registry.yarnpkg.com/@applitools/eyes-sdk-core/-/eyes-sdk-core-12.19.2.tgz#a93577b60321d7fa95a3e682e77bc7377092f087"
-  integrity sha512-mAeUu4olvgmktJPt/Tsxh1ozY9zxMgRYtu5fuqWDFSYwxVOF5laTxNCANR39bh1fTrCzS3hLT8FR9MHETypYeg==
+"@applitools/eyes-sdk-core@12.19.3":
+  version "12.19.3"
+  resolved "https://registry.yarnpkg.com/@applitools/eyes-sdk-core/-/eyes-sdk-core-12.19.3.tgz#afc91883f532dae0e3bcc1a18c80fa47d2f3482b"
+  integrity sha512-yjOWvYbPgYf1kSrn9eoYb3KF41X4BYdijP+eGu7SAZ793JLZ1cuUSakFjiPCwy5QJGCuhMP0u+S9c4DATOUooA==
   dependencies:
     "@applitools/dom-capture" "11.0.1"
     "@applitools/dom-snapshot" "4.5.1"
     "@applitools/driver" "1.0.5"
     "@applitools/isomorphic-fetch" "3.0.0"
-    "@applitools/screenshoter" "3.0.6"
+    "@applitools/screenshoter" "3.0.7"
     "@applitools/snippets" "2.1.3"
     axios "0.21.1"
     chalk "3.0.0"
@@ -144,10 +144,10 @@
   dependencies:
     debug "^4.1.0"
 
-"@applitools/screenshoter@3.0.6":
-  version "3.0.6"
-  resolved "https://registry.yarnpkg.com/@applitools/screenshoter/-/screenshoter-3.0.6.tgz#c887bce6d775214691eb91c12e2f3af71d4e9d84"
-  integrity sha512-pywB0Glusx44t/VqHu7axL28u9rEOulMNzx3Et3i3GBMKhSwwRxiKvqeca3yjYAW/oVgiAqqT1NaIKUUN8tNxA==
+"@applitools/screenshoter@3.0.7":
+  version "3.0.7"
+  resolved "https://registry.yarnpkg.com/@applitools/screenshoter/-/screenshoter-3.0.7.tgz#86bfd4499ed0e6d39c05f14346cc66b395db29d3"
+  integrity sha512-twaIDbt+v6+tFhRJXn6ss2qBb6yWWlGwERkgzApIxz1OCkxMoy/2/y0OB0HuJ6xk/O+Cbx9bpF43OdlWvctRYw==
   dependencies:
     "@applitools/utils" "1.1.3"
     png-async "0.9.4"
@@ -155,24 +155,24 @@
 "@applitools/scripts@file:../scripts":
   version "0.0.1"
   dependencies:
-    "@applitools/test-utils" "file:../../../../../Library/Caches/Yarn/v6/npm-@applitools-scripts-0.0.1-271b1058-8dbe-414c-bdef-f66f548e7b16-1621430751715/node_modules/@applitools/test-utils"
+    "@applitools/test-utils" "file:../../../../../Library/Caches/Yarn/v6/npm-@applitools-scripts-0.0.1-b2b5fa71-3884-44a1-bcd4-e6cf675aa69d-1621493961204/node_modules/@applitools/test-utils"
     chalk "3.0.0"
     yargs "15.3.1"
 
-"@applitools/sdk-coverage-tests@2.3.11":
-  version "2.3.11"
-  resolved "https://registry.yarnpkg.com/@applitools/sdk-coverage-tests/-/sdk-coverage-tests-2.3.11.tgz#3d43851837e607cfa7dbf06c66dffe2b1f7097f4"
-  integrity sha512-E/NoP2ilKJ2SxblJjcSTrNe3M+SAcgyzvfOn6X22dO5BtHWCrs0dAip30ydWD8/hfRX3IbP4RSFedqOhaIJoAQ==
+"@applitools/sdk-coverage-tests@2.3.13":
+  version "2.3.13"
+  resolved "https://registry.yarnpkg.com/@applitools/sdk-coverage-tests/-/sdk-coverage-tests-2.3.13.tgz#458baa157c7ddf711d469b494d1da49e24ead6af"
+  integrity sha512-SfK4Jz3O+tIykd4E5T5rAfeydT8yLh7r1JmGLNi7Gdng3P3sRJlJdeiQYfGdcuQuJk4RBRdFn0ZBhpLVka3L6A==
   dependencies:
     "@azure/storage-blob" "12.2.0-preview.1"
     "@babel/core" "7.12.10"
     axios "0.20.0"
     chai "4.2.0"
     chai-as-promised "7.1.1"
-    chalk "4.1.0"
+    chalk "4.1.1"
     handlebars "4.7.6"
-    micromatch "4.0.2"
     node-fetch "2.6.1"
+    prettier "2.3.0"
     sync-fetch "0.3.0"
     xml-js "1.6.11"
     yargs "16.0.3"
@@ -236,6 +236,7 @@
 "@applitools/test-utils@file:../test-utils":
   version "1.0.0"
   dependencies:
+    chalk "^3.0.0"
     node-fetch "^2.6.1"
 
 "@applitools/utils@1.1.3":
@@ -243,12 +244,12 @@
   resolved "https://registry.yarnpkg.com/@applitools/utils/-/utils-1.1.3.tgz#674ab804054263b55506cbf9aa3cf8ab88866078"
   integrity sha512-JumIqn8qHg8z7p9Zq1xfJz13t2RxKSIvmzTMuzrX91qAmNy/6wICiAkEhlA6rSDvvwdH9hn+Mz62zrr4PhylHA==
 
-"@applitools/visual-grid-client@15.8.5":
-  version "15.8.5"
-  resolved "https://registry.yarnpkg.com/@applitools/visual-grid-client/-/visual-grid-client-15.8.5.tgz#af2f11b9deb6aea5e840f15a6fad86a180d4de26"
-  integrity sha512-DQllwXFB3sSZramBKdS8aBMH6wdigWTo28c+umHADrUA+utQKNPM+o8PG8eAwWx/s+F+Im3MK7gP2dYTele61g==
+"@applitools/visual-grid-client@15.8.6":
+  version "15.8.6"
+  resolved "https://registry.yarnpkg.com/@applitools/visual-grid-client/-/visual-grid-client-15.8.6.tgz#5e357a04b6bd29fc16042d2198c89d60f8b6f7da"
+  integrity sha512-D5KuE3WZEczXJ+jpxQ3YjIH3txVm9xtdJAShTMlIZQN9jem7mBqEVSkOZUR+pRzT7YS99Z20sZhyjsYXPocFug==
   dependencies:
-    "@applitools/eyes-sdk-core" "12.19.2"
+    "@applitools/eyes-sdk-core" "12.19.3"
     "@applitools/functional-commons" "1.6.0"
     "@applitools/http-commons" "2.4.3"
     "@applitools/isomorphic-fetch" "3.0.0"
@@ -1040,7 +1041,7 @@ chai@4.2.0:
     pathval "^1.1.0"
     type-detect "^4.0.5"
 
-chalk@3.0.0:
+chalk@3.0.0, chalk@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-3.0.0.tgz#3f73c2bf526591f574cc492c51e2456349f844e4"
   integrity sha512-4D3B6Wf41KOYRFdszmDqMCGq5VV/uMAB273JILmO+3jAlh8X4qDtdtgCR3fxtbLEMzSx22QdhnDcJvu2u1fVwg==
@@ -1056,6 +1057,14 @@ chalk@4.1.0:
     ansi-styles "^4.1.0"
     supports-color "^7.1.0"
 
+chalk@4.1.1, chalk@^4.0.0:
+  version "4.1.1"
+  resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.1.1.tgz#c80b3fab28bf6371e6863325eee67e618b77e6ad"
+  integrity sha512-diHzdDKxcU+bAsUboHLPEDQiw0qEe0qd7SYUn3HgcFlWgbDcfLGswOHYeGrHKzG9z6UYf01d9VFMfZxPM1xZSg==
+  dependencies:
+    ansi-styles "^4.1.0"
+    supports-color "^7.1.0"
+
 chalk@^2.0.0:
   version "2.4.2"
   resolved "https://registry.yarnpkg.com/chalk/-/chalk-2.4.2.tgz#cd42541677a54333cf541a49108c1432b44c9424"
@@ -1064,14 +1073,6 @@ chalk@^2.0.0:
     ansi-styles "^3.2.1"
     escape-string-regexp "^1.0.5"
     supports-color "^5.3.0"
-
-chalk@^4.0.0:
-  version "4.1.1"
-  resolved "https://registry.yarnpkg.com/chalk/-/chalk-4.1.1.tgz#c80b3fab28bf6371e6863325eee67e618b77e6ad"
-  integrity sha512-diHzdDKxcU+bAsUboHLPEDQiw0qEe0qd7SYUn3HgcFlWgbDcfLGswOHYeGrHKzG9z6UYf01d9VFMfZxPM1xZSg==
-  dependencies:
-    ansi-styles "^4.1.0"
-    supports-color "^7.1.0"
 
 check-error@^1.0.2:
   version "1.0.2"
@@ -2902,7 +2903,7 @@ prettier@2.2.1:
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.2.1.tgz#795a1a78dd52f073da0cd42b21f9c91381923ff5"
   integrity sha512-PqyhM2yCjg/oKkFPtTGUojv7gnZAoG80ttl45O6x2Ug/rMJw4wcc9k6aaf2hibP7BGVCCM33gZoGjyvt9mm16Q==
 
-prettier@^2.1.2:
+prettier@2.3.0, prettier@^2.1.2:
   version "2.3.0"
   resolved "https://registry.yarnpkg.com/prettier/-/prettier-2.3.0.tgz#b6a5bf1284026ae640f17f7ff5658a7567fc0d18"
   integrity sha512-kXtO4s0Lz/DW/IJ9QdWhAf7/NmPWQXkFr/r/WkR3vyI+0v8amTDxiaQSLzs8NBlytfLWX/7uQUMIW677yLKl4w==
