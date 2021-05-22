@@ -4,18 +4,22 @@ import {TestResultsStatusEnum} from './enums/TestResultsStatus'
 import {NewTestError} from './errors/NewTestError'
 import {DiffsFoundError} from './errors/DiffsFoundError'
 import {TestFailedError} from './errors/TestFailedError'
-import {Configuration} from './input/Configuration'
 import {RunnerOptions, RunnerOptionsFluent} from './input/RunnerOptions'
 import {TestResultsData} from './output/TestResults'
 import {TestResultsSummaryData} from './output/TestResultsSummary'
 import {Eyes} from './Eyes'
 
+type EyesRunnerSpec<TDriver = unknown, TElement = unknown, TSelector = unknown> = types.Core<
+  TDriver,
+  TElement,
+  TSelector
+>
+
 export abstract class EyesRunner {
-  protected _spec: types.Core<unknown, unknown, unknown>
+  protected _spec: EyesRunnerSpec<unknown, unknown, unknown>
 
   private _manager: types.EyesManager<unknown, unknown, unknown>
   private _eyes: Eyes<unknown, unknown, unknown>[] = []
-  private _configs: Map<string, Configuration<unknown, unknown>> = new Map()
 
   /** @internal */
   abstract get config(): types.Configs.EyesManagerConfig
@@ -23,31 +27,34 @@ export abstract class EyesRunner {
   /** @internal */
   attach<TDriver, TElement, TSelector>(
     eyes: Eyes<TDriver, TElement, TSelector>,
-    spec: types.Core<TDriver, TElement, TSelector>,
+    spec: EyesRunnerSpec<TDriver, TElement, TSelector>,
   ) {
-    this._eyes.push(eyes)
     if (!this._spec) this._spec = spec
+    this._eyes.push(eyes)
   }
 
   /** @internal */
   async makeEyes<TDriver, TElement, TSelector>(
-    config: types.Configs.EyesCreateConfig<TDriver, TElement, TSelector>,
+    config: types.Configs.EyesMakeConfig<TDriver, TElement, TSelector>,
   ): Promise<types.Eyes<TElement, TSelector>> {
     if (!this._manager) this._manager = this._spec.makeManager(this.config)
 
-    const eyes = await this._manager.makeEyes(config)
-    this._configs.set(eyes.testId, config.config)
-    return eyes
+    return await this._manager.makeEyes(config)
   }
 
   async getAllTestResults(throwErr = false): Promise<TestResultsSummaryData> {
     const results = await this._manager.closeAllEyes()
+    const [eyes] = this._eyes
 
     const summary = new TestResultsSummaryData(
       results.map(result => {
-        const config = this._configs.get(result.testId)
         const results = new TestResultsData(result, options =>
-          this._spec.deleteTest({...options, serverUrl: config.serverUrl, apiKey: config.apiKey, proxy: config.proxy}),
+          this._spec.deleteTest({
+            ...options,
+            serverUrl: eyes.configuration.serverUrl,
+            apiKey: eyes.configuration.apiKey,
+            proxy: eyes.configuration.proxy,
+          }),
         )
 
         if (results.status === TestResultsStatusEnum.Unresolved) {

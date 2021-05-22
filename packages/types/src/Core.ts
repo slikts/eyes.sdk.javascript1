@@ -19,13 +19,11 @@ export interface Core<TDriver, TElement, TSelector> {
 }
 
 export interface EyesManager<TDriver, TElement, TSelector> {
-  makeEyes(options: Configs.EyesCreateConfig<TDriver, TElement, TSelector>): Promise<Eyes<TElement, TSelector>>
+  makeEyes(options: Configs.EyesMakeConfig<TDriver, TElement, TSelector>): Promise<Eyes<TElement, TSelector>>
   closeAllEyes: () => Promise<Results.TestResult[]>
 }
 
 export interface Eyes<TElement, TSelector> {
-  readonly testId: string
-
   check(options: {
     settings?: Settings.CheckSettings<TElement, TSelector>
     config?: Configs.EyesConfig<TElement, TSelector>

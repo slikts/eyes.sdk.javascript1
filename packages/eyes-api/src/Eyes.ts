@@ -36,7 +36,9 @@ type EyesSpec<TDriver = unknown, TElement = unknown, TSelector = unknown> = type
 
 export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   protected static readonly _spec: EyesSpec
-  protected readonly _spec: EyesSpec<TDriver, TElement, TSelector>
+  protected get _spec(): EyesSpec<TDriver, TElement, TSelector> {
+    return (this.constructor as any)._spec
+  }
 
   private _logger: Logger
   private _config: ConfigurationData<TElement, TSelector>
@@ -51,21 +53,19 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   }
 
   constructor(runner?: EyesRunner, config?: Configuration<TElement, TSelector>)
-  constructor(config?: Configuration<TElement, TSelector>, runner?: EyesRunner)
+  constructor(config?: Configuration<TElement, TSelector>)
   constructor(
     runnerOrConfig?: EyesRunner | Configuration<TElement, TSelector>,
-    configOrRunner?: Configuration<TElement, TSelector> | EyesRunner,
+    config?: Configuration<TElement, TSelector>,
   ) {
     if (utils.types.instanceOf(runnerOrConfig, EyesRunner)) {
       this._runner = runnerOrConfig
-      this._config = new ConfigurationData(configOrRunner as Configuration<TElement, TSelector>)
-    } else if (utils.types.instanceOf(configOrRunner, EyesRunner)) {
-      this._runner = configOrRunner
-      this._config = new ConfigurationData(runnerOrConfig as Configuration<TElement, TSelector>)
+      this._config = new ConfigurationData(config)
     } else {
       this._runner = new ClassicRunner()
-      this._config = new ConfigurationData(runnerOrConfig as Configuration<TElement, TSelector>)
+      this._config = new ConfigurationData(runnerOrConfig)
     }
+
     this._runner.attach(this, this._spec)
     this._handlers.attach(this)
     this._logger = new Logger({...this._config.logs, label: 'Eyes API'})

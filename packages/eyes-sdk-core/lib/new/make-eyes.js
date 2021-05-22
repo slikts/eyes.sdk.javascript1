@@ -51,7 +51,6 @@ function makeMakeEyes({sdk, runner}) {
     await eyes.open(driver, config.appName, config.testName)
 
     return {
-      testId: eyes.getRunningSession().getId(),
       check: makeCheck({eyes}),
       locate: makeLocate({eyes}),
       extractText: makeExtractText({eyes}),

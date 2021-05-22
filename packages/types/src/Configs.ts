@@ -7,7 +7,7 @@ export type EyesManagerConfig<TType extends 'vg' | 'classic' = 'vg' | 'classic'>
   legacy?: TType extends 'vg' ? boolean : never
 }
 
-export type EyesCreateConfig<TDriver, TElement, TSelector> = {
+export type EyesMakeConfig<TDriver, TElement, TSelector> = {
   driver: TDriver
   config?: EyesConfig<TElement, TSelector>
   on?: (event: string, data?: Record<string, any>) => any
