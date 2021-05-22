@@ -3,7 +3,7 @@
 const path = require('path')
 const cwd = process.cwd()
 const {setupEyes} = require('@applitools/test-utils')
-const testServer = require('@applitools/sdk-shared/src/test-server')
+const {testServer} = require('@applitools/test-server')
 const spec = require(path.resolve(cwd, 'dist/spec-driver'))
 const {Target} = require('../../dist')
 let server, eyes

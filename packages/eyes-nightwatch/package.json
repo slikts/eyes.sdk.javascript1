@@ -84,6 +84,7 @@
     "@applitools/scripts": "file:../scripts",
     "@applitools/sdk-coverage-tests": "2.3.11",
     "@applitools/sdk-release-kit": "0.13.0",
+    "@applitools/sdk-shared": "file:../sdk-shared",
     "@applitools/test-utils": "file:../test-utils",
     "@types/nightwatch": "^1.3.3",
     "@typescript-eslint/eslint-plugin": "^4.15.1",

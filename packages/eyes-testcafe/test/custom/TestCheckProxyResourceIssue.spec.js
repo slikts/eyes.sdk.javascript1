@@ -2,7 +2,7 @@
 const cwd = process.cwd()
 const path = require('path')
 const {setupEyes} = require('@applitools/test-utils')
-const testServer = require('@applitools/sdk-shared/src/test-server')
+const {testServer} = require('@applitools/test-server')
 let eyes, server
 
 fixture`proxying of resources`

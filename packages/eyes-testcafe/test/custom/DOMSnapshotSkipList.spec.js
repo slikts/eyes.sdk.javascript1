@@ -5,7 +5,7 @@ const cwd = process.cwd()
 const spec = require(path.resolve(cwd, 'dist/spec-driver'))
 const {Target} = require('../../dist')
 const {setupEyes} = require('@applitools/test-utils')
-const testServer = require('@applitools/sdk-shared/src/test-server')
+const {testServer} = require('@applitools/test-server')
 let server, eyes
 
 fixture`DOMSnapshotSkipList`
