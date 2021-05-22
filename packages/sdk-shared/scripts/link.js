@@ -88,7 +88,7 @@ async function link({
           )} due to error`,
         ),
       )
-      console.error(result.error)
+      console.dir(result.error)
       process.exit(1)
     }
     console.log(
@@ -113,7 +113,8 @@ async function link({
         const commands = ['yarn link']
         if (runInstall) commands.push('yarn install')
         if (runBuild && dependency.hasBuild) commands.push('yarn build')
-        exec(commands.join(' && '), {cwd: dependency.path}, async error => {
+        exec(commands.join(' && '), {cwd: dependency.path}, async (error, f, g) => {
+          console.log(f, g)
           resolve([{target, dependency, error}, ...nestedResults])
         })
       })
