@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- remove unused RenderingInfo and RunningSession types
+- rename BrowserName to BrowserType
+- allow sting values instead of enums in Plain types
+- use @applitools/types package to describe internal types
+- add spec to the EyesRunner
 
 ## 1.0.1 - 2021/5/12
 

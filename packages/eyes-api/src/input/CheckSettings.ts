@@ -1,6 +1,6 @@
 import * as utils from '@applitools/utils'
-import AccessibilityRegionType from '../enums/AccessibilityRegionType'
-import MatchLevel from '../enums/MatchLevel'
+import {AccessibilityRegionType, AccessibilityRegionTypeEnum} from '../enums/AccessibilityRegionType'
+import {MatchLevel, MatchLevelEnum} from '../enums/MatchLevel'
 import {Region} from './Region'
 
 type RegionReference<TElement, TSelector> = Region | ElementReference<TElement, TSelector>
@@ -119,7 +119,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     }
     if (settings.scrollRootElement) this.scrollRootElement(settings.scrollRootElement)
     if (!utils.types.isNull(settings.fully)) this.fully(settings.fully)
-    if (settings.matchLevel) this.matchLevel(settings.matchLevel)
+    if (settings.matchLevel) this.matchLevel(settings.matchLevel as MatchLevelEnum)
     if (!utils.types.isNull(settings.useDom)) this.useDom(settings.useDom)
     if (!utils.types.isNull(settings.sendDom)) this.sendDom(settings.sendDom)
     if (!utils.types.isNull(settings.enablePatterns)) this.enablePatterns(settings.enablePatterns)
@@ -265,10 +265,10 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     utils.guard.custom(floatingRegion.region, value => this._isRegionReference(value), {
       name: 'region',
     })
-    utils.guard.isNumber(floatingRegion.maxUpOffset, {name: 'region'})
-    utils.guard.isNumber(floatingRegion.maxDownOffset, {name: 'region'})
-    utils.guard.isNumber(floatingRegion.maxLeftOffset, {name: 'region'})
-    utils.guard.isNumber(floatingRegion.maxRightOffset, {name: 'region'})
+    utils.guard.isNumber(floatingRegion.maxUpOffset, {name: 'maxUpOffset'})
+    utils.guard.isNumber(floatingRegion.maxDownOffset, {name: 'maxDownOffset'})
+    utils.guard.isNumber(floatingRegion.maxLeftOffset, {name: 'maxLeftOffset'})
+    utils.guard.isNumber(floatingRegion.maxRightOffset, {name: 'maxRightOffset'})
     if (!this._settings.floatingRegions) this._settings.floatingRegions = []
     this._settings.floatingRegions.push(floatingRegion)
     return this
@@ -331,16 +331,16 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
   }
 
   accessibilityRegion(region: AccessibilityRegionReference<TElement, TSelector>): this
-  accessibilityRegion(region: RegionReference<TElement, TSelector>, type?: AccessibilityRegionType): this
+  accessibilityRegion(region: RegionReference<TElement, TSelector>, type?: AccessibilityRegionTypeEnum): this
   accessibilityRegion(
     region: AccessibilityRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector>,
-    type?: AccessibilityRegionType,
+    type?: AccessibilityRegionTypeEnum,
   ): this {
     const accessibilityRegion = utils.types.has(region, 'region') ? region : {region, type}
     utils.guard.custom(accessibilityRegion.region, value => this._isRegionReference(value), {
       name: 'region',
     })
-    utils.guard.isEnumValue(accessibilityRegion.type, AccessibilityRegionType, {
+    utils.guard.isEnumValue(accessibilityRegion.type, AccessibilityRegionTypeEnum, {
       name: 'type',
       strict: false,
     })
@@ -351,15 +351,15 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
   accessibilityRegions(
     ...regions: (AccessibilityRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector>)[]
   ): this
-  accessibilityRegions(type: AccessibilityRegionType, ...regions: RegionReference<TElement, TSelector>[]): this
+  accessibilityRegions(type: AccessibilityRegionTypeEnum, ...regions: RegionReference<TElement, TSelector>[]): this
   accessibilityRegions(
     regionOrType:
       | AccessibilityRegionReference<TElement, TSelector>
       | RegionReference<TElement, TSelector>
-      | AccessibilityRegionType,
+      | AccessibilityRegionTypeEnum,
     ...regions: (AccessibilityRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector>)[]
   ): this {
-    if (utils.types.isEnumValue(regionOrType, AccessibilityRegionType)) {
+    if (utils.types.isEnumValue(regionOrType, AccessibilityRegionTypeEnum)) {
       const type = regionOrType
       regions.forEach((region: RegionReference<TElement, TSelector>) => this.accessibilityRegion({region, type}))
     } else {
@@ -394,29 +394,29 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     return this.fully(stitchContent)
   }
 
-  matchLevel(matchLevel: MatchLevel): this {
-    utils.guard.isEnumValue(matchLevel, MatchLevel, {name: 'matchLevel'})
+  matchLevel(matchLevel: MatchLevelEnum): this {
+    utils.guard.isEnumValue(matchLevel, MatchLevelEnum, {name: 'matchLevel'})
     this._settings.matchLevel = matchLevel
     return this
   }
 
   layout(): this {
-    this._settings.matchLevel = MatchLevel.Layout
+    this._settings.matchLevel = MatchLevelEnum.Layout
     return this
   }
 
   exact(): this {
-    this._settings.matchLevel = MatchLevel.Exact
+    this._settings.matchLevel = MatchLevelEnum.Exact
     return this
   }
 
   strict(): this {
-    this._settings.matchLevel = MatchLevel.Strict
+    this._settings.matchLevel = MatchLevelEnum.Strict
     return this
   }
 
   content(): this {
-    this._settings.matchLevel = MatchLevel.Content
+    this._settings.matchLevel = MatchLevelEnum.Content
     return this
   }
 

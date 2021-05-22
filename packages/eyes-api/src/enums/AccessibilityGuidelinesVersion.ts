@@ -1,6 +1,6 @@
-enum AccessibilityGuidelinesVersion {
+export enum AccessibilityGuidelinesVersionEnum {
   WCAG_2_0 = 'WCAG_2_0',
   WCAG_2_1 = 'WCAG_2_1',
 }
 
-export default AccessibilityGuidelinesVersion
+export type AccessibilityGuidelinesVersion = `${AccessibilityGuidelinesVersionEnum}`

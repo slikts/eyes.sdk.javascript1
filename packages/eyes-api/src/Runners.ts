@@ -1,43 +1,73 @@
+import type * as types from '@applitools/types'
 import * as utils from '@applitools/utils'
+import {TestResultsStatusEnum} from './enums/TestResultsStatus'
+import {NewTestError} from './errors/NewTestError'
+import {DiffsFoundError} from './errors/DiffsFoundError'
+import {TestFailedError} from './errors/TestFailedError'
+import {Configuration} from './input/Configuration'
 import {RunnerOptions, RunnerOptionsFluent} from './input/RunnerOptions'
+import {TestResultsData} from './output/TestResults'
 import {TestResultsSummaryData} from './output/TestResultsSummary'
-import type {Eyes} from './Eyes'
-
-export type RunnerConfiguration<TType extends 'vg' | 'classic' = 'vg' | 'classic'> = {
-  type: TType
-  concurrency?: TType extends 'vg' ? number : never
-  legacy?: TType extends 'vg' ? boolean : never
-}
+import {Eyes} from './Eyes'
 
 export abstract class EyesRunner {
-  private _make: (config: RunnerConfiguration) => (...args: any[]) => unknown
-  private _controller: any
-  private _eyes: Eyes[] = []
+  protected _spec: types.Core<unknown, unknown, unknown>
+
+  private _manager: types.EyesManager<unknown, unknown, unknown>
+  private _eyes: Eyes<unknown, unknown, unknown>[] = []
+  private _configs: Map<string, Configuration<unknown, unknown>> = new Map()
 
   /** @internal */
-  abstract get config(): RunnerConfiguration
+  abstract get config(): types.Configs.EyesManagerConfig
 
   /** @internal */
-  attach(eyes: Eyes, init: (...args: any) => any) {
+  attach<TDriver, TElement, TSelector>(
+    eyes: Eyes<TDriver, TElement, TSelector>,
+    spec: types.Core<TDriver, TElement, TSelector>,
+  ) {
     this._eyes.push(eyes)
-    this._make = this._make || init
+    if (!this._spec) this._spec = spec
   }
 
   /** @internal */
-  async open(...args: any[]): Promise<any> {
-    if (!this._controller) this._controller = this._make(this.config)
+  async makeEyes<TDriver, TElement, TSelector>(
+    config: types.Configs.EyesCreateConfig<TDriver, TElement, TSelector>,
+  ): Promise<types.Eyes<TElement, TSelector>> {
+    if (!this._manager) this._manager = this._spec.makeManager(this.config)
 
-    return this._controller.open(...args)
+    const eyes = await this._manager.makeEyes(config)
+    this._configs.set(eyes.testId, config.config)
+    return eyes
   }
 
   async getAllTestResults(throwErr = false): Promise<TestResultsSummaryData> {
-    const results = await this._controller.getResults()
+    const results = await this._manager.closeAllEyes()
+
+    const summary = new TestResultsSummaryData(
+      results.map(result => {
+        const config = this._configs.get(result.testId)
+        const results = new TestResultsData(result, options =>
+          this._spec.deleteTest({...options, serverUrl: config.serverUrl, apiKey: config.apiKey, proxy: config.proxy}),
+        )
+
+        if (results.status === TestResultsStatusEnum.Unresolved) {
+          if (results.isNew) return new NewTestError(results)
+          else return new DiffsFoundError(results)
+        } else if (results.status === TestResultsStatusEnum.Failed) {
+          return new TestFailedError(results)
+        } else {
+          return results
+        }
+      }),
+    )
+
     if (throwErr) {
-      for (const result of results) {
+      for (const result of summary) {
         if (result.exception) throw result.exception
       }
     }
-    return new TestResultsSummaryData(results)
+
+    return summary
   }
 }
 
@@ -64,7 +94,7 @@ export class VisualGridRunner extends EyesRunner {
   }
 
   /** @internal */
-  get config(): RunnerConfiguration<'vg'> {
+  get config(): types.Configs.EyesManagerConfig<'vg'> {
     return {
       type: 'vg',
       concurrency: this._testConcurrency || this._legacyConcurrency,
@@ -89,7 +119,7 @@ export class VisualGridRunner extends EyesRunner {
 
 export class ClassicRunner extends EyesRunner {
   /** @internal */
-  get config(): RunnerConfiguration<'classic'> {
+  get config(): types.Configs.EyesManagerConfig<'classic'> {
     return {type: 'classic'}
   }
 }

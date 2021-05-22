@@ -1,6 +1,6 @@
 const EyesSDK = require('../sdk/EyesSDK')
 
-const makeMakeEyes = require('./make-eyes')
+const makeMakeManager = require('./make-manager')
 const makeGetViewportSize = require('./get-viewport-size')
 const makeSetViewportSize = require('./set-viewport-size')
 const makeCloseBatches = require('./close-batches')
@@ -13,11 +13,11 @@ function makeSdk(options) {
     isDriver: options.spec.isDriver,
     isElement: options.spec.isElement,
     isSelector: options.spec.isSelector,
-    makeEyes: makeMakeEyes(sdk),
+    makeManager: makeMakeManager(sdk),
     getViewportSize: makeGetViewportSize(sdk),
     setViewportSize: makeSetViewportSize(sdk),
     closeBatches: makeCloseBatches(sdk),
-    deleteTestResults: makeDeleteTestResults(sdk),
+    deleteTest: makeDeleteTestResults(sdk),
   }
 }
 

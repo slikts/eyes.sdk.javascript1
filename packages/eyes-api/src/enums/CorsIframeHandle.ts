@@ -1,8 +1,8 @@
 /** @undocumented */
-enum CorsIframeHandle {
+export enum CorsIframeHandleEnum {
   BLANK = 'BLANK',
   KEEP = 'KEEP',
   SNAPSHOT = 'SNAPSHOT',
 }
 
-export default CorsIframeHandle
+export type CorsIframeHandle = `${CorsIframeHandleEnum}`

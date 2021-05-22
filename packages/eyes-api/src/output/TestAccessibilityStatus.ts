@@ -1,6 +1,6 @@
-import AccessibilityLevel from '../enums/AccessibilityLevel'
-import AccessibilityGuidelinesVersion from '../enums/AccessibilityGuidelinesVersion'
-import AccessibilityStatus from '../enums/AccessibilityStatus'
+import {AccessibilityLevel} from '../enums/AccessibilityLevel'
+import {AccessibilityGuidelinesVersion} from '../enums/AccessibilityGuidelinesVersion'
+import {AccessibilityStatus} from '../enums/AccessibilityStatus'
 
 export type TestAccessibilityStatus = {
   readonly level: AccessibilityLevel

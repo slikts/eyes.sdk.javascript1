@@ -1,6 +1,6 @@
 {
-  "name": "@applitools/eyes-api",
-  "version": "1.0.1",
+  "name": "@applitools/types",
+  "version": "1.0.0",
   "keywords": [
     "applitools",
     "eyes",
@@ -24,41 +24,38 @@
     "name": "Applitools Team",
     "email": "team@applitools.com"
   },
-  "main": "./dist/index.js",
   "types": "./types/index.d.ts",
   "directories": {
-    "lib": "./src"
+    "test": "./test",
+    "src": "./src"
   },
   "files": [
     "dist",
     "types"
   ],
   "scripts": {
-    "lint": "eslint '**/*.ts' '**/*.js'",
+    "lint": "eslint '**/*.ts'",
     "build": "tsc",
-    "test": "yarn build && yarn test:unit",
-    "test:unit": "mocha --no-timeouts './test/unit/*.spec.js'",
     "deps": "bongo deps",
     "preversion": "bongo preversion && yarn build",
     "version": "bongo version",
     "postversion": "bongo postversion --skip-release-notification"
   },
-  "dependencies": {
-    "@applitools/logger": "1.0.0",
-    "@applitools/types": "file:../types",
-    "@applitools/utils": "1.1.3"
+  "husky": {
+    "hooks": {
+      "pre-push": "yarn bongo lint"
+    }
   },
+  "dependencies": {},
   "devDependencies": {
     "@applitools/sdk-release-kit": "0.13.0",
-    "@types/node": "^14.14.41",
+    "@types/node": "^14.14.7",
     "@typescript-eslint/eslint-plugin": "^4.7.0",
     "@typescript-eslint/parser": "^4.7.0",
-    "eslint": "^7.25.0",
+    "eslint": "^7.13.0",
     "eslint-config-prettier": "^6.15.0",
-    "eslint-plugin-mocha-no-only": "^1.1.1",
-    "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.1.4",
-    "mocha": "^8.3.2",
+    "husky": "^4.3.8",
     "prettier": "^2.1.2",
     "typescript": "^4.0.5"
   },

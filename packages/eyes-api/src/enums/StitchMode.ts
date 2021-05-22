@@ -1,6 +1,6 @@
-enum StitchMode {
+export enum StitchModeEnum {
   SCROLL = 'Scroll',
   CSS = 'CSS',
 }
 
-export default StitchMode
+export type StitchMode = `${StitchModeEnum}`
