@@ -27,7 +27,7 @@ type AccessibilityRegionReference<TElement, TSelector> = {
   type?: AccessibilityRegionType | AccessibilityRegionTypeLiteral
 }
 
-type CheckSettingsSpec<TElement, TSelector> = {
+type CheckSettingsSpec<TElement = unknown, TSelector = unknown> = {
   isElement(value: any): value is TElement
   isSelector(value: any): value is TSelector
 }
@@ -83,7 +83,10 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     return new this().frame(contextOrFrame, scrollRootElement)
   }
 
-  protected readonly _spec: CheckSettingsSpec<TElement, TSelector>
+  protected static readonly _spec: CheckSettingsSpec
+  protected get _spec(): CheckSettingsSpec<TElement, TSelector> {
+    return (this.constructor as typeof CheckSettingsFluent)._spec as CheckSettingsSpec<TElement, TSelector>
+  }
 
   private _settings: CheckSettings<TElement, TSelector> = {}
 

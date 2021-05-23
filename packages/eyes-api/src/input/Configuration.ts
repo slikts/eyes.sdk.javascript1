@@ -19,7 +19,7 @@ import {ImageMatchSettings, ImageMatchSettingsData} from './ImageMatchSettings'
 
 type RenderInfo = DesktopBrowserInfo | ChromeEmulationInfo | IOSDeviceInfo | ChromeEmulationInfoLegacy
 
-type ConfigurationSpec<TElement, TSelector> = {
+type ConfigurationSpec<TElement = unknown, TSelector = unknown> = {
   isElement(element: any): element is TElement
   isSelector(selector: any): selector is TSelector
 }
@@ -106,7 +106,10 @@ export type Configuration<TElement = unknown, TSelector = unknown> = GeneralConf
 export class ConfigurationData<TElement = unknown, TSelector = unknown>
   implements Required<Configuration<TElement, TSelector>>
 {
-  protected readonly _spec: ConfigurationSpec<TElement, TSelector>
+  protected static readonly _spec: ConfigurationSpec
+  protected get _spec(): ConfigurationSpec<TElement, TSelector> {
+    return (this.constructor as typeof ConfigurationData)._spec as ConfigurationSpec<TElement, TSelector>
+  }
 
   private _config: Configuration<TElement, TSelector> = {}
 

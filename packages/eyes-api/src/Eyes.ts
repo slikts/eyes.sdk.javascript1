@@ -37,7 +37,7 @@ type EyesSpec<TDriver = unknown, TElement = unknown, TSelector = unknown> = type
 export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   protected static readonly _spec: EyesSpec
   protected get _spec(): EyesSpec<TDriver, TElement, TSelector> {
-    return (this.constructor as any)._spec
+    return (this.constructor as typeof Eyes)._spec as EyesSpec<TDriver, TElement, TSelector>
   }
 
   private _logger: Logger
