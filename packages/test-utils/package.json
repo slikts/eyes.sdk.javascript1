@@ -18,6 +18,7 @@
   ],
   "scripts": {
     "lint": "eslint . --ext .js",
+    "test": "mocha --no-timeouts 'test/**/*.spec.js'",
     "deps": "bongo deps",
     "preversion": "bongo preversion",
     "version": "bongo version",
@@ -29,8 +30,8 @@
     }
   },
   "dependencies": {
-    "node-fetch": "^2.6.1",
-    "chalk": "^3.0.0"
+    "chalk": "4.1.1",
+    "node-fetch": "2.6.1"
   },
   "devDependencies": {
     "@applitools/sdk-release-kit": "0.13.0",
