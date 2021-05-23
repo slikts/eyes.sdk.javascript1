@@ -35,10 +35,10 @@ describe('legacy api', () => {
     const mainDoc = await driver.executeScript('return document.documentElement')
     await driver.switchTo().frame(1)
     const frameDoc = await driver.executeScript('return document.documentElement')
-    assert.ok(await driver.executeScript('return arguments[0] !== arguments[1]', frameDoc, mainDoc))
+    assert.ok(!(await spec.isEqualElements(browser, mainDoc, frameDoc)))
     await driver.switchTo().defaultContent()
     const defaultDoc = await driver.executeScript('return document.documentElement')
-    assert.ok(await driver.executeScript('return arguments[0] === arguments[1]', defaultDoc, mainDoc))
+    assert.ok(await spec.isEqualElements(browser, mainDoc, defaultDoc))
   })
 
   it('getCurrentUrl()', async () => {
