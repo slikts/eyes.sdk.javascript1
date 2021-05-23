@@ -43,6 +43,7 @@
     "node-fetch": "2.6.1"
   },
   "devDependencies": {
+    "@applitools/test-server": "file:../test-server",
     "@applitools/test-utils": "file:../test-utils",
     "@applitools/sdk-release-kit": "0.13.0",
     "eslint": "^6.6.0",
