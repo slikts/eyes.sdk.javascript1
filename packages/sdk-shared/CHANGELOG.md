@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- move test-server and test-utils from dev deps to deps
 
 ## 0.9.0 - 2021/5/23
 
