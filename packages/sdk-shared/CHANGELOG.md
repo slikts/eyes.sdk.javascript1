@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+
+## 0.9.2 - 2021/5/23
+
 - fix handlebars middleware
 
 ## 0.9.1 - 2021/5/23
