@@ -43,6 +43,7 @@ export abstract class EyesRunner {
   }
 
   async getAllTestResults(throwErr = false): Promise<TestResultsSummaryData> {
+    if (!this._manager) return new TestResultsSummaryData([])
     const results = await this._manager.closeAllEyes()
     const [eyes] = this._eyes
 
