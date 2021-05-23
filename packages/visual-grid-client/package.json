@@ -51,8 +51,8 @@
   "devDependencies": {
     "@applitools/dom-snapshot": "4.5.1",
     "@applitools/sdk-release-kit": "0.13.0",
-    "@applitools/test-server": "file:../test-server",
-    "@applitools/test-utils": "file:../test-utils",
+    "@applitools/test-server": "1.0.1",
+    "@applitools/test-utils": "1.0.0",
     "chai": "^4.2.0",
     "chai-spies": "^1.0.0",
     "chai-uuid": "^1.0.6",
