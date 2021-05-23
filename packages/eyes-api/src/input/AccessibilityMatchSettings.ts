@@ -1,10 +1,10 @@
 import * as utils from '@applitools/utils'
-import {AccessibilityRegionType, AccessibilityRegionTypeEnum} from '../enums/AccessibilityRegionType'
+import {AccessibilityRegionType, AccessibilityRegionTypeLiteral} from '../enums/AccessibilityRegionType'
 import {Region, RegionData} from './Region'
 
 export type AccessibilityMatchSettings = {
   region: Region
-  type?: AccessibilityRegionType
+  type?: AccessibilityRegionType | AccessibilityRegionTypeLiteral
 }
 
 export class AccessibilityMatchSettingsData implements Required<AccessibilityMatchSettings> {
@@ -67,17 +67,17 @@ export class AccessibilityMatchSettingsData implements Required<AccessibilityMat
     this.region.height = height
   }
 
-  get type(): AccessibilityRegionType {
+  get type(): AccessibilityRegionTypeLiteral {
     return this._settings.type
   }
-  set type(type: AccessibilityRegionType) {
-    utils.guard.isEnumValue(type, AccessibilityRegionTypeEnum, {name: 'type', strict: false})
+  set type(type: AccessibilityRegionTypeLiteral) {
+    utils.guard.isEnumValue(type, AccessibilityRegionType, {name: 'type', strict: false})
     this._settings.type = type
   }
-  getType(): AccessibilityRegionTypeEnum {
-    return this.type as AccessibilityRegionTypeEnum
+  getType(): AccessibilityRegionType {
+    return this.type as AccessibilityRegionType
   }
-  setType(type: AccessibilityRegionTypeEnum) {
+  setType(type: AccessibilityRegionType) {
     this.type = type
   }
 

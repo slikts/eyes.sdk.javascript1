@@ -1,7 +1,7 @@
-export enum TestResultsStatusEnum {
+export enum TestResultsStatus {
   Passed = 'Passed',
   Unresolved = 'Unresolved',
   Failed = 'Failed',
 }
 
-export type TestResultsStatus = `${TestResultsStatusEnum}`
+export type TestResultsStatusLiteral = `${TestResultsStatus}`

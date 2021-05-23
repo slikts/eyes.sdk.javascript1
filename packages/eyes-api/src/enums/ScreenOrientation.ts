@@ -1,6 +1,6 @@
-export enum ScreenOrientationEnum {
+export enum ScreenOrientation {
   PORTRAIT = 'portrait',
   LANDSCAPE = 'landscape',
 }
 
-export type ScreenOrientation = `${ScreenOrientationEnum}`
+export type ScreenOrientationLiteral = `${ScreenOrientation}`

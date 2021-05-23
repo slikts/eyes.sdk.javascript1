@@ -1,7 +1,10 @@
-import {AccessibilityLevel} from '../enums/AccessibilityLevel'
-import {AccessibilityGuidelinesVersion} from '../enums/AccessibilityGuidelinesVersion'
+import {AccessibilityLevel, AccessibilityLevelLiteral} from '../enums/AccessibilityLevel'
+import {
+  AccessibilityGuidelinesVersion,
+  AccessibilityGuidelinesVersionLiteral,
+} from '../enums/AccessibilityGuidelinesVersion'
 
 export type AccessibilitySettings = {
-  level?: AccessibilityLevel
-  guidelinesVersion?: AccessibilityGuidelinesVersion
+  level?: AccessibilityLevel | AccessibilityLevelLiteral
+  guidelinesVersion?: AccessibilityGuidelinesVersion | AccessibilityGuidelinesVersionLiteral
 }

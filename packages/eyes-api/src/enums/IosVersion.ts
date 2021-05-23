@@ -1,8 +1,8 @@
-export enum IosVersionEnum {
+export enum IosVersion {
   LATEST = 'latest',
   ONE_VERSION_BACK = 'latest-1',
   /** @deprecated */
   LATEST_ONE_VERSION_BACK = 'latest-1',
 }
 
-export type IosVersion = `${IosVersionEnum}`
+export type IosVersionLiteral = `${IosVersion}`

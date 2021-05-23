@@ -1,4 +1,4 @@
-export enum BrowserTypeEnum {
+export enum BrowserType {
   CHROME = 'chrome',
   CHROME_ONE_VERSION_BACK = 'chrome-one-version-back',
   CHROME_TWO_VERSIONS_BACK = 'chrome-two-versions-back',
@@ -18,4 +18,4 @@ export enum BrowserTypeEnum {
   SAFARI_TWO_VERSIONS_BACK = 'safari-two-versions-back',
 }
 
-export type BrowserType = `${BrowserTypeEnum}`
+export type BrowserTypeLiteral = `${BrowserType}`

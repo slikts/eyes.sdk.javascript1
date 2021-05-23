@@ -1,4 +1,4 @@
-export enum IosDeviceNameEnum {
+export enum IosDeviceName {
   iPhone_11_Pro = 'iPhone 11 Pro',
   iPhone_11_Pro_Max = 'iPhone 11 Pro Max',
   iPhone_11 = 'iPhone 11',
@@ -12,4 +12,4 @@ export enum IosDeviceNameEnum {
   iPad_Air_2 = 'iPad Air (2nd generation)',
 }
 
-export type IosDeviceName = `${IosDeviceNameEnum}`
+export type IosDeviceNameLiteral = `${IosDeviceName}`

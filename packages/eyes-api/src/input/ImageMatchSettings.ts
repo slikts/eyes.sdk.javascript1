@@ -1,7 +1,7 @@
 import * as utils from '@applitools/utils'
-import {MatchLevel, MatchLevelEnum} from '../enums/MatchLevel'
-import {AccessibilityLevelEnum} from '../enums/AccessibilityLevel'
-import {AccessibilityGuidelinesVersionEnum} from '../enums/AccessibilityGuidelinesVersion'
+import {MatchLevelLiteral, MatchLevel} from '../enums/MatchLevel'
+import {AccessibilityLevel} from '../enums/AccessibilityLevel'
+import {AccessibilityGuidelinesVersion} from '../enums/AccessibilityGuidelinesVersion'
 import {ExactMatchSettings, ExactMatchSettingsData} from './ExactMatchSettings'
 import {FloatingMatchSettings, FloatingMatchSettingsData} from './FloatingMatchSettings'
 import {AccessibilityMatchSettings, AccessibilityMatchSettingsData} from './AccessibilityMatchSettings'
@@ -11,7 +11,7 @@ import {AccessibilitySettings} from './AccessibilitySettings'
 /** @undocumented */
 export type ImageMatchSettings = {
   exact?: ExactMatchSettings
-  matchLevel?: MatchLevel
+  matchLevel?: MatchLevel | MatchLevelLiteral
   ignoreCaret?: boolean
   useDom?: boolean
   enablePatterns?: boolean
@@ -51,17 +51,17 @@ export class ImageMatchSettingsData implements Required<ImageMatchSettings> {
     this.exact = exact
   }
 
-  get matchLevel(): MatchLevel {
+  get matchLevel(): MatchLevelLiteral {
     return this._settings.matchLevel
   }
-  set matchLevel(matchLevel: MatchLevel) {
-    utils.guard.isEnumValue(matchLevel, MatchLevelEnum, {name: 'matchLevel'})
+  set matchLevel(matchLevel: MatchLevelLiteral) {
+    utils.guard.isEnumValue(matchLevel, MatchLevel, {name: 'matchLevel'})
     this._settings.matchLevel = matchLevel
   }
-  getMatchLevel(): MatchLevelEnum {
-    return this.matchLevel as MatchLevelEnum
+  getMatchLevel(): MatchLevel {
+    return this.matchLevel as MatchLevel
   }
-  setMatchLevel(matchLevel: MatchLevelEnum) {
+  setMatchLevel(matchLevel: MatchLevel) {
     this.matchLevel = matchLevel
   }
 
@@ -245,8 +245,8 @@ export class ImageMatchSettingsData implements Required<ImageMatchSettings> {
   set accessibilitySettings(accessibilitySettings: AccessibilitySettings) {
     if (accessibilitySettings) {
       const {level, guidelinesVersion} = accessibilitySettings
-      utils.guard.isEnumValue(level, AccessibilityLevelEnum, {name: 'accessibilitySettings.level'})
-      utils.guard.isEnumValue(guidelinesVersion, AccessibilityGuidelinesVersionEnum, {
+      utils.guard.isEnumValue(level, AccessibilityLevel, {name: 'accessibilitySettings.level'})
+      utils.guard.isEnumValue(guidelinesVersion, AccessibilityGuidelinesVersion, {
         name: 'accessibilitySettings.guidelinesVersion',
       })
     }

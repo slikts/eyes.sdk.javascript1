@@ -1,6 +1,6 @@
 import type * as types from '@applitools/types'
 import * as utils from '@applitools/utils'
-import {TestResultsStatusEnum} from './enums/TestResultsStatus'
+import {TestResultsStatus} from './enums/TestResultsStatus'
 import {NewTestError} from './errors/NewTestError'
 import {DiffsFoundError} from './errors/DiffsFoundError'
 import {TestFailedError} from './errors/TestFailedError'
@@ -57,10 +57,10 @@ export abstract class EyesRunner {
           }),
         )
 
-        if (results.status === TestResultsStatusEnum.Unresolved) {
+        if (results.status === TestResultsStatus.Unresolved) {
           if (results.isNew) return new NewTestError(results)
           else return new DiffsFoundError(results)
-        } else if (results.status === TestResultsStatusEnum.Failed) {
+        } else if (results.status === TestResultsStatus.Failed) {
           return new TestFailedError(results)
         } else {
           return results

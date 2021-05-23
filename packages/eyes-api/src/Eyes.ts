@@ -1,9 +1,9 @@
 import type * as types from '@applitools/types'
 import * as utils from '@applitools/utils'
-import {SessionType, SessionTypeEnum} from './enums/SessionType'
-import {StitchModeEnum} from './enums/StitchMode'
-import {MatchLevelEnum} from './enums/MatchLevel'
-import {TestResultsStatusEnum} from './enums/TestResultsStatus'
+import {SessionTypeLiteral, SessionType} from './enums/SessionType'
+import {StitchMode} from './enums/StitchMode'
+import {MatchLevel} from './enums/MatchLevel'
+import {TestResultsStatus} from './enums/TestResultsStatus'
 import {EyesError} from './errors/EyesError'
 import {NewTestError} from './errors/NewTestError'
 import {DiffsFoundError} from './errors/DiffsFoundError'
@@ -166,14 +166,14 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     appName?: string,
     testName?: string,
     viewportSize?: RectangleSize,
-    sessionType?: SessionType,
+    sessionType?: SessionTypeLiteral,
   ): Promise<TDriver>
   async open(
     driver: TDriver,
     configOrAppName?: Configuration | string,
     testName?: string,
     viewportSize?: RectangleSize,
-    sessionType?: SessionType,
+    sessionType?: SessionTypeLiteral,
   ): Promise<TDriver> {
     this._driver = driver
 
@@ -189,7 +189,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     }
     if (utils.types.isString(testName)) config.testName = testName
     if (utils.types.has(viewportSize, ['width', 'height'])) config.viewportSize = viewportSize
-    if (utils.types.isEnumValue(sessionType, SessionTypeEnum)) config.sessionType = sessionType
+    if (utils.types.isEnumValue(sessionType, SessionType)) config.sessionType = sessionType
 
     this._eyes = await this._runner.makeEyes({
       driver,
@@ -307,10 +307,10 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     )
     this._eyes = null
     if (throwErr) {
-      if (results.status === TestResultsStatusEnum.Unresolved) {
+      if (results.status === TestResultsStatus.Unresolved) {
         if (results.isNew) throw new NewTestError(results)
         else throw new DiffsFoundError(results)
-      } else if (results.status === TestResultsStatusEnum.Failed) {
+      } else if (results.status === TestResultsStatus.Failed) {
         throw new TestFailedError(results)
       }
     }
@@ -549,10 +549,10 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     this._config.setIsDisabled(isDisabled)
   }
 
-  getMatchLevel(): MatchLevelEnum {
+  getMatchLevel(): MatchLevel {
     return this._config.getMatchLevel()
   }
-  setMatchLevel(matchLevel: MatchLevelEnum) {
+  setMatchLevel(matchLevel: MatchLevel) {
     this._config.setMatchLevel(matchLevel)
   }
 
@@ -642,10 +642,10 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     this._config.setWaitBeforeScreenshots(waitBeforeScreenshots)
   }
 
-  getStitchMode(): StitchModeEnum {
+  getStitchMode(): StitchMode {
     return this._config.getStitchMode()
   }
-  setStitchMode(stitchMode: StitchModeEnum) {
+  setStitchMode(stitchMode: StitchMode) {
     this._config.setStitchMode(stitchMode)
   }
 

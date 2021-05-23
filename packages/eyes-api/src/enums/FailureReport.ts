@@ -1,6 +1,6 @@
-export enum FailureReportEnum {
+export enum FailureReport {
   IMMEDIATE = 'IMMEDIATE',
   ON_CLOSE = 'ON_CLOSE',
 }
 
-export type FailureReport = `${FailureReportEnum}`
+export type FailureReportLiteral = `${FailureReport}`

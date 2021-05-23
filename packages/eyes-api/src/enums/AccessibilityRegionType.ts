@@ -1,4 +1,4 @@
-export enum AccessibilityRegionTypeEnum {
+export enum AccessibilityRegionType {
   IgnoreContrast = 'IgnoreContrast',
   RegularText = 'RegularText',
   LargeText = 'LargeText',
@@ -6,4 +6,4 @@ export enum AccessibilityRegionTypeEnum {
   GraphicalObject = 'GraphicalObject',
 }
 
-export type AccessibilityRegionType = `${AccessibilityRegionTypeEnum}`
+export type AccessibilityRegionTypeLiteral = `${AccessibilityRegionType}`
