@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+
+## 1.0.2 - 2021/5/23
+
 - remove unused RenderingInfo and RunningSession types
 - rename BrowserName to BrowserType
 - allow sting values instead of enums in Plain types
