@@ -72,6 +72,7 @@
     "yargs": "15.4.1"
   },
   "devDependencies": {
+    "@applitools/scripts": "^1.0.0",
     "@applitools/sdk-release-kit": "0.13.0",
     "@applitools/sdk-shared": "0.9.0",
     "@applitools/snaptdout": "^1.0.1",
