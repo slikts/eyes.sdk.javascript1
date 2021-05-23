@@ -1,7 +1,7 @@
 const cwd = process.cwd()
 const path = require('path')
 const spec = require(path.resolve(cwd, 'dist/spec-driver'))
-const {testServer} = require('../../index')
+const {testServer} = require('@applitools/test-server')
 const {setupEyes} = require('@applitools/test-utils')
 const adjustUrlToDocker = require('../util/adjust-url-to-docker')
 
