@@ -1,6 +1,6 @@
 {
   "name": "@applitools/scripts",
-  "version": "0.0.1",
+  "version": "1.0.0",
   "description": "Helper CLI scripts for development and testing purposes",
   "homepage": "https://github.com/applitools/eyes.sdk.javascript1#readme",
   "bugs": {
@@ -22,6 +22,7 @@
   ],
   "scripts": {
     "lint": "eslint . --ext .js",
+    "test": "mocha --no-timeouts 'test/**/*.spec.js'",
     "preversion": "bongo preversion",
     "deps": "bongo deps",
     "version": "bongo version",
@@ -33,9 +34,9 @@
     }
   },
   "dependencies": {
+    "@applitools/test-utils": "1.0.0",
     "chalk": "3.0.0",
-    "yargs": "15.3.1",
-    "@applitools/test-utils": "file:../test-utils"
+    "yargs": "15.3.1"
   },
   "devDependencies": {
     "@applitools/sdk-release-kit": "0.13.0",
