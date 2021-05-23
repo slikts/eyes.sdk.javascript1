@@ -1,6 +1,6 @@
 {
   "name": "@applitools/sdk-shared",
-  "version": "0.8.10",
+  "version": "0.9.0",
   "engines": {
     "node": ">=12.0.0"
   },
@@ -43,9 +43,9 @@
     "node-fetch": "2.6.1"
   },
   "devDependencies": {
-    "@applitools/test-server": "file:../test-server",
-    "@applitools/test-utils": "file:../test-utils",
     "@applitools/sdk-release-kit": "0.13.0",
+    "@applitools/test-server": "1.0.1",
+    "@applitools/test-utils": "1.0.0",
     "eslint": "^6.6.0",
     "eslint-plugin-import": "^2.18.2",
     "eslint-plugin-mocha-no-only": "^1.1.1",
