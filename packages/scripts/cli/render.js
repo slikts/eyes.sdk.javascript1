@@ -287,8 +287,7 @@ yargs
     handler: async args => {
       console.log(`Options:\n ${formatArgs(args)}\n`)
       try {
-        if (args.save) await saver(args)
-        else await runner(args)
+        await runner(args)
       } catch (err) {
         console.log(err)
         process.exit(1)
@@ -299,7 +298,6 @@ yargs
 
 async function runner(args) {
   const spec = require(path.resolve(cwd, 'dist/spec-driver'))
-
 
   let runBeforeFunc
   if (args.runBefore !== undefined) {
