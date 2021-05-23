@@ -7,6 +7,8 @@
 - allow sting values instead of enums in Plain types
 - use @applitools/types package to describe internal types
 - add spec to the EyesRunner
+- updated to @applitools/logger@1.0.1 (from 1.0.0)
+- updated to @applitools/utils@1.2.0 (from 1.1.3)
 
 ## 1.0.1 - 2021/5/12
 
