@@ -2,8 +2,11 @@
 
 ## Unreleased
 
-- fix "runner.getAllTestResults" behavior when no eyes attached
+- fix `EyesRunner#getAllTestResults` behavior when no eyes attached
 - fix missing `properties` array in `Configuration`
+- fix `logs` format in `Configuration`
+- improve string formatting for `Location`, `RectangleSize` and `Region` data classes
+- fix return value of `Eyes#extractTextRegions`
 
 ## 1.0.2 - 2021/5/23
 

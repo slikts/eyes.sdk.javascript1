@@ -20,6 +20,7 @@ import {OCRRegion} from './input/OCRRegion'
 import {ImageRotation, ImageRotationData} from './input/ImageRotation'
 import {CutProviderData} from './input/CutProvider'
 import {LogHandlerData, FileLogHandlerData, ConsoleLogHandlerData, NullLogHandlerData} from './input/LogHandler'
+import {TextRegion} from './output/TextRegion'
 import {MatchResultData} from './output/MatchResult'
 import {TestResults, TestResultsData} from './output/TestResults'
 import {ValidationInfo} from './output/ValidationInfo'
@@ -271,7 +272,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
 
   async locate<TLocator extends string>(
     settings: VisualLocatorSettings<TLocator>,
-  ): Promise<{[key in TLocator]: Region[]}> {
+  ): Promise<Record<TLocator, Region[]>> {
     if (this._config.isDisabled) return null
     if (!this.isOpen) throw new EyesError('Eyes not open')
 
@@ -280,7 +281,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
 
   async extractTextRegions<TPattern extends string>(
     settings: OCRSettings<TPattern>,
-  ): Promise<{[key in TPattern]: string[]}> {
+  ): Promise<Record<TPattern, TextRegion[]>> {
     if (this._config.isDisabled) return null
     if (!this.isOpen) throw new EyesError('Eyes not open')
 

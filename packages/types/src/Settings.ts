@@ -84,5 +84,5 @@ export type OCRSearchSettings<TPattern extends string> = {
 
 export type LocateSettings<TLocator extends string> = {
   locatorNames: TLocator[]
-  firstOnly: boolean
+  firstOnly?: boolean
 }

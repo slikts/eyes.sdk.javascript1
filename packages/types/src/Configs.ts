@@ -14,7 +14,7 @@ export type EyesMakeConfig<TDriver, TElement, TSelector> = {
 }
 
 export type EyesBaseConfig = {
-  logs?: {show: boolean; handler?: Options.LogHandler}
+  logs?: Options.LogHandler
   debugScreenshots?: Options.DebugScreenshotHandler
   agentId?: string
   apiKey?: string

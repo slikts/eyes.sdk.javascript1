@@ -47,6 +47,8 @@ export type RectangleSize = {
 
 export type Region = Location & RectangleSize
 
+export type TextRegion = Region & {text: string}
+
 export type ImageRotation = -270 | -180 | -90 | 0 | 90 | 180 | 270
 
 export type ImageCropRect = {

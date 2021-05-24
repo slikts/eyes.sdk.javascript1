@@ -26,7 +26,7 @@ type ConfigurationSpec<TElement = unknown, TSelector = unknown> = {
 
 export type GeneralConfiguration = {
   /** @undocumented */
-  logs?: {show: boolean; handler?: LogHandler}
+  logs?: LogHandler
   /** @undocumented */
   debugScreenshots?: DebugScreenshotProvider
   agentId?: string
@@ -123,29 +123,30 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   /** @undocumented */
-  get logs(): {show: boolean; handler?: LogHandler} {
+  get logs(): LogHandler {
     return this._config.logs
   }
   /** @undocumented */
-  set logs(logs: {show: boolean; handler?: LogHandler}) {
+  set logs(logs: LogHandler) {
     this._config.logs = logs
   }
   /** @undocumented */
   getShowLogs(): boolean {
-    return this.logs?.show ?? false
+    return Boolean(this.logs)
   }
   /** @undocumented */
   setShowLogs(show: boolean): this {
-    this.logs = {...this.logs, show}
+    if (show) this.logs ??= {type: 'console'}
+    else this.logs = null
     return this
   }
   /** @undocumented */
   getLogHandler(): LogHandler {
-    return this.logs?.handler
+    return this.logs
   }
   /** @undocumented */
   setLogHandler(handler: LogHandler): this {
-    this.logs = {...this.logs, handler}
+    this.logs = handler
     return this
   }
 

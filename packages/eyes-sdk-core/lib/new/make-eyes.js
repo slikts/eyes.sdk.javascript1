@@ -8,6 +8,8 @@ const makeExtractText = require('./extract-text')
 const makeExtractTextRegions = require('./extract-text-regions')
 const makeClose = require('./close')
 const makeAbort = require('./abort')
+const ConsoleLogHandler = require('../logging/ConsoleLogHandler')
+const FileLogHandler = require('../logging/FileLogHandler')
 
 function makeMakeEyes({sdk, runner}) {
   return async function makeEyes({driver, config, on}) {
@@ -21,6 +23,13 @@ function makeMakeEyes({sdk, runner}) {
     }
     if (config.rotation) eyes.setRotation(config.rotation)
     if (config.scaleRatio) eyes.setScaleRatio(config.scaleRatio)
+    if (config.logs) {
+      if (config.logs.type === 'console') {
+        eyes.setLogHandler(new ConsoleLogHandler(true))
+      } else if (config.logs.type === 'file') {
+        eyes.setLogHandler(new FileLogHandler(true, config.logs.filename, config.logs.append))
+      }
+    }
     if (config.debugScreenshots) {
       eyes.setSaveDebugScreenshots(config.debugScreenshots.save)
       if (config.debugScreenshots.path) {

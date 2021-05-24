@@ -31,7 +31,7 @@ export interface Eyes<TElement, TSelector> {
   locate<TLocator extends string>(options: {
     settings: Settings.LocateSettings<TLocator>
     config?: Configs.EyesConfig<TElement, TSelector>
-  }): Promise<{[key in TLocator]: Options.Region[]}>
+  }): Promise<Record<TLocator, Options.Region[]>>
   extractText(options: {
     regions: Settings.OCRExtractSettings<TElement, TSelector>[]
     config?: Configs.EyesConfig<TElement, TSelector>
@@ -39,7 +39,7 @@ export interface Eyes<TElement, TSelector> {
   extractTextRegions<TPattern extends string>(options: {
     settings: Settings.OCRSearchSettings<TPattern>
     config?: Configs.EyesConfig<TElement, TSelector>
-  }): Promise<{[key in TPattern]: string[]}>
+  }): Promise<Record<TPattern, Options.TextRegion[]>>
   close(): Promise<Results.TestResult>
   abort(): Promise<Results.TestResult>
 }

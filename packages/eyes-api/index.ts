@@ -97,6 +97,7 @@ export {
   TestResultsSummary as TestResultsSummaryPlain,
   TestResultsSummaryData as TestResultsSummary,
 } from './src/output/TestResultsSummary'
+export {TextRegion} from './src/output/TextRegion'
 export {ValidationInfo as ValidationInfoPlain, ValidationInfoData as ValidationInfo} from './src/output/ValidationInfo'
 export {
   ValidationResult as ValidationResultPlain,
