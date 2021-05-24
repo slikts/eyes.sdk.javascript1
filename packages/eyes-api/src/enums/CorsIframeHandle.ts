@@ -5,4 +5,4 @@ export enum CorsIframeHandle {
   SNAPSHOT = 'SNAPSHOT',
 }
 
-export type CorsIframeHandleLiteral = `${CorsIframeHandle}`
+export type CorsIframeHandleLiteral = CorsIframeHandle | `${CorsIframeHandle}`

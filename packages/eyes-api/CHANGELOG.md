@@ -7,14 +7,15 @@
 - fix `logs` format in `Configuration`
 - improve string formatting for `Location`, `RectangleSize` and `Region` data classes
 - fix return value of `Eyes#extractTextRegions`
+- fix usage of enums and string literals
 
 ## 1.0.2 - 2021/5/23
 
-- remove unused RenderingInfo and RunningSession types
-- rename BrowserName to BrowserType
+- remove unused `RenderingInfo` and RunningSession types
+- rename `BrowserName` to `BrowserType`
 - allow sting values instead of enums in Plain types
-- use @applitools/types package to describe internal types
-- add spec to the EyesRunner
+- use `@applitools/types` package to describe internal types
+- add spec to the `EyesRunner`
 - updated to @applitools/logger@1.0.1 (from 1.0.0)
 - updated to @applitools/utils@1.2.0 (from 1.1.3)
 

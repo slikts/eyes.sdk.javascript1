@@ -8,4 +8,4 @@ export enum MatchLevel {
   Exact = 'Exact',
 }
 
-export type MatchLevelLiteral = `${MatchLevel}`
+export type MatchLevelLiteral = MatchLevel | `${MatchLevel}`

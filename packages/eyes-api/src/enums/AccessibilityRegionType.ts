@@ -6,4 +6,4 @@ export enum AccessibilityRegionType {
   GraphicalObject = 'GraphicalObject',
 }
 
-export type AccessibilityRegionTypeLiteral = `${AccessibilityRegionType}`
+export type AccessibilityRegionTypeLiteral = AccessibilityRegionType | `${AccessibilityRegionType}`

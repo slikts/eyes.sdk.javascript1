@@ -63,4 +63,4 @@ export enum DeviceName {
   Pixel_4_XL = 'Pixel 4 XL',
 }
 
-export type DeviceNameLiteral = `${DeviceName}`
+export type DeviceNameLiteral = DeviceName | `${DeviceName}`

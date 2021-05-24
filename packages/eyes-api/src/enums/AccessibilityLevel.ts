@@ -3,4 +3,4 @@ export enum AccessibilityLevel {
   AAA = 'AAA',
 }
 
-export type AccessibilityLevelLiteral = `${AccessibilityLevel}`
+export type AccessibilityLevelLiteral = AccessibilityLevel | `${AccessibilityLevel}`

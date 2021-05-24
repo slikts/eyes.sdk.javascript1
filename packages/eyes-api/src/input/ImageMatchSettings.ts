@@ -11,7 +11,7 @@ import {AccessibilitySettings} from './AccessibilitySettings'
 /** @undocumented */
 export type ImageMatchSettings = {
   exact?: ExactMatchSettings
-  matchLevel?: MatchLevel | MatchLevelLiteral
+  matchLevel?: MatchLevelLiteral
   ignoreCaret?: boolean
   useDom?: boolean
   enablePatterns?: boolean

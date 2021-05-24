@@ -47,7 +47,7 @@ export type OpenConfiguration = {
   testName?: string
   displayName?: string
   viewportSize?: RectangleSize
-  sessionType?: SessionType | SessionTypeLiteral
+  sessionType?: SessionTypeLiteral
   properties?: PropertyData[]
   batch?: BatchInfo
   defaultMatchSettings?: ImageMatchSettings
@@ -78,7 +78,7 @@ export type CheckConfiguration = {
 
 export type ClassicConfiguration<TElement = unknown, TSelector = unknown> = {
   waitBeforeScreenshots?: number
-  stitchMode?: StitchMode | StitchModeLiteral
+  stitchMode?: StitchModeLiteral
   hideScrollbars?: boolean
   hideCaret?: boolean
   stitchOverlap?: number

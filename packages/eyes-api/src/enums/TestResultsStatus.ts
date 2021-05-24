@@ -4,4 +4,4 @@ export enum TestResultsStatus {
   Failed = 'Failed',
 }
 
-export type TestResultsStatusLiteral = `${TestResultsStatus}`
+export type TestResultsStatusLiteral = TestResultsStatus | `${TestResultsStatus}`

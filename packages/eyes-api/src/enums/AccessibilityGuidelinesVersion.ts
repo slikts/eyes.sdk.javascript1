@@ -3,4 +3,4 @@ export enum AccessibilityGuidelinesVersion {
   WCAG_2_1 = 'WCAG_2_1',
 }
 
-export type AccessibilityGuidelinesVersionLiteral = `${AccessibilityGuidelinesVersion}`
+export type AccessibilityGuidelinesVersionLiteral = AccessibilityGuidelinesVersion | `${AccessibilityGuidelinesVersion}`

@@ -18,4 +18,4 @@ export enum BrowserType {
   SAFARI_TWO_VERSIONS_BACK = 'safari-two-versions-back',
 }
 
-export type BrowserTypeLiteral = `${BrowserType}`
+export type BrowserTypeLiteral = BrowserType | `${BrowserType}`

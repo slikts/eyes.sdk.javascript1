@@ -3,4 +3,4 @@ export enum StitchMode {
   CSS = 'CSS',
 }
 
-export type StitchModeLiteral = `${StitchMode}`
+export type StitchModeLiteral = StitchMode | `${StitchMode}`

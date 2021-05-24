@@ -3,4 +3,4 @@ export enum AccessibilityStatus {
   Failed = 'Failed',
 }
 
-export type AccessibilityStatusLiteral = `${AccessibilityStatus}`
+export type AccessibilityStatusLiteral = AccessibilityStatus | `${AccessibilityStatus}`

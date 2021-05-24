@@ -11,7 +11,7 @@ export type TestResults = {
   readonly testId?: string
   readonly name?: string
   readonly secretToken?: string
-  readonly status?: TestResultsStatus | TestResultsStatusLiteral
+  readonly status?: TestResultsStatusLiteral
   readonly appName?: string
   readonly batchId?: string
   readonly batchName?: string

@@ -3,4 +3,4 @@ export enum SessionType {
   PROGRESSION = 'PROGRESSION',
 }
 
-export type SessionTypeLiteral = `${SessionType}`
+export type SessionTypeLiteral = SessionType | `${SessionType}`

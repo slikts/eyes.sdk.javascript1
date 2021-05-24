@@ -5,4 +5,4 @@ export enum IosVersion {
   LATEST_ONE_VERSION_BACK = 'latest-1',
 }
 
-export type IosVersionLiteral = `${IosVersion}`
+export type IosVersionLiteral = IosVersion | `${IosVersion}`

@@ -24,7 +24,7 @@ type FloatingRegionReference<TElement, TSelector> = {
 
 type AccessibilityRegionReference<TElement, TSelector> = {
   region: RegionReference<TElement, TSelector>
-  type?: AccessibilityRegionType | AccessibilityRegionTypeLiteral
+  type?: AccessibilityRegionTypeLiteral
 }
 
 type CheckSettingsSpec<TElement = unknown, TSelector = unknown> = {
@@ -38,7 +38,7 @@ export type CheckSettings<TElement, TSelector> = {
   frames?: (ContextReference<TElement, TSelector> | FrameReference<TElement, TSelector>)[]
   scrollRootElement?: ElementReference<TElement, TSelector>
   fully?: boolean
-  matchLevel?: MatchLevel | MatchLevelLiteral
+  matchLevel?: MatchLevelLiteral
   useDom?: boolean
   sendDom?: boolean
   enablePatterns?: boolean

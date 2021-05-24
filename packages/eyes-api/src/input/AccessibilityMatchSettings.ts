@@ -4,7 +4,7 @@ import {Region, RegionData} from './Region'
 
 export type AccessibilityMatchSettings = {
   region: Region
-  type?: AccessibilityRegionType | AccessibilityRegionTypeLiteral
+  type?: AccessibilityRegionTypeLiteral
 }
 
 export class AccessibilityMatchSettingsData implements Required<AccessibilityMatchSettings> {
