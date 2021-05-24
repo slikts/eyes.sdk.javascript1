@@ -295,14 +295,14 @@ yargs
     handler: async args => {
       console.log(`Options:\n ${formatArgs(args)}\n`)
       try {
-        const testResults = [];
+        let testResults;
         if (args.compare) {
           args.testName = `eyes-compare ${Date.now()}`
-          for (const run of [{vg: false}, {vg: true}]) {
-            testResults.push(await runner({...args, ...run}));
+          for (const {vg} of [{vg: false}, {vg: true}]) {
+            testResults = await runner({...args, vg});
           }
         } else {
-          testResults.push(await runner(args))
+          testResults = await runner(args)
         }
         printTestResults(testResults);
       } catch (err) {
@@ -315,16 +315,15 @@ yargs
   .help().argv
 
 function printTestResults(testResults) {
-  for (const result of testResults) {
-    const resultsStr = result
+    const resultsStr = testResults
     .getAllResults()
     .map(testResultContainer => {
       const testResults = testResultContainer.getTestResults()
       return testResults ? formatResults(testResults) : testResultContainer.getException()
     })
     .join('\n')
+
     console.log('\nRender results:\n', resultsStr)
-  }
 }
 
 async function runner(args) {
@@ -346,11 +345,11 @@ async function runner(args) {
   try {
     args.url = args.attach ? await spec.getUrl(driver) : args.url
     if (!args.attach) await spec.visit(driver, args.url)
-    console.log('Running render script for', args.url)
+    console.log(`running ${args.vg ? 'ultrafast mode' : 'classic mode'} render ${args.compare ? 'compare ' : ''}script for`, args.url)
 
     args.saveLogs = path.resolve(cwd, `./logs/${formatUrl(args.url)}-${formatDate(new Date())}.log`)
     args.saveDebugScreenshots = args.saveDebugScreenshots && args.saveLogs.replace('.log', '')
-    console.log('log file at:', args.saveLogs)
+    console.log('log file at:', args.saveLogs, '\n')
     if (args.saveDebugScreenshots) console.log('debug screenshots at:', args.saveDebugScreenshots)
 
     const eyes = setupEyes(argsToEyesConfig(args))
@@ -473,17 +472,17 @@ function formatArgs(args) {
 }
 
 function formatResults(testResults) {
+  const {width, height} = testResults.getHostDisplaySize();
   return `
-Test name                 : ${testResults.getName()}
-Test status               : ${testResults.getStatus()}
-URL to results            : ${testResults.getUrl()}
-Total number of steps     : ${testResults.getSteps()}
-Number of matching steps  : ${testResults.getMatches()}
-Number of visual diffs    : ${testResults.getMismatches()}
-Number of missing steps   : ${testResults.getMissing()}
-Display size              : ${testResults.getHostDisplaySize().toString()}
-Steps                     :
-${testResults
+name       ${testResults.getName()}
+status     ${testResults.getStatus()}
+url        ${testResults.getUrl()}
+steps      ${testResults.getSteps()}
+matches    ${testResults.getMatches()}
+diffs      ${testResults.getMismatches()}
+missing    ${testResults.getMissing()}
+viewport   ${width}x${height}
+steps      ${testResults
   .getStepsInfo()
   .map(step => {
     return `  ${step.getName()} - ${getStepStatus(step)}`
