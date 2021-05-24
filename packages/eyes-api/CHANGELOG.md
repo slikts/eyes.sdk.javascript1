@@ -3,6 +3,7 @@
 ## Unreleased
 
 - fix "runner.getAllTestResults" behavior when no eyes attached
+- fix missing `properties` array in `Configuration`
 
 ## 1.0.2 - 2021/5/23
 
