@@ -8,6 +8,7 @@ const {setupEyes} = require('@applitools/test-utils')
 const utils = require('../src/cli-utils')
 const cwd = process.cwd()
 const delay = util.promisify(setTimeout)
+const table = require('cli-table3')
 
 const checkConfig = {
   name: {
@@ -133,7 +134,7 @@ const eyesConfig = {
   compare: {
     type: 'boolean',
     describe: 'compare classic with visual-grid',
-    default: false
+    default: false,
   },
   vg: {
     type: 'boolean',
@@ -293,18 +294,18 @@ yargs
     builder: yargs =>
       yargs.options({...buildConfig, ...eyesConfig, ...checkConfig, ...testConfig, ...saveConfig}),
     handler: async args => {
-      console.log(`Options:\n ${formatArgs(args)}\n`)
+      console.log(`render options\n${formatArgs(args)}`)
       try {
-        let testResults;
+        let testResults
         if (args.compare) {
           args.testName = `eyes-compare ${Date.now()}`
           for (const {vg} of [{vg: false}, {vg: true}]) {
-            testResults = await runner({...args, vg});
+            testResults = await runner({...args, vg})
           }
         } else {
           testResults = await runner(args)
         }
-        printTestResults(testResults);
+        printTestResults(testResults)
       } catch (err) {
         console.log(err)
         process.exit(1)
@@ -315,7 +316,7 @@ yargs
   .help().argv
 
 function printTestResults(testResults) {
-    const resultsStr = testResults
+  const resultsStr = testResults
     .getAllResults()
     .map(testResultContainer => {
       const testResults = testResultContainer.getTestResults()
@@ -323,7 +324,7 @@ function printTestResults(testResults) {
     })
     .join('\n')
 
-    console.log('\nRender results:\n', resultsStr)
+  console.log(`render results\n${resultsStr}`)
 }
 
 async function runner(args) {
@@ -345,7 +346,12 @@ async function runner(args) {
   try {
     args.url = args.attach ? await spec.getUrl(driver) : args.url
     if (!args.attach) await spec.visit(driver, args.url)
-    console.log(`running ${args.vg ? 'ultrafast mode' : 'classic mode'} render ${args.compare ? 'compare ' : ''}script for`, args.url)
+    console.log(
+      `running ${args.vg ? 'ultrafast mode' : 'classic mode'} render ${
+        args.compare ? 'compare ' : ''
+      }script for`,
+      args.url,
+    )
 
     args.saveLogs = path.resolve(cwd, `./logs/${formatUrl(args.url)}-${formatDate(new Date())}.log`)
     args.saveDebugScreenshots = args.saveDebugScreenshots && args.saveLogs.replace('.log', '')
@@ -374,8 +380,7 @@ async function runner(args) {
     logger.getLogHandler().open()
     const results = await runner.getAllTestResults(false)
     logger.getLogHandler().close()
-    return results;
-    
+    return results
   } finally {
     await destroyDriver()
   }
@@ -460,34 +465,37 @@ function formatUrl(url) {
 }
 
 function formatArgs(args) {
-  return Object.entries(args)
-    .reduce((lines, [key, value]) => {
-      // don't show the entire cli, and show only the camelCase version of each arg
-      if (!['_', '$0'].includes(key) && !key.includes('-')) {
-        lines.push(`* ${key}: ${JSON.stringify(value)}`)
-      }
-      return lines
-    }, [])
-    .join('\n ')
+  const outputTable = new table({
+    style: {head: [], border: []},
+    chars: {mid: '', 'left-mid': '', 'mid-mid': '', 'right-mid': ''},
+  })
+  Object.entries(args).reduce((lines, [key, value]) => {
+    // don't show the entire cli, and show only the camelCase version of each arg
+    if (!['_', '$0'].includes(key) && !key.includes('-')) {
+      lines.push([key, JSON.stringify(value)])
+    }
+    return lines
+  }, outputTable)
+  return outputTable.toString();
 }
 
 function formatResults(testResults) {
-  const {width, height} = testResults.getHostDisplaySize();
-  return `
-name       ${testResults.getName()}
-status     ${testResults.getStatus()}
-url        ${testResults.getUrl()}
-steps      ${testResults.getSteps()}
-matches    ${testResults.getMatches()}
-diffs      ${testResults.getMismatches()}
-missing    ${testResults.getMissing()}
-viewport   ${width}x${height}
-steps      ${testResults
-  .getStepsInfo()
-  .map(step => {
-    return `  ${step.getName()} - ${getStepStatus(step)}`
-  })
-  .join('\n')}`
+  const {width, height} = testResults.getHostDisplaySize()
+  const outputTable = new table({ style: { head: [], border: [] }, chars: { 'mid': '', 'left-mid': '', 'mid-mid': '', 'right-mid': '' } })
+  outputTable.push(['name', testResults.getName()])
+  outputTable.push(['status', testResults.getStatus()])
+  outputTable.push(['url', testResults.getUrl()])
+  outputTable.push(['total steps', testResults.getSteps()])
+  outputTable.push(['matches', testResults.getMatches()])
+  outputTable.push(['diffs', testResults.getMismatches()])
+  outputTable.push(['missing', testResults.getMissing()])
+  outputTable.push(['viewport', `${width}x${height}`])
+  outputTable.push(['steps', `${testResults.getStepsInfo()
+    .map(step => {
+      return `  ${step.getName()} - ${getStepStatus(step)}`
+    })
+    .join('\n')}`])
+  return outputTable.toString();
 
   function getStepStatus(step) {
     if (step.getIsDifferent()) {
