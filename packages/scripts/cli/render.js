@@ -284,7 +284,7 @@ const saveConfig = {
 }
 
 yargs
-  .usage('yarn render [url] [options]')
+  .usage('yarn render <url> [options]')
   .example(
     'yarn render http://example.org --viewport-size 800x600 --css',
     'classic viewport screenshot, browser width 800 pixels, browser height 600 pixels, css stitching',
