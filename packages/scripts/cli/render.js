@@ -488,7 +488,6 @@ function formatArgs(args) {
 }
 
 function formatResults(testResults) {
-  const {width, height} = testResults.getHostDisplaySize()
   const outputTable = new table({ style: { head: [], border: [] }, chars: { 'mid': '', 'left-mid': '', 'mid-mid': '', 'right-mid': '' } })
   outputTable.push(['name', testResults.getName()])
   outputTable.push(['status', testResults.getStatus()])
@@ -497,10 +496,10 @@ function formatResults(testResults) {
   outputTable.push(['matches', testResults.getMatches()])
   outputTable.push(['diffs', testResults.getMismatches()])
   outputTable.push(['missing', testResults.getMissing()])
-  outputTable.push(['viewport', `${width}x${height}`])
+  outputTable.push(['viewport', testResults.getHostDisplaySize().toString()])
   outputTable.push(['steps', `${testResults.getStepsInfo()
     .map(step => {
-      return `  ${step.getName()} - ${getStepStatus(step)}`
+      return `${step.getName()} - ${getStepStatus(step)}`
     })
     .join('\n')}`])
   return outputTable.toString();
