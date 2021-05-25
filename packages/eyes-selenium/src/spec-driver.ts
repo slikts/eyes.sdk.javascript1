@@ -68,12 +68,8 @@ export async function isEqualElements(_driver: Driver, element1: Element, elemen
 
 // #region COMMANDS
 
-export async function executeScript(
-  driver: Driver,
-  script: ((...args: any[]) => any) | string,
-  ...args: any[]
-): Promise<any> {
-  return driver.executeScript(script, ...args)
+export async function executeScript(driver: Driver, script: ((arg: any) => any) | string, arg: any): Promise<any> {
+  return driver.executeScript(script, arg)
 }
 export async function mainContext(driver: Driver): Promise<Driver> {
   await driver.switchTo().defaultContent()
@@ -192,14 +188,14 @@ export async function click(driver: Driver, element: Element | Selector): Promis
   if (isSelector(element)) element = await findElement(driver, element)
   await element.click()
 }
-export async function hover(driver: Driver, element: Element | Selector, offset?: {x: number; y: number}) {
+export async function hover(driver: Driver, element: Element | Selector) {
   if (isSelector(element)) element = await findElement(driver, element)
-  if (process.env.ApPLitoOLS_SELENIUM_MAJOR_VERSION === '3') {
+  if (process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3') {
     const {ActionSequence} = require('selenium-webdriver')
     const action = new ActionSequence(driver)
-    await action.mouseMove(element, offset).perform()
+    await action.mouseMove(element).perform()
   } else {
-    await driver.actions().move({origin: element, x: offset?.x, y: offset?.y}).perform()
+    await driver.actions().move({origin: element}).perform()
   }
 }
 export async function type(driver: Driver, element: Element | Selector, keys: string): Promise<void> {
@@ -226,9 +222,12 @@ const browserOptionsNames: Record<string, string> = {
 }
 export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
   const {Builder} = require('selenium-webdriver')
-  const {testSetup} = require('@applitools/sdk-shared')
+  const parseEnv = require('@applitools/test-utils/src/parse-env')
 
-  const {browser = '', capabilities, url, attach, proxy, configurable = true, args = [], headless} = testSetup.Env(env)
+  const {browser = '', capabilities, url, attach, proxy, configurable = true, args = [], headless} = parseEnv({
+    ...env,
+    legacy: env.legacy ?? process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3',
+  })
   const desiredCapabilities = {browserName: browser, ...capabilities}
   if (configurable) {
     const browserOptionsName = browserOptionsNames[browser || desiredCapabilities.browserName]

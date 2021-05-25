@@ -1,6 +1,6 @@
 {
-  // "files": ["index.ts", "index-short.ts"],
   "compilerOptions": {
+    "rootDir": "src",
     "outDir": "dist",
     "sourceMap": true,
 
@@ -12,6 +12,7 @@
     "downlevelIteration": true,
     "stripInternal": true,
     "experimentalDecorators": false,
-    "resolveJsonModule": true
+    "resolveJsonModule": true,
   },
+  "include": ["./src/**/*"]
 }

@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "rootDir": "src",
     "outDir": "dist",
     "sourceMap": true,
 
@@ -14,4 +15,5 @@
     "resolveJsonModule": true,
     "types": ["webdriverio"]
   },
+  "include": ["./src/**/*"]
 }

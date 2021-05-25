@@ -3,13 +3,37 @@
 ## Unreleased
 
 
-## 12.18.1 - 2021/4/12
-
-- fix internal error propagation in wrapper
-
-## 12.18.0 - 2021/4/12
+## 12.20.0 - 2021/5/24
 
 - add wrappers to work with new internal api
+- updated to @applitools/driver@1.0.6 (from 1.0.5)
+- updated to @applitools/screenshoter@3.0.8 (from 3.0.7)
+
+## 12.19.3 - 2021/5/13
+
+- fixed image cropping algorithm to not copy data into a heap
+- updated to @applitools/screenshoter@3.0.7 (from 3.0.6)
+
+## 12.19.2 - 2021/5/12
+
+- updated to @applitools/dom-snapshot@4.5.1 (from 4.5.0)
+
+## 12.19.1 - 2021/5/11
+
+- updated to @applitools/driver@1.0.5 (from 1.0.4)
+- updated to @applitools/screenshoter@3.0.6 (from 3.0.5)
+
+## 12.19.0 - 2021/5/11
+
+- add wrappers to work with new internal api
+
+## 12.17.4 - 2021/4/25
+
+- fix `variationGroupId`
+
+## 12.17.3 - 2021/4/23
+
+- rename `variantId` to `variationGroupId`
 
 ## 12.17.2 - 2021/4/6
 

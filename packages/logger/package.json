@@ -1,6 +1,6 @@
 {
   "name": "@applitools/logger",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Applitools logger",
   "keywords": [
     "applitools",
@@ -9,17 +9,23 @@
     "file"
   ],
   "homepage": "https://applitools.com",
-  "author": {
-    "name": "Applitools Team",
-    "email": "team@applitools.com"
+  "bugs": {
+    "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
   },
   "repository": {
     "type": "git",
     "url": "git://github.com/applitools/eyes.sdk.javascript1.git"
   },
-  "bugs": {
-    "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
+  "license": "SEE LICENSE IN LICENSE",
+  "author": {
+    "name": "Applitools Team",
+    "email": "team@applitools.com"
   },
+  "main": "./index.js",
+  "browser": {
+    "tunnel": false
+  },
+  "types": "./index.d.ts",
   "directories": {
     "lib": "./src",
     "test": "./test"
@@ -29,10 +35,22 @@
     "index.js",
     "index.d.ts"
   ],
-  "main": "./index.js",
-  "types": "./index.d.ts",
+  "scripts": {
+    "lint": "eslint '**/*.js'",
+    "test": "yarn test:e2e",
+    "test:e2e": "mocha --no-timeouts \"test/e2e/**/*.spec.js\"",
+    "deps": "bongo deps",
+    "preversion": "bongo preversion",
+    "version": "bongo version",
+    "postversion": "bongo postversion --skip-release-notification"
+  },
+  "husky": {
+    "hooks": {
+      "pre-push": "yarn bongo lint"
+    }
+  },
   "dependencies": {
-    "@applitools/utils": "1.1.3",
+    "@applitools/utils": "1.2.0",
     "chalk": "3.0.0"
   },
   "devDependencies": {
@@ -45,26 +63,7 @@
     "mocha": "^8.0.1",
     "prettier": "^2.1.2"
   },
-  "browser": {
-    "tunnel": false
-  },
-  "scripts": {
-    "lint": "eslint '**/*.js'",
-    "test": "yarn test:e2e",
-    "test:e2e": "mocha --no-timeouts \"test/e2e/**/*.spec.js\"",
-    "preversion": "bongo preversion && yarn test",
-    "version": "bongo version",
-    "postversion": "bongo postversion --skip-release-notification",
-    "deps": "bongo deps",
-    "prepublish:setup": "echo 'no setup'"
-  },
-  "license": "SEE LICENSE IN LICENSE",
   "engines": {
     "node": ">= 8.9.0"
-  },
-  "husky": {
-    "hooks": {
-      "pre-push": "yarn bongo lint"
-    }
   }
 }

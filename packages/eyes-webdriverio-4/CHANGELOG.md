@@ -8,6 +8,41 @@
 - added full typescript support
 - introduced @applitools/eyes-api package with new api
 
+## 2.30.2 - 2021/5/25
+
+- added full typescript support
+- introduced @applitools/eyes-api package with new api
+- updated to @applitools/eyes-api@1.0.3 (from 1.0.1)
+- updated to @applitools/eyes-sdk-core@12.20.0 (from 12.19.2)
+- updated to @applitools/utils@1.2.0 (from 1.1.3)
+- updated to @applitools/visual-grid-client@15.8.7 (from 15.8.5)
+
+## 2.30.1 - 2021/5/12
+
+- updated to @applitools/eyes-api@1.0.1 (from 1.0.0)
+- updated to @applitools/eyes-sdk-core@12.19.2 (from 12.19.1)
+- updated to @applitools/visual-grid-client@15.8.5 (from 15.8.4)
+
+## 2.30.0 - 2021/5/11
+
+- added full typescript support
+- introduced @applitools/eyes-api package with new api
+- updated to @applitools/eyes-api@1.0.0 (from 0.0.2)
+- updated to @applitools/eyes-sdk-core@12.19.1 (from 12.14.2)
+- updated to @applitools/utils@1.1.3 (from 1.1.0)
+- updated to @applitools/visual-grid-client@15.8.4 (from 15.5.14)
+
+## 2.29.0 - 2021/4/27
+
+- updated to @applitools/eyes-sdk-core@12.17.4 (from 12.17.2)
+- updated to @applitools/visual-grid-client@15.8.2 (from 15.8.0)
+
+## 2.28.0 - 2021/4/22
+
+- add TestResults export from main
+- updated to @applitools/eyes-sdk-core@12.17.2 (from 12.14.2)
+- updated to @applitools/visual-grid-client@15.8.0 (from 15.5.14)
+
 ## 2.27.1 - 2021/1/29
 
 - chore: add husky

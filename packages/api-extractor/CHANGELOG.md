@@ -2,6 +2,11 @@
 
 ## Unreleased
 
+- add support for template literals types
+- add support for enum to union transformation workaround through the template literal type
+## 1.1.1 - 2021/5/11
+
+- add support for assignment export and default export
 
 ## 1.1.0 - 2021/4/13
 

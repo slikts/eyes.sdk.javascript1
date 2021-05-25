@@ -1,7 +1,7 @@
 'use strict'
 
 const {Eyes, BatchInfo, ConsoleLogHandler, Target} = require('../../index')
-const {getTestInfo} = require('@applitools/sdk-shared')
+const {getTestInfo} = require('@applitools/test-utils')
 const assert = require('assert')
 
 describe('TestVariantId', function() {
@@ -27,7 +27,7 @@ describe('TestVariantId', function() {
 
     await eyes.check(
       'CheckVariantId',
-      Target.image(`${__dirname}/../fixtures/jssdks.png`).variantId('some variant'),
+      Target.image(`${__dirname}/../fixtures/jssdks.png`).variationGroupId('some variant'),
     )
     const results = await eyes.close(false)
     const testInfo = await getTestInfo(results, process.env.APPLITOOLS_API_KEY)

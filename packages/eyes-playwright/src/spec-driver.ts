@@ -59,8 +59,8 @@ export async function isEqualElements(frame: Context, element1: Element, element
 
 // #region COMMANDS
 
-export async function executeScript(frame: Context, script: ((...args: any) => any) | string, arg: any): Promise<any> {
-  script = utils.types.isString(script) ? (new Function(script) as (...args: any) => any) : script
+export async function executeScript(frame: Context, script: ((arg: any) => any) | string, arg: any): Promise<any> {
+  script = utils.types.isString(script) ? (new Function(script) as (arg: any) => any) : script
   const result = await frame.evaluateHandle(script, arg)
   return handleToObject(result)
 }
@@ -118,13 +118,9 @@ export async function type(frame: Context, element: Element | Selector, keys: st
   if (isSelector(element)) element = await findElement(frame, element)
   await element.type(keys)
 }
-export async function hover(
-  frame: Context,
-  element: Element | Selector,
-  position?: {x: number; y: number},
-): Promise<void> {
+export async function hover(frame: Context, element: Element | Selector): Promise<void> {
   if (isSelector(element)) element = await findElement(frame, element)
-  await element.hover({position})
+  await element.hover()
 }
 export async function scrollIntoView(frame: Context, element: Element | Selector, align = false): Promise<void> {
   if (isSelector(element)) element = await findElement(frame, element)
@@ -146,8 +142,8 @@ const browserNames: Record<string, string> = {
 }
 export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
   const playwright = require('playwright')
-  const {testSetup} = require('@applitools/sdk-shared')
-  const {browser, device, url, attach, proxy, args = [], headless} = testSetup.Env(env, 'cdp')
+  const parseEnv = require('@applitools/test-utils/src/parse-env')
+  const {browser, device, url, attach, proxy, args = [], headless} = parseEnv(env, 'cdp')
   const launcher = playwright[browserNames[browser] || browser]
   if (!launcher) throw new Error(`Browser "${browser}" is not supported.`)
   if (attach) throw new Error(`Attaching to the existed browser doesn't supported by playwright`)

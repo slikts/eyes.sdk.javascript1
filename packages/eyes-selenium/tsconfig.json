@@ -1,5 +1,6 @@
 {
   "compilerOptions": {
+    "rootDir": "src",
     "outDir": "dist",
     "sourceMap": true,
 
@@ -11,7 +12,7 @@
     "downlevelIteration": true,
     "stripInternal": true,
     "experimentalDecorators": false,
-    "esModuleInterop": true,
     "resolveJsonModule": true,
   },
+  "include": ["./src/**/*"]
 }

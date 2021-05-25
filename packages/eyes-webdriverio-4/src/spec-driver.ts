@@ -74,12 +74,8 @@ export function isEqualElements(_browser: Driver, element1: Element, element2: E
 
 // #region COMMANDS
 
-export async function executeScript(
-  browser: Driver,
-  script: ((...args: any) => any) | string,
-  ...args: any[]
-): Promise<any> {
-  const {value} = await browser.execute(script, ...args)
+export async function executeScript(browser: Driver, script: ((arg: any) => any) | string, arg: any): Promise<any> {
+  const {value} = await browser.execute(script, arg)
   return value
 }
 export async function mainContext(browser: Driver): Promise<void> {
@@ -190,7 +186,7 @@ const browserOptionsNames: Record<string, string> = {
 export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
   const webdriverio = require('webdriverio')
   const chromedriver = require('chromedriver')
-  const {testSetup} = require('@applitools/sdk-shared')
+  const parseEnv = require('@applitools/test-utils/src/parse-env')
   const {
     browser = '',
     capabilities,
@@ -201,7 +197,7 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
     args = [],
     headless,
     logLevel = 'silent',
-  } = testSetup.Env({...env, legacy: true})
+  } = parseEnv({...env, legacy: true})
 
   const options = {
     desiredCapabilities: {browserName: browser, ...capabilities},

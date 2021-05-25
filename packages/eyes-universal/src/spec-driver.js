@@ -19,8 +19,7 @@ function makeSpecDriver(ws, commands) {
       return element.selector
     },
     isStaleElementError(error) {
-      // TODO
-      // return error.isStaleElementError
+      return error.isStaleElementError
     },
     // #endregion
 

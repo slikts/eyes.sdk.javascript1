@@ -1,9 +1,10 @@
 const {describe, it, _before, _after} = require('mocha');
-const {expect} = require('chai');
 const path = require('path');
-const testServer = require('@applitools/sdk-shared/src/run-test-server');
+const {testServerInProcess} = require('@applitools/test-server');
 const {delay: _psetTimeout, presult} = require('@applitools/functional-commons');
-const {sh} = require('@applitools/sdk-shared/src/process-commons');
+const utils = require('@applitools/utils');
+const snap = require('@applitools/snaptdout');
+const {version} = require('../../package.json');
 
 describe('eyes-storybook', () => {
   it('renders cross-origin iframes', async () => {
@@ -14,7 +15,7 @@ describe('eyes-storybook', () => {
     );
     try {
       closeServerA = (
-        await testServer({
+        await testServerInProcess({
           port: 7777,
           staticPath,
           allowCors: false,
@@ -27,9 +28,9 @@ describe('eyes-storybook', () => {
           },
         })
       ).close;
-      closeServerB = (await testServer({port: 7778, staticPath})).close;
+      closeServerB = (await testServerInProcess({port: 7778, staticPath})).close;
       const [err, result] = await presult(
-        sh(
+        utils.process.sh(
           `node ${path.resolve(__dirname, '../../bin/eyes-storybook')} -f ${path.resolve(
             __dirname,
             'happy-config/cross-origin-iframe.config.js',
@@ -40,11 +41,16 @@ describe('eyes-storybook', () => {
         ),
       );
       const stdout = err ? err.stdout : result.stdout;
-      //const stderr = err ? err.stderr : result.stderr;
-
-      expect(stdout.replace(/\[Chrome \d+.\d+\]/g, '[Chrome]')).to.include(
-        'Cross-origin iframe: Single story [Chrome] [640x480] - Passed',
-      );
+      const output = stdout
+        .replace(/\[Chrome \d+.\d+\]/g, '[Chrome]')
+        .replace(/\/.*.bin\/start-storybook/, '<story-book path>')
+        .replace(
+          /See details at https\:\/\/.+.applitools.com\/app\/test-results\/.+/g,
+          'See details at <some_url>',
+        )
+        .replace(/Total time\: \d+ seconds/, 'Total time: <some_time> seconds')
+        .replace(version, '<version>');
+      await snap(output, 'cors');
     } finally {
       await closeServerA();
       await closeServerB();

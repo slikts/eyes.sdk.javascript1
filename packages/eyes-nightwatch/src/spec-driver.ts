@@ -93,12 +93,8 @@ export function isEqualElements(_driver: Driver, element1: Element, element2: El
 
 //// #region COMMANDS
 
-export async function executeScript(
-  driver: Driver,
-  script: ((...args: any) => any) | string,
-  ...args: any[]
-): Promise<any> {
-  return call(driver, 'execute', script, args)
+export async function executeScript(driver: Driver, script: ((arg: any) => any) | string, arg: any): Promise<any> {
+  return call(driver, 'execute', script, [arg])
 }
 export async function mainContext(driver: Driver): Promise<void> {
   await call(driver, 'frame')
@@ -200,13 +196,9 @@ export async function click(driver: Driver, element: Element | Selector): Promis
   if (isSelector(element)) element = await findElement(driver, element)
   await call(driver, 'elementIdClick', extractElementId(element))
 }
-export async function hover(
-  driver: Driver,
-  element: Element | Selector,
-  offset?: {x: number; y: number},
-): Promise<void> {
+export async function hover(driver: Driver, element: Element | Selector): Promise<void> {
   if (isSelector(element)) element = await findElement(driver, element)
-  await call(driver, 'moveTo', extractElementId(element), offset?.x, offset?.y)
+  await call(driver, 'moveTo', extractElementId(element))
 }
 export async function type(driver: Driver, element: Element | Selector, keys: string): Promise<void> {
   if (isSelector(element)) element = await findElement(driver, element)
@@ -233,8 +225,8 @@ const browserOptionsNames: Record<string, string> = {
 }
 export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
   // config prep
-  const {testSetup} = require('@applitools/sdk-shared')
-  const {browser = '', capabilities, url, configurable = true, args = [], headless} = testSetup.Env({
+  const parseEnv = require('@applitools/test-utils/src/parse-env')
+  const {browser = '', capabilities, url, configurable = true, args = [], headless} = parseEnv({
     ...env,
     legacy: true,
   })

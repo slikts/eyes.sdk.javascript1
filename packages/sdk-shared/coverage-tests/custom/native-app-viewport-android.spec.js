@@ -1,8 +1,8 @@
 'use strict'
 const cwd = process.cwd()
 const path = require('path')
-const {getEyes} = require('../../src/test-setup')
-const spec = require(path.resolve(cwd, 'dist/src/spec-driver'))
+const {setupEyes} = require('@applitools/test-utils')
+const spec = require(path.resolve(cwd, 'dist/spec-driver'))
 const {Target} = require(cwd)
 
 describe('app viewport (@native @mobile @android)', function() {
@@ -12,7 +12,7 @@ describe('app viewport (@native @mobile @android)', function() {
       device: 'Samsung Galaxy S8',
       app: 'https://applitools.bintray.com/Examples/eyes-android-hello-world.apk',
     })
-    eyes = new getEyes()
+    eyes = new setupEyes()
   })
 
   afterEach(async () => {

@@ -1,8 +1,8 @@
 'use strict'
 const cwd = process.cwd()
 const path = require('path')
-const {getEyes} = require('../../src/test-setup')
-const spec = require(path.resolve(cwd, 'dist/src/spec-driver'))
+const {setupEyes} = require('@applitools/test-utils')
+const spec = require(path.resolve(cwd, 'dist/spec-driver'))
 const {DeviceName, Target} = require(cwd)
 
 describe('TestRenderings', () => {
@@ -10,7 +10,7 @@ describe('TestRenderings', () => {
   beforeEach(async () => {
     driver = await spec.build({browser: 'chrome'})
     await spec.visit(driver, 'https://applitools.com/helloworld')
-    eyes = await getEyes({vg: true})
+    eyes = await setupEyes({vg: true})
     runner = eyes.getRunner()
   })
   it.skip('TestMobileOnly', async () => {

@@ -1,6 +1,6 @@
 const assert = require('assert')
-const spec = require('../../dist/src/spec-driver')
-const {By} = require('../../dist/src/legacy')
+const spec = require('../../dist/spec-driver')
+const {By} = require('../../dist/legacy')
 
 describe('spec driver', async () => {
   let browser, destroyBrowser
@@ -51,7 +51,7 @@ describe('spec driver', async () => {
       }),
     )
     it('extractSelector(response-element)', extractSelector({input: () => browser.element('div'), expected: 'div'}))
-    it('executeScript(strings, ...args)', executeScript())
+    it('executeScript(strings, args)', executeScript())
     it('findElement(string)', findElement({input: '#overflowing-div'}))
     it('findElements(string)', findElements({input: 'div'}))
     it('findElement(non-existent)', findElement({input: 'non-existent', expected: null}))
@@ -220,8 +220,8 @@ describe('spec driver', async () => {
   function executeScript() {
     return async () => {
       const args = [0, 'string', {key: 'value'}, [0, 1, 2, 3]]
-      const {value: expected} = await browser.execute('return arguments', ...args)
-      const result = await spec.executeScript(browser, 'return arguments', ...args)
+      const {value: expected} = await browser.execute('return arguments[0]', args)
+      const result = await spec.executeScript(browser, 'return arguments[0]', args)
       assert.deepStrictEqual(result, expected)
     }
   }

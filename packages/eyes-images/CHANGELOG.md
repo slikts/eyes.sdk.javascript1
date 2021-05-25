@@ -3,6 +3,10 @@
 ## Unreleased
 
 
+## 4.21.0 - 2021/4/26
+
+- updated to @applitools/eyes-sdk-core@12.17.4 (from 12.17.0)
+
 ## 4.20.0 - 2021/3/30
 
 - support `variantId` in checkSettings

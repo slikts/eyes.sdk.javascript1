@@ -1,0 +1,16 @@
+name: Parser
+
+inputs:
+  packages:
+    description: list of package names (aliases) with modifiers such as version or aut protocol
+    required: true
+  allow-variations:
+    description: whether modifiers should be allowed to create variations (wdio:cdp or selenium@3)
+  release-version:
+    description: default release version type (major, minor, patch)
+outputs:
+  packages:
+    description: map or array of each package or variation respectively
+runs:
+  using: node12
+  main: index.js
