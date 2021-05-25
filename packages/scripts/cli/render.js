@@ -284,7 +284,7 @@ const saveConfig = {
 }
 
 yargs
-  .usage('yarn render <url> [options]')
+  .usage('yarn render [url] [options]')
   .example(
     'yarn render http://example.org --viewport-size 800x600 --css',
     'classic viewport screenshot, browser width 800 pixels, browser height 600 pixels, css stitching',
@@ -298,7 +298,7 @@ yargs
     'classic full page screenshot, 2 ignore regions',
   )
   .command({
-    command: '* <url>',
+    command: '* [url]',
     builder: yargs =>
       yargs.options({...buildConfig, ...eyesConfig, ...checkConfig, ...testConfig, ...saveConfig}),
     handler: async args => {
