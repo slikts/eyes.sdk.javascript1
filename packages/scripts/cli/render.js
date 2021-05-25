@@ -14,10 +14,12 @@ const checkConfig = {
   name: {
     describe: 'tag for checkpoint',
     type: 'string',
+    alias: 'n',
     default: 'render script',
   },
   region: {
     describe: 'region to check',
+    alias: 'r',
     type: 'string',
     coerce(str) {
       const region = utils.parseRegion(str)
@@ -88,6 +90,7 @@ const checkConfig = {
 const buildConfig = {
   browser: {
     describe: 'preset name of browser. (e.g. "edge-18", "ie-11", "safari-11", "firefox")',
+    alias: 'b',
     type: 'string',
     default: 'chrome',
   },
@@ -108,6 +111,7 @@ const buildConfig = {
   attach: {
     describe: 'attach to existing chrome via remote debugging port',
     type: 'boolean',
+    alias: 'a'
   },
   driverUrl: {
     describe: 'url to the driver server',
@@ -130,15 +134,18 @@ const eyesConfig = {
     type: 'string',
     describe: 'path to sdk',
     default: process.cwd(),
+    alias: 's'
   },
   compare: {
     type: 'boolean',
     describe: 'compare classic with visual-grid',
     default: false,
+    alias: 'c'
   },
   vg: {
     type: 'boolean',
     describe: 'when specified, use visual grid instead of classic runner',
+    alias: 'v'
   },
   css: {
     type: 'boolean',
@@ -253,6 +260,7 @@ const testConfig = {
     describe: 'delay in seconds before capturing page',
     type: 'number',
     default: 0,
+    alias: 'd'
   },
   runBefore: {
     describe:
@@ -290,7 +298,7 @@ yargs
     'classic full page screenshot, 2 ignore regions',
   )
   .command({
-    command: '* [url]',
+    command: '* <url>',
     builder: yargs =>
       yargs.options({...buildConfig, ...eyesConfig, ...checkConfig, ...testConfig, ...saveConfig}),
     handler: async args => {
@@ -471,7 +479,7 @@ function formatArgs(args) {
   })
   Object.entries(args).reduce((lines, [key, value]) => {
     // don't show the entire cli, and show only the camelCase version of each arg
-    if (!['_', '$0'].includes(key) && !key.includes('-')) {
+    if (!['_', '$0'].includes(key) && !key.includes('-') && key.length > 1) {
       lines.push([key, JSON.stringify(value)])
     }
     return lines
