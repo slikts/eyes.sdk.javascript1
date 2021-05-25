@@ -3,7 +3,8 @@
 const TypeUtils = require('./TypeUtils')
 
 async function getBrowserInfo({browser, getEmulatedDevicesSizes, getIosDevicesSizes}) {
-  if (TypeUtils.has(browser, 'name')) {
+  const isMobile = browser.deviceName || browser.mobile
+  if (!isMobile) {
     const {name, width, height} = browser
     return {name, width, height}
   } else {
