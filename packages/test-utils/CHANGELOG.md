@@ -2,7 +2,6 @@
 
 ## Unreleased
 
-- fix require for `yarn render`
 
 ## 1.0.3 - 2021/5/24
 
