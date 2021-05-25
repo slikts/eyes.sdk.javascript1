@@ -7,7 +7,6 @@ const yargs = require('yargs')
 const {setupEyes} = require('@applitools/test-utils')
 const utils = require('../src/cli-utils')
 const cwd = process.cwd()
-const {DeviceName, ScreenOrientation, MatchLevel} = require(cwd)
 const delay = util.promisify(setTimeout)
 
 const checkConfig = {
@@ -72,7 +71,7 @@ const checkConfig = {
   matchLevel: {
     describe: 'match level',
     type: 'string',
-    choices: Object.values(MatchLevel),
+    // choices: Object.values(MatchLevel),
   },
   fully: {
     type: 'boolean',
@@ -126,6 +125,16 @@ const buildConfig = {
 }
 
 const eyesConfig = {
+  sdk: {
+    type: 'string',
+    describe: 'path to sdk',
+    default: process.cwd(),
+  },
+  compare: {
+    type: 'boolean',
+    describe: 'compare classic with visual-grid',
+    default: false
+  },
   vg: {
     type: 'boolean',
     describe: 'when specified, use visual grid instead of classic runner',
@@ -195,7 +204,6 @@ const eyesConfig = {
   renderBrowsers: {
     describe: 'comma-separated list of browser to render in vg mode (e.g. chrome(800x600))',
     type: 'string',
-    implies: ['vg'],
     coerce(str) {
       const regexp = /^(chrome|chrome-1|chrome-2|chrome-canary|firefox|firefox-1|firefox-2|ie11|ie10|edge|safari|safari-1|safari-2|ie-vmware|edge-chromium|edge-chromium-1|edge-chromium-2)(\( *(\d+) *(x|,) *(\d+) *\))?$/
       return utils.parseList(str).map(browser => {
@@ -217,18 +225,18 @@ const eyesConfig = {
     describe:
       'comma-separated list of chrome-emulation devices to render in vg mode (e.g. "Pixel 4:portrait", "Nexus 7")',
     type: 'string',
-    implies: ['vg'],
     coerce(str) {
-      const deviceNames = Object.values(DeviceName)
-      const orientations = Object.values(ScreenOrientation)
+      // const {DeviceName, ScreenOrientation, MatchLevel} = require(cwd)
+      // const deviceNames = Object.values(DeviceName)
+      // const orientations = Object.values(ScreenOrientation)
       return utils.parseList(str).map(deviceStr => {
         const deviceInfo = utils.parseSequence(['deviceName', 'screenOrientation'], ':')(deviceStr)
-        if (!deviceNames.includes(deviceInfo.deviceName)) {
-          throw new Error(`invalid device name. Supports only ${deviceNames.join(', ')}`)
-        }
-        if (deviceInfo.screenOrientation && !orientations.includes(deviceInfo.screenOrientation)) {
-          throw new Error(`invalid screen orientation. Supports only ${orientations.join(', ')}`)
-        }
+        // if (!deviceNames.includes(deviceInfo.deviceName)) {
+        //   throw new Error(`invalid device name. Supports only ${deviceNames.join(', ')}`)
+        // }
+        // if (deviceInfo.screenOrientation && !orientations.includes(deviceInfo.screenOrientation)) {
+        //   throw new Error(`invalid screen orientation. Supports only ${orientations.join(', ')}`)
+        // }
         return {chromeEmulationInfo: deviceInfo}
       })
     },
@@ -287,17 +295,40 @@ yargs
     handler: async args => {
       console.log(`Options:\n ${formatArgs(args)}\n`)
       try {
-        await runner(args)
+        const testResults = [];
+        if (args.compare) {
+          args.testName = `eyes-compare ${Date.now()}`
+          for (const run of [{vg: false}, {vg: true}]) {
+            testResults.push(await runner({...args, ...run}));
+          }
+        } else {
+          testResults.push(await runner(args))
+        }
+        printTestResults(testResults);
       } catch (err) {
         console.log(err)
         process.exit(1)
       }
     },
   })
+  .wrap(yargs.terminalWidth())
   .help().argv
 
+function printTestResults(testResults) {
+  for (const result of testResults) {
+    const resultsStr = result
+    .getAllResults()
+    .map(testResultContainer => {
+      const testResults = testResultContainer.getTestResults()
+      return testResults ? formatResults(testResults) : testResultContainer.getException()
+    })
+    .join('\n')
+    console.log('\nRender results:\n', resultsStr)
+  }
+}
+
 async function runner(args) {
-  const spec = require(path.resolve(cwd, 'dist/spec-driver'))
+  const spec = require(require.resolve(path.join(args.sdk, 'dist/spec-driver'), {paths: [cwd]}))
 
   let runBeforeFunc
   if (args.runBefore !== undefined) {
@@ -331,7 +362,7 @@ async function runner(args) {
 
     if (runBeforeFunc) await runBeforeFunc(driver)
 
-    await eyes.open(driver, args.appName, args.url)
+    await eyes.open(driver, args.appName, args.testName || args.url)
 
     logger.log(`[render script] awaiting delay... ${args.delay}s`)
     await delay(args.delay * 1000)
@@ -342,17 +373,10 @@ async function runner(args) {
     await eyes.close(false)
 
     logger.getLogHandler().open()
-    const testResultsSummary = await runner.getAllTestResults(false)
+    const results = await runner.getAllTestResults(false)
     logger.getLogHandler().close()
-    const resultsStr = testResultsSummary
-      .getAllResults()
-      .map(testResultContainer => {
-        const testResults = testResultContainer.getTestResults()
-        return testResults ? formatResults(testResults) : testResultContainer.getException()
-      })
-      .join('\n')
-
-    console.log('\nRender results:\n', resultsStr)
+    return results;
+    
   } finally {
     await destroyDriver()
   }
@@ -380,6 +404,7 @@ function argsToBuildConfig(args) {
 
 function argsToEyesConfig(args) {
   return {
+    sdk: args.sdk,
     vg: args.vg,
     apiKey: args.apiKey,
     serverUrl: args.serverUrl,
