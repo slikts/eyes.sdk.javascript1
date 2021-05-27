@@ -4,9 +4,9 @@ import * as Settings from './Settings'
 import * as Results from './Results'
 
 export interface Core<TDriver, TElement, TSelector> {
-  makeManager(config?: Configs.EyesManagerConfig): EyesManager<TDriver, TElement, TSelector>
-  getViewportSize(driver: TDriver): Promise<Options.RectangleSize>
-  setViewportSize(driver: TDriver, viewportSize: Options.RectangleSize): Promise<void>
+  makeManager(config?: Configs.EyesManagerConfig): Promise<EyesManager<TDriver, TElement, TSelector>>
+  getViewportSize(options: {driver: TDriver}): Promise<Options.RectangleSize>
+  setViewportSize(options: {driver: TDriver; size: Options.RectangleSize}): Promise<void>
   closeBatch(options: {batchId: string; serverUrl?: string; apiKey?: string; proxy?: Options.Proxy}): Promise<void>
   deleteTest(results: {
     testId: string
