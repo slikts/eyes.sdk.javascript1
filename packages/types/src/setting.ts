@@ -1,6 +1,13 @@
-import * as Options from './Options'
+import {
+  MatchLevel,
+  Region,
+  AccessibilityRegionType,
+  AccessibilityGuidelinesVersion,
+  AccessibilityLevel,
+  Proxy,
+} from './data'
 
-type RegionReference<TElement, TSelector> = Options.Region | ElementReference<TElement, TSelector>
+type RegionReference<TElement, TSelector> = Region | ElementReference<TElement, TSelector>
 
 type ElementReference<TElement, TSelector> = TElement | TSelector
 
@@ -21,7 +28,7 @@ type FloatingRegion<TRegion> = {
 
 type AccessibilityRegion<TRegion> = {
   region: TRegion
-  type?: Options.AccessibilityRegionType
+  type?: AccessibilityRegionType
 }
 
 export type MatchSettings<TRegion> = {
@@ -31,15 +38,15 @@ export type MatchSettings<TRegion> = {
     minDiffHeight: number
     matchThreshold: number
   }
-  matchLevel?: Options.MatchLevel
+  matchLevel?: MatchLevel
   sendDom?: boolean
   useDom?: boolean
   enablePatterns?: boolean
   ignoreCaret?: boolean
   ignoreDisplacements?: boolean
   accessibilitySettings?: {
-    level?: Options.AccessibilityLevel
-    guidelinesVersion?: Options.AccessibilityGuidelinesVersion
+    level?: AccessibilityLevel
+    guidelinesVersion?: AccessibilityGuidelinesVersion
   }
   ignoreRegions?: TRegion[]
   layoutRegions?: TRegion[]
@@ -85,4 +92,20 @@ export type OCRSearchSettings<TPattern extends string> = {
 export type LocateSettings<TLocator extends string> = {
   locatorNames: TLocator[]
   firstOnly?: boolean
+}
+
+export type CloseBatchesSettings = {
+  batchIds: string
+  serverUrl?: string
+  apiKey?: string
+  proxy?: Proxy
+}
+
+export type DeleteTestSettings = {
+  testId: string
+  batchId: string
+  secretToken: string
+  serverUrl?: string
+  apiKey?: string
+  proxy?: Proxy
 }

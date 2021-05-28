@@ -1,27 +1,27 @@
+import type * as types from '@applitools/types'
 import * as utils from '@applitools/utils'
 
 const REF_ID = 'applitools-ref-id'
 
-export type Ref<TValue = any> = {'applitools-ref-id': string}
-
-export type DeepRef<TValue, TTarget> = TValue extends TTarget ? Ref<TValue>
+/* eslint-disable prettier/prettier */
+export type DeepRef<TValue, TTarget> = TValue extends TTarget ? types.Ref<TValue>
   : TValue extends (...args: any[]) => any ? TValue
   : TValue extends Date ? TValue
   : TValue extends Record<PropertyKey, any> ? {[key in keyof TValue]: DeepRef<TValue[key], TTarget>}
   : TValue
+/* eslint-enable prettier/prettier */
 
 export class Refer<TTarget> {
   private _store = new Map<string, any>()
-  private _relation = new Map<string, Set<Ref>>()
+  private _relation = new Map<string, Set<types.Ref>>()
 
-  constructor(private readonly _check: (value: any) => value is TTarget) {
-  }
+  constructor(private readonly _check: (value: any) => value is TTarget) {}
 
-  private isRef(ref: any): ref is Ref {
+  private isRef(ref: any): ref is types.Ref {
     return Boolean(ref[REF_ID])
   }
 
-  ref<TValue>(value: TValue, parentRef?: Ref): DeepRef<TValue, TTarget> {
+  ref<TValue>(value: TValue, parentRef?: types.Ref): DeepRef<TValue, TTarget> {
     if (this._check(value)) {
       const ref = utils.general.guid()
       this._store.set(ref, value)
@@ -45,7 +45,7 @@ export class Refer<TTarget> {
     }
   }
 
-  deref<TValue>(ref: Ref<TValue>): TValue {
+  deref<TValue>(ref: types.Ref<TValue>): TValue {
     if (this.isRef(ref)) {
       return this._store.get(ref[REF_ID])
     } else {
@@ -53,7 +53,7 @@ export class Refer<TTarget> {
     }
   }
 
-  destroy(ref: Ref): void {
+  destroy(ref: types.Ref): void {
     if (!this.isRef(ref)) return
     const childRefs = this._relation.get(ref[REF_ID])
     childRefs.forEach(childRef => this.destroy(childRef))

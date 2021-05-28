@@ -5,9 +5,9 @@ import * as utils from '@applitools/utils'
 export type Driver = Playwright.Page
 export type Element = Playwright.ElementHandle
 export type Context = Playwright.Frame
-export type Selector = string | {type: string; selector: string}
+export type Selector = types.SpecSelector<string>
 
-export class SpecDriver {
+export class SpecDriver implements types.SpecDriver<Driver, Context, Element, Selector> {
   get commands(): string[] {
     return Object.keys(this).filter(key => !key.startsWith('_'))
   }
@@ -20,7 +20,9 @@ export class SpecDriver {
       return Promise.all(Array.from(map.values(), this._handleToObject))
     } else if (type === 'object') {
       const map = await handle.getProperties()
-      const chunks = await Promise.all(Array.from(map, async ([key, handle]) => ({[key]: await this._handleToObject(handle)})))
+      const chunks = await Promise.all(
+        Array.from(map, async ([key, handle]) => ({[key]: await this._handleToObject(handle)})),
+      )
       return chunks.length > 0 ? Object.assign(...(chunks as [any])) : {}
     } else if (type === 'node') {
       return handle.asElement()
@@ -89,14 +91,10 @@ export class SpecDriver {
   async findElements(frame: Context, selector: Selector): Promise<Element[]> {
     return frame.$$(this._transformSelector(selector))
   }
-  async getElementRect(_frame: Context, element: Element): Promise<types.Options.Region> {
-    const {x, y, width, height} = await element.boundingBox()
-    return {x: Math.round(x), y: Math.round(y), width: Math.round(width), height: Math.round(height)}
-  }
-  async getViewportSize(page: Driver): Promise<types.Options.RectangleSize> {
+  async getViewportSize(page: Driver): Promise<types.Size> {
     return page.viewportSize()
   }
-  async setViewportSize(page: Driver, size: types.Options.RectangleSize): Promise<void> {
+  async setViewportSize(page: Driver, size: types.Size): Promise<void> {
     return page.setViewportSize(size)
   }
   async getTitle(page: Driver): Promise<string> {

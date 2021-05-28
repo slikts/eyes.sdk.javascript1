@@ -1,5 +1,20 @@
-import * as Options from './Options'
-import * as Settings from './Settings'
+import {LogHandler, DebugScreenshotHandler} from './debug'
+import {MatchSettings} from './setting'
+import {
+  SessionType,
+  StitchMode,
+  Size,
+  Region,
+  Proxy,
+  Batch,
+  CustomProperty,
+  ImageRotation,
+  ImageCropRect,
+  ImageCropRegion,
+  DesktopBrowserRenderer,
+  ChromeEmulationDeviceRenderer,
+  IOSDeviceRenderer,
+} from './data'
 
 export type EyesManagerConfig<TType extends 'vg' | 'classic' = 'vg' | 'classic'> = {
   type: TType
@@ -7,19 +22,19 @@ export type EyesManagerConfig<TType extends 'vg' | 'classic' = 'vg' | 'classic'>
   legacy?: TType extends 'vg' ? boolean : never
 }
 
-export type EyesMakeConfig<TDriver, TElement, TSelector> = {
-  driver: TDriver
-  config?: EyesConfig<TElement, TSelector>
-  on?: (event: string, data?: Record<string, any>) => any
-}
+export type EyesConfig<TElement, TSelector> = EyesBaseConfig &
+  EyesOpenConfig &
+  EyesCheckConfig &
+  EyesClassicConfig<TElement, TSelector> &
+  EyesUFGConfig
 
 export type EyesBaseConfig = {
-  logs?: Options.LogHandler
-  debugScreenshots?: Options.DebugScreenshotHandler
+  logs?: LogHandler
+  debugScreenshots?: DebugScreenshotHandler
   agentId?: string
   apiKey?: string
   serverUrl?: string
-  proxy?: Options.Proxy
+  proxy?: Proxy
   isDisabled?: boolean
   connectionTimeout?: number
   removeSession?: boolean
@@ -30,11 +45,11 @@ export type EyesOpenConfig = {
   appName?: string
   testName?: string
   displayName?: string
-  viewportSize?: Options.RectangleSize
-  sessionType?: Options.SessionType
-  properties?: Options.CustomProperty[]
-  batch?: Options.Batch
-  defaultMatchSettings?: Settings.MatchSettings<Options.Region>
+  viewportSize?: Size
+  sessionType?: SessionType
+  properties?: CustomProperty[]
+  batch?: Batch
+  defaultMatchSettings?: MatchSettings<Region>
   hostApp?: string
   hostOS?: string
   hostAppInfo?: string
@@ -61,26 +76,20 @@ export type EyesCheckConfig = {
 
 export type EyesClassicConfig<TElement = unknown, TSelector = unknown> = {
   waitBeforeScreenshots?: number
-  stitchMode?: Options.StitchMode
+  stitchMode?: StitchMode
   hideScrollbars?: boolean
   hideCaret?: boolean
   stitchOverlap?: number
   scrollRootElement?: TElement | TSelector
-  cut?: Options.ImageCropRect | Options.ImageCropRegion
-  rotation?: Options.ImageRotation
+  cut?: ImageCropRect | ImageCropRegion
+  rotation?: ImageRotation
   scaleRatio?: number
 }
 
 export type EyesUFGConfig = {
   concurrentSessions?: number
-  browsersInfo?: (Options.DesktopBrowserRenderer | Options.ChromeEmulationDeviceRenderer | Options.IOSDeviceRenderer)[]
+  browsersInfo?: (DesktopBrowserRenderer | ChromeEmulationDeviceRenderer | IOSDeviceRenderer)[]
   visualGridOptions?: Record<string, any>
   layoutBreakpoints?: boolean | number[]
   disableBrowserFetching?: boolean
 }
-
-export type EyesConfig<TElement, TSelector> = EyesBaseConfig &
-  EyesOpenConfig &
-  EyesCheckConfig &
-  EyesClassicConfig<TElement, TSelector> &
-  EyesUFGConfig

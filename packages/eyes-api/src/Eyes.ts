@@ -29,11 +29,7 @@ import {SessionEventHandler, SessionEventHandlers, RemoteSessionEventHandler} fr
 import {EyesRunner, ClassicRunner} from './Runners'
 import {Logger} from './Logger'
 
-type EyesSpec<TDriver = unknown, TElement = unknown, TSelector = unknown> = types.Core<TDriver, TElement, TSelector> & {
-  isDriver(value: any): value is TDriver
-  isElement(value: any): value is TElement
-  isSelector(value: any): value is TSelector
-}
+type EyesSpec<TDriver = unknown, TElement = unknown, TSelector = unknown> = types.Core<TDriver, TElement, TSelector>
 
 export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   protected static readonly _spec: EyesSpec
@@ -49,8 +45,8 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   private _events: Map<string, Set<(...args: any[]) => any>> = new Map()
   private _handlers: SessionEventHandlers = new SessionEventHandlers()
 
-  static async setViewportSize(driver: unknown, viewportSize: RectangleSize) {
-    await this._spec.setViewportSize(driver, viewportSize)
+  static async setViewportSize(driver: unknown, size: RectangleSize) {
+    await this._spec.setViewportSize({driver, size})
   }
 
   constructor(runner?: EyesRunner, config?: Configuration<TElement, TSelector>)

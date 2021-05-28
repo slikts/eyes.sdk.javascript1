@@ -46,15 +46,7 @@ export class Socket<TDriver, TContext, TElement, TSelector>
     // TODO timeout and reject
   }
 
-  unref(): () => void {
-    //@ts-ignore
-    const command = () => this._socket._socket.unref()
-    if (this._socket) command()
-    else this._queue.add(command)
-    return () => this._queue.delete(command)
-  }
-
-  emit(name: string, payload?: Record<string, any>, key?: string) {
+  emit(name: string, payload?: Record<string, any>, key?: string): () => void {
     const command = () => this._socket.send(JSON.stringify({name, key, payload}))
     if (this._socket) command()
     else this._queue.add(command)
@@ -86,6 +78,18 @@ export class Socket<TDriver, TContext, TElement, TSelector>
     return existed
   }
 
+  request(name: string, payload?: any): Promise<any> {
+    return new Promise((resolve, reject) => {
+      const key = utils.general.guid()
+      console.log(`${chalk.blue('[REQUEST]')} ${name}, ${key}, ${JSON.stringify(payload, null, 2)}`)
+      this.emit(name, payload, key)
+      this.once({name, key}, response => {
+        if (response.error) return reject(response.error)
+        return resolve(response.result)
+      })
+    })
+  }
+
   command(name: string, fn: (payload?: any) => any): () => void {
     return this.on(name, async (payload, key) => {
       try {
@@ -100,15 +104,11 @@ export class Socket<TDriver, TContext, TElement, TSelector>
     })
   }
 
-  request(name: string, payload?: any): any {
-    return new Promise((resolve, reject) => {
-      const key = utils.general.guid()
-      console.log(`${chalk.blue('[REQUEST]')} ${name}, ${key}, ${JSON.stringify(payload, null, 2)}`)
-      this.emit(name, payload, key)
-      this.once({name, key}, response => {
-        if (response.error) return reject(response.error)
-        return resolve(response.result)
-      })
-    })
+  unref(): () => void {
+    //@ts-ignore
+    const command = () => this._socket._socket.unref()
+    if (this._socket) command()
+    else this._queue.add(command)
+    return () => this._queue.delete(command)
   }
 }

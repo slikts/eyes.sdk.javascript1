@@ -35,17 +35,28 @@ export type Batch = {
   properties?: CustomProperty[]
 }
 
+export type DriverInfo = {
+  sessionId?: string
+  isMobile?: boolean
+  isNative?: boolean
+  deviceName?: string
+  platformName?: string
+  platformVersion?: string
+  browserName?: string
+  browserVersion?: string
+}
+
 export type Location = {
   x: number
   y: number
 }
 
-export type RectangleSize = {
+export type Size = {
   width: number
   height: number
 }
 
-export type Region = Location & RectangleSize
+export type Region = Location & Size
 
 export type TextRegion = Region & {text: string}
 
@@ -186,29 +197,72 @@ export type IOSDeviceRenderer = {
   }
 }
 
-export type DebugScreenshotHandler = {
-  save: boolean
-  path?: string
-  prefix?: string
+export type MatchResult = {
+  readonly asExpected?: boolean
+  readonly windowId?: number
 }
 
-export type CustomLogHandler = {
-  log(message: any): void
-  warn?(message: any): void
-  error?(message: any): void
-  fatal?(message: any): void
-  open?(): void
-  close?(): void
+export type TestResult = {
+  readonly testId?: string
+  readonly name?: string
+  readonly secretToken?: string
+  readonly status?: TestResultsStatus
+  readonly appName?: string
+  readonly batchId?: string
+  readonly batchName?: string
+  readonly branchName?: string
+  readonly hostOS?: string
+  readonly hostApp?: string
+  readonly hostDisplaySize?: Size
+  readonly accessibilityStatus?: {
+    readonly level: AccessibilityLevel
+    readonly version: AccessibilityGuidelinesVersion
+    readonly status: AccessibilityStatus
+  }
+  readonly startedAt?: Date | string
+  readonly duration?: number
+  readonly isNew?: boolean
+  readonly isDifferent?: boolean
+  readonly isAborted?: boolean
+  readonly appUrls?: SessionUrls
+  readonly apiUrls?: SessionUrls
+  readonly stepsInfo?: StepInfo[]
+  readonly steps?: number
+  readonly matches?: number
+  readonly mismatches?: number
+  readonly missing?: number
+  readonly exactMatches?: number
+  readonly strictMatches?: number
+  readonly contentMatches?: number
+  readonly layoutMatches?: number
+  readonly noneMatches?: number
+  readonly url?: string
 }
 
-export type FileLogHandler = {
-  type: 'file'
-  filename?: string
-  append?: boolean
+export type StepInfo = {
+  readonly name?: string
+  readonly isDifferent?: boolean
+  readonly hasBaselineImage?: boolean
+  readonly hasCurrentImage?: boolean
+  readonly appUrls?: AppUrls
+  readonly apiUrls?: ApiUrls
+  readonly renderId?: string[]
 }
 
-export type ConsoleLogHandler = {
-  type: 'console'
+export type ApiUrls = {
+  readonly baselineImage?: string
+  readonly currentImage?: string
+  readonly checkpointImage?: string
+  readonly checkpointImageThumbnail?: string
+  readonly diffImage?: string
 }
 
-export type LogHandler = CustomLogHandler | FileLogHandler | ConsoleLogHandler
+export type AppUrls = {
+  readonly step?: string
+  readonly stepEditor?: string
+}
+
+export type SessionUrls = {
+  readonly batch?: string
+  readonly session?: string
+}
