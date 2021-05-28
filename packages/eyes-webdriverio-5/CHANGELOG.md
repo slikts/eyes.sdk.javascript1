@@ -5,6 +5,10 @@
 - added full typescript support
 - introduced @applitools/eyes-api package with new api
 
+## 5.31.4 - 2021/5/27
+
+- update domsnapshot
+
 ## 5.31.3 - 2021/5/25
 
 - added support for wdio7
