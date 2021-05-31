@@ -92,7 +92,8 @@ async function link({
       console.error(result.error)
       console.error('STDOUT:', result.stdout)
       console.error('STDERR:', result.stderr)
-      process.exit(1)
+      console.log('-\n-\n-\n-\n-\n-\n-')
+      // process.exit(1)
     }
     console.log(
       chalk.greenBright(
