@@ -108,6 +108,8 @@ async function link({
       .filter(dependencyName => packages.has(dependencyName))
       .map(dependencyName => packages.get(dependencyName))
 
+    console.log(target, packages)
+
     return dependencies.reduce(async (promise, dependency) => {
       const results = await promise
       let [result, ...nestedResults] = await new Promise(async resolve => {
