@@ -28,6 +28,8 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
       return spec.isDriver(value) || spec.isContext(value) || spec.isElement(value)
     })
 
+    this._server.on('error', (...a) => console.log('ERROR IN SERVER', a))
+
     this._server.unref() // important: this allows the client process to exit without hanging, while the server process still runs
 
     // specific to JS: we are able to listen to stdout for the first line, then we know the server is up, and we even can get its port in case it wasn't passed
