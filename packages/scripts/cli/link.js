@@ -108,7 +108,7 @@ async function link({
       .filter(dependencyName => packages.has(dependencyName))
       .map(dependencyName => packages.get(dependencyName))
 
-    console.log(target, packages)
+    console.log(target.name, depth, maxDepth)
 
     return dependencies.reduce(async (promise, dependency) => {
       const results = await promise
