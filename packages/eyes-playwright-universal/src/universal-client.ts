@@ -21,6 +21,7 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
     console.log(require('path').resolve(`./node_modules/.bin/eyes-universal-${process.platform}`))
     console.log(require('fs').existsSync(`./node_modules/.bin/eyes-universal-${process.platform}`))
     console.log(require('fs').readdirSync(`./node_modules/.bin`))
+    console.log(require('fs').readdirSync(`../eyes-universal/bin`))
     this._server = spawn(`./node_modules/.bin/eyes-universal-${process.platform}`, ['--port=2107'], {
       detached: true,
       stdio: ['ignore', 'pipe', 'ignore'],

@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- improve logging in `link` script
 - add `yarn render --compare`
 
 ## 1.0.0 - 2021/5/23
