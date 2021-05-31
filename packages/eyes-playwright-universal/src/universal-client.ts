@@ -18,7 +18,7 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
 
   constructor() {
     debug('connect')
-    process.platform
+    console.log(`./node_modules/.bin/eyes-universal-${process.platform}`)
     this._server = spawn(`./node_modules/.bin/eyes-universal-${process.platform}`, ['--port=2107'], {
       detached: true,
       stdio: ['ignore', 'pipe', 'ignore'],

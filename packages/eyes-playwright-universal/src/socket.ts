@@ -1,6 +1,6 @@
 import * as utils from '@applitools/utils'
 import WebSocket from 'ws'
-import chalk from 'chalk'
+// import chalk from 'chalk'
 
 const debug = require('debug')('applitools:socket')
 
@@ -78,7 +78,7 @@ export class Socket {
   request(name: string, payload?: any): Promise<any> {
     return new Promise((resolve, reject) => {
       const key = utils.general.guid()
-      console.log(`${chalk.blue('[REQUEST]')} ${name}, ${key}, ${JSON.stringify(payload, null, 2)}`)
+      // console.log(`${chalk.blue('[REQUEST]')} ${name}, ${key}, ${JSON.stringify(payload, null, 2)}`)
       this.emit(name, payload, key)
       this.once({name, key}, response => {
         if (response.error) return reject(response.error)
@@ -90,12 +90,12 @@ export class Socket {
   command(name: string, fn: (payload?: any) => any): () => void {
     return this.on(name, async (payload, key) => {
       try {
-        console.log(`${chalk.yellow('[COMMAND]')} ${name}, ${key}, ${JSON.stringify(payload, null, 2)}`)
+        // console.log(`${chalk.yellow('[COMMAND]')} ${name}, ${key}, ${JSON.stringify(payload, null, 2)}`)
         const result = await fn(payload)
         this.emit(name, {result}, key)
       } catch (error) {
-        console.log(`${chalk.red('[COMMAND]')} ${name} ${key} ${error}`)
-        console.log(error)
+        // console.log(`${chalk.red('[COMMAND]')} ${name} ${key} ${error}`)
+        // console.log(error)
         this.emit(name, {error}, key)
       }
     })
