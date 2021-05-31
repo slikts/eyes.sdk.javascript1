@@ -63,10 +63,10 @@
     "build": "yarn build:dist && yarn build:bin",
     "build:dist": "tsc",
     "build:bin": "pkg ./dist/cli.js --targets node14-linux-x64,node14-macos-x64,node14-win-x64 --out-path ./bin",
+    "deps": "bongo deps",
     "preversion": "bongo preversion && yarn build",
     "version": "bongo version",
-    "postversion": "bongo postversion",
-    "deps": "bongo deps"
+    "postversion": "bongo postversion"
   },
   "license": "SEE LICENSE IN LICENSE",
   "engines": {

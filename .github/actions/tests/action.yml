@@ -33,6 +33,8 @@ runs:
 
         echo "::group::Installing and updating dependencies"
         cd "packages/${{inputs.package}}"
+        yarn --cwd ../eyes-universal install
+        yarn --cwd ../eyes-universal build
         yarn install
         npm run deps --if-present -- --skip-commit
         if [ ! -z "${{inputs.install}}" ]; then yarn add --dev ${{inputs.install}}; fi
