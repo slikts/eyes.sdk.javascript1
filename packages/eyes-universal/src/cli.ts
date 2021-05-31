@@ -1,7 +1,7 @@
 import yargs from 'yargs'
 import {makeServer} from './universal-server'
 
-const {argv} = yargs
+yargs
   .example([
     ['$ eyes-universal', 'Run Eyes Universal server on default port (2107)'],
     ['$ eyes-universal --port 8080', 'Run Eyes Universal server on port 8080'],
@@ -10,33 +10,34 @@ const {argv} = yargs
   ])
   .command({
     command: '*',
-    builder: yargs => yargs.options({
-      port: {
-        description: 'run server on a specific port.',
-        alias: 'p',
-        type: 'number',
-        default: 2107,
-      },
-      singleton: {
-        description:
-          'runs server on a singleton mode. It will prevent the server to start in case the same server is already started.',
-        alias: 's',
-        type: 'boolean',
-        default: true,
-      },
-      lazy: {
-        description:
-          'runs server on a lazy mode. It will not try to find a free port if the required one is already taken.',
-        alias: 'l',
-        type: 'boolean',
-        default: false,
-      },
-      'idle-timeout': {
-        description: 'time in minutes for server to stay responsible in case of idle.',
-        type: 'number',
-        default: 15,
-        coerce: value => value * 60 * 1000
-      }
-    }),
-    handler: args => makeServer(args)
-  })
+    builder: yargs =>
+      yargs.options({
+        port: {
+          description: 'run server on a specific port.',
+          alias: 'p',
+          type: 'number',
+          default: 2107,
+        },
+        singleton: {
+          description:
+            'runs server on a singleton mode. It will prevent the server to start in case the same server is already started.',
+          alias: 's',
+          type: 'boolean',
+          default: true,
+        },
+        lazy: {
+          description:
+            'runs server on a lazy mode. It will not try to find a free port if the required one is already taken.',
+          alias: 'l',
+          type: 'boolean',
+          default: false,
+        },
+        'idle-timeout': {
+          description: 'time in minutes for server to stay responsible in case of idle.',
+          type: 'number',
+          default: 15,
+          coerce: value => value * 60 * 1000,
+        },
+      }),
+    handler: args => makeServer(args as any),
+  }).argv

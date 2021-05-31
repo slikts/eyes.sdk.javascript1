@@ -1,13 +1,10 @@
-import type * as types from '@applitools/types'
 import * as utils from '@applitools/utils'
 import WebSocket from 'ws'
 import chalk from 'chalk'
 
 const debug = require('debug')('applitools:socket')
 
-export class Socket<TDriver, TContext, TElement, TSelector>
-  implements types.Client<TDriver, TContext, TElement, TSelector>
-{
+export class Socket {
   private _socket: WebSocket = null
   private _listeners = new Map<string, Set<(...args: any[]) => any>>()
   private _queue = new Set<() => any>()
@@ -48,7 +45,7 @@ export class Socket<TDriver, TContext, TElement, TSelector>
 
   emit(name: string, payload?: Record<string, any>, key?: string): () => void {
     const command = () => this._socket.send(JSON.stringify({name, key, payload}))
-    if (this._socket) command()
+    if (this._socket.readyState === WebSocket.OPEN) command()
     else this._queue.add(command)
     return () => this._queue.delete(command)
   }
@@ -107,7 +104,7 @@ export class Socket<TDriver, TContext, TElement, TSelector>
   unref(): () => void {
     //@ts-ignore
     const command = () => this._socket._socket.unref()
-    if (this._socket) command()
+    if (this._socket.readyState === WebSocket.OPEN) command()
     else this._queue.add(command)
     return () => this._queue.delete(command)
   }

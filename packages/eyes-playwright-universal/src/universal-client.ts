@@ -2,30 +2,31 @@ import type * as types from '@applitools/types'
 import type {ChildProcess} from 'child_process'
 import type {Driver, Context, Element, Selector} from './spec-driver'
 import * as utils from '@applitools/utils'
+import * as spec from './spec-driver'
 import {spawn} from 'child_process'
-import {SpecDriver} from './spec-driver'
 import {Refer} from './refer'
 import {Socket} from './socket'
 
 const debug = require('debug')('applitools:client')
 
+type ClientSocket = Socket & types.ClientSocket<types.Ref<Driver>, types.Ref<Context>, types.Ref<Element>, Selector>
+
 export class UniversalClient implements types.Core<Driver, Element, Selector> {
   private _server: ChildProcess
-  private _socket: Socket<types.Ref<Driver>, types.Ref<Context>, types.Ref<Element>, Selector>
-  private _spec: SpecDriver
+  private _socket: ClientSocket
   private _refer: Refer<Driver | Context | Element>
 
-  constructor({port = 2107, path = './node_modules/bin/eyes-universal-linux'}: any = {}) {
+  constructor() {
     debug('connect')
-    this._server = spawn(path, ['--port', port], {
+    process.platform
+    this._server = spawn(`./node_modules/.bin/eyes-universal-${process.platform}`, ['--port=2107'], {
       detached: true,
       stdio: ['ignore', 'pipe', 'ignore'],
     })
-    this._socket = new Socket<types.Ref<Driver>, types.Ref<Context>, types.Ref<Element>, Selector>()
-    this._spec = new SpecDriver()
-    this._refer = new Refer(
-      (value: any): value is Driver | Context | Element => this._spec.isDriver(value) || this._spec.isElement(value),
-    )
+    this._socket = new Socket()
+    this._refer = new Refer((value: any): value is Driver | Context | Element => {
+      return spec.isDriver(value) || spec.isContext(value) || spec.isElement(value)
+    })
 
     this._server.unref() // important: this allows the client process to exit without hanging, while the server process still runs
 
@@ -35,67 +36,63 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
       const [port] = String(data).split('\n', 1)
       this._socket.connect(`http://localhost:${port}/eyes`)
       this._socket.unref() // important: this allows the client process to exit without hanging, while the server process still runs
-      this._socket.emit('Session.init', {commands: Object.keys(this._spec.commands)})
+      this._socket.emit('Session.init', {commands: Object.keys(spec)})
     })
 
     this._socket.command('Driver.isEqualElements', async ({context, element1, element2}) => {
-      return this._spec.isEqualElements(
-        this._refer.deref(context),
-        this._refer.deref(element1),
-        this._refer.deref(element2),
-      )
+      return spec.isEqualElements(this._refer.deref(context), this._refer.deref(element1), this._refer.deref(element2))
     })
     this._socket.command('Driver.executeScript', async ({context, script, arg}) => {
-      const result = await this._spec.executeScript(this._refer.deref(context), script, arg)
+      const result = await spec.executeScript(this._refer.deref(context), script, this._refer.deref(arg))
       return this._refer.ref(result, context)
     })
     this._socket.command('Driver.mainContext', async ({context}) => {
-      const mainContext = await this._spec.mainContext(this._refer.deref(context))
+      const mainContext = await spec.mainContext(this._refer.deref(context))
       return this._refer.ref(mainContext, context)
     })
     this._socket.command('Driver.parentContext', async ({context}) => {
-      const parentContext = await this._spec.parentContext(this._refer.deref(context))
+      const parentContext = await spec.parentContext(this._refer.deref(context))
       return this._refer.ref(parentContext, context)
     })
     this._socket.command('Driver.childContext', async ({context, element}) => {
-      const childContext = await this._spec.childContext(this._refer.deref(context), this._refer.deref(element))
+      const childContext = await spec.childContext(this._refer.deref(context), this._refer.deref(element))
       return this._refer.ref(childContext, context)
     })
     this._socket.command('Driver.findElement', async ({context, selector}) => {
-      const element = await this._spec.findElement(this._refer.deref(context), selector)
+      const element = await spec.findElement(this._refer.deref(context), selector)
       return !utils.types.isNull(element) ? this._refer.ref(element, context) : element
     })
     this._socket.command('Driver.findElements', async ({context, selector}) => {
-      const elements = await this._spec.findElements(this._refer.deref(context), selector)
+      const elements = await spec.findElements(this._refer.deref(context), selector)
       return elements.map(element => this._refer.ref(element, context))
     })
     this._socket.command('Driver.takeScreenshot', async ({driver}) => {
-      return this._spec.takeScreenshot(this._refer.deref(driver))
+      return spec.takeScreenshot(this._refer.deref(driver))
     })
     this._socket.command('Driver.getViewportSize', async ({driver}) => {
-      return this._spec.getViewportSize(this._refer.deref(driver))
+      return spec.getViewportSize(this._refer.deref(driver))
     })
     this._socket.command('Driver.setViewportSize', async ({driver, size}) => {
-      return this._spec.setViewportSize(this._refer.deref(driver), size)
+      return spec.setViewportSize(this._refer.deref(driver), size)
     })
     this._socket.command('Driver.getTitle', async ({driver}) => {
-      return this._spec.getTitle(this._refer.deref(driver))
+      return spec.getTitle(this._refer.deref(driver))
     })
     this._socket.command('Driver.getUrl', async ({driver}) => {
-      return this._spec.getUrl(this._refer.deref(driver))
+      return spec.getUrl(this._refer.deref(driver))
     })
   }
 
   isDriver(driver: any): driver is Driver {
-    return this._spec.isDriver(driver)
+    return spec.isDriver(driver)
   }
 
   isElement(element: any): element is Element {
-    return this._spec.isElement(element)
+    return spec.isElement(element)
   }
 
   isSelector(selector: any): selector is Selector {
-    return this._spec.isSelector(selector)
+    return spec.isSelector(selector)
   }
 
   async makeManager(config?: types.EyesManagerConfig): Promise<EyesManager> {
@@ -104,11 +101,18 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
   }
 
   async getViewportSize({driver}: {driver: Driver}): Promise<types.Size> {
-    return this._socket.request('Core.getViewportSize', {driver: this._refer.ref(driver)})
+    const driverRef = this._refer.ref(driver)
+    return this._socket.request('Core.getViewportSize', {
+      driver: {...driverRef, context: this._refer.ref(spec.extractContext(driver), driverRef)},
+    })
   }
 
   async setViewportSize({driver, size}: {driver: Driver; size: types.Size}): Promise<void> {
-    return this._socket.request('Core.setViewportSize', {driver: this._refer.ref(driver), size})
+    const driverRef = this._refer.ref(driver)
+    return this._socket.request('Core.setViewportSize', {
+      driver: {...driverRef, context: this._refer.ref(spec.extractContext(driver), driverRef)},
+      size,
+    })
   }
 
   async closeBatches(options: any): Promise<void> {
@@ -127,7 +131,7 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
 
 export class EyesManager implements types.EyesManager<Driver, Element, Selector> {
   private _manager: types.Ref
-  private _socket: Socket<types.Ref<Driver>, types.Ref<Context>, types.Ref<Element>, Selector>
+  private _socket: ClientSocket
   private _refer: Refer<Driver | Context | Element>
 
   constructor({manager, refer, socket}: any) {
@@ -137,9 +141,10 @@ export class EyesManager implements types.EyesManager<Driver, Element, Selector>
   }
 
   async makeEyes({driver, config}: {driver: Driver; config?: types.EyesConfig<Element, Selector>}): Promise<Eyes> {
+    const driverRef = this._refer.ref(driver)
     const eyes = await this._socket.request('EyesManager.makeEyes', {
       manager: this._manager,
-      driver: this._refer.ref(driver),
+      driver: {...driverRef, context: this._refer.ref(spec.extractContext(driver), driverRef)},
       config: this._refer.ref(config),
     })
     return new Eyes({eyes, socket: this._socket, refer: this._refer})
@@ -153,7 +158,7 @@ export class EyesManager implements types.EyesManager<Driver, Element, Selector>
 // not to be confused with the user-facing Eyes class
 export class Eyes implements types.Eyes<Element, Selector> {
   private _eyes: types.Ref
-  private _socket: Socket<types.Ref<Driver>, types.Ref<Context>, types.Ref<Element>, Selector>
+  private _socket: ClientSocket
   private _refer: Refer<Driver | Context | Element>
 
   constructor({eyes, socket, refer}: any) {

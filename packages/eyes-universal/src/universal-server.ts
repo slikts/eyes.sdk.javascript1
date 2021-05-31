@@ -1,59 +1,47 @@
 import type * as types from '@applitools/types'
+import type {Socket} from './socket'
 import type {Driver, Context, Element, Selector} from './spec-driver'
 import {makeSDK} from '@applitools/eyes-sdk-core'
-import {makeServer} from './server'
+import {makeHandler} from './handler'
 import {makeSocket} from './socket'
 import {makeSpec} from './spec-driver'
 import {makeRefer} from './refer'
 
 const IDLE_TIMEOUT = 900000 // 15min
 
-export async function makeAPI({idleTimeout = IDLE_TIMEOUT, ...serverConfig} = {}) {
-  const {server, port} = await makeServer(serverConfig)
+export async function makeServer({idleTimeout = IDLE_TIMEOUT, ...serverConfig} = {}) {
+  const {server, port} = await makeHandler(serverConfig)
   console.log(port) // NOTE: this is a part of the protocol
   if (!server) {
-    console.log(
-      `You trying to spawn a duplicated server, please use server on port ${port} instead`,
-    )
+    console.log(`You are trying to spawn a duplicated server, use the server on port ${port} instead`)
     return null
   }
   let idle = setTimeout(() => server.close(), idleTimeout)
 
   server.on('connection', client => {
-    let sdk: types.Core<Driver, Element, Selector> = null
+    const socket = makeSocket(client) as Socket & types.ServerSocket<Driver, Context, Element, Selector>
 
     clearTimeout(idle)
-    const socket = makeSocket<Driver, Context, Element, Selector>(client)
-    const refer = makeRefer()
-
     socket.on('close', () => {
-      if (server.clients.size === 0) {
-        idle = setTimeout(() => server.close(), idleTimeout)
-      }
+      if (server.clients.size > 0) return
+      idle = setTimeout(() => server.close(), idleTimeout)
     })
 
-    socket.once('Session.init', config => {
-      const commands = [
-        'isDriver',
-        'isElement',
-        'isSelector',
-        'extractSelector',
-        'isStaleElementError',
-        ...config.commands,
-      ]
-      const spec = makeSpec(socket, commands)
+    const refer = makeRefer()
+    let sdk: types.Core<Driver, Element, Selector> = null
 
+    socket.once('Session.init', ({name, version, commands}) => {
       sdk = makeSDK({
-        name: `eyes-universal/${config.name}`,
-        version: `${require('../package.json').version}/${config.version}`,
-        spec,
+        name: `eyes-universal/${name}`,
+        version: `${require('../package.json').version}/${version}`,
+        spec: makeSpec({socket, commands}),
         VisualGridClient: require('@applitools/visual-grid-client'),
       })
     })
 
-    socket.command('Core.makeManager', async (config) => {
-      const eyes = await sdk.makeManager(config)
-      return refer.ref(eyes)
+    socket.command('Core.makeManager', async config => {
+      const manager = await sdk.makeManager(config)
+      return refer.ref(manager)
     })
     socket.command('Core.getViewportSize', async ({driver}) => {
       return sdk.getViewportSize({driver})
@@ -61,15 +49,15 @@ export async function makeAPI({idleTimeout = IDLE_TIMEOUT, ...serverConfig} = {}
     socket.command('Core.setViewportSize', async ({driver, size}) => {
       return sdk.setViewportSize({driver, size})
     })
-    socket.command('Core.closeBatches', config => {
-      return sdk.closeBatch(config)
+    socket.command('Core.closeBatches', settings => {
+      return sdk.closeBatches(settings)
     })
-    socket.command('Core.deleteTest', config => {
-      return sdk.deleteTest(config)
+    socket.command('Core.deleteTest', settings => {
+      return sdk.deleteTest(settings)
     })
 
     socket.command('EyesManager.makeEyes', async ({manager, driver, config}) => {
-      const commands = await refer.deref(manager).open(driver, config)
+      const commands = await refer.deref(manager).makeEyes({driver, config})
       return refer.ref(commands, manager)
     })
     socket.command('EyesManager.closeAllEyes', async ({manager}) => {

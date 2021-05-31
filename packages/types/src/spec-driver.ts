@@ -4,12 +4,14 @@ export type SpecSelector<TSelector> = TSelector | string | {type: string; select
 
 export interface SpecDriver<TDriver, TContext, TElement, TSelector> {
   isDriver(driver: any): driver is TDriver
+  isContext(context: any): context is TContext
   isElement(element: any): element is TElement
   isSelector(selector: any): selector is SpecSelector<TSelector>
   transformDriver?(driver: TDriver): TDriver
   transformElement?(element: TElement): TElement
+  extractContext?(element: TDriver | TContext): TContext
   extractSelector?(element: TElement): SpecSelector<TSelector>
-  isStaleElementError(error: Error): boolean
+  isStaleElementError(error: any): boolean
   isEqualElements(context: TContext, element1: TElement, element2: TElement): Promise<boolean>
   mainContext(context: TContext): Promise<TContext>
   parentContext(context: TContext): Promise<TContext>

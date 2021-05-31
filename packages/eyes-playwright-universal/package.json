@@ -15,7 +15,8 @@
     "name": "Applitools Team",
     "email": "team@applitools.com"
   },
-  "main": "./index.js",
+  "main": "./dist/index.js",
+  "types": "./types/index.d.ts",
   "directories": {
     "lib": "./src",
     "example": "./example",

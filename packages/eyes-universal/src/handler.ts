@@ -5,7 +5,10 @@ const {name, version} = require('../package.json')
 const TOKEN_HEADER = 'x-eyes-universal-token'
 const TOKEN = `${name}@${version}`
 
-export async function makeServer({port = 2107, singleton = true, lazy = false} = {}): Promise<{server?: WSServer, port: number}> {
+export async function makeHandler({port = 2107, singleton = true, lazy = false} = {}): Promise<{
+  server?: WSServer
+  port: number
+}> {
   const http = new HTTPServer()
   http.on('request', (request, response) => {
     if (request.url === '/handshake') {
@@ -32,7 +35,7 @@ export async function makeServer({port = 2107, singleton = true, lazy = false} =
         if (singleton && (await isHandshakable(port))) {
           return resolve({port})
         } else {
-          return resolve(await makeServer({port: port + 1, singleton}))
+          return resolve(await makeHandler({port: port + 1, singleton}))
         }
       }
       reject(err)
@@ -40,16 +43,15 @@ export async function makeServer({port = 2107, singleton = true, lazy = false} =
   })
 }
 
-
 async function isHandshakable(port: number) {
   return new Promise(resolve => {
     const handshake = request(`http://localhost:${port}/handshake`, {
       headers: {[TOKEN_HEADER]: TOKEN},
     })
-
     handshake.on('response', ({statusCode, headers}) => {
       resolve(statusCode === 200 && headers[TOKEN_HEADER] === TOKEN)
     })
     handshake.on('error', () => resolve(false))
+    handshake.end()
   })
 }

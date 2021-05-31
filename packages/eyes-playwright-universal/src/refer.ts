@@ -13,15 +13,15 @@ export type DeepRef<TValue, TTarget> = TValue extends TTarget ? types.Ref<TValue
 
 export class Refer<TTarget> {
   private _store = new Map<string, any>()
-  private _relation = new Map<string, Set<types.Ref>>()
+  private _relation = new Map<string, Set<types.Ref<any>>>()
 
   constructor(private readonly _check: (value: any) => value is TTarget) {}
 
-  private isRef(ref: any): ref is types.Ref {
-    return Boolean(ref[REF_ID])
+  private isRef(ref: any): ref is types.Ref<TTarget> {
+    return Boolean(ref && ref[REF_ID])
   }
 
-  ref<TValue>(value: TValue, parentRef?: types.Ref): DeepRef<TValue, TTarget> {
+  ref<TValue>(value: TValue, parentRef?: types.Ref<any>): DeepRef<TValue, TTarget> {
     if (this._check(value)) {
       const ref = utils.general.guid()
       this._store.set(ref, value)
@@ -45,15 +45,26 @@ export class Refer<TTarget> {
     }
   }
 
-  deref<TValue>(ref: types.Ref<TValue>): TValue {
+  deref<TValue>(ref: any): TValue {
     if (this.isRef(ref)) {
       return this._store.get(ref[REF_ID])
+    } else if (utils.types.isArray(ref)) {
+      return ref.map(ref => this.deref(ref)) as any
+    } else if (utils.types.isObject(ref)) {
+      return Object.entries(ref).reduce((obj, [key, value]) => {
+        return Object.assign(obj, {[key]: this.deref(value)})
+      }, {}) as any
     } else {
       return ref
     }
+    // if (this.isRef(ref)) {
+    //   return this._store.get(ref[REF_ID])
+    // } else {
+    //   return ref
+    // }
   }
 
-  destroy(ref: types.Ref): void {
+  destroy(ref: types.Ref<any>): void {
     if (!this.isRef(ref)) return
     const childRefs = this._relation.get(ref[REF_ID])
     childRefs.forEach(childRef => this.destroy(childRef))

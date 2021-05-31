@@ -1,4 +1,4 @@
-import {Region, Size, TextRegion, Proxy, DriverInfo, MatchResult, TestResult} from './data'
+import {Region, Size, TextRegion, DriverInfo, MatchResult, TestResult} from './data'
 import {EyesConfig, EyesManagerConfig} from './config'
 import {
   CheckSettings,
@@ -23,7 +23,7 @@ export interface ClientSocket<TDriver, TContext, TElement, TSelector> {
 
   request(name: 'Core.setViewportSize', options: {driver: TDriver; size: Size}): Promise<void>
 
-  request(name: 'Core.closeBatch', settings: CloseBatchesSettings): Promise<void>
+  request(name: 'Core.closeBatches', settings: CloseBatchesSettings): Promise<void>
 
   request(name: 'Core.deleteTest', settings: DeleteTestSettings): Promise<void>
 
@@ -141,7 +141,7 @@ export interface ClientSocket<TDriver, TContext, TElement, TSelector> {
 
   command(name: 'Driver.getUrl', handler: (options: {driver: TDriver}) => Promise<string>): () => void
 
-  command(name: 'Driver.takeScreenshot', handler: (options: {driver: TDriver}) => Promise<Buffer | string>): () => void
+  command(name: 'Driver.takeScreenshot', handler: (options: {driver: TDriver}) => Promise<string>): () => void
 }
 
 export interface ServerSocket<TDriver, TContext, TElement, TSelector> {
@@ -180,30 +180,20 @@ export interface ServerSocket<TDriver, TContext, TElement, TSelector> {
 
   request(name: 'Driver.getUrl', options: {driver: TDriver}): Promise<string>
 
-  request(name: 'Driver.takeScreenshot', options: {driver: TDriver}): Promise<{type: 'Buffer'; data: number[]} | string>
+  request(name: 'Driver.takeScreenshot', options: {driver: TDriver}): Promise<string>
 
-  command(name: 'Core.makeManager', handler: (config?: EyesManagerConfig) => Promise<Ref>): () => void
+  command(
+    name: 'Core.makeManager',
+    handler: (config?: EyesManagerConfig) => Promise<Ref<EyesManager<TDriver, TElement, TSelector>>>,
+  ): () => void
 
   command(name: 'Core.getViewportSize', handler: (options: {driver: TDriver}) => Promise<Size>): () => void
 
   command(name: 'Core.setViewportSize', handler: (options: {driver: TDriver; size: Size}) => Promise<void>): () => void
 
-  command(
-    name: 'Core.closeBatch',
-    handler: (options: {batchId: string; serverUrl?: string; apiKey?: string; proxy?: Proxy}) => Promise<void>,
-  ): () => void
+  command(name: 'Core.closeBatches', handler: (settings: CloseBatchesSettings) => Promise<void>): () => void
 
-  command(
-    name: 'Core.deleteTest',
-    handler: (options: {
-      testId: string
-      batchId: string
-      secretToken: string
-      serverUrl?: string
-      apiKey?: string
-      proxy?: Proxy
-    }) => Promise<void>,
-  ): () => void
+  command(name: 'Core.deleteTest', handler: (settings: DeleteTestSettings) => Promise<void>): () => void
 
   command(
     name: 'EyesManager.makeEyes',
@@ -215,7 +205,10 @@ export interface ServerSocket<TDriver, TContext, TElement, TSelector> {
     }) => Promise<Ref<Eyes<TElement, TSelector>>>,
   ): () => void
 
-  command(name: 'EyesManager.closeAllEyes', handler: (options: {manager: Ref}) => Promise<TestResult[]>): () => void
+  command(
+    name: 'EyesManager.closeAllEyes',
+    handler: (options: {manager: Ref<EyesManager<TDriver, TElement, TSelector>>}) => Promise<TestResult[]>,
+  ): () => void
 
   command(
     name: 'Eyes.check',

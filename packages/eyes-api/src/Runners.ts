@@ -37,6 +37,7 @@ export abstract class EyesRunner {
   async makeEyes<TDriver, TElement, TSelector>(options: {
     driver: TDriver
     config?: types.EyesConfig<TElement, TSelector>
+    on?: (name: string, data?: Record<string, any>) => void
   }): Promise<types.Eyes<TElement, TSelector>> {
     if (!this._manager) this._manager = await this._spec.makeManager(this.config)
 

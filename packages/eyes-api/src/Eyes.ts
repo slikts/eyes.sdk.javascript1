@@ -343,19 +343,21 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   // #region CONFIG
 
   async getViewportSize(): Promise<RectangleSizeData> {
-    return this._config.getViewportSize() || new RectangleSizeData(await this._spec.getViewportSize(this._driver))
+    return (
+      this._config.getViewportSize() || new RectangleSizeData(await this._spec.getViewportSize({driver: this._driver}))
+    )
   }
-  async setViewportSize(viewportSize: RectangleSize): Promise<void> {
-    utils.guard.notNull(viewportSize, {name: 'viewportSize'})
+  async setViewportSize(size: RectangleSize): Promise<void> {
+    utils.guard.notNull(size, {name: 'size'})
 
     if (!this._driver) {
-      this._config.setViewportSize(viewportSize)
+      this._config.setViewportSize(size)
     } else {
       try {
-        await this._spec.setViewportSize(this._driver, viewportSize)
-        this._config.setViewportSize(viewportSize)
+        await this._spec.setViewportSize({driver: this._driver, size})
+        this._config.setViewportSize(size)
       } catch (err) {
-        this._config.setViewportSize(await this._spec.getViewportSize(this._driver))
+        this._config.setViewportSize(await this._spec.getViewportSize({driver: this._driver}))
         throw new TestFailedError('Failed to set the viewport size')
       }
     }
@@ -367,8 +369,6 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   setScrollRootElement(scrollRootElement: TElement | TSelector) {
     this._config.setScrollRootElement(scrollRootElement)
   }
-  async setViewportSize(viewportSize: RectangleSize): Promise<void> {
-    utils.guard.notNull(viewportSize, {name: 'viewportSize'})
 
   setLogHandler(handler: LogHandlerData) {
     this._config.setLogHandler(handler)

@@ -1,13 +1,38 @@
-import type * as types from '@applitools/types'
 import * as utils from '@applitools/utils'
 import WebSocket from 'ws'
 
-export function makeSocket<TDriver, TContext, TElement, TSelector>(ws: WebSocket): types.Server<TDriver, TContext, TElement, TSelector> {
+export interface Socket {
+  connect(url: string): void
+  disconnect(): void
+  emit(type: string | {name: string; key: string}, payload?: Record<string, any>): () => void
+  on(type: string | {name: string; key: string}, fn: (payload?: any, key?: string) => any): () => void
+  once(type: string | {name: string; key: string}, fn: (payload?: any, key?: string) => any): () => void
+  off(type: string | {name: string; key: string}, fn: (payload?: any, key?: string) => any): boolean
+  request(name: string, payload?: any): Promise<any>
+  command(name: string, fn: (payload?: any) => any): () => void
+  ref(): () => void
+  unref(): () => void
+}
+
+export function makeSocket(ws: WebSocket): Socket {
   let socket: WebSocket = null
   const listeners = new Map<string, Set<(...args: any[]) => any>>()
   const queue = new Set<() => any>()
 
   attach(ws)
+
+  return {
+    connect,
+    disconnect,
+    emit,
+    on,
+    once,
+    off,
+    request,
+    command,
+    ref,
+    unref,
+  }
 
   function attach(ws: WebSocket) {
     if (!ws) return
@@ -69,7 +94,7 @@ export function makeSocket<TDriver, TContext, TElement, TSelector>(ws: WebSocket
     return off
   }
 
-  function off(type: string | {name: string; key: string}, fn: (payload?: any, key?: string) => any): boolean{
+  function off(type: string | {name: string; key: string}, fn: (payload?: any, key?: string) => any): boolean {
     const name = utils.types.isString(type) ? type : `${type.name}/${type.key}`
     if (!fn) return listeners.delete(name)
     const fns = listeners.get(name)
@@ -116,19 +141,6 @@ export function makeSocket<TDriver, TContext, TElement, TSelector>(ws: WebSocket
     if (socket) command()
     else queue.add(command)
     return () => queue.delete(command)
-  }
-
-  return {
-    connect,
-    disconnect,
-    on,
-    once,
-    off,
-    emit,
-    request,
-    command,
-    ref,
-    unref,
   }
 }
 

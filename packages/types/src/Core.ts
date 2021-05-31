@@ -24,7 +24,7 @@ export interface EyesManager<TDriver, TElement, TSelector> {
   makeEyes(options: {
     driver: TDriver
     config?: EyesConfig<TElement, TSelector>
-    on?: (event: string, data?: Record<string, any>) => any
+    on?: (event: string, data?: Record<string, any>) => void
   }): Promise<Eyes<TElement, TSelector>>
   closeAllEyes: () => Promise<TestResult[]>
 }
