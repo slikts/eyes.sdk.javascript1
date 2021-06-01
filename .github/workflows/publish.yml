@@ -277,7 +277,7 @@ jobs:
           version: ${{fromJSON(needs.setup.outputs.packages).vgc.releaseVersion}}
 
   universal:
-    needs: [setup, utils, core, vgc]
+    needs: [setup, utils, types, core, vgc]
     if: ${{fromJSON(needs.setup.outputs.packages).universal && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
@@ -291,7 +291,6 @@ jobs:
         uses: ./.github/actions/tests
         with:
           package: ${{fromJSON(needs.setup.outputs.packages).universal.package}}
-          report: prod
         env: ${{fromJSON(needs.setup.outputs.packages).universal.env}}
       - name: Publish
         id: publish
