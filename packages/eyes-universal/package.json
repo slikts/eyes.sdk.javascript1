@@ -12,27 +12,38 @@
     "tests"
   ],
   "homepage": "https://applitools.com",
-  "author": {
-    "name": "Applitools Team",
-    "email": "team@applitools.com"
+  "bugs": {
+    "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
   },
   "repository": {
     "type": "git",
     "url": "git@github.com:applitools/eyes.sdk.javascript1.git"
   },
-  "bugs": {
-    "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
-  },
-  "directories": {
-    "example": "./example",
-    "lib": "./src",
-    "test": "./test"
+  "license": "SEE LICENSE IN LICENSE",
+  "author": {
+    "name": "Applitools Team",
+    "email": "team@applitools.com"
   },
   "main": "./index.js",
   "bin": {
-    "eyes-universal-linux": "./bin/cli-linux",
     "eyes-universal-darwin": "./bin/cli-macos",
+    "eyes-universal-linux": "./bin/cli-linux",
     "eyes-universal-win32": "./bin/cli-win.exe"
+  },
+  "directories": {
+    "lib": "./src",
+    "example": "./example",
+    "test": "./test"
+  },
+  "scripts": {
+    "lint": "eslint '**/*.ts'",
+    "build": "yarn build:dist && yarn build:bin",
+    "build:dist": "tsc",
+    "build:bin": "pkg ./dist/cli.js --targets node14-linux-x64,node14-macos-x64,node14-win-x64 --out-path ./bin",
+    "deps": "bongo deps",
+    "preversion": "bongo preversion && yarn build",
+    "version": "bongo version",
+    "postversion": "bongo postversion"
   },
   "dependencies": {
     "@applitools/eyes-sdk-core": "12.13.5",
@@ -58,17 +69,6 @@
     "prettier": "^2.1.2",
     "typescript": "^4.3.2"
   },
-  "scripts": {
-    "lint": "eslint '**/*.ts'",
-    "build": "yarn build:dist && yarn build:bin",
-    "build:dist": "tsc",
-    "build:bin": "pkg ./dist/cli.js --targets node14-linux-x64,node14-macos-x64,node14-win-x64 --out-path ./bin",
-    "deps": "bongo deps",
-    "preversion": "bongo preversion && yarn build",
-    "version": "bongo version",
-    "postversion": "bongo postversion"
-  },
-  "license": "SEE LICENSE IN LICENSE",
   "engines": {
     "node": ">=14.15.0"
   }

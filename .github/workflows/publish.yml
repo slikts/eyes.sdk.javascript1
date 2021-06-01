@@ -276,6 +276,38 @@ jobs:
           package: ${{fromJSON(needs.setup.outputs.packages).vgc.package}}
           version: ${{fromJSON(needs.setup.outputs.packages).vgc.releaseVersion}}
 
+  universal:
+    needs: [setup, utils, core, vgc]
+    if: ${{fromJSON(needs.setup.outputs.packages).playwright && !failure() && !cancelled()}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).playwright.package}}
+          report: prod
+        env: ${{fromJSON(needs.setup.outputs.packages).playwright.env}}
+      - name: Publish
+        id: publish
+        uses: ./.github/actions/publish
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).playwright.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).playwright.releaseVersion}}
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{steps.publish.outputs.tag}}
+          files: |
+            packages/${{fromJSON(needs.setup.outputs.packages).universal.package}}/bin/cli-linux
+            packages/${{fromJSON(needs.setup.outputs.packages).universal.package}}/bin/cli-macos
+            packages/${{fromJSON(needs.setup.outputs.packages).universal.package}}/bin/cli-win32.exe
+
   playwright:
     needs: [setup, utils, test-utils, api, core, vgc]
     if: ${{fromJSON(needs.setup.outputs.packages).playwright && !failure() && !cancelled()}}
