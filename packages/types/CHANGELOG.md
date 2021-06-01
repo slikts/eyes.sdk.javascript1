@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- add `SpecDriver`, `ClientSocket` and `ServerSocket` types
 
 ## 1.0.1 - 2021/5/24
 
