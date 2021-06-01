@@ -45,7 +45,6 @@ export function makeSocket(ws: WebSocket): Socket {
 
       socket.on('message', message => {
         const {name, key, payload} = deserialize(message as string)
-        // console.log(`[MESSAGE] ${name}, ${key}, ${JSON.stringify(payload, null, 2).substr(0, 500)}`)
         const fns = listeners.get(name)
         if (fns) fns.forEach(fn => fn(payload, key))
         if (key) {
@@ -53,9 +52,15 @@ export function makeSocket(ws: WebSocket): Socket {
           if (fns) fns.forEach(fn => fn(payload, key))
         }
       })
+
       socket.on('close', () => {
         const fns = listeners.get('close')
         if (fns) fns.forEach(fn => fn())
+      })
+
+      socket.on('error', error => {
+        const fns = listeners.get('error')
+        if (fns) fns.forEach(fn => fn(error))
       })
     }
   }

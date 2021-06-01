@@ -7,8 +7,6 @@ import {spawn} from 'child_process'
 import {Refer} from './refer'
 import {Socket} from './socket'
 
-const debug = require('debug')('applitools:client')
-
 type ClientSocket = Socket & types.ClientSocket<types.Ref<Driver>, types.Ref<Context>, types.Ref<Element>, Selector>
 
 export class UniversalClient implements types.Core<Driver, Element, Selector> {
@@ -17,7 +15,6 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
   private _refer: Refer<Driver | Context | Element>
 
   constructor() {
-    debug('connect')
     this._server = spawn(`./node_modules/@applitools/eyes-universal/bin/cli-linux`, ['--port=2107'], {
       detached: true,
       stdio: ['ignore', 'pipe', 'ignore'],

@@ -1,10 +1,11 @@
-import * as utils from '@applitools/utils'
+import type * as types from '@applitools/types'
 import type * as Playwright from 'playwright'
+import * as utils from '@applitools/utils'
 
 export type Driver = Playwright.Page
 export type Element = Playwright.ElementHandle
 export type Context = Playwright.Frame
-export type Selector = string | {type: string; selector: string}
+export type Selector = types.SpecSelector<string>
 
 // #region HELPERS
 

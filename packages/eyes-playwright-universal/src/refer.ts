@@ -5,8 +5,7 @@ const REF_ID = 'applitools-ref-id'
 
 /* eslint-disable prettier/prettier */
 export type DeepRef<TValue, TTarget> = TValue extends TTarget ? types.Ref<TValue>
-  : TValue extends (...args: any[]) => any ? TValue
-  : TValue extends Date ? TValue
+  : TValue extends ((...args: any[]) => any) | {[key: string]: (...args: any[]) => any} ? TValue
   : TValue extends Record<PropertyKey, any> ? {[key in keyof TValue]: DeepRef<TValue[key], TTarget>}
   : TValue
 /* eslint-enable prettier/prettier */
@@ -57,11 +56,6 @@ export class Refer<TTarget> {
     } else {
       return ref
     }
-    // if (this.isRef(ref)) {
-    //   return this._store.get(ref[REF_ID])
-    // } else {
-    //   return ref
-    // }
   }
 
   destroy(ref: types.Ref<any>): void {

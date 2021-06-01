@@ -1804,7 +1804,7 @@ export type RegionPlain = LocationPlain & RectangleSizePlain;
 
 export type RunnerOptionsPlain = {testConcurrency?: number};
 
-export type Selector = string | {selector: string; type: string};
+export type Selector = string | string | {type: string; selector: string};
 
 export type SessionUrlsPlain = {readonly batch?: string; readonly session?: string};
 

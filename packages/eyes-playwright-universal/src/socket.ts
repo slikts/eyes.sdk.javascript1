@@ -1,8 +1,5 @@
 import * as utils from '@applitools/utils'
 import WebSocket from 'ws'
-import chalk from 'chalk'
-
-const debug = require('debug')('applitools:socket')
 
 export class Socket {
   private _socket: WebSocket = null
@@ -12,13 +9,11 @@ export class Socket {
   connect(url: string): void {
     this._socket = new WebSocket(url)
     this._socket.on('open', () => {
-      debug('open')
       this._queue.forEach(command => command())
       this._queue.clear()
 
       this._socket.on('message', (message: string) => {
         const {name, key, payload} = JSON.parse(message)
-        debug('message', name, key, payload)
         const fns = this._listeners.get(name)
         if (fns) fns.forEach(fn => fn(payload, key))
         if (key) {
@@ -29,15 +24,13 @@ export class Socket {
     })
 
     this._socket.on('close', () => {
-      debug('close')
       const fns = this._listeners.get('close')
       if (fns) fns.forEach(fn => fn())
     })
 
-    this._socket.on('error', err => {
-      debug('error', err)
-      const fns = this._listeners.get('close')
-      if (fns) fns.forEach(fn => fn())
+    this._socket.on('error', error => {
+      const fns = this._listeners.get('error')
+      if (fns) fns.forEach(fn => fn(error))
     })
 
     // TODO timeout and reject

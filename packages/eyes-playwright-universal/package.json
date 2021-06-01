@@ -27,13 +27,13 @@
     "build": "yarn build:dist && yarn build:types",
     "build:dist": "tsc",
     "build:types": "api-extractor ./src/index.ts --out ./types/index.d.ts --external-modules playwright",
-    "generate:tests": "coverage-tests generate https://raw.githubusercontent.com/applitools/sdk.coverage.tests/master/js/config.js --name 'eyes-playwright'",
+    "generate:tests": "coverage-tests generate https://raw.githubusercontent.com/applitools/sdk.coverage.tests/master/js/config.js --name 'eyes-playwright-universal'",
     "test": "yarn build:dist && yarn test:coverage",
     "test:coverage": "yarn generate:tests && APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-playwright' APPLITOOLS_BATCH_ID=$(uuidgen) XUNIT_FILE=coverage-test-report.xml mocha --config .mocharc.cvg.js",
-    "report": "coverage-tests report https://raw.githubusercontent.com/applitools/sdk.coverage.tests/master/js/config.js --name 'eyes-playwright'",
+    "report": "coverage-tests report https://raw.githubusercontent.com/applitools/sdk.coverage.tests/master/js/config.js --name 'eyes-playwright-universal'",
     "deps": "echo 'bongo deps'",
     "gh:test": "gh workflow run test.yml -f packages='playwright-universal' -f links='eyes-sdk-core eyes-api utils types sdk-shared visual-grid-client eyes-universal' -f linking-depth='2'",
-    "gh:publish": "gh workflow run publish.yml -f packages='playwright'",
+    "gh:publish": "gh workflow run publish.yml -f packages='playwright-universal'",
     "preversion": "bongo preversion && yarn build",
     "version": "bongo version",
     "postversion": "bongo postversion"
@@ -44,7 +44,6 @@
     "@applitools/types": "1.0.1",
     "@applitools/utils": "1.2.0",
     "chalk": "^4.1.0",
-    "debug": "^4.3.1",
     "ws": "7.4.0"
   },
   "devDependencies": {
