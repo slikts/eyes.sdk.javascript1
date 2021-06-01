@@ -1,6 +1,6 @@
 {
   "name": "@applitools/eyes-universal",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "description": "Applitools Eyes Universal SDK",
   "keywords": [
     "applitools",
@@ -46,16 +46,16 @@
     "postversion": "bongo postversion"
   },
   "dependencies": {
-    "@applitools/eyes-sdk-core": "12.13.5",
-    "@applitools/utils": "1.0.0",
-    "@applitools/visual-grid-client": "15.5.11",
+    "@applitools/eyes-sdk-core": "12.20.2",
+    "@applitools/utils": "1.2.0",
+    "@applitools/visual-grid-client": "15.8.8",
     "ws": "7.4.6",
     "yargs": "16.1.0"
   },
   "devDependencies": {
     "@applitools/sdk-coverage-tests": "^2.3.5",
-    "@applitools/sdk-release-kit": "^0.11.1",
-    "@applitools/types": "1.0.0",
+    "@applitools/sdk-release-kit": "^0.13.0",
+    "@applitools/types": "1.0.2",
     "@types/ws": "^7.4.4",
     "@types/yargs": "^17.0.0",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
