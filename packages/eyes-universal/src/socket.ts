@@ -109,7 +109,11 @@ export function makeSocket(ws: WebSocket): Socket {
       const key = utils.general.guid()
       emit({name, key}, payload)
       once({name, key}, response => {
-        if (response.error) return reject(response.error)
+        if (response.error) {
+          const error = new Error(response.error.message)
+          error.stack = response.error.stack
+          return reject(error)
+        }
         return resolve(response.result)
       })
     })
@@ -121,8 +125,7 @@ export function makeSocket(ws: WebSocket): Socket {
         const result = await fn(payload)
         emit({name, key}, {result})
       } catch (error) {
-        console.log(error)
-        emit({name, key}, {error})
+        emit({name, key}, {error: {message: error.message, stack: error.stack}})
       }
     })
   }

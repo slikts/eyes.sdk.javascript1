@@ -1,6 +1,6 @@
 import * as utils from '@applitools/utils'
 import WebSocket from 'ws'
-// import chalk from 'chalk'
+import chalk from 'chalk'
 
 const debug = require('debug')('applitools:socket')
 
@@ -45,7 +45,7 @@ export class Socket {
 
   emit(name: string, payload?: Record<string, any>, key?: string): () => void {
     const command = () => this._socket.send(JSON.stringify({name, key, payload}))
-    if (this._socket.readyState === WebSocket.OPEN) command()
+    if (this._socket?.readyState === WebSocket.OPEN) command()
     else this._queue.add(command)
     return () => this._queue.delete(command)
   }
@@ -81,7 +81,11 @@ export class Socket {
       // console.log(`${chalk.blue('[REQUEST]')} ${name}, ${key}, ${JSON.stringify(payload, null, 2)}`)
       this.emit(name, payload, key)
       this.once({name, key}, response => {
-        if (response.error) return reject(response.error)
+        if (response.error) {
+          const error = new Error(response.error.message)
+          error.stack = response.error.stack
+          return reject(error)
+        }
         return resolve(response.result)
       })
     })
@@ -96,7 +100,7 @@ export class Socket {
       } catch (error) {
         // console.log(`${chalk.red('[COMMAND]')} ${name} ${key} ${error}`)
         // console.log(error)
-        this.emit(name, {error}, key)
+        this.emit(name, {error: {message: error.message, stack: error.stack}}, key)
       }
     })
   }
@@ -104,7 +108,7 @@ export class Socket {
   unref(): () => void {
     //@ts-ignore
     const command = () => this._socket._socket.unref()
-    if (this._socket.readyState === WebSocket.OPEN) command()
+    if (this._socket?.readyState === WebSocket.OPEN) command()
     else this._queue.add(command)
     return () => this._queue.delete(command)
   }
