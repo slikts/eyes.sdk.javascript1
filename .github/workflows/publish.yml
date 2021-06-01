@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       packages:
-        description: "package names (aliases)"
+        description: 'package names (aliases)'
         required: true
       version:
         description: "version type (specify 'major', 'minor, or 'patch')"
-        default: "patch"
+        default: 'patch'
 env:
   CVG_TESTS_REMOTE: http://localhost:4444/wd/hub
   APPLITOOLS_API_KEY_SDK: ${{secrets.APPLITOOLS_API_KEY_SDK}}
@@ -516,3 +516,26 @@ jobs:
           path: |
             packages/${{fromJSON(needs.setup.outputs.packages).testcafe.package}}/coverage-tests-metadata.json
             packages/${{fromJSON(needs.setup.outputs.packages).testcafe.package}}/coverage-test-report.xml
+  storybook:
+    needs: [setup, utils, test-utils, core, vgc]
+    if: ${{fromJSON(needs.setup.outputs.packages).storybook && !failure() && !cancelled()}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).storybook.package}}
+        env: ${{fromJSON(needs.setup.outputs.packages).storybook.env}}
+      - name: Publish
+        uses: ./.github/actions/publish
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).storybook.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).storybook.releaseVersion}}
+    env:
+      STDOUT_LEVEL: 1
