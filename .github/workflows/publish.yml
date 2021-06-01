@@ -278,7 +278,7 @@ jobs:
 
   universal:
     needs: [setup, utils, core, vgc]
-    if: ${{fromJSON(needs.setup.outputs.packages).playwright && !failure() && !cancelled()}}
+    if: ${{fromJSON(needs.setup.outputs.packages).universal && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -290,15 +290,15 @@ jobs:
       - name: Run tests
         uses: ./.github/actions/tests
         with:
-          package: ${{fromJSON(needs.setup.outputs.packages).playwright.package}}
+          package: ${{fromJSON(needs.setup.outputs.packages).universal.package}}
           report: prod
-        env: ${{fromJSON(needs.setup.outputs.packages).playwright.env}}
+        env: ${{fromJSON(needs.setup.outputs.packages).universal.env}}
       - name: Publish
         id: publish
         uses: ./.github/actions/publish
         with:
-          package: ${{fromJSON(needs.setup.outputs.packages).playwright.package}}
-          version: ${{fromJSON(needs.setup.outputs.packages).playwright.releaseVersion}}
+          package: ${{fromJSON(needs.setup.outputs.packages).universal.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).universal.releaseVersion}}
       - name: Create GitHub release
         uses: softprops/action-gh-release@v1
         with:
