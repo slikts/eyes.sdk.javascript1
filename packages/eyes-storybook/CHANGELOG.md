@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- document runBefore and runAfter functions caveats
 
 ## 3.22.3 - 2021/6/1
 
