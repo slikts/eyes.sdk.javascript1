@@ -671,7 +671,7 @@ storiesOf('Components with ignoreDisplacements', module)
 
 The `runBefore` and `runAfter` functions serve as ways to interact with the page prior to taking the story screenshot.
 > ⚠️ Warning ⚠️   
-> the `rootEl` argument being passed to this function might be the same for several stories - this means that if your function creates side effects - it may affect other, non-related stories.
+> the `rootEl` argument being passed to these function might be the same for several stories - this means that if your function creates side effects - it may affect other, non-related stories.
 
 #### `runBefore`
 
