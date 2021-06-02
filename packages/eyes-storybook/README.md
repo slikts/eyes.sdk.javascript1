@@ -32,7 +32,7 @@ Applitools Eyes SDK for [Storybook](http://storybook.js.org).
   * [`strictRegions`](#strictregions)
   * [`accessibilityRegions`](#accessibilityregions)
   * [`accessibilityValidation`](#accessibilityvalidation)
-  * [Parameters that cannot be set as an Advanced configuration](#parameters-that-cannot-be-set-as-an--advanced-configuration---advanced-configuration)
+  * [Parameters that cannot be set as an Advanced configuration](#parameters-that-cannot-be-set-as-an-advanced-configuration)
   * [`runBefore`](#runbefore)
   * [`runAfter`](#runafter)
   * [`scriptHooks`](#scripthooks)
@@ -665,9 +665,15 @@ storiesOf('Components with ignoreDisplacements', module)
 });
 ```
 
-## Parameters that cannot be set as an [Advanced configuration](#advanced-configuration)
+## Parameters that cannot be set as an [advanced configuration](#advanced-configuration)
 
-### `runBefore`
+### `runBefore` and `runAfter` functions
+
+The `runBefore` and `runAfter` functions serve as ways to interact with the page prior to taking the story screenshot.
+> ⚠️ Warning ⚠️   
+> the `rootEl` argument being passed to this function might be the same for several stories - this means that if your function creates side effects - it may affect other, non-related stories.
+
+#### `runBefore`
 
 An asynchronous function that will be evaluated before the story's screenshot is taken. This is the place to perform any interaction with the story using DOM API's.
 
@@ -693,7 +699,7 @@ storiesOf('UI components', module)
   })
 ```
 
-### `runAfter`
+#### `runAfter`
 
 An asynchronous function that is evaluated after the story's screenshot is taken. This is the place to perform any clean ups that could change the way the next story renders.
 
