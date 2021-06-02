@@ -22,6 +22,10 @@
     "example": "./example",
     "test": "./test"
   },
+  "files": [
+    "dist",
+    "types"
+  ],
   "scripts": {
     "lint": "eslint '**/*.ts' '**/*.js'",
     "build": "yarn build:dist && yarn build:types",

@@ -1,9 +1,75 @@
-# Universal SDK Client
+# Eyes Universal
+<center>
+
+  ![Applitools Eyes](https://i.ibb.co/3hWJK68/applitools-eyes-logo.png)
+
+  [![npm](https://img.shields.io/npm/v/@applitools/eyes-universal?color=%2302afc2&label=npm&logo=npm)](https://www.npmjs.com/package/@applitools/eyes-universal)
+  [![GitHub release (latest by date)](https://img.shields.io/badge/binaries-download-%2302afc2?logo=github)](https://github.com/applitools/eyes.sdk.javascript1/releases)
+
+</center>
+
+- [Eyes Universal](#eyes-universal)
+  - [Introduction](#introduction)
+  - [WebSocket](#websocket)
+    - [Universal SDK messaging protocol](#universal-sdk-messaging-protocol)
+      - [Request format](#request-format)
+      - [Response format](#response-format)
+      - [Event format](#event-format)
+    - [Client-initiated events](#client-initiated-events)
+      - [Session.init](#sessioninit)
+    - [Client-initiated commands](#client-initiated-commands)
+      - [Core.makeManager](#coremakemanager)
+      - [EyesManager.makeEyes](#eyesmanagermakeeyes)
+      - [EyesManage.closeAllEyes](#eyesmanageclosealleyes)
+      - [Eyes.check](#eyescheck)
+      - [Eyes.locate](#eyeslocate)
+      - [Eyes.extractTextRegions](#eyesextracttextregions)
+      - [Eyes.extractText](#eyesextracttext)
+      - [Eyes.close](#eyesclose)
+      - [Eyes.abort](#eyesabort)
+      - [Core.getViewportSize](#coregetviewportsize)
+      - [Core.setViewportSize](#coresetviewportsize)
+      - [Core.closeBatches](#coreclosebatches)
+      - [Core.deleteTest](#coredeletetest)
+    - [Server-initiated commands](#server-initiated-commands)
+  - [SpecDriver](#specdriver)
+    - [Utility commands](#utility-commands)
+      - [`isDriver`](#isdriver)
+      - [`isElement`](#iselement)
+      - [`isSelector`](#isselector)
+      - [`transformDriver`](#transformdriver)
+      - [`transformElement`](#transformelement)
+      - [`extractSelector`](#extractselector)
+      - [`isStaleElementError`](#isstaleelementerror)
+      - [`isEqualElements`](#isequalelements)
+    - [Core commands](#core-commands)
+      - [`mainContext`](#maincontext)
+      - [`parentContext`](#parentcontext)
+      - [`childContext`](#childcontext)
+      - [`executeScript`](#executescript)
+      - [`findElement`](#findelement)
+      - [`findElements`](#findelements)
+      - [`getDriverInfo`](#getdriverinfo)
+      - [`getOrientation`](#getorientation)
+      - [`getTitle`](#gettitle)
+      - [`getUrl`](#geturl)
+      - [`takeScreenshot`](#takescreenshot)
+      - [`getElementRect`](#getelementrect)
+      - [`setWindowRect`](#setwindowrect)
+      - [`getWindowRect`](#getwindowrect)
+      - [`setViewportSize`](#setviewportsize)
+      - [`getViewportSize`](#getviewportsize)
+  - [Refer](#refer)
+    - [Refer storage](#refer-storage)
+    - [Reference format](#reference-format)
+    - [Reference usage](#reference-usage)
+  - [API](#api)
+
 
 ## Introduction
 The main purpose of client implementation (*Client*) is to provide a language binding for the functionality core implemented in JavaScript (*Server*). *Server* controls everything, and *Client* doesn't need to know anything about how work is done.
 
-For the *Client* to be able to communicate with the *Server* it has to implement [WebSocket communication layer](#WebSocket). Through the WebSocket channel *Client* could send commands to the *Server* in order to perform any operations, at the same time *Server* will send commands to the *Client* in order to automate an environment. *Client* has to implement a set of commands ([SpecDriver](#SpecDriver)) and perform those commands when *Server* will ask for it. Since the execution of any command requires knowing about the context this command should be executed in, *Client* should pass some context references to the *Server*. To solve this problem *Client* have to implement a [Refer](#Refer) mechanism. Refer should help *Client* to send non-serializable data to the server, and when this data will be received back from the server easily deref it to the original non-serializable object.
+For the *Client* to be able to communicate with the *Server* it has to implement [WebSocket Client](#WebSocket) communication layer. Through the WebSocket channel *Client* could send commands to the *Server* in order to perform any operations, at the same time *Server* will send commands to the *Client* in order to automate an environment. *Client* has to implement a set of commands ([SpecDriver](#SpecDriver)) and perform those commands when *Server* will ask for it. Since the execution of any command requires knowing about the context this command should be executed in, *Client* should pass some context references to the *Server*. To solve this problem *Client* have to implement a [Refer](#Refer) mechanism. Refer should help *Client* to send non-serializable data to the server, and when this data will be received back from the server easily deref it to the original non-serializable object.
 
 The biggest part of the client implementation is the actual user-facing [API layer](#API), it should not contain any specific logic, but only perform some input data validation, collecting, and processing before these data will be sent to the server. API layer should not have any binding to the automation framework it should be used with, it will help to re-use API layer for different frameworks.
 
@@ -39,6 +105,7 @@ Both client an server operate with their own sets of non-serializable object, wh
     result?: any, // result of the request if it was finished successfully
     error?: { // error object if exception was thrown during action processing
       message: string // error massage
+      stack: string // error stack trace
     }
   }
 }
@@ -68,60 +135,60 @@ This event has to be sent in the first place just after a connection between *Cl
 ### Client-initiated commands
 In order to perform any action, the *Client* has to send a proper request to the *Server* in a specific format ([Request format](#Request-format)) and wait for the response in a format described here ([Response format](#Response-format)).
 
-#### EyesRunner.new
-This request should be sent to create a runner object. It expects input of type [RunnerConfiguration](https://github.com/applitools/eyes.sdk.javascript1/blob/63e2f6fd3a1751c0ac2edce5971391aad0a2fd78/packages/eyes-api/src/Runners.ts#L6-L10).
+#### Core.makeManager
+This request should be sent to create a manager object. It expects input of type [EyesManagerConfig](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/config.ts#L19).
 
-In response client should expect to get a runner reference ([RunnerRef](#Reference-format)), this reference has to be used in order to perform runner related actions ([EyesRunner.open](#EyesRunner.open), [EyesRunner.close](#EyesRunner.close))
+In response client should expect to get a manager reference ([ManagerRef](#Reference-format)), this reference has to be used in order to perform manager related actions ([EyesManager.makeEyes](#EyesManager.makeEyes), [EyesManager.closeAllEyes](#EyesManager.closeAllEyes))
 
-> Do not send this command in a moment when `EyesRunner` is constructed but instead send it lazily when the actual eyes object has to be opened. Pay attention that in this architecture eyes could be created only from a runner instance, and creation and opening of the eyes are combined in one operation.
+> Do not send this command in a moment when `EyesManager` is constructed but instead send it lazily when the actual eyes object has to be opened. Pay attention that in this architecture eyes could be created only from a manager instance, and creation and opening of the eyes are combined in a single operation.
 
-#### EyesRunner.open
-This command has to be used in order to create an eyes object. It expects input with related [RunnerRef](#Reference-format) (from [EyesRunner.new](#EyesRunner.new)), [DriverRef](#Reference-format), and [Configuration](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/Configuration.ts#L27-L104) in a format:
+#### EyesManager.makeEyes
+This command has to be used in order to create an eyes object. It expects input with related [ManagerRef](#Reference-format) (from [Core.makeManager](#Core.makeManager)), [DriverRef](#Reference-format), and [EyesConfig](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/config.ts#L25) in a format:
 ```ts
 {
-  runner: RunnerRef, // reference received from "EyesRunner.new" command
+  manager: ManagerRef, // reference received from "Core.makeManager" command
   driver: DriverRef, // reference to the driver that will be used by the server in order to perform automation
-  config?: Configuration // configuration object that will be associated with a new eyes object, it could be overridden later
+  config?: EyesConfig // configuration object that will be associated with a new eyes object, it could be overridden later
 }
 ```
 
 In response client should expect to get an eyes reference ([EyesRef](#Reference-format)), this reference has to be used in eyes related requests ([Eyes.check](#Eyes.check), [Eyes.locate](#Eyes.locate), [Eyes.extractTextRegions](#Eyes.extractTextRegions), [Eyes.extractText](#Eyes.extractText), [Eyes.close](#Eyes.close), [Eyes.abort](#Eyes.abort))
 
-#### EyesRunner.close
-This command is meant to be used to close all eyes objects created with this runner and return results from each of the eyes objects. It doesn't expect any input except a related [RunnerRef](#Reference-format) (from [EyesRunner.new](#EyesRunner.new):
+#### EyesManage.closeAllEyes
+This command is meant to be used to close all eyes objects created with this runner and return results from each of the eyes objects. It doesn't expect any input except a related [ManagerRef](#Reference-format) (from [Core.makeManager](#Core.makeManager):
 ```ts
 {
-  runner: RunnerRef
+  manager: ManagerRef
 }
 ```
 
-In response client will receive an array of [TestResultsContainer](https://github.com/applitools/eyes.sdk.javascript1/blob/63e2f6fd3a1751c0ac2edce5971391aad0a2fd78/packages/eyes-api/src/output/TestResultsContainer.ts#L3-L6)'s
+In response client will receive an array of [TestResult](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/data.ts#L205)'s
 
 > This command will never throw error due to test result status. This functionality should be implemented on client side.
 
 #### Eyes.check
-This command is used to perform a check/match action. It expects input with a related [EyesRef](#Reference-format), [CheckSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/CheckSettings.ts#L35-L60), and [Configuration](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/Configuration.ts#L27-L104) in a format:
+This command is used to perform a check/match action. It expects input with a related [EyesRef](#Reference-format), [CheckSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/setting.ts#L66), and [EyesConfig](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/config.ts#L25) in a format:
 ```ts
 {
   eyes: EyesRef,
   settings?: CheckSettings,
-  config?: Configuration
+  config?: EyesConfig
 }
 ```
 
-In a case of success, the client will receive a response with [MatchResult](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/output/MatchResult.ts#L4-L7) object.
+In a case of success, the client will receive a response with [MatchResult](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/data.ts#L200) object.
 
 #### Eyes.locate
-This command is used to perform a locate action. It expects input with a related [EyesRef](#Reference-format), [VisualLocatorSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/VisualLocatorSettings.ts#L1-L4), and [Configuration](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/Configuration.ts#L27-L104) in a format:
+This command is used to perform a locate action. It expects input with a related [EyesRef](#Reference-format), [LocateSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/setting.ts#L92), and [EyesConfig](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/config.ts#L25) in a format:
 ```ts
 {
   eyes: EyesRef,
-  settings: VisualLocatorSettings,
-  config?: Configuration
+  settings: LocateSettings,
+  config?: EyesConfig
 }
 ```
 
-In a case of success, the client will receive a response with an object where locator names, passed in [VisualLocatorSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/VisualLocatorSettings.ts#L1-L4), are correlated with [Region](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/Region.ts#L5)'s.
+In a case of success, the client will receive a response with an object where locator names, passed in [LocateSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/setting.ts#L92), are correlated with [Region](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/data.ts#L59)'s.
 ```ts
 {
   [key: string]: Region
@@ -129,30 +196,30 @@ In a case of success, the client will receive a response with an object where lo
 ```
 
 #### Eyes.extractTextRegions
-This command has to be used to extract text regions from a page. It expects input with a related [EyesRef](#Reference-format), [OCRSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/63e2f6fd3a1751c0ac2edce5971391aad0a2fd78/packages/eyes-api/src/input/OCRSettings.ts#L1-L6), and [Configuration](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/Configuration.ts#L27-L104) in a format:
+This command has to be used to extract text regions from a page. It expects input with a related [EyesRef](#Reference-format), [OCRSearchSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/setting.ts#L85), and [EyesConfig](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/config.ts#L25) in a format:
 ```ts
 {
   eyes: EyesRef,
-  settings: OCRSettings,
-  config?: Configuration
+  settings: OCRSearchSettings,
+  config?: EyesConfig
 }
 ```
 
-In a case of success, the client will receive a response with an object where patterns, passed in [OCRSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/63e2f6fd3a1751c0ac2edce5971391aad0a2fd78/packages/eyes-api/src/input/OCRSettings.ts#L1-L6), are correlated with arrays of strings.
+In a case of success, the client will receive a response with an object where patterns, passed in [OCRSearchSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/setting.ts#L85), are correlated with arrays of [TextRegion](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/data.ts#L61)'s.
 
 ```ts
 {
-  [key: string]: string[]
+  [key: string]: TextRegion[]
 }
 ```
 
 #### Eyes.extractText
-This command has to be used to extract text regions from a page. It expects input with a related [EyesRef](#Reference-format), array of [OCRRegion](https://github.com/applitools/eyes.sdk.javascript1/blob/63e2f6fd3a1751c0ac2edce5971391aad0a2fd78/packages/eyes-api/src/input/OCRSettings.ts#L1-L6)'s, and [Configuration](https://github.com/applitools/eyes.sdk.javascript1/blob/8043f20e3549eb9bd029d9620c37433fe09a775d/packages/eyes-api/src/input/Configuration.ts#L27-L104) in a format:
+This command has to be used to extract text regions from a page. It expects input with a related [EyesRef](#Reference-format), array of [OCRExtractSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/setting.ts#L78)'s, and [EyesConfig](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/config.ts#L25) in a format:
 ```ts
 {
   eyes: EyesRef,
-  regions: OCRRegion[],
-  config?: Configuration
+  regions: OCRExtractSettings[],
+  config?: EyesConfig
 }
 ```
 
@@ -166,7 +233,7 @@ This command has to be used in order to close eyes object and finish the test. I
 }
 ```
 
-In a case of success, the client will receive a response with [TestResults](https://github.com/applitools/eyes.sdk.javascript1/blob/63e2f6fd3a1751c0ac2edce5971391aad0a2fd78/packages/eyes-api/src/output/TestResults.ts#L16-L47) object.
+In a case of success, the client will receive a response with [TestResult](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/data.ts#L205) object.
 
 > This command will never throw error due to test result status. This functionality should be implemented on client side.
 
@@ -178,9 +245,9 @@ This command has to be used to abort eyes object. It doesn't expect any input ex
 }
 ```
 
-In a case of success, the client will receive a response with [TestResults](https://github.com/applitools/eyes.sdk.javascript1/blob/63e2f6fd3a1751c0ac2edce5971391aad0a2fd78/packages/eyes-api/src/output/TestResults.ts#L16-L47) object.
+In a case of success, the client will receive a response with [TestResult](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/data.ts#L205) object.
 
-#### Util.getViewportSize
+#### Core.getViewportSize
 This command has to be used to get the current viewport size of the given driver. It expects input with [DriverRef](#Reference-format) in a format: 
 ```ts
 {
@@ -188,23 +255,23 @@ This command has to be used to get the current viewport size of the given driver
 }
 ```
 
-In case of success, the client will receive a response with [RectangleSize](https://github.com/applitools/eyes.sdk.javascript1/blob/027f165b54b3434c5c521515f2fa75d4a171718a/packages/eyes-api/src/input/RectangleSize.ts#L3-L6) object.
+In case of success, the client will receive a response with [Size](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/data.ts#L54) object.
 
 > WD protocol doesn't have api to extract viewport size of the browser window, however Appium has this api as well as CDP. So even if it is doesn't make lots of sense to get this information through the server, better do it this way so server could know about this data.
 
-#### Util.setViewportSize
-This command has to be used to set the current viewport size of the given driver which automates desktop browser window. If this command will be executed for driver which doesn't support viewport resizing error will be thrown. Also error will be thrown if it isn't possible to resize viewport to the required size. The command expects input with [DriverRef](#Reference-format) and required viewport size in a format:
+#### Core.setViewportSize
+This command has to be used to set the current viewport size of the given driver which automates desktop browser window. If this command will be executed for driver which doesn't support viewport resizing error will be thrown. Also error will be thrown if it isn't possible to resize viewport to the required size. The command expects input with [DriverRef](#Reference-format) and [Size](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/data.ts#L54) in a format:
 ```ts
 {
   driver: DriverRef,
-  viewportSize: {width: number, height: number}
+  size: Size
 }
 ```
 
-#### Util.closeBatches
-This command has to be used to close batches by their ids. It expects input of type [BatchCloseOptions](https://github.com/applitools/eyes.sdk.javascript1/blob/027f165b54b3434c5c521515f2fa75d4a171718a/packages/eyes-api/src/BatchClose.ts#L4-L9)
+#### Core.closeBatches
+This command has to be used to close batches by their ids. It expects input of type [CloseBatchesSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/setting.ts#L97)
 
-#### Util.deleteTestResults
+#### Core.deleteTest
 This command has to be used to close delete test results from the eyes dashboard.
 
 ### Server-initiated commands
@@ -419,19 +486,9 @@ Each ref is a JSON object with only one property `applitools-ref-id` with a guid
 How ever ref interface could be extended in some cases to provide more data about the object it referring to, for example it makes sense to add information about the selector to the element references, it will allow to avoid back and forth communication with the server in some rare cases.
 
 ### Reference usage
-On the client-side received from the server references (from commands [EyesRunner.new](#EyesRunner.new) and [EyesRunner.open](#EyesRunner.open)) could be used only to perform other server-side actions related to the object these references referring to. However, references which client sends to the server inevitably will be received back in one of the [Server-initiated commands](#Server-initiated-commands), in this case client should dereference received reference an perform required operation with actual object.
+On the client-side received from the server references (from commands [Core.makeManager](#Core.makeManager) and [EyesManager.makeEyes](#EyesManager.makeEyes)) could be used only to perform other server-side actions related to the object these references referring to. However, references which client sends to the server inevitably will be received back in one of the [Server-initiated commands](#Server-initiated-commands), in this case client should dereference received reference an perform required operation with actual object.
 
 ## API
 The API layer is the biggest part of the client implementation which should abstract the way end-user will use an sdk from the internal implementation. The main functional purpose of this layer should be to collect all of the configuration and inputs from a user and send them when actual action should be done. The biggest benefit of this architecture is that API (the biggest and the most chaotic part of the sdk) shouldn't be re-implemented again and again for each new framework.
 
 Reference implementation: [TS Eyes API](https://github.com/applitools/eyes.sdk.javascript1/tree/eyes-api/packages/eyes-api)
-
-## Implementation details
--
-### WebSocket module
--
-### Refer module
--
-
-### API module
--

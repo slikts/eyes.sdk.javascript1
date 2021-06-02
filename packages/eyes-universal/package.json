@@ -26,20 +26,21 @@
   },
   "main": "./index.js",
   "bin": {
-    "eyes-universal-darwin": "./bin/cli-macos",
-    "eyes-universal-linux": "./bin/cli-linux",
-    "eyes-universal-win32": "./bin/cli-win.exe"
+    "eyes-universal": "./dist/cli"
   },
   "directories": {
     "lib": "./src",
     "example": "./example",
     "test": "./test"
   },
+  "files": [
+    "dist",
+  ],
   "scripts": {
     "lint": "eslint '**/*.ts'",
     "build": "yarn build:dist && yarn build:bin",
     "build:dist": "tsc",
-    "build:bin": "pkg ./dist/cli.js --targets node14-linux-x64,node14-macos-x64,node14-win-x64 --out-path ./bin",
+    "build:bin": "pkg ./dist/cli.js --out-path ./bin --compress GZip--targets node14-linux-x64,node14-macos-x64,node14-win-x64",
     "deps": "bongo deps",
     "preversion": "bongo preversion && yarn build",
     "version": "bongo version",
