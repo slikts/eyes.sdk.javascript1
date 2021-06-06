@@ -1,6 +1,5 @@
 'use strict'
 
-const {cosmiconfigSync} = require('cosmiconfig')
 const GeneralUtils = require('./GeneralUtils')
 const Logger = require('../logging/Logger')
 
@@ -9,19 +8,15 @@ function getConfig({
   configPath,
   logger = new Logger(!!process.env.APPLITOOLS_SHOW_LOGS),
 } = {}) {
-  const explorer = cosmiconfigSync('applitools', {
-    searchPlaces: ['applitools.config.js', 'package.json', 'eyes.config.js', 'eyes.json'],
-  })
 
   let defaultConfig = {}
   try {
-    configPath = GeneralUtils.getEnvValue('CONFIG_PATH') || configPath
-    const result = configPath ? explorer.load(configPath) : explorer.search()
+    configPath = GeneralUtils.getEnvValue('CONFIG_PATH') || require.resolve(configPath)
+    const result = require(configPath ? configPath : require.resolve('applitools.config.js', {paths: [process.cwd()]}))
 
     if (result) {
-      const {config, filepath} = result
-      logger.log('Loading configuration from', filepath)
-      defaultConfig = config
+      logger.log('Loading configuration from', configPath)
+      defaultConfig = result
     }
   } catch (ex) {
     logger.log(`An error occurred while loading configuration. configPath=${configPath}\n`, ex)
