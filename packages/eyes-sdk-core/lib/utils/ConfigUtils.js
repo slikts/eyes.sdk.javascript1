@@ -9,20 +9,20 @@ function getConfig({
   logger = new Logger(!!process.env.APPLITOOLS_SHOW_LOGS),
 } = {}) {
   let defaultConfig = {}
+  const possibleConfigs = ['applitools.config.js', 'package.json', 'eyes.config.js', 'eyes.json']
   try {
-    const fullConfigPath = configPath ? `${configPath}/applitools.config.js` : undefined
     const envConfigPath = GeneralUtils.getEnvValue('CONFIG_PATH')
-    /* eslint-disable node/no-missing-require */
-    const result = require(envConfigPath ||
-      fullConfigPath ||
-      require.resolve('./applitools.config.js', {paths: [process.cwd()]}))
-
-    if (result) {
+    const customConfigPath = envConfigPath || configPath
+    if (customConfigPath) {
       logger.log('Loading configuration from', configPath)
-      defaultConfig = result
+      defaultConfig = require(customConfigPath)
+    } else {
+      defaultConfig = require(findConfigFile(possibleConfigs))
     }
   } catch (ex) {
-    logger.log(`An error occurred while loading configuration. configPath=${configPath}\n`, ex)
+    const errorMessage = `An error occurred while loading configuration. configPath=${configPath}\n`
+    logger.log(errorMessage, ex)
+    throw new Error(`${errorMessage}${ex}`)
   }
 
   const envConfig = {}
@@ -50,6 +50,23 @@ function getConfig({
  */
 function toEnvVarName(camelCaseStr) {
   return camelCaseStr.replace(/(.)([A-Z])/g, '$1_$2').toUpperCase()
+}
+
+function findConfigFile(possibleConfigs, errors = []) {
+  let index = 0
+
+  for (const configFile of possibleConfigs) {
+    try {
+      return require.resolve(`./${configFile}`, {paths: [process.cwd()]})
+    } catch (error) {
+      errors.push(error)
+      if (index === possibleConfigs.length - 1) {
+        throw errors[0]
+      }
+    } finally {
+      index++
+    }
+  }
 }
 
 module.exports = {

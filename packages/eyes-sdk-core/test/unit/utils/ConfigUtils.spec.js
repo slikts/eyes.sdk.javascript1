@@ -11,9 +11,9 @@ describe('ConfigUtils', () => {
     const logger = new Logger()
     const configPath = path.resolve(__dirname, '../../fixtures')
 
-    function getConfigAtConfigPath(args) {
+    function getConfigAtConfigPath(args, path = configPath) {
       const cwd = process.cwd()
-      process.chdir(configPath)
+      process.chdir(path)
       const config = ConfigUtils.getConfig(args)
       process.chdir(cwd)
       return config
@@ -95,17 +95,49 @@ describe('ConfigUtils', () => {
 
     it('handles custom configPath', () => {
       const config = ConfigUtils.getConfig({
-        configPath,
+        configPath: path.resolve(configPath, 'eyes.json'),
         logger,
       })
-      const expectedConfig = {bla: 'kuku', it: 'works'}
+      const expectedConfig = {apiKey: 'default api key'}
       assert.deepStrictEqual(config, expectedConfig)
+    })
+
+    it('handles a broken config file', () => {
+      const fullConfigPath = path.resolve(configPath, 'broken/applitools.config.js')
+      assert.throws(
+        () =>
+          ConfigUtils.getConfig({
+            configPath: fullConfigPath,
+            logger,
+          }),
+        {message: /SyntaxError: Unexpected token 'export'/},
+      )
+    })
+
+    it('handles precedence', () => {
+      const config = getConfigAtConfigPath(
+        undefined,
+        path.resolve(__dirname, '../../fixtures/multiConfig'),
+      )
+      const expectedConfig = {applitoolsConfigJS: true}
+      assert.deepStrictEqual(config, expectedConfig)
+    })
+
+    it('throws first exception when no config files exist', () => {
+      assert.throws(
+        () => getConfigAtConfigPath(undefined, path.resolve(__dirname, '../../fixtures/frames')),
+        {message: /Error: Cannot find module '.\/applitools.config.js'/},
+      )
     })
 
     it('handles boolean config params', () => {
       process.env.APPLITOOLS_BLA1 = 'false'
       process.env.APPLITOOLS_BLA2 = 'true'
-      const configWithBla = ConfigUtils.getConfig({configParams: ['bla1', 'bla2'], logger})
+      const configWithBla = ConfigUtils.getConfig({
+        configParams: ['bla1', 'bla2'],
+        configPath: path.resolve(configPath, 'applitools.config.js'),
+        logger,
+      })
       assert.strictEqual(configWithBla.bla1, false)
       assert.strictEqual(configWithBla.bla2, true)
     })
