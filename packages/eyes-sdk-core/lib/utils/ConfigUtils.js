@@ -8,12 +8,14 @@ function getConfig({
   configPath,
   logger = new Logger(!!process.env.APPLITOOLS_SHOW_LOGS),
 } = {}) {
-
   let defaultConfig = {}
   try {
     const fullConfigPath = configPath ? `${configPath}/applitools.config.js` : undefined
     const envConfigPath = GeneralUtils.getEnvValue('CONFIG_PATH')
-    const result = require(envConfigPath || fullConfigPath || require.resolve('./applitools.config.js', {paths: [process.cwd()]}))
+    /* eslint-disable node/no-missing-require */
+    const result = require(envConfigPath ||
+      fullConfigPath ||
+      require.resolve('./applitools.config.js', {paths: [process.cwd()]}))
 
     if (result) {
       logger.log('Loading configuration from', configPath)
