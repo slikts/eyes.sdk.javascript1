@@ -59,6 +59,8 @@ function findConfigFile(possibleConfigs, errors = []) {
     try {
       return require.resolve(`./${configFile}`, {paths: [process.cwd()]})
     } catch (error) {
+      // save errors to continue checking for other config files
+      // throw the earliest encountered error
       errors.push(error)
       if (index === possibleConfigs.length - 1) {
         throw errors[0]
