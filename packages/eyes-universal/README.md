@@ -457,14 +457,14 @@ Reference: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob
 #### `setViewportSize`
 This command should set viewport size from given JSON object with properties `width` and `height`.
 
-> **`WD!`** Protocol doesn't allow to manipulate viewport directly. Implement [setWindowRect](###setWindowRect) and [getWindowRect](###getWindowRect) instead.
+> **`WD!`** Protocol doesn't allow to manipulate viewport directly. Implement [setWindowSize](###setWindowSize) and [getWindowSize](###getWindowSize) instead.
 
 Reference: [TS Playwright](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-playwright/src/spec-driver.ts#L98)
 
 #### `getViewportSize`
 This command should return the size of the viewport in the format of the JSON object with the properties `width` and `height`. This command does not necessarily have to be implemented, since viewport size could be extracted from the browser, but if it is possibly better to have it implemented since the framework could already have this information.
 
-> **`WD!`** Protocol doesn't allow to manipulate viewport directly. Implement [setWindowRect](###setWindowRect) and [getWindowRect](###getWindowRect) instead.
+> **`WD!`** Protocol doesn't allow to manipulate viewport directly. Implement [setWindowSize](###setWindowSize) and [getWindowSize](###getWindowSize) instead.
 
 Reference: [TS Playwright](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-playwright/src/spec-driver.ts#L95)
 
