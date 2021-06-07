@@ -26,6 +26,9 @@ const DEVICES = {
       platformName: 'Android',
       platformVersion: '10.0',
       deviceOrientation: 'portrait',
+      'appium:chromeOptions': {
+        w3c: false,
+      },
       ...SAUCE_CREDENTIALS,
     },
   },

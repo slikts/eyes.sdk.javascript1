@@ -17,44 +17,85 @@ describe('spec driver', async () => {
       await destroyDriver()
     })
 
-    it('isDriver(driver)', isDriver({expected: true}))
-    it('isDriver(wrong)', isDriver({input: {}, expected: false}))
-    it('isElement(element)', isElement({input: () => driver.findElement(By.css('div')), expected: true}))
-    it('isElement(wrong)', isElement({input: () => ({}), expected: false}))
-    it('isSelector(string)', isSelector({input: 'div', expected: true}))
-    it('isSelector(by)', isSelector({input: By.xpath('//div'), expected: true}))
-    it('isSelector(wrong)', isSelector({input: {}, expected: false}))
-    it(
-      'isEqualElements(element, element)',
-      isEqualElements({
+    it('isDriver(driver)', async () => {
+      await isDriver({expected: true})
+    })
+    it('isDriver(wrong)', async () => {
+      await isDriver({input: {}, expected: false})
+    })
+    it('isElement(element)', async () => {
+      await isElement({input: () => driver.findElement(By.css('div')), expected: true})
+    })
+    it('isElement(wrong)', async () => {
+      await isElement({input: () => ({}), expected: false})
+    })
+    it('isSelector(string)', async () => {
+      await isSelector({input: 'div', expected: true})
+    })
+    it('isSelector(by)', async () => {
+      await isSelector({input: By.xpath('//div'), expected: true})
+    })
+    it('isSelector(wrong)', async () => {
+      await isSelector({input: {}, expected: false})
+    })
+    it('isEqualElements(element, element)', async () => {
+      await isEqualElements({
         input: () => driver.findElement(By.css('div')).then(element => ({element1: element, element2: element})),
         expected: true,
-      }),
-    )
-    it(
-      'isEqualElements(element1, element2)',
-      isEqualElements({
+      })
+    })
+    it('isEqualElements(element1, element2)', async () => {
+      await isEqualElements({
         input: async () => ({
           element1: await driver.findElement(By.css('div')),
           element2: await driver.findElement(By.css('h1')),
         }),
         expected: false,
-      }),
-    )
-    it('executeScript(strings, args)', executeScript())
-    it('findElement(string)', findElement({input: By.id('overflowing-div')}))
-    it('findElements(string)', findElements({input: By.css('div')}))
-    it('findElement(non-existent)', findElement({input: By.css('non-existent'), expected: null}))
-    it('findElements(non-existent)', findElements({input: By.css('non-existent'), expected: []}))
-    it('mainContext()', mainContext())
-    it('parentContext()', parentContext())
-    it('childContext(element)', childContext())
-    it('getSessionId()', getSessionId())
-    it('getTitle()', getTitle())
-    it('getUrl()', getUrl())
-    it('visit()', visit())
-    it('isMobile()', isMobile({expected: false}))
-    it('getPlatformName()', getPlatformName({expected: 'linux'}))
+      })
+    })
+    it('executeScript(strings, args)', async () => {
+      await executeScript()
+    })
+    it('findElement(string)', async () => {
+      await findElement({input: By.id('overflowing-div')})
+    })
+    it('findElements(string)', async () => {
+      await findElements({input: By.css('div')})
+    })
+    it('findElement(non-existent)', async () => {
+      await findElement({input: By.css('non-existent'), expected: null})
+    })
+    it('findElements(non-existent)', async () => {
+      await findElements({input: By.css('non-existent'), expected: []})
+    })
+    it('mainContext()', async () => {
+      await mainContext()
+    })
+    it('parentContext()', async () => {
+      await parentContext()
+    })
+    it('childContext(element)', async () => {
+      await childContext()
+    })
+    it('getTitle()', async () => {
+      await getTitle()
+    })
+    it('getUrl()', async () => {
+      await getUrl()
+    })
+    it('visit()', async () => {
+      await visit()
+    })
+    it('getDriverInfo()', async () => {
+      await getDriverInfo({
+        expected: {
+          browserName: 'chrome',
+          isMobile: false,
+          isNative: false,
+          platformName: 'linux',
+        },
+      })
+    })
   })
 
   describe('onscreen desktop (@webdriver)', async () => {
@@ -66,28 +107,15 @@ describe('spec driver', async () => {
       await destroyDriver()
     })
 
-    it('getWindowRect()', getWindowRect())
-    it(
-      'setWindowRect({x, y, width, height})',
-      setWindowRect({
-        input: {x: 0, y: 0, width: 510, height: 511},
-        expected: {x: 0, y: 0, width: 510, height: 511},
-      }),
-    )
-    it(
-      'setWindowRect({x, y})',
-      setWindowRect({
-        input: {x: 11, y: 12},
-        expected: {x: 11, y: 12, width: 510, height: 511},
-      }),
-    )
-    it(
-      'setWindowRect({width, height})',
-      setWindowRect({
+    it('getWindowSize()', async () => {
+      await getWindowSize()
+    })
+    it('setWindowSize({width, height})', async () => {
+      await setWindowSize({
         input: {width: 551, height: 552},
-        expected: {x: 11, y: 12, width: 551, height: 552},
-      }),
-    )
+        expected: {width: 551, height: 552},
+      })
+    })
   })
 
   describe('legacy driver (@webdriver)', async () => {
@@ -99,29 +127,26 @@ describe('spec driver', async () => {
       await destroyDriver()
     })
 
-    it('getWindowRect()', getWindowRect({legacy: true}))
-    it(
-      'setWindowRect({x, y, width, height})',
-      setWindowRect({
-        input: {x: 0, y: 0, width: 510, height: 511},
-        expected: {x: 0, y: 0, width: 510, height: 511},
-      }),
-    )
-    it(
-      'setWindowRect({x, y})',
-      setWindowRect({
-        input: {x: 11, y: 12},
-        expected: {x: 11, y: 12, width: 510, height: 511},
-      }),
-    )
-    it(
-      'setWindowRect({width, height})',
-      setWindowRect({
+    it('getWindowSize()', async () => {
+      await getWindowSize({legacy: true})
+    })
+    it('setWindowSize({width, height})', async () => {
+      await setWindowSize({
         input: {width: 551, height: 552},
-        expected: {x: 11, y: 12, width: 551, height: 552},
-      }),
-    )
-    it('getPlatformName()', getPlatformName({expected: 'WINDOWS'}))
+        expected: {width: 551, height: 552},
+      })
+    })
+    it('getDriverInfo()', async () => {
+      await getDriverInfo({
+        expected: {
+          browserName: 'internet explorer',
+          browserVersion: '11',
+          isMobile: false,
+          isNative: false,
+          platformName: 'WINDOWS',
+        },
+      })
+    })
   })
 
   describe('mobile driver (@mobile)', async () => {
@@ -133,12 +158,24 @@ describe('spec driver', async () => {
       await destroyDriver()
     })
 
-    it('isMobile()', isMobile({expected: true}))
-    it('getDeviceName()', getDeviceName({expected: 'Google Pixel 3a XL GoogleAPI Emulator'}))
-    it('getPlatformName()', getPlatformName({expected: 'Android'}))
-    it('isNative()', isNative({expected: false}))
-    it('getOrientation()', getOrientation({expected: 'portrait'}))
-    it('getPlatformVersion()', getPlatformVersion({expected: '10'}))
+    it('getWindowSize()', async () => {
+      await getWindowSize()
+    })
+    it('getOrientation()', async () => {
+      await getOrientation({expected: 'portrait'})
+    })
+    it('getDriverInfo()', async () => {
+      await getDriverInfo({
+        expected: {
+          browserName: 'chrome',
+          deviceName: 'Google Pixel 3a XL GoogleAPI Emulator',
+          isMobile: true,
+          isNative: false,
+          platformName: 'Android',
+          platformVersion: '10',
+        },
+      })
+    })
   })
 
   function isDriver({input, expected}) {
@@ -250,23 +287,22 @@ describe('spec driver', async () => {
       }
     }
   }
-  function getWindowRect() {
+  function getWindowSize() {
     return async () => {
-      let rect
+      let size
       if (driver.manage().window().getRect) {
-        rect = await driver.manage().window().getRect()
+        const rect = await driver.manage().window().getRect()
+        size = {width: rect.width, height: rect.height}
       } else {
-        const {x, y} = await driver.manage().window().getPosition()
-        const {width, height} = await driver.manage().window().getSize()
-        rect = {x, y, width, height}
+        size = await driver.manage().window().getSize()
       }
-      const result = await spec.getWindowRect(driver)
-      assert.deepStrictEqual(result, rect)
+      const result = await spec.getWindowSize(driver)
+      assert.deepStrictEqual(result, size)
     }
   }
-  function setWindowRect({input, expected} = {}) {
+  function setWindowSize({input, expected} = {}) {
     return async () => {
-      await spec.setWindowRect(driver, input)
+      await spec.setWindowSize(driver, input)
       let rect
       if (driver.manage().window().getRect) {
         rect = await driver.manage().window().getRect()
@@ -275,21 +311,13 @@ describe('spec driver', async () => {
         const {width, height} = await driver.manage().window().getSize()
         rect = {x, y, width, height}
       }
-      assert.deepStrictEqual(rect, expected)
+      assert.deepStrictEqual(rect, {x: 0, y: 0, ...expected})
     }
   }
   function getOrientation({expected} = {}) {
     return async () => {
       const result = await spec.getOrientation(driver)
       assert.strictEqual(result, expected)
-    }
-  }
-  function getSessionId() {
-    return async () => {
-      const session = await driver.getSession()
-      const expected = await session.getId()
-      const {sessionId} = await spec.getDriverInfo(driver)
-      assert.deepStrictEqual(sessionId, expected)
     }
   }
   function getTitle() {
@@ -314,34 +342,11 @@ describe('spec driver', async () => {
       await driver.get(url)
     }
   }
-  function isMobile({expected} = {}) {
-    return async () => {
-      const {isMobile} = await spec.getDriverInfo(driver)
-      assert.deepStrictEqual(isMobile, expected)
-    }
-  }
-  function isNative({expected} = {}) {
-    return async () => {
-      const {isNative} = await spec.getDriverInfo(driver)
-      assert.strictEqual(isNative, expected)
-    }
-  }
-  function getDeviceName({expected} = {}) {
-    return async () => {
-      const {deviceName} = await spec.getDriverInfo(driver)
-      assert.strictEqual(deviceName, expected)
-    }
-  }
-  function getPlatformName({expected} = {}) {
-    return async () => {
-      const {platformName} = await spec.getDriverInfo(driver)
-      assert.strictEqual(platformName, expected)
-    }
-  }
-  function getPlatformVersion({expected} = {}) {
-    return async () => {
-      const {platformVersion} = await spec.getDriverInfo(driver)
-      assert.strictEqual(platformVersion, expected)
-    }
+  async function getDriverInfo({expected} = {}) {
+    const info = await spec.getDriverInfo(driver)
+    assert.deepStrictEqual(
+      Object.keys(expected).reduce((obj, key) => ({...obj, [key]: info[key]}), {}),
+      expected,
+    )
   }
 })
