@@ -348,7 +348,6 @@ describe('eyesStorybook', () => {
   });
 
   it('fail immediately, wrong api key', async () => {
-    console.log('**** in fail immediately, wrong api key ****');
     const config = {apiKey: 'INVALIDAPIKEY'};
     let errorMessage;
 
