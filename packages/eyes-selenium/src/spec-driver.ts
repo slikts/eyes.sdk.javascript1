@@ -110,7 +110,7 @@ export async function getWindowSize(driver: Driver): Promise<{width: number; hei
     const window = driver.manage().window()
     if (utils.types.isFunction(window.getRect)) {
       const rect = await window.getRect()
-      return {width: rect.width, height: rect.width}
+      return {width: rect.width, height: rect.height}
     } else if (utils.types.isFunction(window.getSize)) {
       return await window.getSize()
     }
