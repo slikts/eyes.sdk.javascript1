@@ -22,7 +22,7 @@ describe('getRenderInfo', () => {
     await closeServer()
   })
 
-  it('make sure getRenderInfo sets renderInfo and is not called twice', async () => {
+  it('make sure getSetRenderInfo sets renderInfo and is not called twice', async () => {
     let apiKey = process.env.APPLITOOLS_API_KEY
     let checkIfGetRenderInfoIsCalled = false
 
@@ -34,7 +34,7 @@ describe('getRenderInfo', () => {
       renderWrapper: wrapper,
     })
 
-    //checkIfGetRenderInfoIsCalled should be changed to TRUE as this is the first time
+    //checkIfGetRenderInfoIsCalled should be changed to true as this is the first time
     //getRenderInfo is called
     await getSetRenderInfo()
 

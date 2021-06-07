@@ -18,7 +18,7 @@ const snap = require('@applitools/snaptdout');
 
 describe('eyesStorybook', () => {
   let closeStorybook, closeTestServer;
-  before(async () => {
+  before(async () => { 
     closeStorybook = await testStorybook({port: 9001});
     closeTestServer = (await testServer({port: 7272})).close;
   });
@@ -346,4 +346,27 @@ describe('eyesStorybook', () => {
       expect(session.startInfo.parentBranchBaselineSavedBefore).to.be.undefined;
     }
   });
+
+  it('fail immediately, wrong api key', async () => {
+    console.log("**** in fail immediately, wrong api key ****")
+    const config = {apiKey:'INVALIDAPIKEY'};
+    let errorMessage;
+
+    try{
+        await eyesStorybook({
+        config: {
+          serverUrl,
+          storybookUrl: 'http://localhost:9001',
+          ...config,
+          appName: 'bla',
+          browser: [{name: 'chrome', width: 800, height: 600}],
+        },
+        logger,
+      });
+    } catch(e){
+      errorMessage = e.message
+    } finally{ 
+      expect(errorMessage).to.equal("Request failed with status code 401(Unauthorized)")
+    }
+  })
 });
