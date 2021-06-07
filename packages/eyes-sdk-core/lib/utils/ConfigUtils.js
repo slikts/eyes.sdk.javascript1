@@ -8,7 +8,7 @@ function getConfig({
   configPath,
   logger = new Logger(!!process.env.APPLITOOLS_SHOW_LOGS),
 } = {}) {
-  const possibleConfigs = ['applitools.config.js', 'package.json', 'eyes.config.js', 'eyes.json']
+  const possibleConfigs = ['applitools.config.js', 'eyes.config.js', 'eyes.json']
   const envConfig = populateEnvConfig(configParams)
   try {
     const envConfigPath = GeneralUtils.getEnvValue('CONFIG_PATH')
