@@ -13,18 +13,18 @@ function getConfig({
   try {
     const envConfigPath = GeneralUtils.getEnvValue('CONFIG_PATH')
     const customConfigPath = envConfigPath || configPath
-    
+
     if (customConfigPath) {
       logger.log('Loading configuration from', configPath)
       const config = require(customConfigPath)
-      return Object.assign(config, envConfig);
+      return Object.assign(config, envConfig)
     } else {
-      const config = require(findConfigFile(possibleConfigs));
-      return Object.assign(config, envConfig); 
+      const config = require(findConfigFile(possibleConfigs))
+      return Object.assign(config, envConfig)
     }
   } catch (ex) {
     if (Object.keys(envConfig).length) {
-      return envConfig;
+      return envConfig
     }
     const errorMessage = `An error occurred while loading configuration. configPath=${configPath}\n`
     logger.log(errorMessage, ex)
@@ -60,7 +60,7 @@ function findConfigFile(possibleConfigs, errors = []) {
 }
 
 function populateEnvConfig(configParams) {
-  const envConfig = {};
+  const envConfig = {}
   for (const p of configParams) {
     envConfig[p] = GeneralUtils.getEnvValue(toEnvVarName(p))
     if (envConfig[p] === 'true') {
@@ -76,7 +76,7 @@ function populateEnvConfig(configParams) {
     }
   })
 
-  return envConfig;
+  return envConfig
 }
 
 module.exports = {
