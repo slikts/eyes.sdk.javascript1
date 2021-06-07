@@ -12,7 +12,6 @@ const {
   missingAppNameInPackageJsonFailMsg,
 } = require('../../src/errMessages');
 const snap = require('@applitools/snaptdout');
-const makeRenderingGridClient = require('../../../visual-grid-client/src/sdk/renderingGridClient');
 
 describe('validateAndPopulateConfig', () => {
   it('throws error on missing apiKey', async () => {
