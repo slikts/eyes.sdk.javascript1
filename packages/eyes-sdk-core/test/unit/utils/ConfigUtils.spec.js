@@ -41,8 +41,9 @@ describe('ConfigUtils', () => {
       assert.deepStrictEqual(config, expectedConfig)
     })
 
-    it('loads applitools.config.js with dir path set by env variable', () => {
+    it('loads applitools.config.js with dir path set by env variable', () => {      
       const configFullPath = path.join(configPath, 'applitools.config.js')
+      delete require.cache[require.resolve(configFullPath)]
       process.env.APPLITOOLS_CONFIG_PATH = configFullPath
       try {
         const config = ConfigUtils.getConfig()

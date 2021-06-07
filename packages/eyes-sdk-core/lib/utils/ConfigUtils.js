@@ -15,7 +15,7 @@ function getConfig({
     const customConfigPath = envConfigPath || configPath
 
     if (customConfigPath) {
-      logger.log('Loading configuration from', configPath)
+      logger.log('Loading configuration from', customConfigPath)
       const config = require(customConfigPath)
       return Object.assign(config, envConfig)
     } else {
