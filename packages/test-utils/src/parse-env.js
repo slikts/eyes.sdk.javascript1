@@ -26,9 +26,6 @@ const DEVICES = {
       platformName: 'Android',
       platformVersion: '10.0',
       deviceOrientation: 'portrait',
-      'appium:chromeOptions': {
-        w3c: false,
-      },
       ...SAUCE_CREDENTIALS,
     },
   },
@@ -264,6 +261,7 @@ function parseEnv(
         (legacy ? preset.capabilities.legacy : preset.capabilities.w3c) || preset.capabilities,
       )
       env.configurable = preset.type !== 'sauce'
+      env.appium = Boolean(env.device)
       if (preset.type === 'sauce') {
         if (legacy || env.device) {
           env.options = env.capabilities = {...env.capabilities, ...preset.options}

@@ -202,6 +202,7 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
     attach,
     proxy,
     configurable = true,
+    appium = false,
     args = [],
     headless,
     logLevel = 'silent',
@@ -219,6 +220,9 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
       }
       desiredCapabilities[browserOptionsName] = browserOptions
     }
+  }
+  if (appium && browser === 'chrome') {
+    desiredCapabilities['appium:chromeOptions'] = {w3c: false}
   }
   const builder = new Builder().withCapabilities(desiredCapabilities)
   if (url && !attach) builder.usingServer(url.href)

@@ -210,10 +210,17 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
   const {Builder} = require('selenium-webdriver')
   const parseEnv = require('@applitools/test-utils/src/parse-env')
 
-  const {browser = '', capabilities, url, attach, proxy, configurable = true, args = [], headless} = parseEnv({
-    ...env,
-    legacy: env.legacy ?? process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3',
-  })
+  const {
+    browser = '',
+    capabilities,
+    url,
+    attach,
+    proxy,
+    configurable = true,
+    appium = false,
+    args = [],
+    headless,
+  } = parseEnv({...env, legacy: env.legacy ?? process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3'})
   const desiredCapabilities = {browserName: browser, ...capabilities}
   if (configurable) {
     const browserOptionsName = browserOptionsNames[browser || desiredCapabilities.browserName]
@@ -227,6 +234,9 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
       }
       desiredCapabilities[browserOptionsName] = browserOptions
     }
+  }
+  if (appium && browser === 'chrome') {
+    desiredCapabilities['appium:chromeOptions'] = {w3c: false}
   }
   const builder = new Builder().withCapabilities(desiredCapabilities)
   if (url && !attach) builder.usingServer(url.href)
