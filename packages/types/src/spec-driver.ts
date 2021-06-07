@@ -25,8 +25,8 @@ export interface SpecDriver<TDriver, TContext, TElement, TSelector> {
   getTitle(driver: TDriver): Promise<string>
   getUrl(driver: TDriver): Promise<string>
   getElementRect?(driver: TDriver, element: TElement): Promise<Size>
-  setWindowRect?(driver: TDriver, rect: Partial<Region>): Promise<void>
-  getWindowRect?(driver: TDriver): Promise<Region>
+  setWindowSize?(driver: TDriver, size: Size): Promise<void>
+  getWindowSize?(driver: TDriver): Promise<Region>
   setViewportSize?(driver: TDriver, size: Size): Promise<void>
   getViewportSize?(driver: TDriver): Promise<Size>
 }

@@ -55,8 +55,8 @@
       - [`getUrl`](#geturl)
       - [`takeScreenshot`](#takescreenshot)
       - [`getElementRect`](#getelementrect)
-      - [`setWindowRect`](#setwindowrect)
-      - [`getWindowRect`](#getwindowrect)
+      - [`setWindowSize`](#setwindowsize)
+      - [`getWindowSize`](#getwindowsize)
       - [`setViewportSize`](#setviewportsize)
       - [`getViewportSize`](#getviewportsize)
   - [Refer](#refer)
@@ -431,21 +431,23 @@ This command is used to get metrics of the **native** element only. This command
 
 Reference: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-selenium/src/spec-driver.ts#L106)
 
-#### `setWindowRect`
-This command should set window position and/or size from a given JSON object with properties `x`, `y`, `width` and `height`, the argument could miss position or size properties.
+#### `setWindowSize`
+This command should set window size from a given JSON object with properties `width` and `height`. The command have to also set window position to (0,0) in order to archive the maximum possible window size to be set.
 This command should not be implemented if [setViewportSize](###setViewportSize) is already implemented.
 
 > **`WD!`** Legacy implementations of selenium don't allow to set size and position with a single method, in this case, they should be set separately.
 
 > **`CDP!`** Protocol doesn't support window manipulations, but instead alow viewport manipulations, have a look at [setViewportSize](###setViewportSize).
 
-Reference: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/864f0ebfec04dd370631de1703817e098faa55b8/packages/eyes-selenium/src/spec-driver.ts#L137), [Ruby Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/24c660e3cc7504d0547901f67a467324c45b2f25/rb/eyes-selenium/lib/applitools/selenium/spec-driver.rb#L45)
+Reference: [TS Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/77fa7c7083d0c673acee3b203b1d0b1a7e972575/packages/eyes-selenium/src/spec-driver.ts#L123), [Ruby Selenium](https://github.com/applitools/eyes.sdk.javascript1/blob/24c660e3cc7504d0547901f67a467324c45b2f25/rb/eyes-selenium/lib/applitools/selenium/spec-driver.rb#L45)
 
-#### `getWindowRect`
-This command should return the position and size of the window in the format of the JSON object with properties `x`, `y`, `width`, and `height`.
-The command **have** to be implemented if [setWindowRect](###setWindowRect) was implemented, and could be skipped if [setViewportSize](###setViewportSize) was implemented.
+#### `getWindowSize`
+This command should return the size of the window in the format of the JSON object with properties `width`, and `height`.
+The command **have** to be implemented if [setWindowSize](###setWindowSize) was implemented, and could be skipped if [setViewportSize](###setViewportSize) was implemented.
 
-> **`WD!`** Legacy implementations of selenium don't allow to get size and position with a single method, in this case, they should be gotten separately and combined later.
+> **`WD!`** Modern implementations of selenium don't have an api to get window size, but api to get window rect could be used instead.
+
+> **`APPIUM!`** Legacy versions of appium servers could not treat well command to get window rect, in this case command to get window size should be sent.
 
 > **`CDP!`** Protocol doesn't support window manipulations, but instead alow viewport manipulations, have a look at [getViewportSize](###getViewportSize).
 

@@ -116,12 +116,9 @@ export interface ClientSocket<TDriver, TContext, TElement, TSelector> {
     handler: (options: {driver: TDriver; element: TElement}) => Promise<Region>,
   ): () => void
 
-  command(name: 'Driver.getWindowRect', handler: (options: {driver: TDriver}) => Promise<Region>): () => void
+  command(name: 'Driver.getWindowSize', handler: (options: {driver: TDriver}) => Promise<Size>): () => void
 
-  command(
-    name: 'Driver.setWindowRect',
-    handler: (options: {driver: TDriver; rect: Partial<Region>}) => Promise<void>,
-  ): () => void
+  command(name: 'Driver.setWindowSize', handler: (options: {driver: TDriver; size: Size}) => Promise<void>): () => void
 
   command(name: 'Driver.getViewportSize', handler: (options: {driver: TDriver}) => Promise<Size>): () => void
 
@@ -164,9 +161,9 @@ export interface ServerSocket<TDriver, TContext, TElement, TSelector> {
 
   request(name: 'Driver.getElementRect', options: {driver: TDriver; element: TElement}): Promise<Region>
 
-  request(name: 'Driver.getWindowRect', options: {driver: TDriver}): Promise<Region>
+  request(name: 'Driver.getWindowSize', options: {driver: TDriver}): Promise<Size>
 
-  request(name: 'Driver.setWindowRect', options: {driver: TDriver; rect: Partial<Region>}): Promise<void>
+  request(name: 'Driver.setWindowSize', options: {driver: TDriver; size: Partial<Size>}): Promise<void>
 
   request(name: 'Driver.getViewportSize', options: {driver: TDriver}): Promise<Size>
 
