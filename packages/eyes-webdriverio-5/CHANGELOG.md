@@ -5,6 +5,14 @@
 - added full typescript support
 - introduced @applitools/eyes-api package with new api
 
+## 5.31.6 - 2021/6/1
+
+- add `getEyes` to the service
+- fix bug when configuration was not propagated in service
+- 
+- updated to @applitools/eyes-sdk-core@12.20.2 (from 12.20.1)
+- updated to @applitools/visual-grid-client@15.8.8 (from 15.8.7)
+
 ## 5.31.5 - 2021/5/31
 
 - updated to @applitools/dom-snapshot@4.5.3 (from 4.5.2)

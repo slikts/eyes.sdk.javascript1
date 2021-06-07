@@ -1,23 +1,25 @@
 import * as utils from '@applitools/utils'
 import * as legacy from './legacy'
 
-/* eslint {"@typescript-eslint/ban-types": ["error", {"types": {"Function": false}}] } */
-
-export type Driver = WebdriverIO.BrowserObject | WebdriverIO.MultiRemoteBrowserObject
-export type Element = WebdriverIO.Element | {ELEMENT: string} | {'element-6066-11e4-a52e-4f735466cecf': string}
-export type Selector = string | Function | legacy.By | {type: string; selector: string}
-
+export type Driver = Applitools.WebdriverIO.Browser
+export type Element =
+  | Applitools.WebdriverIO.Element
+  | {ELEMENT: string}
+  | {'element-6066-11e4-a52e-4f735466cecf': string}
+export type Selector = Applitools.WebdriverIO.Selector | string | legacy.By | {type: string; selector: string}
 // #region HELPERS
 
 const LEGACY_ELEMENT_ID = 'ELEMENT'
 const ELEMENT_ID = 'element-6066-11e4-a52e-4f735466cecf'
 
 function extractElementId(element: Element): string {
-  if (utils.types.has(element, 'elementId')) return element.elementId
-  else if (utils.types.has(element, ELEMENT_ID)) return element[ELEMENT_ID]
-  else if (utils.types.has(element, LEGACY_ELEMENT_ID)) return element[LEGACY_ELEMENT_ID]
+  if (utils.types.has(element, 'elementId')) return element.elementId as string
+  else if (utils.types.has(element, ELEMENT_ID)) return element[ELEMENT_ID] as string
+  else if (utils.types.has(element, LEGACY_ELEMENT_ID)) return element[LEGACY_ELEMENT_ID] as string
 }
-function transformSelector(selector: Selector): string | Function {
+function transformSelector(
+  selector: Selector,
+): string | ((element: HTMLElement) => HTMLElement) | ((element: HTMLElement) => HTMLElement[]) {
   if (selector instanceof legacy.By) {
     return selector.toString()
   } else if (utils.types.has(selector, ['type', 'selector'])) {
@@ -27,21 +29,22 @@ function transformSelector(selector: Selector): string | Function {
   }
   return selector
 }
-function serializeArgs(args: any[]): [any[], ...Element[]] {
+function transformArgument(arg: any): [any?, ...Element[]] {
+  if (!arg) return []
   const elements: Element[] = []
-  const argsWithElementMarkers = args.map(serializeArg)
+  const argWithElementMarkers = transform(arg)
 
-  return [argsWithElementMarkers, ...elements]
+  return [argWithElementMarkers, ...elements]
 
-  function serializeArg(arg: any): any {
+  function transform(arg: any): any {
     if (isElement(arg)) {
       elements.push(arg)
       return {isElement: true}
     } else if (utils.types.isArray(arg)) {
-      return arg.map(serializeArg)
+      return arg.map(transform)
     } else if (utils.types.isObject(arg)) {
       return Object.entries(arg).reduce((object, [key, value]) => {
-        return Object.assign(object, {[key]: serializeArg(value)})
+        return Object.assign(object, {[key]: transform(value)})
       }, {})
     } else {
       return arg
@@ -56,21 +59,20 @@ function serializeArgs(args: any[]): [any[], ...Element[]] {
 //    own argument. To account for this, we use a wrapper function to receive all
 //    of the arguments in a serialized structure, deserialize them, and call the script,
 //    and pass the arguments as originally intended
-function scriptRunner(script: string, argsWithElementMarkers: any[], ...elements: HTMLElement[]) {
-  /*eslint prefer-rest-params: "off", prefer-spread: "off"*/
+function scriptRunner(script: string, arg: any, ...elements: Element[]) {
   const func = new Function(script.startsWith('function') ? `return (${script}).apply(null, arguments)` : script)
-  return func.apply(null, argsWithElementMarkers.map(deserializeArg))
+  return func(transform(arg))
 
-  function deserializeArg(arg: any): any {
+  function transform(arg: any): any {
     if (!arg) {
       return arg
     } else if (arg.isElement) {
       return elements.shift()
     } else if (Array.isArray(arg)) {
-      return arg.map(deserializeArg)
+      return arg.map(transform)
     } else if (typeof arg === 'object') {
       return Object.entries(arg).reduce((object, [key, value]) => {
-        return Object.assign(object, {[key]: deserializeArg(value)})
+        return Object.assign(object, {[key]: transform(value)})
       }, {})
     } else {
       return arg
@@ -129,16 +131,12 @@ export async function isEqualElements(browser: Driver, element1: Element, elemen
 
 // #region COMMANDS
 
-export async function executeScript(
-  browser: Driver,
-  script: ((...args: any) => any) | string,
-  ...args: any[]
-): Promise<any> {
+export async function executeScript(browser: Driver, script: ((arg: any) => any) | string, arg?: any): Promise<any> {
   if (browser.isDevTools) {
     script = utils.types.isString(script) ? script : script.toString()
-    return browser.execute(scriptRunner, script, ...serializeArgs(args))
+    return browser.execute(scriptRunner, script, ...transformArgument(arg))
   } else {
-    return browser.execute(script, ...args)
+    return browser.execute(script, arg)
   }
 }
 export async function mainContext(browser: Driver): Promise<Driver> {
@@ -153,11 +151,11 @@ export async function childContext(browser: Driver, element: Element): Promise<D
   await browser.switchToFrame(element)
   return browser
 }
-export async function findElement(browser: Driver, selector: Selector): Promise<Element> {
+export async function findElement(browser: Driver, selector: Selector): Promise<Applitools.WebdriverIO.Element> {
   const element = await browser.$(transformSelector(selector))
   return !utils.types.has(element, 'error') ? element : null
 }
-export async function findElements(browser: Driver, selector: Selector): Promise<Element[]> {
+export async function findElements(browser: Driver, selector: Selector): Promise<Applitools.WebdriverIO.Element[]> {
   const elements = await browser.$$(transformSelector(selector))
   return Array.from(elements)
 }
@@ -165,7 +163,7 @@ export async function getElementRect(
   browser: Driver,
   element: Element,
 ): Promise<{x: number; y: number; width: number; height: number}> {
-  const extendedElement = await browser.$(element)
+  const extendedElement = await browser.$(element as any)
   if (utils.types.isFunction(extendedElement, 'getRect')) {
     return extendedElement.getRect()
   } else {
@@ -183,38 +181,20 @@ export async function getElementRect(
     return rect
   }
 }
-export async function getWindowRect(browser: Driver): Promise<{x: number; y: number; width: number; height: number}> {
+export async function getWindowSize(browser: Driver): Promise<{width: number; height: number}> {
   if (utils.types.isFunction(browser.getWindowRect)) {
-    return browser.getWindowRect()
+    const rect = await browser.getWindowRect()
+    return {width: rect.width, height: rect.height}
   } else {
-    const rect = {x: 0, y: 0, width: 0, height: 0}
-    if (utils.types.isFunction(browser.getWindowPosition)) {
-      const location = await browser.getWindowPosition()
-      rect.x = location.x
-      rect.y = location.y
-    }
-    if (utils.types.isFunction(browser.getWindowSize)) {
-      const size = await browser.getWindowSize()
-      rect.width = size.width
-      rect.height = size.height
-    }
-    return rect
+    return browser.getWindowSize()
   }
 }
-export async function setWindowRect(
-  browser: Driver,
-  rect: {x?: number; y?: number; width?: number; height?: number},
-): Promise<void> {
-  const {x = null, y = null, width = null, height = null} = rect || {}
+export async function setWindowSize(browser: Driver, size: {width: number; height: number}): Promise<void> {
   if (utils.types.isFunction(browser.setWindowRect)) {
-    await browser.setWindowRect(x, y, width, height)
+    await browser.setWindowRect(0, 0, size.width, size.height)
   } else {
-    if (utils.types.isFunction(browser.setWindowPosition) && x !== null && y !== null) {
-      await browser.setWindowPosition(x, y)
-    }
-    if (utils.types.isFunction(browser.setWindowSize) && width !== null && height !== null) {
-      await browser.setWindowSize(width, height)
-    }
+    await browser.setWindowPosition(0, 0)
+    await browser.setWindowSize(size.width, size.height)
   }
 }
 export async function getOrientation(browser: Driver): Promise<string> {
@@ -222,17 +202,16 @@ export async function getOrientation(browser: Driver): Promise<string> {
   return orientation.toLowerCase()
 }
 export async function getDriverInfo(browser: Driver): Promise<any> {
+  const capabilities = browser.capabilities as any
   return {
     sessionId: browser.sessionId,
     isMobile: browser.isMobile,
-    isNative: browser.isMobile && !browser.capabilities.browserName,
-    deviceName: (browser.capabilities as any).desired
-      ? (browser.capabilities as any).desired.deviceName
-      : browser.capabilities.deviceName,
-    platformName: browser.capabilities.platformName || browser.capabilities.platform,
-    platformVersion: browser.capabilities.platformVersion,
-    browserName: browser.capabilities.browserName,
-    browserVersion: browser.capabilities.browserVersion,
+    isNative: browser.isMobile && !capabilities.browserName,
+    deviceName: capabilities.desired ? capabilities.desired.deviceName : capabilities.deviceName,
+    platformName: capabilities.platformName ?? capabilities.platform,
+    platformVersion: capabilities.platformVersion,
+    browserName: capabilities.browserName ?? capabilities.desired.browserName,
+    browserVersion: capabilities.browserVersion ?? capabilities.version,
   }
 }
 export async function getTitle(browser: Driver): Promise<string> {
@@ -244,41 +223,55 @@ export async function getUrl(browser: Driver): Promise<string> {
 export async function visit(browser: Driver, url: string): Promise<void> {
   await browser.url(url)
 }
-export async function takeScreenshot(driver: Driver): Promise<string> {
-  return driver.takeScreenshot()
+export async function takeScreenshot(browser: Driver): Promise<string | Buffer> {
+  if (browser.isDevTools) {
+    const puppeteer = await browser.getPuppeteer()
+    const [page] = await puppeteer.pages()
+    const scr = await (page as any)._client.send('Page.captureScreenshot')
+    return scr.data
+  }
+  return browser.takeScreenshot()
 }
 export async function click(browser: Driver, element: Element | Selector): Promise<void> {
   if (isSelector(element)) element = await findElement(browser, element)
-  element = await browser.$(element)
-  await element.click()
+  const extendedElement = await browser.$(element as any)
+  await extendedElement.click()
 }
 export async function type(browser: Driver, element: Element | Selector, keys: string): Promise<void> {
   if (isSelector(element)) element = await findElement(browser, element)
-  element = await browser.$(element)
-  await element.setValue(keys)
+  const extendedElement = await browser.$(element as any)
+  await extendedElement.setValue(keys)
 }
-export async function hover(
-  browser: Driver,
-  element: Element | Selector,
-  offset?: {x: number; y: number},
-): Promise<any> {
+export async function hover(browser: Driver, element: Element | Selector): Promise<any> {
   if (isSelector(element)) element = await findElement(browser, element)
-  element = await browser.$(element)
-  // NOTE: WDIO6 changed the signature of moveTo method
-  if (process.env.APPLITOOLS_WDIO_MAJOR_VERSION === '5') {
-    await (element.moveTo as any)(offset?.x, offset?.y)
+
+  if (browser.isDevTools) {
+    const {x, y, width, height} = await browser.execute((element: any) => {
+      const rect = element.getBoundingClientRect()
+      return {x: rect.x, y: rect.y, width: rect.width, height: rect.height}
+    }, element)
+    const puppeteer = await browser.getPuppeteer()
+    const [page] = await puppeteer.pages()
+    await page.mouse.move(x + width / 2, y + height / 2)
   } else {
-    await (element.moveTo as any)({xOffset: offset?.x, yOffset: offset?.y})
+    const extendedElement = await browser.$(element as any)
+    await extendedElement.moveTo()
   }
 }
 export async function scrollIntoView(browser: Driver, element: Element | Selector, align = false): Promise<void> {
   if (isSelector(element)) element = await findElement(browser, element)
-  element = await browser.$(element)
-  await element.scrollIntoView(align)
+  const extendedElement = await browser.$(element as any)
+  await extendedElement.scrollIntoView(align)
 }
 export async function waitUntilDisplayed(browser: Driver, selector: Selector, timeout: number): Promise<void> {
-  const element = (await findElement(browser, selector)) as any
-  await element.waitForDisplayed({timeout})
+  const element = await findElement(browser, selector)
+  if (process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION === '5') {
+    // @ts-ignore
+    await element.waitForDisplayed(timeout)
+  } else {
+    // @ts-ignore
+    await element.waitForDisplayed({timeout})
+  }
 }
 
 // #endregion
@@ -292,7 +285,7 @@ const browserOptionsNames: Record<string, string> = {
 export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
   const webdriverio = require('webdriverio')
   const chromedriver = require('chromedriver')
-  const {testSetup} = require('@applitools/sdk-shared')
+  const parseEnv = require('@applitools/test-utils/src/parse-env')
   const {
     protocol,
     browser = '',
@@ -304,7 +297,7 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
     args = [],
     headless,
     logLevel = 'silent',
-  } = testSetup.Env(env, process.env.APPLITOOLS_WDIO_PROTOCOL)
+  } = parseEnv(env, process.env.APPLITOOLS_WEBDRIVERIO_PROTOCOL)
 
   const options: any = {
     capabilities: {browserName: browser, ...capabilities},
@@ -312,7 +305,11 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
   }
   if (browser === 'chrome' && protocol === 'cdp') {
     options.automationProtocol = 'devtools'
-    options.capabilities[browserOptionsNames.chrome] = {headless, args}
+    options.capabilities[browserOptionsNames.chrome] = {args}
+    options.capabilities['wdio:devtoolsOptions'] = {
+      headless,
+      ignoreDefaultArgs: ['--hide-scrollbars'],
+    }
   } else if (protocol === 'wd') {
     options.automationProtocol = 'webdriver'
     options.protocol = url.protocol ? url.protocol.replace(/:$/, '') : undefined
