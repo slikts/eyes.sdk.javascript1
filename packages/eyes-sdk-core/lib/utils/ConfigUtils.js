@@ -8,40 +8,28 @@ function getConfig({
   configPath,
   logger = new Logger(!!process.env.APPLITOOLS_SHOW_LOGS),
 } = {}) {
-  let defaultConfig = {}
   const possibleConfigs = ['applitools.config.js', 'package.json', 'eyes.config.js', 'eyes.json']
+  const envConfig = populateEnvConfig(configParams)
   try {
     const envConfigPath = GeneralUtils.getEnvValue('CONFIG_PATH')
     const customConfigPath = envConfigPath || configPath
+    
     if (customConfigPath) {
       logger.log('Loading configuration from', configPath)
-      defaultConfig = require(customConfigPath)
+      const config = require(customConfigPath)
+      return Object.assign(config, envConfig);
     } else {
-      defaultConfig = require(findConfigFile(possibleConfigs))
+      const config = require(findConfigFile(possibleConfigs));
+      return Object.assign(config, envConfig); 
     }
   } catch (ex) {
+    if (Object.keys(envConfig).length) {
+      return envConfig;
+    }
     const errorMessage = `An error occurred while loading configuration. configPath=${configPath}\n`
     logger.log(errorMessage, ex)
     throw new Error(`${errorMessage}${ex}`)
   }
-
-  const envConfig = {}
-  for (const p of configParams) {
-    envConfig[p] = GeneralUtils.getEnvValue(toEnvVarName(p))
-    if (envConfig[p] === 'true') {
-      envConfig[p] = true
-    } else if (envConfig[p] === 'false') {
-      envConfig[p] = false
-    }
-  }
-
-  Object.keys(envConfig).forEach(value => {
-    if (envConfig[value] === undefined) {
-      delete envConfig[value]
-    }
-  })
-
-  return Object.assign({}, defaultConfig, envConfig)
 }
 
 /**
@@ -69,6 +57,26 @@ function findConfigFile(possibleConfigs, errors = []) {
       index++
     }
   }
+}
+
+function populateEnvConfig(configParams) {
+  const envConfig = {};
+  for (const p of configParams) {
+    envConfig[p] = GeneralUtils.getEnvValue(toEnvVarName(p))
+    if (envConfig[p] === 'true') {
+      envConfig[p] = true
+    } else if (envConfig[p] === 'false') {
+      envConfig[p] = false
+    }
+  }
+
+  Object.keys(envConfig).forEach(value => {
+    if (envConfig[value] === undefined) {
+      delete envConfig[value]
+    }
+  })
+
+  return envConfig;
 }
 
 module.exports = {
