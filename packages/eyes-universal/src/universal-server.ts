@@ -6,6 +6,7 @@ import {makeHandler} from './handler'
 import {makeSocket} from './socket'
 import {makeSpec} from './spec-driver'
 import {makeRefer} from './refer'
+import * as webdriverSpec from './spec-driver-webdriver'
 
 const IDLE_TIMEOUT = 900000 // 15min
 
@@ -28,12 +29,13 @@ export async function makeServer({idleTimeout = IDLE_TIMEOUT, ...serverConfig} =
     })
 
     const refer = makeRefer()
-    const init = new Promise<types.Core<Driver, Element, Selector>>(resolve => {
-      socket.once('Session.init', ({name, version, commands}) => {
-        const sdk = makeSDK({
+    const init = new Promise<types.Core<any, any, any>>(resolve => {
+      socket.once('Session.init', ({name, version, commands, protocol}) => {
+        console.log(protocol)
+        const sdk = makeSDK<any, any, any, any>({
           name: `eyes-universal/${name}`,
           version: `${require('../package.json').version}/${version}`,
-          spec: makeSpec({socket, commands}),
+          spec: protocol === 'webdriver' ? webdriverSpec : makeSpec({socket, commands}),
           VisualGridClient: require('@applitools/visual-grid-client'),
         })
         resolve(sdk)
@@ -41,6 +43,7 @@ export async function makeServer({idleTimeout = IDLE_TIMEOUT, ...serverConfig} =
     })
 
     socket.command('Core.makeManager', async config => {
+      console.log('here')
       const sdk = await init
       const manager = await sdk.makeManager(config)
       return refer.ref(manager)

@@ -83,11 +83,11 @@ export function makeSpec(options: {
     async getElementRect(driver: Driver, element: Element): Promise<types.Size> {
       return socket.request('Driver.getElementRect', {driver, element})
     },
-    async getWindowRect(driver: Driver): Promise<types.Region> {
-      return socket.request('Driver.getWindowRect', {driver})
+    async getWindowSize(driver: Driver): Promise<types.Size> {
+      return socket.request('Driver.getWindowSize', {driver})
     },
-    async setWindowRect(driver: Driver, rect: types.Region): Promise<void> {
-      return socket.request('Driver.setWindowRect', {driver, rect})
+    async setWindowSize(driver: Driver, size: types.Size): Promise<void> {
+      return socket.request('Driver.setWindowSize', {driver, size})
     },
     async getViewportSize(driver: Driver): Promise<types.Size> {
       return socket.request('Driver.getViewportSize', {driver})

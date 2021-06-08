@@ -1,4 +1,4 @@
-import {Size, Region, DriverInfo} from './data'
+import {Size, DriverInfo} from './data'
 
 export type SpecSelector<TSelector> = TSelector | string | {type: string; selector: string}
 
@@ -7,8 +7,8 @@ export interface SpecDriver<TDriver, TContext, TElement, TSelector> {
   isContext(context: any): context is TContext
   isElement(element: any): element is TElement
   isSelector(selector: any): selector is SpecSelector<TSelector>
-  transformDriver?(driver: TDriver): TDriver
-  transformElement?(element: TElement): TElement
+  transformDriver?(driver: any): TDriver
+  transformElement?(element: any): TElement
   extractContext?(element: TDriver | TContext): TContext
   extractSelector?(element: TElement): SpecSelector<TSelector>
   isStaleElementError(error: any): boolean
@@ -26,7 +26,7 @@ export interface SpecDriver<TDriver, TContext, TElement, TSelector> {
   getUrl(driver: TDriver): Promise<string>
   getElementRect?(driver: TDriver, element: TElement): Promise<Size>
   setWindowSize?(driver: TDriver, size: Size): Promise<void>
-  getWindowSize?(driver: TDriver): Promise<Region>
+  getWindowSize?(driver: TDriver): Promise<Size>
   setViewportSize?(driver: TDriver, size: Size): Promise<void>
   getViewportSize?(driver: TDriver): Promise<Size>
 }
