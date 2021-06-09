@@ -1,6 +1,7 @@
 import type * as types from '@applitools/types'
 import type {ChildProcess} from 'child_process'
 import type {Driver, Element, Selector, TransformedDriver, TransformedElement, TransformedSelector} from './spec-driver'
+import * as utils from '@applitools/utils'
 import * as spec from './spec-driver'
 import {spawn} from 'child_process'
 import {Socket} from './socket'
@@ -13,26 +14,21 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
   private _socket: ClientSocket
 
   constructor() {
-    this._server = spawn(`./node_modules/@applitools/eyes-universal/bin/cli-macos`, ['--port=2107'], {
+    this._socket = new Socket()
+    this._server = spawn(`./node_modules/.bin/eyes-universal`, ['--port=2107'], {
       detached: true,
       stdio: ['ignore', 'pipe', 'ignore'],
     })
-    this._socket = new Socket()
-
-    this._server.unref() // important: this allows the client process to exit without hanging, while the server process still runs
-
     // specific to JS: we are able to listen to stdout for the first line, then we know the server is up, and we even can get its port in case it wasn't passed
     this._server.stdout.once('data', data => {
       this._server.stdout.destroy()
       const [port] = String(data).split('\n', 1)
       this._socket.connect(`http://localhost:${port}/eyes`)
-      // this._socket.unref() // important: this allows the client process to exit without hanging, while the server process still runs
       this._socket.emit('Session.init', {protocol: 'webdriver'})
     })
-
-    this._socket.command('Driver.isEqualElements', async () => {
-      return null
-    })
+    // important: this allows the client process to exit without hanging, while the server process still runs
+    this._server.unref()
+    this._socket.unref()
   }
 
   isDriver(driver: any): driver is Driver {
@@ -48,23 +44,20 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
   }
 
   async makeManager(config?: types.EyesManagerConfig): Promise<EyesManager> {
-    console.log('here')
-
     const manager = await this._socket.request('Core.makeManager', config)
-    console.log('here')
 
     return new EyesManager({manager, socket: this._socket})
   }
 
   async getViewportSize({driver}: {driver: Driver}): Promise<types.Size> {
     return this._socket.request('Core.getViewportSize', {
-      driver: await spec.transformDriver(driver),
+      driver: await transform(driver),
     })
   }
 
   async setViewportSize({driver, size}: {driver: Driver; size: types.Size}): Promise<void> {
     return this._socket.request('Core.setViewportSize', {
-      driver: await spec.transformDriver(driver),
+      driver: await transform(driver),
       size,
     })
   }
@@ -95,8 +88,8 @@ export class EyesManager implements types.EyesManager<Driver, Element, Selector>
   async makeEyes({driver, config}: {driver: Driver; config?: types.EyesConfig<Element, Selector>}): Promise<Eyes> {
     const eyes = await this._socket.request('EyesManager.makeEyes', {
       manager: this._manager,
-      driver: await spec.transformDriver(driver),
-      config: config, //this._refer.ref(config),
+      driver: await transform(driver),
+      config: await transform(config),
     })
     return new Eyes({eyes, socket: this._socket})
   }
@@ -116,7 +109,7 @@ export class Eyes implements types.Eyes<Element, Selector> {
     this._socket = socket
   }
 
-  check({
+  async check({
     settings,
     config,
   }: {
@@ -125,12 +118,12 @@ export class Eyes implements types.Eyes<Element, Selector> {
   }): Promise<types.MatchResult> {
     return this._socket.request('Eyes.check', {
       eyes: this._eyes,
-      settings: settings, // this._refer.ref(settings, this._eyes),
-      config: config, // this._refer.ref(config, this._eyes),
+      settings: await transform(settings),
+      config: await transform(config),
     })
   }
 
-  locate<TLocator extends string>({
+  async locate<TLocator extends string>({
     settings,
     config,
   }: {
@@ -140,11 +133,11 @@ export class Eyes implements types.Eyes<Element, Selector> {
     return this._socket.request('Eyes.locate', {
       eyes: this._eyes,
       settings,
-      config: config, //this._refer.ref(config, this._eyes),
+      config: await transform(config),
     })
   }
 
-  extractTextRegions<TPattern extends string>({
+  async extractTextRegions<TPattern extends string>({
     settings,
     config,
   }: {
@@ -154,11 +147,11 @@ export class Eyes implements types.Eyes<Element, Selector> {
     return this._socket.request('Eyes.extractTextRegions', {
       eyes: this._eyes,
       settings,
-      config: config, // this._refer.ref(config, this._eyes),
+      config: await transform(config),
     })
   }
 
-  extractText({
+  async extractText({
     regions,
     config,
   }: {
@@ -167,8 +160,8 @@ export class Eyes implements types.Eyes<Element, Selector> {
   }): Promise<string[]> {
     return this._socket.request('Eyes.extractText', {
       eyes: this._eyes,
-      regions: regions, // this._refer.ref(regions),
-      config: config, // this._refer.ref(config),
+      regions: await transform(regions),
+      config: await transform(config),
     })
   }
 
@@ -178,5 +171,22 @@ export class Eyes implements types.Eyes<Element, Selector> {
 
   abort() {
     return this._socket.request('Eyes.abort', {eyes: this._eyes})
+  }
+}
+
+async function transform(data: any): Promise<any> {
+  if (spec.isDriver(data)) {
+    return spec.transformDriver(data)
+  } else if (spec.isElement(data)) {
+    return spec.transformElement(data)
+  } else if (utils.types.isArray(data)) {
+    return Promise.all(data.map(transform))
+  } else if (utils.types.isObject(data)) {
+    return Object.entries(data).reduce(async (data, [key, value]) => {
+      const transformed = await transform(value)
+      return data.then(data => Object.assign(data, {[key]: transformed}))
+    }, Promise.resolve({}))
+  } else {
+    return data
   }
 }

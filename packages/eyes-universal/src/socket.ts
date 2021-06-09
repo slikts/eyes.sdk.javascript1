@@ -43,11 +43,8 @@ export function makeSocket(ws: WebSocket): Socket {
       queue.forEach(command => command())
       queue.clear()
 
-      console.log('here')
-
       socket.on('message', message => {
         const {name, key, payload} = deserialize(message as string)
-        console.log('[event]', name, key, payload)
         const fns = listeners.get(name)
         if (fns) fns.forEach(fn => fn(payload, key))
         if (key) {

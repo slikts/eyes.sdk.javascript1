@@ -38,7 +38,6 @@ export class Socket {
 
   emit(name: string, payload?: Record<string, any>, key?: string): () => void {
     const command = () => this._socket.send(JSON.stringify({name, key, payload}))
-    console.log(name, this._socket?.readyState === WebSocket.OPEN)
     if (this._socket?.readyState === WebSocket.OPEN) command()
     else this._queue.add(command)
     return () => this._queue.delete(command)
@@ -70,11 +69,13 @@ export class Socket {
   }
 
   request(name: string, payload?: any): Promise<any> {
+    this.ref()
     return new Promise((resolve, reject) => {
       const key = utils.general.guid()
-      console.log(`${'[REQUEST]'} ${name}, ${key}, ${JSON.stringify(payload, null, 2)}`)
+      // console.log(`${'[REQUEST]'} ${name}, ${key}, ${JSON.stringify(payload, null, 2)}`)
       this.emit(name, payload, key)
       this.once({name, key}, response => {
+        this.unref()
         if (response.error) {
           const error = new Error(response.error.message)
           error.stack = response.error.stack
@@ -97,6 +98,14 @@ export class Socket {
         this.emit(name, {error: {message: error.message, stack: error.stack}}, key)
       }
     })
+  }
+
+  ref(): () => void {
+    //@ts-ignore
+    const command = () => this._socket._socket.ref()
+    if (this._socket?.readyState === WebSocket.OPEN) command()
+    else this._queue.add(command)
+    return () => this._queue.delete(command)
   }
 
   unref(): () => void {

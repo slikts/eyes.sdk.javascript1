@@ -1,16 +1,17 @@
 import type * as types from '@applitools/types'
 import type * as Selenium from 'selenium-webdriver'
 import * as utils from '@applitools/utils'
+import {By} from 'selenium-webdriver'
 
 export type Driver = Selenium.WebDriver
 export type Element = Selenium.WebElement
-export type Selector = types.SpecSelector<Selenium.Locator>
+export type Selector = types.SpecSelector<Selenium.By | Selenium.ByHash>
 
-export type TransformedDriver = any
+export type TransformedDriver = {sessionId: string; serverUrl: string; capabilities: Record<string, any>}
 export type TransformedElement = {elementId: string}
-export type TransformedSelector = types.SpecSelector<Selenium.ByHash | {using: string; value: string}>
+export type TransformedSelector = {using: string; value: string}
 
-const byHash = ['className', 'css', 'id', 'js', 'linkText', 'name', 'partialLinkText', 'tagName', 'xpath']
+const byHash = ['className', 'css', 'id', 'linkText', 'name', 'partialLinkText', 'tagName', 'xpath'] as const
 
 export function isDriver(driver: any): driver is Driver {
   return utils.types.instanceOf(driver, 'WebDriver')
@@ -21,10 +22,10 @@ export function isElement(element: any): element is Element {
 export function isSelector(selector: any): selector is Selector {
   if (!selector) return false
   return (
+    utils.types.isString(selector) ||
     utils.types.has(selector, ['type', 'selector']) ||
     utils.types.has(selector, ['using', 'value']) ||
-    Object.keys(selector).some(key => byHash.includes(key)) ||
-    utils.types.isString(selector)
+    Object.keys(selector).some(key => byHash.includes(key as any))
   )
 }
 
@@ -32,10 +33,7 @@ export async function transformDriver(driver: Driver): Promise<TransformedDriver
   const session = await driver.getSession()
   const capabilities = await driver.getCapabilities()
   return {
-    protocol: 'http',
-    hostname: 'localhost',
-    port: '4444',
-    path: '/wd/hub',
+    serverUrl: 'http://localhost:4444/wd/hub',
     sessionId: session.getId(),
     capabilities: Array.from(capabilities.keys()).reduce((caps, key) => {
       caps[key] = capabilities.get(key)
@@ -48,18 +46,56 @@ export async function transformElement(element: Element): Promise<TransformedEle
   return {elementId: await element.getId()}
 }
 
-function transformSelector(selector: Selector): Selenium.Locator {
+export function transformSelector(selector: Selector): TransformedSelector {
   if (utils.types.isString(selector)) {
-    return {css: selector}
+    return {using: 'css selector', value: selector}
   } else if (utils.types.has(selector, ['type', 'selector'])) {
-    if (selector.type === 'css') return {css: selector.selector}
-    else if (selector.type === 'xpath') return {xpath: selector.selector}
+    if (selector.type === 'css') return {using: 'css selector', value: selector.selector}
+    else if (selector.type === 'xpath') return {using: 'xpath', value: selector.selector}
     else return {using: selector.type, value: selector.selector}
+  } else {
+    const method = Object.keys(selector).find(key => byHash.includes(key as any)) as typeof byHash[number]
+    if (method) {
+      const by = By[method]((<any>selector)[method])
+      return {using: by.using, value: by.value}
+    }
+    return selector as Selenium.By
   }
-  return selector
 }
 
 // #region TESTING
+
+export async function executeScript(driver: Driver, script: ((arg: any) => any) | string, arg: any): Promise<any> {
+  return driver.executeScript(script, arg)
+}
+export async function mainContext(driver: Driver): Promise<Driver> {
+  await driver.switchTo().defaultContent()
+  return driver
+}
+export async function parentContext(driver: Driver): Promise<Driver> {
+  if (process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3') {
+    const cmd = require('selenium-webdriver/lib/command')
+    await (driver as any).schedule(new cmd.Command(cmd.Name.SWITCH_TO_PARENT_FRAME))
+    return driver
+  }
+  await driver.switchTo().parentFrame()
+  return driver
+}
+export async function childContext(driver: Driver, element: Element): Promise<Driver> {
+  await driver.switchTo().frame(element)
+  return driver
+}
+export async function findElement(driver: Driver, selector: Selector): Promise<Element> {
+  try {
+    return await driver.findElement(transformSelector(selector))
+  } catch (err) {
+    if (err.name === 'NoSuchElementError') return null
+    else throw err
+  }
+}
+export async function findElements(driver: Driver, selector: Selector): Promise<Element[]> {
+  return driver.findElements(transformSelector(selector))
+}
 
 export async function visit(driver: Driver, url: string): Promise<void> {
   await driver.get(url)

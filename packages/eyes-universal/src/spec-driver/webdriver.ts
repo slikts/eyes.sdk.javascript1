@@ -1,7 +1,7 @@
 import type * as types from '@applitools/types'
 import type * as WD from 'webdriver'
-import WebDriver from 'webdriver'
 import * as utils from '@applitools/utils'
+import WebDriver from 'webdriver'
 
 export type Driver = WD.Client
 export type Element = {'element-6066-11e4-a52e-4f735466cecf': string}
@@ -32,29 +32,54 @@ function transformSelector(selector: Selector): [string, string] {
 export function isDriver(driver: any): driver is Driver {
   return utils.types.instanceOf(driver, 'Browser')
 }
-//TODO remove
-export function isContext(driver: any): driver is Driver {
-  return true
-}
 export function isElement(element: any): element is Element {
   return Boolean(element && extractElementId(element))
 }
 export function isSelector(selector: any): selector is Selector {
   if (!selector) return false
   return (
+    utils.types.isString(selector) ||
     utils.types.has(selector, ['type', 'selector']) ||
-    utils.types.has(selector, ['using', 'value']) ||
-    utils.types.isString(selector)
+    utils.types.has(selector, ['using', 'value'])
   )
 }
-export function transformDriver(options: WD.AttachOptions): Driver {
+export function transformDriver(driver: {
+  sessionId: string
+  serverUrl: string
+  capabilities: Record<string, any>
+}): Driver {
+  const url = new URL(driver.serverUrl)
+  const options: WD.AttachOptions = {
+    sessionId: driver.sessionId,
+    protocol: url.protocol ? url.protocol.replace(/:$/, '') : undefined,
+    hostname: url.hostname,
+    port: Number(url.port) || undefined,
+    path: url.pathname,
+    capabilities: driver.capabilities,
+    logLevel: 'silent',
+  }
+  if (!options.port) {
+    if (options.protocol === 'http') options.port = 80
+    if (options.protocol === 'https') options.port = 443
+  }
   return WebDriver.attachToSession(options)
+}
+export function transformElement(element: {elementId: string} | Element): Element {
+  if (utils.types.has(element, 'elementId')) {
+    return {'element-6066-11e4-a52e-4f735466cecf': element.elementId}
+  }
+  return element
 }
 export function isStaleElementError(error: any): boolean {
   if (!error) return false
-  error = error.originalError || error
-  return error instanceof Error && error.name === 'StaleElementReferenceError'
+  const errOrResult = error.originalError || error
+  return errOrResult instanceof Error && errOrResult.name === 'stale element reference'
 }
+
+// #endregion
+
+// #region COMMANDS
+
 export async function isEqualElements(driver: Driver, element1: Element, element2: Element): Promise<boolean> {
   if (!element1 || !element2) return false
   try {
@@ -63,11 +88,6 @@ export async function isEqualElements(driver: Driver, element1: Element, element
     return false
   }
 }
-
-// #endregion
-
-// #region COMMANDS
-
 export async function executeScript(driver: Driver, script: ((arg: any) => any) | string, arg: any): Promise<any> {
   script = utils.types.isFunction(script) ? `return (${script}).apply(null, arguments)` : script
   return driver.executeScript(script, [arg])
@@ -147,6 +167,8 @@ export async function takeScreenshot(driver: Driver): Promise<string> {
 
 // #endregion
 
+// #region TESTING
+
 const browserOptionsNames: Record<string, string> = {
   chrome: 'goog:chromeOptions',
   firefox: 'moz:firefoxOptions',
@@ -195,3 +217,5 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
   const driver = await WebDriver.newSession(options)
   return [driver, () => driver.deleteSession()]
 }
+
+// #endregion

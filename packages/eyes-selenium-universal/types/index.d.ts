@@ -1802,7 +1802,11 @@ export type RegionPlain = LocationPlain & RectangleSizePlain;
 
 export type RunnerOptionsPlain = {testConcurrency?: number};
 
-export type Selector = import('selenium-webdriver').Locator | string | {type: string; selector: string};
+export type Selector =
+  | import('selenium-webdriver').By
+  | import('selenium-webdriver').ByHash
+  | string
+  | {type: string; selector: string};
 
 export type SessionUrlsPlain = {readonly batch?: string; readonly session?: string};
 

@@ -2,11 +2,10 @@ import type * as types from '@applitools/types'
 import type {Socket} from './socket'
 import type {Driver, Context, Element, Selector} from './spec-driver'
 import {makeSDK} from '@applitools/eyes-sdk-core'
+import {makeSpec, webdriverSpec} from './spec-driver'
 import {makeHandler} from './handler'
 import {makeSocket} from './socket'
-import {makeSpec} from './spec-driver'
 import {makeRefer} from './refer'
-import * as webdriverSpec from './spec-driver-webdriver'
 
 const IDLE_TIMEOUT = 900000 // 15min
 
@@ -20,6 +19,7 @@ export async function makeServer({idleTimeout = IDLE_TIMEOUT, ...serverConfig} =
   let idle = setTimeout(() => server.close(), idleTimeout)
 
   server.on('connection', client => {
+    const refer = makeRefer()
     const socket = makeSocket(client) as Socket & types.ServerSocket<Driver, Context, Element, Selector>
 
     clearTimeout(idle)
@@ -28,11 +28,9 @@ export async function makeServer({idleTimeout = IDLE_TIMEOUT, ...serverConfig} =
       idle = setTimeout(() => server.close(), idleTimeout)
     })
 
-    const refer = makeRefer()
-    const init = new Promise<types.Core<any, any, any>>(resolve => {
+    const init = new Promise<types.Core<Driver, Element, Selector>>(resolve => {
       socket.once('Session.init', ({name, version, commands, protocol}) => {
-        console.log(protocol)
-        const sdk = makeSDK<any, any, any, any>({
+        const sdk = makeSDK<Driver, Context, Element, Selector>({
           name: `eyes-universal/${name}`,
           version: `${require('../package.json').version}/${version}`,
           spec: protocol === 'webdriver' ? webdriverSpec : makeSpec({socket, commands}),
@@ -43,7 +41,6 @@ export async function makeServer({idleTimeout = IDLE_TIMEOUT, ...serverConfig} =
     })
 
     socket.command('Core.makeManager', async config => {
-      console.log('here')
       const sdk = await init
       const manager = await sdk.makeManager(config)
       return refer.ref(manager)

@@ -26,7 +26,7 @@
   },
   "main": "./index.js",
   "bin": {
-    "eyes-universal": "./dist/cli"
+    "eyes-universal": "./dist/cli.js"
   },
   "directories": {
     "lib": "./src",
