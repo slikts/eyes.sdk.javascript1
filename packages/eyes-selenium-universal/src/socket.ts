@@ -72,7 +72,7 @@ export class Socket {
     this.ref()
     return new Promise((resolve, reject) => {
       const key = utils.general.guid()
-      // console.log(`${'[REQUEST]'} ${name}, ${key}, ${JSON.stringify(payload, null, 2)}`)
+      console.log(`${'[REQUEST]'} ${name}, ${key}, ${JSON.stringify(payload, null, 2)}`)
       this.emit(name, payload, key)
       this.once({name, key}, response => {
         this.unref()
