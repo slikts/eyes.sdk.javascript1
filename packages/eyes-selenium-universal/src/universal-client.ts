@@ -23,6 +23,7 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
     console.log('server was created')
     // specific to JS: we are able to listen to stdout for the first line, then we know the server is up, and we even can get its port in case it wasn't passed
     this._server.stdout.once('data', data => {
+      console.log(String(data))
       this._server.stdout.destroy()
       const [port] = String(data).split('\n', 1)
       console.log('connecting to ', port)
