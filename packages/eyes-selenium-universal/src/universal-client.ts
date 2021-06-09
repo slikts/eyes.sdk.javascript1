@@ -14,27 +14,18 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
   private _socket: ClientSocket
 
   constructor() {
-    console.log('UniversalClient ctor')
     this._socket = new Socket()
-    this._server = spawn(`./node_modules/.bin/eyes-universal`, ['--port=2107'], {
+    this._server = spawn(`node ./node_modules/@applitools/eyes-universal/dist/cli.js`, ['--port=2107'], {
       detached: true,
-      stdio: ['pipe', 'pipe', 'ignore'],
-    })
-    this._server.stdout.on('data', data => {
-      console.log('stdio', String(data))
-    })
-
-    this._server.stderr.on('data', data => {
-      console.log('stderr', String(data))
+      stdio: ['ignore', 'pipe', 'ignore'],
     })
     // specific to JS: we are able to listen to stdout for the first line, then we know the server is up, and we even can get its port in case it wasn't passed
-    // this._server.stdout.once('data', data => {
-    //   this._server.stdout.destroy()
-    //   const [port] = String(data).split('\n', 1)
-    //   console.log('connecting to ', port)
-    //   this._socket.connect(`http://localhost:${port}/eyes`)
-    //   this._socket.emit('Session.init', {protocol: 'webdriver'})
-    // })
+    this._server.stdout.once('data', data => {
+      this._server.stdout.destroy()
+      const [port] = String(data).split('\n', 1)
+      this._socket.connect(`http://localhost:${port}/eyes`)
+      this._socket.emit('Session.init', {protocol: 'webdriver'})
+    })
     // important: this allows the client process to exit without hanging, while the server process still runs
     this._server.unref()
     this._socket.unref()
