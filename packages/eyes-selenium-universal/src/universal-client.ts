@@ -15,7 +15,7 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
 
   constructor() {
     this._socket = new Socket()
-    this._server = spawn(`node ./node_modules/@applitools/eyes-universal/dist/cli.js`, ['--port=2107'], {
+    this._server = spawn(`./node_modules/@applitools/eyes-universal/dist/cli.js`, ['--port=2107'], {
       detached: true,
       stdio: ['ignore', 'pipe', 'ignore'],
     })
