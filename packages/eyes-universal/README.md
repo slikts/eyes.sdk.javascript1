@@ -71,6 +71,8 @@ The main purpose of client implementation (*Client*) is to provide a language bi
 
 For the *Client* to be able to communicate with the *Server* it has to implement [WebSocket Client](#WebSocket) communication layer. Through the WebSocket channel *Client* could send commands to the *Server* in order to perform any operations, at the same time *Server* will send commands to the *Client* in order to automate an environment. *Client* has to implement a set of commands ([SpecDriver](#SpecDriver)) and perform those commands when *Server* will ask for it. Since the execution of any command requires knowing about the context this command should be executed in, *Client* should pass some context references to the *Server*. To solve this problem *Client* have to implement a [Refer](#Refer) mechanism. Refer should help *Client* to send non-serializable data to the server, and when this data will be received back from the server easily deref it to the original non-serializable object.
 
+In case of using WebDrive based framework on the *Client*, implementation of a ([SpecDriver](#SpecDriver)) could be avoided as well as a [Refer](#Refer)  implementation. This simplification could be achieved by providing information about WebDriver automation session instead of the driver, also it requires to provide element ids instead of the elements. Since all of the non-serializable objects are replaced with a serializable data object the need in [Refer](#Refer) is eliminated.
+
 The biggest part of the client implementation is the actual user-facing [API layer](#API), it should not contain any specific logic, but only perform some input data validation, collecting, and processing before these data will be sent to the server. API layer should not have any binding to the automation framework it should be used with, it will help to re-use API layer for different frameworks.
 
 ## WebSocket
@@ -128,7 +130,8 @@ This event has to be sent in the first place just after a connection between *Cl
 {
   name: string, // name of the client sdk
   version: string, // version of the client sdk
-  commands: string[] // array of command names that could be processed by the client sdk
+  commands?: string[], // array of command names that could be processed by the client sdk
+  protocol?: 'webdriver' // the name of the prebuilt server-side spec driver
 }
 ```
 
