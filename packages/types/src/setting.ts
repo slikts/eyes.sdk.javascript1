@@ -95,7 +95,7 @@ export type LocateSettings<TLocator extends string> = {
 }
 
 export type CloseBatchesSettings = {
-  batchIds: string
+  batchIds: string[]
   serverUrl?: string
   apiKey?: string
   proxy?: Proxy
