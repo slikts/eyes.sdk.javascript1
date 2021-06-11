@@ -10,32 +10,31 @@ import {Socket} from './socket'
 type ClientSocket = Socket & types.ClientSocket<types.Ref<Driver>, types.Ref<Context>, types.Ref<Element>, Selector>
 
 export class UniversalClient implements types.Core<Driver, Element, Selector> {
-  private _server: ChildProcess
   private _socket: ClientSocket
   private _refer: Refer<Driver | Context | Element>
+  private _server: ChildProcess
 
   constructor() {
-    this._server = spawn(`./node_modules/@applitools/eyes-universal/bin/cli-macos`, ['--port=2107'], {
-      detached: true,
-      stdio: ['ignore', 'pipe', 'ignore'],
-    })
     this._socket = new Socket()
     this._refer = new Refer((value: any): value is Driver | Context | Element => {
       return spec.isDriver(value) || spec.isContext(value) || spec.isElement(value)
     })
-
-    this._server.on('error', (...a) => console.log('ERROR IN SERVER', a))
-
-    this._server.unref() // important: this allows the client process to exit without hanging, while the server process still runs
+    this._server = spawn('node', ['./node_modules/@applitools/eyes-universal/dist/cli.js', '--port=2107'], {
+      detached: true,
+      stdio: ['ignore', 'pipe', 'ignore'],
+    })
 
     // specific to JS: we are able to listen to stdout for the first line, then we know the server is up, and we even can get its port in case it wasn't passed
     this._server.stdout.once('data', data => {
       this._server.stdout.destroy()
       const [port] = String(data).split('\n', 1)
       this._socket.connect(`http://localhost:${port}/eyes`)
-      this._socket.unref() // important: this allows the client process to exit without hanging, while the server process still runs
       this._socket.emit('Session.init', {commands: Object.keys(spec)})
     })
+
+    // important: this allows the client process to exit without hanging, while the server process still runs
+    this._server.unref()
+    this._socket.unref()
 
     this._socket.command('Driver.isEqualElements', async ({context, element1, element2}) => {
       return spec.isEqualElements(this._refer.deref(context), this._refer.deref(element1), this._refer.deref(element2))
@@ -79,6 +78,9 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
     this._socket.command('Driver.getUrl', async ({driver}) => {
       return spec.getUrl(this._refer.deref(driver))
     })
+    this._socket.command('Driver.visit', async ({driver, url}) => {
+      return spec.visit(this._refer.deref(driver), url)
+    })
   }
 
   isDriver(driver: any): driver is Driver {
@@ -119,6 +121,10 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
 
   async deleteTest(options: any): Promise<void> {
     return this._socket.request('Core.deleteTest', options)
+  }
+
+  async checkSpecDriver({driver}: {driver: Driver}): Promise<any[]> {
+    return this._socket.request('Debug.checkSpecDriver', {commands: Object.keys(spec), driver: this._refer.ref(driver)})
   }
 
   // for testing purposes

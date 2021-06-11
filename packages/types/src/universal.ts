@@ -139,6 +139,8 @@ export interface ClientSocket<TDriver, TContext, TElement, TSelector> {
   command(name: 'Driver.getUrl', handler: (options: {driver: TDriver}) => Promise<string>): () => void
 
   command(name: 'Driver.takeScreenshot', handler: (options: {driver: TDriver}) => Promise<string>): () => void
+
+  command(name: 'Driver.visit', handler: (options: {driver: TDriver; url: string}) => Promise<void>): () => void
 }
 
 export interface ServerSocket<TDriver, TContext, TElement, TSelector> {
@@ -178,6 +180,8 @@ export interface ServerSocket<TDriver, TContext, TElement, TSelector> {
   request(name: 'Driver.getUrl', options: {driver: TDriver}): Promise<string>
 
   request(name: 'Driver.takeScreenshot', options: {driver: TDriver}): Promise<string>
+
+  request(name: 'Driver.visit', options: {driver: TDriver; url: string}): Promise<void>
 
   command(
     name: 'Core.makeManager',

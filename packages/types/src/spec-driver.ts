@@ -16,7 +16,7 @@ export interface SpecDriver<TDriver, TContext, TElement, TSelector> {
   mainContext(context: TContext): Promise<TContext>
   parentContext(context: TContext): Promise<TContext>
   childContext(context: TContext, element: TElement): Promise<TContext>
-  executeScript(context: TContext, script: (arg?: any) => any | string, arg?: any): Promise<any>
+  executeScript(context: TContext, script: ((arg?: any) => any) | string, arg?: any): Promise<any>
   findElement(context: TContext, selector: SpecSelector<TSelector>): Promise<TElement | null>
   findElements(context: TContext, selector: SpecSelector<TSelector>): Promise<TElement[]>
   takeScreenshot(driver: TDriver): Promise<Buffer | string>
@@ -29,4 +29,5 @@ export interface SpecDriver<TDriver, TContext, TElement, TSelector> {
   getWindowSize?(driver: TDriver): Promise<Size>
   setViewportSize?(driver: TDriver, size: Size): Promise<void>
   getViewportSize?(driver: TDriver): Promise<Size>
+  visit?(driver: TDriver, url: string): Promise<void>
 }

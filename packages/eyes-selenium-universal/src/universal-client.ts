@@ -6,6 +6,8 @@ import * as spec from './spec-driver'
 import {spawn} from 'child_process'
 import {Socket} from './socket'
 
+// TODO add logger to keep track of the requests
+
 type ClientSocket = Socket &
   types.ClientSocket<TransformedDriver, TransformedDriver, TransformedElement, TransformedSelector>
 
@@ -15,6 +17,7 @@ export class UniversalClient implements types.Core<Driver, Element, Selector> {
 
   constructor() {
     this._socket = new Socket()
+    // TODO change to ./node_modules/.bin/eyes-universal
     this._server = spawn(`node`, ['./node_modules/@applitools/eyes-universal/dist/cli.js', '--port=2107'], {
       detached: true,
       stdio: ['ignore', 'pipe', 'ignore'],

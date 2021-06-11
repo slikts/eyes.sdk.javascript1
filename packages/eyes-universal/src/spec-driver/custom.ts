@@ -95,6 +95,9 @@ export function makeSpec(options: {
     async setViewportSize(driver: Driver, size: types.Size): Promise<void> {
       return socket.request('Driver.setViewportSize', {driver, size})
     },
+    async visit(driver: Driver, url: string): Promise<void> {
+      return socket.request('Driver.visit', {driver, url})
+    },
     // #endregion
   }
 
