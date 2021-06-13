@@ -9,7 +9,7 @@ describe('ConfigUtils', () => {
   describe('getConfig()', () => {
     let prevEnv
     const logger = new Logger()
-    const configPath = path.resolve(__dirname, '..', '..', 'fixtures')
+    const configPath = path.resolve(__dirname, '../../fixtures')
 
     function getConfigAtConfigPath(args) {
       const cwd = process.cwd()
@@ -95,10 +95,10 @@ describe('ConfigUtils', () => {
 
     it('handles custom configPath', () => {
       const config = ConfigUtils.getConfig({
-        configPath: path.resolve(configPath, 'eyes.json'),
+        configPath,
         logger,
       })
-      const expectedConfig = {apiKey: 'default api key'}
+      const expectedConfig = {bla: 'kuku', it: 'works'}
       assert.deepStrictEqual(config, expectedConfig)
     })
 
