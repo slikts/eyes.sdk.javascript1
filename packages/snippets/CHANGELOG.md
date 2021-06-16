@@ -4,6 +4,10 @@
 ## Unreleased
 
 
+## 2.1.3 - 2021/3/11
+
+- fix exception thrown in getElementTranslateOffset [Trello](https://trello.com/c/duAwaupv)
+
 ## 2.1.1 - 2021/1/26
 
 - handle translated html elements during content size extracting

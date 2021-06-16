@@ -1,7 +1,8 @@
 const fs = require('fs')
 const path = require('path')
+const prettier = require('prettier')
 
-async function createTestFiles(tests, {outDir, ext, formatter}) {
+async function createTestFiles(tests, {outDir, ext, format}) {
   const targetDirectory = path.join(process.cwd(), outDir)
 
   fs.rmdirSync(targetDirectory, {recursive: true})
@@ -9,7 +10,7 @@ async function createTestFiles(tests, {outDir, ext, formatter}) {
 
   tests.forEach(async test => {
     const filePath = path.resolve(targetDirectory, `${test.key}${ext}`)
-    fs.writeFileSync(filePath, formatter ? await formatter(test.code) : test.code)
+    fs.writeFileSync(filePath, format ? await prettier.format(test.code, format) : test.code)
   })
 }
 
@@ -18,7 +19,13 @@ async function createTestMetaData(tests, {metaDir = '', pascalizeTests = true} =
   fs.mkdirSync(targetDirectory, {recursive: true})
 
   const meta = tests.reduce((meta, test) => {
-    const data = {isGeneric: true, name: test.group, skip: test.skip, skipEmit: test.skipEmit}
+    const data = {
+      isGeneric: true,
+      name: test.group,
+      skip: test.skip,
+      skipEmit: test.skipEmit,
+      api: test.api,
+    }
     if (test.config) {
       if (test.config.stitchMode) data.executionMode = test.config.stitchMode.toLowerCase()
       else if (test.vg) data.executionMode = 'visualgrid'

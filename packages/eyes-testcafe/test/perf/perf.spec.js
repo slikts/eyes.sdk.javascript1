@@ -1,7 +1,7 @@
 const path = require('path')
 const fs = require('fs')
 const {Eyes, Logger, FileLogHandler, VisualGridRunner} = require('../../index')
-const {testServer} = require('@applitools/sdk-shared')
+const {testServer} = require('@applitools/test-server')
 const logDir = path.join(__dirname, 'out', Date.now().toString())
 const NUMBER_OF_TESTS = 5
 const NUMBER_OF_APP_RESOURCES = 10
@@ -13,10 +13,7 @@ function generateTestAppFiles() {
   fs.mkdirSync(outputDir)
   let markup = 'hello world\n'
   Array.from({length: NUMBER_OF_APP_RESOURCES}).forEach((_entry, index) => {
-    fs.writeFileSync(
-      path.join(outputDir, `${index}.txt`),
-      new Array(BYTE_SIZE_OF_APP_RESOURCES).join('a'),
-    )
+    fs.writeFileSync(path.join(outputDir, `${index}.txt`), new Array(BYTE_SIZE_OF_APP_RESOURCES).join('a'))
     markup += `<object style="display: none;" width="300" height="300" type="text/plain" data="${index}.txt"></object>\n`
   })
   fs.writeFileSync(path.join(outputDir, `index.html`), markup)

@@ -1,6 +1,6 @@
 {
   "name": "@applitools/eyes-cypress",
-  "version": "3.20.1",
+  "version": "3.22.0",
   "main": "index.js",
   "license": "SEE LICENSE IN LICENSE",
   "bin": {
@@ -8,9 +8,9 @@
   },
   "scripts": {
     "render": "run(){ npx cypress run --config integrationFolder=test/fixtures/testApp/cypress/render,pluginsFile=test/fixtures/testApp/cypress/plugins/index-render.js,supportFile=test/fixtures/testApp/cypress/support/index-run.js --env url=$1; }; run",
-    "test:unit": "FORCE_COLOR=2 mocha --no-timeouts 'test/unit/**/*.test.js'",
+    "test:unit": "mocha --no-timeouts 'test/unit/**/*.test.js'",
     "test:it": "mocha --no-timeouts 'test/it/**/*.test.js'",
-    "test:e2e": "TERM=xterm mocha --no-timeouts 'test/e2e/**/*.test.js'",
+    "test:e2e": "mkdir -p test/fixtures/testAppCopies && mocha --no-timeouts 'test/e2e/**/*.test.js'",
     "lint": "eslint '**/*.js'",
     "test": "yarn test:unit && yarn test:it && yarn test:e2e && yarn lint",
     "cypress": "cd test/fixtures/testApp && cypress open --config integrationFolder=cypress/integration-play,pluginsFile=cypress/plugins/index-play.js,supportFile=cypress/support/index-play.js",
@@ -38,10 +38,9 @@
     "url": "git://github.com/applitools/eyes.sdk.javascript1.git"
   },
   "dependencies": {
-    "@applitools/dom-snapshot": "4.4.11",
+    "@applitools/dom-snapshot": "4.5.2",
     "@applitools/functional-commons": "1.6.0",
-    "@applitools/snaptdout": "1.0.1",
-    "@applitools/visual-grid-client": "15.6.0",
+    "@applitools/visual-grid-client": "15.8.7",
     "body-parser": "1.19.0",
     "chalk": "3.0.0",
     "cors": "2.8.5",
@@ -49,8 +48,11 @@
     "lodash.flatten": "4.4.0"
   },
   "devDependencies": {
+    "@applitools/scripts": "^1.0.0",
     "@applitools/sdk-release-kit": "0.13.0",
-    "@applitools/sdk-shared": "0.8.6",
+    "@applitools/sdk-shared": "0.9.3",
+    "@applitools/snaptdout": "1.0.1",
+    "@applitools/test-server": "1.0.3",
     "chai": "^4.2.0",
     "chai-spies": "^1.0.0",
     "cookie-parser": "^1.4.4",

@@ -1,43 +1,40 @@
-const {describe, it, before, after} = require('mocha');
+const {describe, it, before, after, beforeEach, afterEach} = require('mocha');
 const flatten = require('lodash.flatten');
 const {expect} = require('chai');
 const testStorybook = require('../util/testStorybook');
 const path = require('path');
-const testServer = require('@applitools/sdk-shared/src/run-test-server');
+const {testServerInProcess} = require('@applitools/test-server');
 const fakeEyesServer = require('../util/fakeEyesServer');
 const eyesStorybook = require('../../src/eyesStorybook');
 const generateConfig = require('../../src/generateConfig');
+const defaultConfig = require('../../src/defaultConfig');
 const {configParams: externalConfigParams} = require('@applitools/visual-grid-client');
 const {makeTiming} = require('@applitools/monitoring-commons');
 const logger = require('../util/testLogger');
 const testStream = require('../util/testStream');
 const {performance, timeItAsync} = makeTiming();
 const fetch = require('node-fetch');
+const snap = require('@applitools/snaptdout');
 
 describe('eyesStorybook', () => {
-  let closeStorybook;
+  let closeStorybook, closeTestServer;
   before(async () => {
     closeStorybook = await testStorybook({port: 9001});
+    closeTestServer = (await testServerInProcess({port: 7272})).close;
   });
+
   after(async () => {
+    await closeTestServer();
     await closeStorybook();
   });
 
-  let closeTestServer;
-  before(async () => {
-    closeTestServer = (await testServer({port: 7272})).close;
-  });
-  after(async () => {
-    await closeTestServer();
-  });
-
   let serverUrl, closeEyesServer;
-  before(async () => {
+  beforeEach(async () => {
     const {port, close} = await fakeEyesServer();
     closeEyesServer = close;
     serverUrl = `http://localhost:${port}`;
   });
-  after(async () => {
+  afterEach(async () => {
     await closeEyesServer();
   });
 
@@ -52,6 +49,7 @@ describe('eyesStorybook', () => {
         serverUrl,
         storybookUrl: 'http://localhost:9001',
         ...config,
+        browser: [{name: 'chrome', width: 800, height: 600}],
         // puppeteerOptions: {headless: false, devtools: true},
         // include: (() => {
         //   let counter = 0;
@@ -71,6 +69,7 @@ describe('eyesStorybook', () => {
       },
       {name: 'Button with-space yes-indeed/nested with-space yes: b yes-a b', isPassed: true},
       {name: 'Button with-space yes-indeed: a yes-a b', isPassed: true},
+      {name: 'Button: background color', isPassed: true},
       {name: 'Button: with some emoji', isPassed: true},
       {name: 'Button: with text', isPassed: true},
       {name: 'Image: image', isPassed: true},
@@ -120,6 +119,7 @@ describe('eyesStorybook', () => {
       'Button with-space yes-indeed: a yes-a b',
       'Button with-space yes-indeed/nested with-space yes: b yes-a b',
       'Button with-space yes-indeed/nested with-space yes/nested again-yes a: c yes-a b',
+      'Button: background color',
       'SOME section|Nested/Component: story 1.1',
       'SOME section|Nested/Component: story 1.2',
       'Wow|one with-space yes-indeed/nested with-space yes/nested again-yes a: c yes-a b',
@@ -134,6 +134,7 @@ describe('eyesStorybook', () => {
 
     expect(results.map(e => e.title).sort()).to.eql(expectedTitles.sort());
     results = flatten(results.map(r => r.resultsOrErr));
+
     expect(results.some(x => x instanceof Error)).to.be.false;
     expect(results).to.have.length(expectedResults.length);
 
@@ -145,7 +146,9 @@ describe('eyesStorybook', () => {
       const session = await fetch(sessionUrl).then(r => r.json());
       const {scenarioIdOrName} = session.startInfo;
       const [componentName, state] = scenarioIdOrName.split(':').map(s => s.trim());
+
       expect(session.startInfo.defaultMatchSettings.ignoreDisplacements).to.be.true;
+
       expect(session.startInfo.properties).to.eql([
         {name: 'Component name', value: componentName},
         {name: 'State', value: state.replace(/ \[.+\]$/, '')}, // strip off variation
@@ -171,6 +174,7 @@ describe('eyesStorybook', () => {
           coordinatesType: 'SCREENSHOT_AS_IS',
         },
       ]);
+
       expect(imageMatchSettings.floating).to.eql(floating);
       expect(imageMatchSettings.accessibility).to.eql(accessibility);
     }
@@ -181,11 +185,97 @@ describe('eyesStorybook', () => {
         .sort((a, b) => (a.name < b.name ? -1 : 1)),
     ).to.eql(expectedResults);
 
-    expect(getEvents().join('')).to.equal(`- Reading stories
-✔ Reading stories
-- Done 0 stories out of 19
-✔ Done 19 stories out of 19
-`);
+    await snap(getEvents().join(''), 'fake eyes');
+  });
+
+  it('enforces default concurrency', async () => {
+    const {stream} = testStream();
+    const configPath = path.resolve(__dirname, '../fixtures/applitools.config.js');
+    const config = generateConfig({argv: {conf: configPath}, defaultConfig, externalConfigParams});
+    await eyesStorybook({
+      config: {
+        ...config,
+        browser: [{name: 'chrome', width: 800, height: 600}],
+        serverUrl,
+        storybookUrl: 'http://localhost:9001',
+      },
+      logger,
+      performance,
+      timeItAsync,
+      outputStream: stream,
+    });
+
+    const {maxRunning} = await fetch(`${serverUrl}/api/usage`).then(r => r.json());
+    expect(maxRunning).to.equal(5); // TODO require from core
+  });
+
+  it('enforces testConcurrency', async () => {
+    const {stream} = testStream();
+    const configPath = path.resolve(__dirname, '../fixtures/applitools.config.js');
+    const config = generateConfig({argv: {conf: configPath}, defaultConfig, externalConfigParams});
+    await eyesStorybook({
+      config: {
+        ...config,
+        browser: [{name: 'chrome', width: 800, height: 600}],
+        serverUrl,
+        storybookUrl: 'http://localhost:9001',
+        testConcurrency: 3,
+      },
+      logger,
+      performance,
+      timeItAsync,
+      outputStream: stream,
+    });
+
+    const {maxRunning} = await fetch(`${serverUrl}/api/usage`).then(r => r.json());
+    expect(maxRunning).to.equal(3);
+  });
+
+  it('enforces testConcurrency over legacy concurrency', async () => {
+    const {stream} = testStream();
+    const configPath = path.resolve(__dirname, '../fixtures/applitools.config.js');
+    const config = generateConfig({argv: {conf: configPath}, defaultConfig, externalConfigParams});
+    await eyesStorybook({
+      config: {
+        ...config,
+        browser: [{name: 'chrome', width: 800, height: 600}],
+        serverUrl,
+        storybookUrl: 'http://localhost:9001',
+        testConcurrency: 3,
+        concurrency: 20,
+      },
+      logger,
+      performance,
+      timeItAsync,
+      outputStream: stream,
+    });
+
+    const {maxRunning} = await fetch(`${serverUrl}/api/usage`).then(r => r.json());
+    expect(maxRunning).to.equal(3);
+  });
+
+  it('enforces legacy concurrency', async () => {
+    const {stream} = testStream();
+    const configPath = path.resolve(
+      __dirname,
+      '../fixtures/applitools-legacy-concurrency.config.js',
+    );
+    const config = generateConfig({argv: {conf: configPath}, defaultConfig, externalConfigParams});
+    await eyesStorybook({
+      config: {
+        ...config,
+        browser: [{name: 'chrome', width: 800, height: 600}],
+        storybookUrl: 'http://localhost:9001',
+        serverUrl,
+      },
+      logger,
+      performance,
+      timeItAsync,
+      outputStream: stream,
+    });
+
+    const {maxRunning} = await fetch(`${serverUrl}/api/usage`).then(r => r.json());
+    expect(maxRunning).to.equal(10);
   });
 
   it('sends parentBranchBaselineSavedBefore when branchName and parentBranchName are specified, and there is a merge-base time for them', async () => {
@@ -203,6 +293,7 @@ describe('eyesStorybook', () => {
     let results = await eyesStorybook({
       config: {
         serverUrl,
+        browser: [{name: 'chrome', width: 800, height: 600}],
         storybookUrl: 'http://localhost:9001',
         ...config,
       },
@@ -236,6 +327,7 @@ describe('eyesStorybook', () => {
     let results = await eyesStorybook({
       config: {
         serverUrl,
+        browser: [{name: 'chrome', width: 800, height: 600}],
         storybookUrl: 'http://localhost:9001',
         ...config,
       },

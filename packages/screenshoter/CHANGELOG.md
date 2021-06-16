@@ -4,6 +4,19 @@
 ## Unreleased
 
 
+## 3.0.8 - 2021/5/24
+
+- updated to @applitools/utils@1.2.0 (from 1.1.3)
+
+## 3.0.7 - 2021/5/13
+
+fixed image cropping algorithm to not copy data into a heap
+optimized image rotation and image copping algorithms
+
+## 3.0.6 - 2021/5/11
+
+- updated to @applitools/utils@1.1.3 (from 1.0.1)
+
  ## 3.0.5 - 2021/2/18
 
 - fix bug with wrong stitching due to fractional offset 

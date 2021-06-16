@@ -54,6 +54,7 @@ function makeCheckWindow({
     visualGridOptions = _visualGridOptions,
     closeAfterMatch,
     throwEx = true,
+    variationGroupId,
   }) {
     const snapshots = Array.isArray(snapshot) ? snapshot : Array(browsers.length).fill(snapshot)
 
@@ -272,6 +273,7 @@ function makeCheckWindow({
         ignoreDisplacements,
         renderId,
         matchLevel,
+        variationGroupId,
       })
 
       logger.verbose(

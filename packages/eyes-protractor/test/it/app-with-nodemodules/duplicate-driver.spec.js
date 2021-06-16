@@ -3,14 +3,12 @@
 const fs = require('fs')
 const path = require('path')
 const {expect} = require('chai')
-const {Target} = require('../../..')
-const {
-  testSetup: {getEyes},
-} = require('@applitools/sdk-shared')
+const {Target} = require('../../../dist')
+const {setupEyes} = require('@applitools/test-utils')
 const ncp = require('ncp')
 const {promisify} = require('util')
 const pncp = promisify(ncp)
-const spec = require('../../../src/spec-driver')
+const spec = require('../../../dist/spec-driver')
 
 describe('JS Coverage tests', () => {
   it('works in a project with duplicate protractor', async () => {
@@ -20,12 +18,9 @@ describe('JS Coverage tests', () => {
     fs.mkdirSync(otherNodeModules)
 
     // copy protractor and selenium-webdriver into the new node_modules
+    await pncp(path.resolve(require.resolve('protractor'), '../..'), path.resolve(otherNodeModules, 'protractor'))
     await pncp(
-      path.resolve(require.resolve('protractor'), '../..'),
-      path.resolve(otherNodeModules, 'protractor'),
-    )
-    await pncp(
-      path.resolve(require.resolve('selenium-webdriver'), '..'), // eslint-disable-line node/no-extraneous-require,node/no-missing-require
+      path.resolve(require.resolve('selenium-webdriver'), '..'),
       path.resolve(otherNodeModules, 'selenium-webdriver'),
     )
 
@@ -45,7 +40,7 @@ describe('JS Coverage tests', () => {
       expect(spec.isElement(el)).to.be.true
 
       // verify that overall everything is working
-      const eyes = getEyes()
+      const eyes = setupEyes()
       await eyes.open(driver, 'Coverage tests', 'duplicate driver', {width: 800, height: 600})
       await eyes.check('', Target.window())
       await eyes.close(false)

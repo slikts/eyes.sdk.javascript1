@@ -2,9 +2,10 @@
 
 const path = require('path')
 const cwd = process.cwd()
-const spec = require(path.resolve(cwd, 'src/spec-driver'))
-const {Target} = require('../../index')
-const {testSetup, testServer} = require('@applitools/sdk-shared')
+const spec = require(path.resolve(cwd, 'dist/spec-driver'))
+const {Target} = require('../../dist')
+const {setupEyes} = require('@applitools/test-utils')
+const {testServer} = require('@applitools/test-server')
 let server, eyes
 
 fixture`DOMSnapshotSkipList`
@@ -13,12 +14,9 @@ fixture`DOMSnapshotSkipList`
     server = await testServer({
       port: 5558,
       staticPath,
-      middlewareFile: path.join(
-        cwd,
-        'node_modules/@applitools/sdk-shared/coverage-tests/util/ephemeral-middleware.js',
-      ),
+      middlewareFile: path.join(cwd, 'node_modules/@applitools/sdk-shared/coverage-tests/util/ephemeral-middleware.js'),
     })
-    eyes = testSetup.getEyes({vg: true})
+    eyes = setupEyes({vg: true})
   })
   .after(async () => {
     await server.close()

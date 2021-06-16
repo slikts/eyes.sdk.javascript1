@@ -5,7 +5,7 @@ const makeRenderingGridClient = require('../../src/sdk/renderingGridClient')
 const FakeEyesWrapper = require('../util/FakeEyesWrapper')
 const FakeRunningRender = require('../util/FakeRunningRender')
 const createFakeWrapper = require('../util/createFakeWrapper')
-const testServer = require('@applitools/sdk-shared/src/run-test-server')
+const {testServerInProcess} = require('@applitools/test-server')
 const {loadJsonFixture, loadFixtureBuffer} = require('../util/loadFixture')
 const {failMsg} = require('../../src/sdk/waitForRenderedStatus')
 const {promisify: p} = require('util')
@@ -36,7 +36,7 @@ describe('openEyes', () => {
   const appName = 'some app name'
 
   before(async () => {
-    const server = await testServer({port: 3454}) // TODO fixed port avoids 'need-more-resources' for dom. Is this desired? should both paths be tested?
+    const server = await testServerInProcess({port: 3454}) // TODO fixed port avoids 'need-more-resources' for dom. Is this desired? should both paths be tested?
     baseUrl = `http://localhost:${server.port}`
     closeServer = server.close
   })
@@ -1141,6 +1141,7 @@ Received: 'firefox-1'.`,
       ignoreBaseline: 'ignoreBaseline',
       browser: [{deviceName: 'device1'}, {deviceName: 'device2'}, {}],
       agentId: 'agentId',
+      agentRunId: 'agentRunId',
       batchNotify: true,
     })
 
@@ -1164,6 +1165,7 @@ Received: 'firefox-1'.`,
       expect(wrapper.serverUrl).to.equal('serverUrl')
       expect(wrapper.baseAgentId).to.equal('agentId')
       expect(wrapper.batch.getNotifyOnCompletion()).to.be.true
+      expect(wrapper.agentRunId).to.equal('agentRunId')
     }
 
     expect(wrappers[0].deviceInfo).to.equal('device1 (Chrome emulation)')

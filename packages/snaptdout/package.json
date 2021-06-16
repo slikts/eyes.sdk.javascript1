@@ -27,9 +27,12 @@
   },
   "devDependencies": {
     "@applitools/sdk-release-kit": "^0.13.0",
-    "mocha": "^8.2.1"
+    "mocha": "^8.3.2"
   },
   "dependencies": {
     "@applitools/snaptdout": "^1.0.1"
+  },
+  "publishConfig": {
+    "access": "restricted"
   }
 }

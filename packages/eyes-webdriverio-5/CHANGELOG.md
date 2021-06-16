@@ -2,7 +2,83 @@
 
 ## Unreleased
 
+
+## 5.31.8 - 2021/6/15
+
+- added full typescript support
+- introduced @applitools/eyes-api package with new api
+- updated to @applitools/eyes-api@1.0.5 (from 1.0.3)
+- updated to @applitools/eyes-sdk-core@12.21.1 (from 12.20.3)
+- updated to @applitools/visual-grid-client@15.8.11 (from 15.8.9)
+
+## 5.31.7 - 2021/6/8
+
+- updated to @applitools/eyes-sdk-core@12.20.3 (from 12.20.2)
+- updated to @applitools/visual-grid-client@15.8.9 (from 15.8.8)
+
+## 5.31.6 - 2021/6/1
+
+- add `getEyes` to the service
+- fix bug when configuration was not propagated in service
+- 
+- updated to @applitools/eyes-sdk-core@12.20.2 (from 12.20.1)
+- updated to @applitools/visual-grid-client@15.8.8 (from 15.8.7)
+
+## 5.31.5 - 2021/5/31
+
+- updated to @applitools/dom-snapshot@4.5.3 (from 4.5.2)
+- updated to @applitools/eyes-sdk-core@12.20.1 (from 12.20.0)
+
+## 5.31.4 - 2021/5/27
+
+- update domsnapshot
+
+## 5.31.3 - 2021/5/25
+
+- added support for wdio7
+- added full typescript support
+- introduced @applitools/eyes-api package with new api
+- updated to @applitools/eyes-api@1.0.3 (from 1.0.1)
+- updated to @applitools/eyes-sdk-core@12.20.0 (from 12.19.3)
+- updated to @applitools/utils@1.2.0 (from 1.1.3)
+- updated to @applitools/visual-grid-client@15.8.7 (from 15.8.6)
+
+## 5.31.2 - 2021/5/13
+
+- updated to @applitools/eyes-sdk-core@12.19.3 (from 12.19.2)
+- updated to @applitools/visual-grid-client@15.8.6 (from 15.8.5)
+
+## 5.31.1 - 2021/5/12
+
+- updated to @applitools/eyes-api@1.0.1 (from 1.0.0)
+- updated to @applitools/eyes-sdk-core@12.19.2 (from 12.19.1)
+- updated to @applitools/visual-grid-client@15.8.5 (from 15.8.4)
+
+## 5.31.0 - 2021/5/12
+
+- added support for wdio7
+- added full typescript support
+- introduced @applitools/eyes-api package with new api
+- updated to @applitools/eyes-api@1.0.0 (from 0.0.2)
+- updated to @applitools/eyes-sdk-core@12.19.1 (from 12.14.2)
+- updated to @applitools/utils@1.1.3 (from 1.1.0)
+- updated to @applitools/visual-grid-client@15.8.4 (from 15.5.14)
+
+## 5.30.0 - 2021/4/26
+
+- updated to @applitools/eyes-sdk-core@12.17.4 (from 12.16.3)
+- updated to @applitools/visual-grid-client@15.8.2 (from 15.6.4)
+
+## 5.29.8 - 2021/3/22
+
+- updated to @applitools/eyes-sdk-core@12.16.3 (from 12.16.2)
+- updated to @applitools/visual-grid-client@15.6.4 (from 15.6.3)
+
+## 5.29.7 - 2021/3/17
+
 - Ability to pass `throwEx` to `browser.eyesGetAllTestResults` in Eyes service
+- updated to @applitools/eyes-sdk-core@12.16.2 (from 12.14.8)
+- updated to @applitools/visual-grid-client@15.6.3 (from 15.5.21)
 
 ## 5.29.6 - 2021/2/4
 

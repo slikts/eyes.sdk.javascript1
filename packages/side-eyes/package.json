@@ -1,6 +1,6 @@
 {
   "name": "applitools-for-selenium-ide",
-  "version": "1.12.0",
+  "version": "1.12.1",
   "repository": "git@github.com:applitools/applitools-for-selenium-ide.git",
   "private": true,
   "scripts": {
@@ -88,7 +88,7 @@
   "dependencies": {
     "@applitools/dom-capture": "11.0.1",
     "@applitools/dom-snapshot": "4.4.11",
-    "@applitools/eyes-images": "4.18.1",
+    "@applitools/eyes-images": "4.19.1",
     "@applitools/visual-grid-client": "15.5.20",
     "buffer": "^5.2.1",
     "classnames": "^2.2.5",
@@ -101,7 +101,7 @@
     "react-dom": "^16.0.0",
     "react-modal": "^3.6.1",
     "react-tooltip": "^3.9.2",
-    "ua-parser-js": "^0.7.18",
+    "ua-parser-js": "^0.7.24",
     "webextension-polyfill": "0.3.1"
   },
   "resolutions": {

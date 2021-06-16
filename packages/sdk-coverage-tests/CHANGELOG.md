@@ -2,6 +2,29 @@
 
 ## Unreleased
 
+- fix path resolution
+
+## 2.3.13 - 2021/5/18
+
+- fix coverage report calculation
+
+## 2.3.12 - 2021/5/13
+
+- remove support of `initializeSdk` and `overrideTests` configuration properties
+- use cwd relative path to import files
+- add support for remote config
+- add integrated formatter
+- add support of `extends` property in config file, which could be used to extend configurations
+- allow `overrides` property to be not only path but also an object, or array with pathes and/or objects
+- provide better logging for report command
+
+## 2.3.11 - 2021/4/26
+
+- include custom tests in report
+
+## 2.3.9 - 2021/4/1
+
+- add `api` parameter to test object in bongo report
 
 ## 2.3.8 - 2021/2/23
 

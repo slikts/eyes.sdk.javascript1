@@ -3,6 +3,20 @@
 ## Unreleased
 
 
+## 4.21.0 - 2021/4/26
+
+- updated to @applitools/eyes-sdk-core@12.17.4 (from 12.17.0)
+
+## 4.20.0 - 2021/3/30
+
+- support `variantId` in checkSettings
+- updated to @applitools/eyes-sdk-core@12.17.0 (from 12.15.0)
+
+## 4.19.1 - 2021/3/11
+
+- fix: update getScreenshot to support the correct return type when performing a full page stitch ([Trello](https://trello.com/c/6oVADkSf))
+- updated to @applitools/eyes-sdk-core@12.15.0 (from 12.14.10)
+
 ## 4.19.0 - 2021/2/22
 
 - add `extractText` and `extractTextRegions` support
@@ -12,7 +26,7 @@
 
 - chore: add husky
 - updated to @applitools/eyes-sdk-core@12.13.5 (from 12.10.0)
-- updated to @applitools/eyes-sdk-core@12.13.5 (from 12.10.0)
+
 ## 4.18.0 - 2020/12/18
 
 - updated to @applitools/eyes-sdk-core@12.10.0 (from 12.9.1)

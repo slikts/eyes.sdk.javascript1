@@ -3,7 +3,7 @@ const puppeteer = require('puppeteer');
 const getStories = require('../dist/getStories');
 const {makeVisualGridClient} = require('@applitools/visual-grid-client');
 const {presult} = require('@applitools/functional-commons');
-const chalk = require('chalk');
+const chalk = require('./chalkify');
 const makeInitPage = require('./initPage');
 const makeRenderStory = require('./renderStory');
 const makeRenderStories = require('./renderStories');
@@ -17,7 +17,11 @@ const getIframeUrl = require('./getIframeUrl');
 const createPagePool = require('./pagePool');
 const getClientAPI = require('../dist/getClientAPI');
 const {takeDomSnapshots} = require('@applitools/eyes-sdk-core');
-const {Driver} = require('@applitools/eyes-puppeteer');
+const {makeDriver} = require('@applitools/driver');
+const spec = require('@applitools/eyes-puppeteer/dist/spec-driver');
+const {refineErrorMessage} = require('./errMessages');
+const {splitConfigsByBrowser} = require('./shouldRenderIE');
+const executeRenders = require('./executeRenders');
 
 const CONCURRENT_PAGES = 3;
 
@@ -29,6 +33,8 @@ async function eyesStorybook({
   outputStream = process.stderr,
 }) {
   let memoryTimeout;
+  let renderIE = false;
+  let transitioning = false;
   takeMemLoop();
   logger.log('eyesStorybook started');
   const {storybookUrl, waitBeforeScreenshot, readStoriesTimeout, reloadPagePerStory} = config;
@@ -45,6 +51,7 @@ async function eyesStorybook({
   logger.log('browser launched');
   const page = await browser.newPage();
   const userAgent = await page.evaluate('navigator.userAgent');
+
   const {
     testWindow,
     closeBatch,
@@ -58,12 +65,18 @@ async function eyesStorybook({
     logger: logger.extend('vgc'),
   });
 
-  const initPage = makeInitPage({iframeUrl, config, browser, logger});
-
+  const initPage = makeInitPage({
+    iframeUrl,
+    config,
+    browser,
+    logger,
+    getTransitiongIntoIE,
+    getRenderIE,
+  });
   const pagePool = createPagePool({initPage, logger});
 
   const doTakeDomSnapshots = async ({page, layoutBreakpoints}) => {
-    const driver = new Driver(logger, page);
+    const driver = makeDriver(spec, logger, page);
     const skipResources = getResourceUrlsInCache();
     const result = await takeDomSnapshots({
       logger,
@@ -87,7 +100,6 @@ async function eyesStorybook({
       logger.log(`master tab: ${text}`);
     },
   });
-
   try {
     const [stories] = await Promise.all(
       [getStoriesWithSpinner()].concat(
@@ -99,7 +111,6 @@ async function eyesStorybook({
     );
 
     const filteredStories = filterStories({stories, config});
-
     const storiesIncludingVariations = addVariationStories({stories: filteredStories, config});
 
     logger.log(`starting to run ${storiesIncludingVariations.length} stories`);
@@ -109,8 +120,8 @@ async function eyesStorybook({
       takeDomSnapshots: doTakeDomSnapshots,
       waitBeforeScreenshot,
     });
+
     const renderStory = makeRenderStory({
-      config,
       logger: logger.extend('renderStory'),
       testWindow,
       performance,
@@ -121,28 +132,39 @@ async function eyesStorybook({
     const renderStories = makeRenderStories({
       getStoryData,
       renderStory,
+      getClientAPI,
       storybookUrl,
       logger,
       stream: outputStream,
       waitForQueuedRenders: globalState.waitForQueuedRenders,
       storyDataGap: config.storyDataGap,
       pagePool,
-      getClientAPI,
     });
 
     logger.log('finished creating functions');
 
+    const configs = splitConfigsByBrowser(config);
     const [error, results] = await presult(
-      timeItAsync('renderStories', () => renderStories(storiesIncludingVariations)),
+      executeRenders({
+        renderStories,
+        setRenderIE,
+        setTransitioningIntoIE,
+        configs,
+        stories: storiesIncludingVariations,
+        pagePool,
+        logger,
+        timeItAsync,
+      }),
     );
 
     const [closeBatchErr] = await presult(closeBatch());
+
     if (closeBatchErr) {
       logger.log('failed to close batch', closeBatchErr);
     }
 
     if (error) {
-      const msg = refineErrorMessage({prefix: 'Error in renderStories:', error});
+      const msg = refineErrorMessage({prefix: 'Error in executeRenders:', error});
       logger.log(error);
       throw new Error(msg);
     } else {
@@ -153,11 +175,6 @@ async function eyesStorybook({
     logger.log('perf results', performance);
     await browser.close();
     clearTimeout(memoryTimeout);
-  }
-
-  function takeMemLoop() {
-    logger.log(memoryLog(process.memoryUsage()));
-    memoryTimeout = setTimeout(takeMemLoop, 30000);
   }
 
   async function getStoriesWithSpinner() {
@@ -217,8 +234,25 @@ async function eyesStorybook({
     return stories;
   }
 
-  function refineErrorMessage({prefix, error}) {
-    return `${prefix} ${error.message.replace('Evaluation failed: ', '')}`;
+  function takeMemLoop() {
+    logger.log(memoryLog(process.memoryUsage()));
+    memoryTimeout = setTimeout(takeMemLoop, 30000);
+  }
+
+  function getRenderIE() {
+    return renderIE;
+  }
+
+  function setRenderIE(value) {
+    renderIE = value;
+  }
+
+  function setTransitioningIntoIE(value) {
+    transitioning = value;
+  }
+
+  function getTransitiongIntoIE() {
+    return transitioning;
   }
 }
 

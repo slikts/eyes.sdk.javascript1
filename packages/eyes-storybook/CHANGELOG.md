@@ -3,6 +3,53 @@
 ## Unreleased
 
 
+## 3.22.3 - 2021/6/1
+
+- fix browser config
+- updated to @applitools/dom-snapshot@4.5.3 (from 4.5.0)
+- updated to @applitools/eyes-sdk-core@12.20.2 (from 12.20.1)
+- updated to @applitools/visual-grid-client@15.8.8 (from 15.8.7)
+
+## 3.22.2 - 2021/5/11
+
+- fix ie browser name
+
+## 3.22.1 - 2021/5/5
+
+- fix no browser config storybook
+
+## 3.22.0 - 2021/5/2
+
+- render on fake IE browser
+- updated to @applitools/eyes-puppeteer@1.6.0 (from 1.4.3)
+- updated to @applitools/eyes-sdk-core@12.17.4 (from 12.17.2)
+- updated to @applitools/visual-grid-client@15.8.2 (from 15.8.0)
+
+## 3.21.0 - 2021/4/22
+
+- updated to @applitools/dom-snapshot@4.5.0 (from 4.4.14)
+- updated to @applitools/eyes-sdk-core@12.17.2 (from 12.16.2)
+- updated to @applitools/visual-grid-client@15.8.0 (from 15.6.3)
+
+## 3.20.2 - 2021/3/22
+
+- Fix regression with `concurrency` that was introduced in version 3.17.1
+
+## 3.20.1 - 2021/3/17
+
+- Handle story parameters with circular reference better
+
+  ## 3.20.0 - 2021/3/17
+
+ - added runAfter hook 
+- updated to @applitools/dom-snapshot@4.4.14 (from 4.4.11)
+- updated to @applitools/eyes-sdk-core@12.16.2 (from 12.15.0)
+- updated to @applitools/visual-grid-client@15.6.3 (from 15.6.0)
+
+## 3.19.0 - 2021/3/4
+
+- support passing a string or regex to the include configuration
+
 ## 3.18.0 - 2021/2/26
 
 - support `ignoreGitMergeBase`

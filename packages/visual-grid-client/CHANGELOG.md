@@ -3,6 +3,81 @@
 ## Unreleased
 
 
+## 15.8.11 - 2021/6/15
+
+- updated to @applitools/eyes-sdk-core@12.21.1 (from 12.21.0)
+
+## 15.8.10 - 2021/6/15
+
+- updated to @applitools/eyes-sdk-core@12.21.0 (from 12.20.3)
+
+## 15.8.9 - 2021/6/8
+
+- updated to @applitools/eyes-sdk-core@12.20.3 (from 12.20.2)
+
+## 15.8.8 - 2021/6/1
+
+- updated to @applitools/eyes-sdk-core@12.20.2 (from 12.20.0)
+
+## 15.8.7 - 2021/5/24
+
+- updated to @applitools/eyes-sdk-core@12.20.0 (from 12.19.3)
+
+## 15.8.6 - 2021/5/13
+
+- updated to @applitools/eyes-sdk-core@12.19.3 (from 12.19.2)
+
+## 15.8.5 - 2021/5/12
+
+- updated to @applitools/eyes-sdk-core@12.19.2 (from 12.19.1)
+
+## 15.8.4 - 2021/5/11
+
+- updated to @applitools/eyes-sdk-core@12.19.1 (from 12.19.0)
+
+## 15.8.3 - 2021/5/11
+
+- updated to @applitools/eyes-sdk-core@12.19.0 (from 12.17.4)
+
+## 15.8.2 - 2021/4/26
+
+- rename `variantId` to `variationGroupId`
+- updated to @applitools/eyes-sdk-core@12.17.4 (from 12.17.2)
+
+## 15.8.1 - 2021/4/22
+
+- fix types for eyes open
+
+## 15.8.0 - 2021/4/22
+
+- added support for batch properties
+
+## 15.7.1 - 2021/4/6
+
+- updated to @applitools/eyes-sdk-core@12.17.2 (from 12.17.0)
+
+## 15.7.0 - 2021/3/29
+
+- support `agentRunId`
+- support `variantId`
+- updated to @applitools/eyes-sdk-core@12.17.0 (from 12.16.3)
+
+## 15.6.4 - 2021/3/22
+
+- updated to @applitools/eyes-sdk-core@12.16.3 (from 12.16.2)
+
+## 15.6.3 - 2021/3/17
+
+- updated to @applitools/jsdom@1.0.3 (from 1.0.2)
+
+## 15.6.2 - 2021/3/16
+
+- updated to @applitools/eyes-sdk-core@12.16.2 (from 12.16.1)
+
+## 15.6.1 - 2021/3/15
+
+- updated to @applitools/eyes-sdk-core@12.16.1 (from 12.15.0)
+
 ## 15.6.0 - 2021/2/26
 
 - support `ignoreGitMergeBase`

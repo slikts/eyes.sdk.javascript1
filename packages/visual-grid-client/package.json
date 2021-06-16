@@ -1,6 +1,6 @@
 {
   "name": "@applitools/visual-grid-client",
-  "version": "15.6.0",
+  "version": "15.8.11",
   "description": "",
   "keywords": [
     "applitools",
@@ -31,11 +31,11 @@
     "index.d.ts"
   ],
   "dependencies": {
-    "@applitools/eyes-sdk-core": "12.15.0",
+    "@applitools/eyes-sdk-core": "12.21.1",
     "@applitools/functional-commons": "1.6.0",
     "@applitools/http-commons": "2.4.3",
     "@applitools/isomorphic-fetch": "3.0.0",
-    "@applitools/jsdom": "1.0.2",
+    "@applitools/jsdom": "1.0.3",
     "abort-controller": "3.0.0",
     "chalk": "3.0.0",
     "he": "1.2.0",
@@ -49,9 +49,10 @@
     "@applitools/jsdom": false
   },
   "devDependencies": {
-    "@applitools/dom-snapshot": "4.4.11",
+    "@applitools/dom-snapshot": "4.5.3",
     "@applitools/sdk-release-kit": "0.13.0",
-    "@applitools/sdk-shared": "0.8.6",
+    "@applitools/test-server": "1.0.3",
+    "@applitools/test-utils": "1.0.3",
     "chai": "^4.2.0",
     "chai-spies": "^1.0.0",
     "chai-uuid": "^1.0.6",
@@ -75,20 +76,19 @@
   },
   "scripts": {
     "lint": "eslint . --ext .js",
+    "render": "node example/render.js",
+    "build:browser": "cd test/fixtures/test-app && yarn install --focused && yarn build",
+    "test": "yarn build:browser && yarn test:mocha",
     "test:mocha": "mocha --no-timeouts --parallel --jobs 15 \"test/**/*.test.js\"",
     "test:sanity": "mocha --no-timeouts 'test/!(browser||e2e)/**/*.test.js'",
     "test:unit": "mocha --no-timeouts \"test/unit/**/*.test.js\"",
     "test:it": "mocha --no-timeouts \"test/it/**/*.test.js\"",
     "test:e2e": "mocha --no-timeouts \"test/e2e/**/*.test.js\"",
-    "build:browser": "cd test/fixtures/test-app && yarn install --focused && yarn build",
     "test:browser": "mocha --no-timeouts 'test/browser/**/*.test.js'",
-    "prepublish:setup": "echo 'no setup'",
-    "test": "yarn build:browser && yarn test:mocha",
-    "render": "node example/render.js",
-    "preversion": "bongo preversion && yarn test",
+    "deps": "bongo deps",
+    "preversion": "bongo preversion",
     "version": "bongo version",
-    "postversion": "bongo postversion --skip-release-notification",
-    "deps": "bongo deps"
+    "postversion": "bongo postversion --skip-release-notification"
   },
   "license": "SEE LICENSE IN LICENSE",
   "engines": {

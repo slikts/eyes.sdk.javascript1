@@ -32,6 +32,7 @@ describe('CheckSettings', () => {
       visualGridOptions: {polyfillAdoptedStyleSheets: true},
       layoutBreakpoints: true,
       disableBrowserFetching: true,
+      variationGroupId: 'variant-id',
     }
     const checkSettings = CheckSettings.from(object)
 
@@ -57,6 +58,7 @@ describe('CheckSettings', () => {
       .visualGridOption('polyfillAdoptedStyleSheets', true)
       .layoutBreakpoints()
       .disableBrowserFetching()
+      .variationGroupId('variant-id')
 
     assert.deepStrictEqual(checkSettings, checkSettings2)
   })

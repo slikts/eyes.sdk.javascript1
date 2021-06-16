@@ -1,7 +1,5 @@
 'use strict'
-const Location = require('../geometry/Location')
 const RectangleSize = require('../geometry/RectangleSize')
-const Region = require('../geometry/Region')
 const MutableImage = require('../images/MutableImage')
 const UserAgent = require('../useragent/UserAgent')
 const EyesUtils = require('./EyesUtils')
@@ -81,11 +79,13 @@ class EyesDriver {
   constructor(logger, driver) {
     if (driver instanceof EyesDriver) {
       return driver
-    } else if (this.spec.isDriver(driver)) {
-      /** @type {TDriver} */
-      this._driver = this.spec.transformDriver ? this.spec.transformDriver(driver) : driver
     } else {
-      throw new TypeError('EyesDriver constructor called with argument of unknown type!')
+      driver = this.spec.transformDriver ? this.spec.transformDriver(driver) : driver
+      if (!this.spec.isDriver(driver)) {
+        throw new TypeError('EyesDriver constructor called with argument of unknown type!')
+      }
+      /** @type {TDriver} */
+      this._driver = driver
     }
 
     /** @type {Logger} */
@@ -192,12 +192,13 @@ class EyesDriver {
       this._platformVersion = info.platformVersion
       this._browserName = info.browserName
       this._browserVersion = info.browserVersion
-
-      if (!this._isNative) {
-        this._userAgentString = await EyesUtils.getUserAgent(this._logger, this)
-        this._userAgent = UserAgent.parseUserAgentString(this._userAgentString, true)
-      }
     }
+
+    if (!this._isNative) {
+      this._userAgentString = await EyesUtils.getUserAgent(this._logger, this)
+      this._userAgent = UserAgent.parseUserAgentString(this._userAgentString, true)
+    }
+
     if (this._userAgent) {
       if (!this._isMobile) this._isMobile = ['iOS', 'Android'].includes(this._userAgent.getOS())
       if (!this._platformName) this._platformName = this._userAgent.getOS()
@@ -446,26 +447,24 @@ class EyesDriver {
   /**
    * @return {Promise<Region>}
    */
-  async getWindowRect() {
-    const {x = 0, y = 0, width, height} = this.spec.getWindowRect
-      ? await this.spec.getWindowRect(this._driver)
+  async getWindowSize() {
+    const size = this.spec.getWindowSize
+      ? await this.spec.getWindowSize(this._driver)
       : await this.spec.getViewportSize(this._driver)
-    return new Region({left: x, top: y, width, height})
+    return new RectangleSize(size)
   }
   /**
    * @param {PlainRegion | Region} rect
    * @return {Promise<void>}
    */
-  async setWindowRect(rect) {
-    if (rect instanceof Location || rect instanceof RectangleSize) {
-      rect = rect.toJSON()
-    } else if (rect instanceof Region) {
-      rect = {x: rect.getLeft(), y: rect.getTop(), width: rect.getWidth(), height: rect.getHeight()}
+  async setWindowSize(size) {
+    if (size instanceof RectangleSize) {
+      size = size.toJSON()
     }
-    if (this.spec.setWindowRect) {
-      await this.spec.setWindowRect(this._driver, rect)
-    } else if (rect.width && rect.height) {
-      await this.spec.setViewportSize(this._driver, {width: rect.width, height: rect.height})
+    if (this.spec.setWindowSize) {
+      await this.spec.setWindowSize(this._driver, size)
+    } else {
+      await this.spec.setViewportSize(this._driver, size)
     }
   }
   /**

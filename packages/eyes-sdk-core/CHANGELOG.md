@@ -3,6 +3,100 @@
 ## Unreleased
 
 
+## 12.21.1 - 2021/6/15
+
+- move `@applitools/types` to dependencies
+- updated to @applitools/types@1.0.3 (from 1.0.2)
+
+## 12.21.0 - 2021/6/15
+
+- handle generated batch id from eyes-api
+
+## 12.20.3 - 2021/6/8
+
+- replace setWindowRect with setWindowSize in spec driver
+- fix errors thrown during `EyesVisualGrid::close`
+- updated to @applitools/driver@1.0.7 (from 1.0.6)
+
+## 12.20.2 - 2021/6/1
+
+- updated to @applitools/dom-snapshot@4.5.3 (from 4.5.2)
+
+## 12.20.1 - 2021/5/30
+
+- fix browser configuration for emulated device with `name` property
+- updated to @applitools/dom-snapshot@4.5.2 (from 4.5.1)
+
+## 12.20.0 - 2021/5/24
+
+- add wrappers to work with new internal api
+- updated to @applitools/driver@1.0.6 (from 1.0.5)
+- updated to @applitools/screenshoter@3.0.8 (from 3.0.7)
+
+## 12.19.3 - 2021/5/13
+
+- fixed image cropping algorithm to not copy data into a heap
+- updated to @applitools/screenshoter@3.0.7 (from 3.0.6)
+
+## 12.19.2 - 2021/5/12
+
+- updated to @applitools/dom-snapshot@4.5.1 (from 4.5.0)
+
+## 12.19.1 - 2021/5/11
+
+- updated to @applitools/driver@1.0.5 (from 1.0.4)
+- updated to @applitools/screenshoter@3.0.6 (from 3.0.5)
+
+## 12.19.0 - 2021/5/11
+
+- add wrappers to work with new internal api
+
+## 12.17.4 - 2021/4/25
+
+- fix `variationGroupId`
+
+## 12.17.3 - 2021/4/23
+
+- rename `variantId` to `variationGroupId`
+
+## 12.17.2 - 2021/4/6
+
+- updated to @applitools/dom-snapshot@4.5.0 (from 4.4.14)
+
+## 12.17.1 - 2021/3/30
+
+- remove `variantId` from configuration
+
+## 12.17.0 - 2021/3/29
+
+- support `agentRunId`
+- support `variantId`
+
+## 12.16.3 - 2021/3/22
+
+- fix mutable image round position
+
+## 12.16.2 - 2021/3/16
+
+- fix setViewportSize
+## 12.16.1 - 2021/3/15
+
+- updated to @applitools/dom-snapshot@4.4.14 (from 4.4.13)
+
+## 12.16.0 - 2021/3/15
+
+- support enablePatterns & useDom configuration options in checkSettings when running on the visual grid ([Trello](https://trello.com/c/QCK2xDlS))
+- updated to @applitools/dom-snapshot@4.4.13 (from 4.4.12)
+
+## 12.15.2 - 2021/3/11
+
+- updated to @applitools/snippets@2.1.3 (from 2.1.2)
+
+## 12.15.1 - 2021/3/11
+
+- updated to @applitools/dom-snapshot@4.4.12 (from 4.4.11)
+- updated to @applitools/snippets@2.1.2 (from 2.1.1)
+
 ## 12.15.0 - 2021/2/26
 
 - add config flag to disable git merge base ([Trello](https://trello.com/c/d390Si2t))

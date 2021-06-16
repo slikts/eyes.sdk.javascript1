@@ -1,10 +1,9 @@
 'use strict';
 const flatten = require('lodash.flatten');
-const chalk = require('chalk');
+const chalk = require('./chalkify');
 const {TestResultsError, TestResultsFormatter} = require('@applitools/eyes-sdk-core');
 const uniq = require('./uniq');
 const concurrencyMsg = require('./concurrencyMsg');
-const defaultConfig = require('./defaultConfig');
 
 function processResults({results = [], totalTime, testConcurrency}) {
   let outputStr = '\n';
@@ -79,7 +78,8 @@ function processResults({results = [], totalTime, testConcurrency}) {
     outputStr += `\n${seeDetailsStr}\nTotal time: ${Math.round(totalTime / 1000)} seconds\n`;
   }
 
-  if (Number(testConcurrency) === defaultConfig.testConcurrency) {
+  if (Number(testConcurrency) === 5) {
+    // TODO require from core
     outputStr += `\n${concurrencyMsg}\n`;
   }
 

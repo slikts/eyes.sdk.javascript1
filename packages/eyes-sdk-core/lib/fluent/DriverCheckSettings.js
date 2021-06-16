@@ -192,6 +192,8 @@ class CheckSettings {
     this._visualGridOptions = undefined
     /** @private @type {number[]|boolean} */
     this._layoutBreakpoints = undefined
+    /** @private @type {string} */
+    this._variationGroupId = undefined
   }
   /**
    * Create check settings from an object
@@ -287,6 +289,9 @@ class CheckSettings {
     if (object.isFully) {
       settings.fully(object.isFully)
     }
+    if (object.fully) {
+      settings.fully(object.fully)
+    }
     if (object.visualGridOptions) {
       Object.entries(object.visualGridOptions).forEach(([key, value]) => {
         settings.visualGridOption(key, value)
@@ -297,6 +302,9 @@ class CheckSettings {
     }
     if (object.disableBrowserFetching) {
       settings.disableBrowserFetching()
+    }
+    if (object.variationGroupId) {
+      settings.variationGroupId(object.variationGroupId)
     }
     return settings
   }
@@ -976,6 +984,14 @@ class CheckSettings {
   }
   getDisableBrowserFetching() {
     return this._disableBrowserFetching
+  }
+
+  variationGroupId(variationGroupId) {
+    this._variationGroupId = variationGroupId
+    return this
+  }
+  getVariationGroupId() {
+    return this._variationGroupId
   }
 
   /**

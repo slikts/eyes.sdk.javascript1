@@ -2,7 +2,43 @@
 
 ## Unreleased
 
-- chore: add husky
+- add script for linking
+
+## 0.9.3 - 2021/5/25
+
+- updated to @applitools/test-server@1.0.3 (from 1.0.1)
+- updated to @applitools/test-utils@1.0.3 (from 1.0.0)
+
+## 0.9.2 - 2021/5/23
+
+- fix handlebars middleware
+
+## 0.9.1 - 2021/5/23
+
+- move test-server and test-utils from dev deps to deps
+
+## 0.9.0 - 2021/5/23
+
+- decompose all of the logic to the separate packages
+- dedicate this package only to shared custom tests
+
+## 0.8.10 - 2021/5/11
+
+- fix path to the sdk
+
+## 0.8.9 - 2021/5/11
+
+- add script for linking
+
+## 0.8.8 - 2021/3/15
+
+- skip baseline test
+- skip baseline test
+## 0.8.7 - 2021/3/14
+
+- use latest selenium chrome
+- add husky hooks
+- updated to @applitools/sdk-coverage-tests@2.3.8 (from 2.3.3)
 
 ## 0.8.5 - 2021/1/11
 

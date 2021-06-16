@@ -70,10 +70,10 @@ describe('EyesVisualGrid', async () => {
     conf.addBrowser({deviceName: 'non-existent'})
     eyes.setConfiguration(conf)
     await eyes.open(driver, 'FakeApp', 'FakeTest')
+    expect(startSessionCalled).to.be.undefined
     await eyes.check({matchLevel: MatchLevel.Layout})
     const err = await eyes.close().catch(err => err)
     ServerConnector.prototype.startSession = origStartSession
-    expect(startSessionCalled).to.be.undefined
     expect(err.message).to.contain('failed to render screenshot')
   })
 
@@ -96,6 +96,17 @@ describe('EyesVisualGrid', async () => {
         -100,
       )}". error: SyntaxError: Unexpected number in JSON at position 1`,
     )
+  })
+
+  it('should populate agentRunId', async () => {
+    await eyes.open(driver, 'FakeApp', 'FakeTest')
+    await eyes.check()
+    const results = await eyes.close()
+    const session = await getSession(results, serverUrl)
+    const agentRunId = session.startInfo.agentRunId
+    const [testName, random] = agentRunId.split('--')
+    expect(testName).to.equal('FakeTest')
+    expect(random).to.have.length(10)
   })
 
   async function extractMatchSettings(results) {

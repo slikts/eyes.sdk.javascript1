@@ -1,16 +1,16 @@
 'use strict'
 const cwd = process.cwd()
 const path = require('path')
-const {getEyes} = require('../../../src/test-setup')
+const {setupEyes} = require('@applitools/test-utils')
 const {assertImages} = require('../../util/ApiAssertions')
-const spec = require(path.resolve(cwd, 'src/spec-driver'))
+const spec = require(path.resolve(cwd, 'dist/spec-driver'))
 const {MatchLevel} = require(cwd)
 const {testSetup, getCheckSettings} = require('./EyesDifferentRunners')
 
 describe('TestEyesDifferentRunners Selenium', () => {
   beforeEach(async function() {
     ;[this.webDriver, this.destroyDriver] = await spec.build({browser: 'chrome'})
-    this.eyes = await getEyes()
+    this.eyes = await setupEyes()
     this.eyes.setSaveNewTests(false)
     this.eyes.setSendDom(true)
     await this.eyes.open(this.webDriver, 'Top Sites', `Top Sites - ${this.currentTest.title}`, {

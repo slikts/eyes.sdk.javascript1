@@ -1,8 +1,8 @@
 'use strict'
 const cwd = process.cwd()
 const path = require('path')
-const {getEyes} = require('../../src/test-setup')
-const spec = require(path.resolve(cwd, 'src/spec-driver'))
+const {setupEyes} = require('@applitools/test-utils')
+const spec = require(path.resolve(cwd, 'dist/spec-driver'))
 const {Target} = require(cwd)
 
 describe('app viewport (@native @mobile @ios)', function() {
@@ -12,7 +12,7 @@ describe('app viewport (@native @mobile @ios)', function() {
       device: 'iPhone 11 Pro',
       app: 'https://applitools.bintray.com/Examples/HelloWorldiOS_1_0.zip',
     })
-    eyes = new getEyes()
+    eyes = new setupEyes()
   })
 
   afterEach(async () => {

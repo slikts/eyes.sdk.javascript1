@@ -57,6 +57,12 @@ function toCheckWindowConfiguration({checkSettings, configuration}) {
       checkSettings.getVisualGridOptions(),
       configuration.getVisualGridOptions(),
     ),
+    enablePatterns: TypeUtils.getOrDefault(
+      checkSettings.getEnablePatterns(),
+      configuration.getEnablePatterns(),
+    ),
+    useDom: TypeUtils.getOrDefault(checkSettings.getUseDom(), configuration.getUseDom()),
+    variationGroupId: checkSettings.getVariationGroupId(),
   }
 
   if (config.target === 'region') {

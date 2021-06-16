@@ -3,6 +3,38 @@
 ## Unreleased
 
 
+
+ ## 3.22.0 - 2021/5/27
+
+ - add the option to send , variationGroupId to checkwidnow
+- updated to @applitools/dom-snapshot@4.5.2 (from 4.5.0)
+- updated to @applitools/visual-grid-client@15.8.7 (from 15.8.4)
+
+## 3.21.1 - 2021/5/12
+
+- fix `accessibilityValidation`
+- remove the need for `experimentalRunEvents` in cypress >= `6.7.0`
+- updated to @applitools/visual-grid-client@15.8.4 (from 15.8.0)
+
+## 3.21.0 - 2021/4/22
+
+- updated to @applitools/dom-snapshot@4.5.0 (from 4.4.14)
+- updated to @applitools/visual-grid-client@15.8.0 (from 15.6.2)
+
+## 3.20.4 - 2021/3/17
+s
+- set explicit timeout for eyesCheckWindow [trello](https://trello.com/c/5Thz1QFs)
+- updated to @applitools/dom-snapshot@4.4.14 (from 4.4.13)
+- updated to @applitools/visual-grid-client@15.6.2 (from 15.6.0)
+
+## 3.20.3 - 2021/3/15
+
+- updated to @applitools/dom-snapshot@4.4.13 (from 4.4.11)
+
+## 3.20.2 - 2021/3/7
+
+- use snaptdout as dev dependency
+
 ## 3.20.1 - 2021/3/3
 
 - fix footer message formatting in test results

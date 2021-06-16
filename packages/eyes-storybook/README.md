@@ -19,6 +19,7 @@ Applitools Eyes SDK for [Storybook](http://storybook.js.org).
   * [Previous browser versions](#previous-browser-versions)
   * [Getting a screenshot of multiple browsers in parallel](#getting-a-screenshot-of-multiple-browsers-in-parallel)
   * [Device emulation](#device-emulation)
+  * [Faking IE Browser](#faking-ie-browser)
 - [Per component configuration](#per-component-configuration)
   * [`include`](#include)
   * [`variations`](#variations)
@@ -33,6 +34,7 @@ Applitools Eyes SDK for [Storybook](http://storybook.js.org).
   * [`accessibilityValidation`](#accessibilityvalidation)
   * [Parameters that cannot be set as an Advanced configuration](#parameters-that-cannot-be-set-as-an--advanced-configuration---advanced-configuration)
   * [`runBefore`](#runbefore)
+  * [`runAfter`](#runafter)
   * [`scriptHooks`](#scripthooks)
     + [beforeCaptureScreenshot](#beforecapturescreenshot)
   * [`layoutBreakpoints`](#layoutBreakpoints)
@@ -168,7 +170,7 @@ In addition to command-line arguments, it's possible to define the following con
 | `tapFilePath`             | undefined                   | Directory path of a results file. If set, then a [TAP](https://en.wikipedia.org/wiki/Test_Anything_Protocol#Specification) file is created in this directory, the file is created with the name eyes.tap and contains the Eyes test results. |
 | `xmlFilePath`             | undefined                   | Directory path of a results file. If set, then a [XUnit XML](https://google.github.io/rich-test-results/xunitxml) file is created in this directory, the file is created with the name eyes.xml and contains the Eyes test results. |
 | `waitBeforeScreenshot`    | undefined                   | Selector, function or timeout.<br/>If ```number``` then the argument is treated as time in milliseconds to wait before all screenshots.<br/>If ```string``` then the argument is treated as a selector for elements to wait for before all screenshots.<br/>If ```function```, then the argument is treated as a predicate to wait for before all screenshots.<br/><hr/>For per component configuration see [waitBeforeScreenshot.](#waitBeforeScreenshot)<br/>Note that we use Puppeteer's [page.waitFor()](https://github.com/GoogleChrome/puppeteer/blob/master/docs/api.md#pagewaitforselectororfunctionortimeout-options-args), checkout it's API for more details. |
-| `include`                 | true                        | A predicate function specifying which stories should be visually tested.<br/>Visual baselines will be created only for the components specified.<br/>The function receives an object with ```name```, ```kind``` and ```parameters``` properties.<br/>For example (exclude all stories with a name that start with [SKIP]):<br/>```({name,  kind, parameters}) => !/^\[SKIP\]/.test(name)```<br/>For more information, see [per component configuration - include](#include). |
+| `include`                 | true                        | A predicate function, a string or a regular expression specifying which stories should be visually tested.<br/>Visual baselines will be created only for the components specified.<br/>The function receives an object with ```name```, ```kind```, ```storyTitle```  and ```parameters``` properties.<br/>For example (exclude all stories with a name that start with [SKIP]):<br/>```({name,  kind, storyTitle, parameters}) => !/^\[SKIP\]/.test(name)```<br/>For more information, see [per component configuration - include](#include). |
 | `variations`              | undefined                   | Specifies additional variations for all or some of the stories. For example, RTL. For more information, see [per component  configuration - variations](#variations).|
 | `notifyOnCompletion`      | false                       | If `true` batch completion notifications are sent. |
 | `dontCloseBatches`        | false                       | If true, batches are not closed for notifyOnCompletion.|
@@ -318,6 +320,16 @@ Possible values for `iosVersion` are:
 - `'latest-1'` - one version prior to the latest version
 - `undefined` - the UFG's default
 
+## Faking IE Browser
+
+Some pages render differently on Internet Explorer and as such, it may be important to take the dom-snapshot while running on a fake IE browser using the ultrafast grid.
+
+Using the `fakeIE` flag - you can render the stories on a chrome masquerading as IE.
+
+We do this by simulating the `userAgent` and `documentMode` of the page - making the page believe it is being rendered on IE.
+
+There is a small performance impact when using fake IE tests - since the browser needs to fake IE for each story it renders.
+
 ## Per component configuration
 
 **_Only supported in Storybook version >= 4_**
@@ -336,8 +348,8 @@ _Specifying a value locally in the story takes precedence over the global config
 
 #### global
 
-When provided globally, `include` is a function that receives the story's `kind` and `name`, and `parameters`.
-These properties come from `storybook` and they represent the hierarchy of the stories:
+When provided globally, `include` is a function that receives the story's `kind` and `name`,  `storyTitle` and `parameters`.
+All these properties except  `storyTitle` come from `storybook` and they represent the hierarchy of the stories:
 - `kind` - The stories directory and section, where applicable. Nested directory structures are allowed in `storybook`. These will be suffixed by `/`, while a section - that can hold many directories will be suffixed with a `|`.
   For example: 
   - Story named `Button` in the `Components` directory - its `kind` will be `Components`.
@@ -348,9 +360,11 @@ These properties come from `storybook` and they represent the hierarchy of the s
   - Story named `Button` in the `Components` directory - its `name` will be `Button`.
 - `parameters` - custom parameters that can specified in the story.
 
+`storyTitle` is generated by the SDK and is used as the test name. Therefore it is easy to find and filter by it.
+
 More information can be found in the [Storybook docs - Naming components and hierarchy](https://storybook.js.org/docs/react/writing-stories/naming-components-and-hierarchy).
 
-You can filter by `kind`, `name`, `parameters`, a combination of them or any logic that will result in a `boolean`. For example:
+You can filter by `kind`, `name`, `storyTitle`, `parameters`, a combination of them or any logic that will result in a `boolean`. For example:
 ```js
 // applitools.config.js
 module.exports = {
@@ -361,6 +375,26 @@ module.exports = {
     return kind === 'App|Components/Radio'
   }
   ...
+}
+```
+
+When passing a `storyTitle` as a `string` only this story will be tested. For example:
+
+```js
+module.exports = {
+...
+include: "Button: with text",
+...
+}
+```
+
+When passing a `storyTitle` as a `Regex` only matching stories will be tested. For example:
+
+```js
+module.exports = {
+...
+include: /Button: */,
+...
 }
 ```
 > NOTE you can use regular expressions or any other method you'd like, as long as you return a `boolean` from this function
@@ -657,6 +691,29 @@ storiesOf('UI components', module)
       }
     },
   })
+```
+
+### `runAfter`
+
+An asynchronous function that is evaluated after the story's screenshot is taken. This is the place to perform any clean ups that could change the way the next story renders.
+
+For example, reverting back to the original background color that was changed by a previous component:
+
+```js
+.add('background color', () => (
+  <div style={{fontSize: '30px'}}>Component with runBefore hook that modifies the background color</div>
+  ), {
+  eyes: {
+    runBefore({rootEl, story}) {
+     window.originalBackgoundColor = document.querySelector("html").style.backgroundColor;
+     document.querySelector("html").style.backgroundColor = 'fuchsia';
+    },
+    runAfter({rootEl, story}){
+     document.querySelector("html").style.backgroundColor = window.originalBackgoundColor;
+     delete window.originalBackgoundColor;
+    }
+  }
+})
 ```
 
 ### `scriptHooks`
