@@ -81,7 +81,7 @@
     "@applitools/sdk-coverage-tests": "^2.3.11",
     "@applitools/sdk-release-kit": "^0.13.0",
     "@applitools/sdk-shared": "0.9.3",
-    "@applitools/test-utils": "1.0.3",
+    "@applitools/test-utils": "1.0.4",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
     "@typescript-eslint/parser": "^4.15.1",
     "@wdio/cli": "5.18.6",

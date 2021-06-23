@@ -273,6 +273,14 @@
     chalk "4.1.1"
     node-fetch "2.6.1"
 
+"@applitools/test-utils@1.0.4":
+  version "1.0.4"
+  resolved "https://registry.yarnpkg.com/@applitools/test-utils/-/test-utils-1.0.4.tgz#46d50b7ab107188ce551d58e903969d29a6e9785"
+  integrity sha512-ygiJz0ZdJHa9XznTKhixwT3bSHyAfHsKsiJ33QvsYnuzhmBhCrkyRujBRdYgHvIILtX45srCJQGHvHNgUqHodg==
+  dependencies:
+    chalk "4.1.1"
+    node-fetch "2.6.1"
+
 "@applitools/types@1.0.3":
   version "1.0.3"
   resolved "https://registry.yarnpkg.com/@applitools/types/-/types-1.0.3.tgz#1f7c8eac46df2f534ab95f36f8ef3a1341e2917e"

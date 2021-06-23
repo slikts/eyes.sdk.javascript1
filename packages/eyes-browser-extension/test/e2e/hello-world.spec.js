@@ -25,6 +25,7 @@ describe('hello world', () => {
   })
   it('works', async () => {
     const result = await driver.executeScript('return window.__eyes.ping()')
+    await new Promise(r => setTimeout(r, 99999))
     assert.deepStrictEqual(result, 'pong')
   })
   it('works w/ embedded eval', async () => {
