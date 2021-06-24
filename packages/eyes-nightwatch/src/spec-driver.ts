@@ -82,7 +82,7 @@ export function isStaleElementError(err: any): boolean {
   const message = error && error.message
   return message && (message.includes('stale element reference') || message.includes('is stale'))
 }
-export function isEqualElements(_driver: Driver, element1: Element, element2: Element) {
+export async function isEqualElements(_driver: Driver, element1: Element, element2: Element): Promise<boolean> {
   if (!element1 || !element2) return false
   const elementId1 = extractElementId(element1)
   const elementId2 = extractElementId(element2)
@@ -96,14 +96,17 @@ export function isEqualElements(_driver: Driver, element1: Element, element2: El
 export async function executeScript(driver: Driver, script: ((arg: any) => any) | string, arg: any): Promise<any> {
   return call(driver, 'execute', script, [arg])
 }
-export async function mainContext(driver: Driver): Promise<void> {
+export async function mainContext(driver: Driver): Promise<Driver> {
   await call(driver, 'frame')
+  return driver;
 }
-export async function parentContext(driver: Driver): Promise<void> {
+export async function parentContext(driver: Driver): Promise<Driver> {
   await call(driver, 'frameParent')
+  return driver;
 }
-export async function childContext(driver: Driver, element: Element): Promise<void> {
+export async function childContext(driver: Driver, element: Element): Promise<Driver> {
   await call(driver, 'frame', element)
+  return driver;
 }
 export async function findElement(driver: Driver, selector: Selector): Promise<Element> {
   try {
@@ -146,7 +149,7 @@ export async function setWindowSize(driver: Driver, size: {width: number; height
     await call(driver, 'setWindowSize' as 'windowSize', size.width, size.height)
   }
 }
-export async function getOrientation(driver: Driver): Promise<string> {
+export async function getOrientation(driver: Driver): Promise<'portrait' | 'landscape'> {
   const capabilities = driver.options.desiredCapabilities as Record<string, any>
   const orientation = capabilities.orientation || capabilities.deviceOrientation
   return orientation ? orientation.toLowerCase() : 'portrait'
@@ -176,7 +179,7 @@ export async function getTitle(driver: Driver): Promise<string> {
 export async function getUrl(driver: Driver): Promise<string> {
   return call(driver, 'url')
 }
-export async function visit(driver: Driver, url: string): Promise<string> {
+export async function visit(driver: Driver, url: string): Promise<void> {
   return call(driver, 'url', url)
 }
 export async function takeScreenshot(driver: Driver): Promise<string> {
@@ -207,6 +210,10 @@ export async function waitUntilDisplayed(driver: Driver, selector: Selector, tim
 }
 
 // #endregion
+
+export async function getCookies(_driver: Driver): Promise<any> {
+  return {cookies: [], all: false}
+}
 
 // #region TESTING
 
