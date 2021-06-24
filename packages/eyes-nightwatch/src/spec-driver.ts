@@ -211,10 +211,6 @@ export async function waitUntilDisplayed(driver: Driver, selector: Selector, tim
 
 // #endregion
 
-export async function getCookies(_driver: Driver): Promise<any> {
-  return {cookies: [], all: false}
-}
-
 // #region TESTING
 
 const browserOptionsNames: Record<string, string> = {
