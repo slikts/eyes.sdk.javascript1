@@ -2,6 +2,8 @@
 process.env.BROWSERSTACK_USER = process.env.BROWSERSTACK_USERNAME
 process.env.BROWSERSTACK_KEY = process.env.BROWSERSTACK_ACCESS_KEY
 
+const chromedriver = require('chromedriver')
+
 module.exports = {
   // An array of folders (excluding subfolders) where your tests are located;
   // if this is not specified, the test source must be passed as the second argument to the test runner.
@@ -19,11 +21,10 @@ module.exports = {
   // See https://nightwatchjs.org/guide/#external-globals
   globals_path: '',
 
-  webdriver: {},
-
   eyes: {
-    // enableEyesLogs: true,
     // useVisualGrid: true,
+    // concurrency: 2,
+    enableEyesLogs: false,
     appName: 'eyes-nightwatch',
     testName: 'hello world',
     viewportSize: {width: 800, height: 600},
@@ -47,22 +48,16 @@ module.exports = {
       desiredCapabilities: {
         browserName: 'chrome',
         'goog:chromeOptions': {
-          args: ['--headless'],
+          args: ['--headless=false'],
           w3c: false,
         },
       },
-      // W3C
-      //capabilities: {
-      //  browserName: 'chrome',
-      //  'goog:chromeOptions': {
-      //    w3c: true,
-      //    args: ['--headless'],
-      //  },
-      //},
 
       webdriver: {
         port: 4444,
+        start_process: true,
         default_path_prefix: '/wd/hub',
+        server_path: chromedriver.path,
       },
     },
 
