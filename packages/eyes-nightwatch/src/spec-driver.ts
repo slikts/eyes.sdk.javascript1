@@ -98,15 +98,15 @@ export async function executeScript(driver: Driver, script: ((arg: any) => any) 
 }
 export async function mainContext(driver: Driver): Promise<Driver> {
   await call(driver, 'frame')
-  return driver;
+  return driver
 }
 export async function parentContext(driver: Driver): Promise<Driver> {
   await call(driver, 'frameParent')
-  return driver;
+  return driver
 }
 export async function childContext(driver: Driver, element: Element): Promise<Driver> {
   await call(driver, 'frame', element)
-  return driver;
+  return driver
 }
 export async function findElement(driver: Driver, selector: Selector): Promise<Element> {
   try {
@@ -132,7 +132,7 @@ export async function getWindowSize(driver: Driver): Promise<{width: number; hei
   // getWindowSize is implemented on JWP drivers even though it won't work
   // So we need to catch and retry a window size command that will work on JWP
   try {
-    const rect = await call(driver, 'getWindowRect' as any) as any
+    const rect = (await call(driver, 'getWindowRect' as any)) as any
     return {width: rect.width, height: rect.height}
   } catch {
     return call(driver, 'getWindowSize' as 'windowSize')
