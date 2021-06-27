@@ -2,8 +2,6 @@
 process.env.BROWSERSTACK_USER = process.env.BROWSERSTACK_USERNAME
 process.env.BROWSERSTACK_KEY = process.env.BROWSERSTACK_ACCESS_KEY
 
-const chromedriver = require('chromedriver')
-
 module.exports = {
   // An array of folders (excluding subfolders) where your tests are located;
   // if this is not specified, the test source must be passed as the second argument to the test runner.
@@ -55,9 +53,7 @@ module.exports = {
 
       webdriver: {
         port: 4444,
-        start_process: true,
         default_path_prefix: '/wd/hub',
-        server_path: chromedriver.path,
       },
     },
 
