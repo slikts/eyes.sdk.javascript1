@@ -4,7 +4,7 @@ const {URL} = require('url');
 function getIframeUrl(baseUrl) {
   const {origin, pathname} = new URL(baseUrl);
 
-  let baseUrlFixed = `${origin}${pathname.replace(/[^\/]+\.html/, '')}`;
+  let baseUrlFixed = `${origin}${pathname.replace(/\/[^\/]+\.html/, '')}`;
 
   if (!/\/$/.test(baseUrlFixed)) {
     baseUrlFixed += '/';
