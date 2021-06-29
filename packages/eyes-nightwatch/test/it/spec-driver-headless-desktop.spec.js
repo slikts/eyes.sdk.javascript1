@@ -42,12 +42,12 @@ describe('spec driver', () => {
     })
     it('isEqualElements(element, element)', async function (driver) {
       const {value: element} = await driver.element('css selector', 'div')
-      assert.ok(spec.isEqualElements(driver, element, element))
+      assert.ok(await spec.isEqualElements(driver, element, element))
     })
     it('isEqualElements(element1, element2)', async function (driver) {
       const {value: element1} = await driver.element('css selector', 'div')
       const {value: element2} = await driver.element('css selector', 'h1')
-      assert.ok(!spec.isEqualElements(driver, element1, element2))
+      assert.ok(!(await spec.isEqualElements(driver, element1, element2)))
     })
     it('executeScript(strings, args)', async function (driver) {
       const script = 'return arguments[0]'
@@ -166,11 +166,6 @@ describe('spec driver', () => {
         await driver.frame()
       }
     })
-    it('getSessionId()', async function (driver) {
-      const sessionId = driver.sessionId
-      const info = await spec.getDriverInfo(driver)
-      assert.deepStrictEqual(info.sessionId, sessionId)
-    })
     it('getTitle()', async function (driver) {
       const expected = 'Cross SDK test'
       assert.deepStrictEqual(await spec.getTitle(driver), expected)
@@ -190,10 +185,6 @@ describe('spec driver', () => {
       } finally {
         await driver.url(url)
       }
-    })
-    it('isMobile()', async function (driver) {
-      const {isMobile} = await spec.getDriverInfo(driver)
-      assert.deepStrictEqual(isMobile, false)
     })
     it('takeScreenshot()', async function (driver) {
       const result = await spec.takeScreenshot(driver)
@@ -220,6 +211,18 @@ describe('spec driver', () => {
         x: 8,
         y: 81,
       })
+    })
+    it('getDriverInfo()', async function (driver) {
+      const info = await spec.getDriverInfo(driver)
+      const expected = {
+        browserName: driver.capabilities.browserName,
+        isMobile: false,
+        isNative: false,
+      }
+      assert.deepStrictEqual(
+        Object.keys(expected).reduce((obj, key) => ({...obj, [key]: info[key]}), {}),
+        expected,
+      )
     })
     it.skip('click()')
     it.skip('type()')

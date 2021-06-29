@@ -8,11 +8,11 @@ function makeSDK(settings = {}) {
     isDriver,
     isElement,
     isSelector,
-    makeEyes,
+    makeManager,
     getViewportSize,
     setViewportSize,
     // closeBatch,
-    // deleteTestResults,
+    // deleteTest,
     settings,
     history,
   }
@@ -29,16 +29,16 @@ function makeSDK(settings = {}) {
     return utils.types.isString(selector) || utils.types.has(selector, ['type', 'selector'])
   }
 
-  function makeEyes(config) {
+  function makeManager(config) {
     const test = {
       steps: [],
     }
 
-    history.push({command: 'makeEyes', data: config})
+    history.push({command: 'makeManager', data: config})
 
-    return {open, getResults}
+    return {makeEyes, closeAllEyes}
 
-    function open({driver, config, on}) {
+    function makeEyes({driver, config, on}) {
       assert.ok(isDriver(driver), '"driver" is not a driver')
 
       on('setSizeWillStart', {viewportSize: config.viewportSize})
@@ -48,7 +48,7 @@ function makeSDK(settings = {}) {
       on('testStarted', {sessionId: 'session-id'})
 
       test.config = config
-      history.push({command: 'open', data: {driver, config}})
+      history.push({command: 'makeEyes', data: {driver, config}})
 
       return {
         check,
@@ -110,25 +110,25 @@ function makeSDK(settings = {}) {
       }
     }
 
-    function getResults() {
+    function closeAllEyes() {
       return results
     }
   }
 
-  async function getViewportSize(driver) {
+  async function getViewportSize({driver}) {
     assert.ok(isDriver(driver), '"driver" is not a driver')
     history.push({command: 'getViewportSize', data: [driver], result: settings.viewportSize})
     return settings.viewportSize
   }
 
-  async function setViewportSize(driver, viewportSize) {
+  async function setViewportSize({driver, size}) {
     assert.ok(isDriver(driver), '"driver" is not a driver')
     assert.ok(
-      utils.types.has(viewportSize, ['width', 'height']),
-      '"viewportSize" must be an object with "width" and "height" properties',
+      utils.types.has(size, ['width', 'height']),
+      '"size" must be an object with "width" and "height" properties',
     )
-    settings.viewportSize = viewportSize
-    history.push({command: 'setViewportSize', data: [driver, viewportSize]})
+    settings.viewportSize = size
+    history.push({command: 'setViewportSize', data: [driver, size]})
   }
 }
 

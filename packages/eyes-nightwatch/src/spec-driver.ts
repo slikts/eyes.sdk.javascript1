@@ -82,7 +82,7 @@ export function isStaleElementError(err: any): boolean {
   const message = error && error.message
   return message && (message.includes('stale element reference') || message.includes('is stale'))
 }
-export function isEqualElements(_driver: Driver, element1: Element, element2: Element) {
+export async function isEqualElements(_driver: Driver, element1: Element, element2: Element): Promise<boolean> {
   if (!element1 || !element2) return false
   const elementId1 = extractElementId(element1)
   const elementId2 = extractElementId(element2)
@@ -96,14 +96,17 @@ export function isEqualElements(_driver: Driver, element1: Element, element2: El
 export async function executeScript(driver: Driver, script: ((arg: any) => any) | string, arg: any): Promise<any> {
   return call(driver, 'execute', script, [arg])
 }
-export async function mainContext(driver: Driver): Promise<void> {
+export async function mainContext(driver: Driver): Promise<Driver> {
   await call(driver, 'frame')
+  return driver
 }
-export async function parentContext(driver: Driver): Promise<void> {
+export async function parentContext(driver: Driver): Promise<Driver> {
   await call(driver, 'frameParent')
+  return driver
 }
-export async function childContext(driver: Driver, element: Element): Promise<void> {
+export async function childContext(driver: Driver, element: Element): Promise<Driver> {
   await call(driver, 'frame', element)
+  return driver
 }
 export async function findElement(driver: Driver, selector: Selector): Promise<Element> {
   try {
@@ -123,39 +126,30 @@ export async function getElementRect(
   const {width, height} = await call(driver, 'elementIdSize', extractElementId(element))
   return {x: Math.round(x), y: Math.round(y), width: Math.round(width), height: Math.round(height)}
 }
-export async function getWindowRect(driver: Driver): Promise<{x: number; y: number; width: number; height: number}> {
+export async function getWindowSize(driver: Driver): Promise<{width: number; height: number}> {
   // NOTE:
   // https://github.com/nightwatchjs/nightwatch/blob/fd4aff1e2cc3e691a82e61c7e550fb088ee47d5a/lib/transport/jsonwire/actions.js#L165-L167
-  // getWindowRect is implemented on JWP drivers even though it won't work
+  // getWindowSize is implemented on JWP drivers even though it won't work
   // So we need to catch and retry a window size command that will work on JWP
   try {
-    return await call(driver, 'getWindowRect' as any)
+    const rect = (await call(driver, 'getWindowRect' as any)) as any
+    return {width: rect.width, height: rect.height}
   } catch {
-    const location = await call(driver, 'getWindowPosition' as 'windowPosition')
-    const size = await call(driver, 'getWindowSize' as 'windowSize')
-    return {...location, ...size}
+    return call(driver, 'getWindowSize' as 'windowSize')
   }
 }
-export async function setWindowRect(
-  driver: Driver,
-  rect: {x?: number; y?: number; width?: number; height?: number},
-): Promise<void> {
+export async function setWindowSize(driver: Driver, size: {width: number; height: number}): Promise<void> {
   // NOTE:
   // Same deal as with getWindowRect. If running on JWP, need to catch and retry
   // with a different command.
   try {
-    await call(driver, 'setWindowRect' as any, rect)
+    await call(driver, 'setWindowRect' as any, size)
   } catch {
-    const {x = null, y = null, width = null, height = null} = rect || {}
-    if (x !== null && y !== null) {
-      await call(driver, 'setWindowPosition' as 'windowPosition', x, y)
-    }
-    if (width !== null && height !== null) {
-      await call(driver, 'setWindowSize' as 'windowSize', width, height)
-    }
+    await call(driver, 'setWindowPosition' as 'windowPosition', 0, 0)
+    await call(driver, 'setWindowSize' as 'windowSize', size.width, size.height)
   }
 }
-export async function getOrientation(driver: Driver): Promise<string> {
+export async function getOrientation(driver: Driver): Promise<'portrait' | 'landscape'> {
   const capabilities = driver.options.desiredCapabilities as Record<string, any>
   const orientation = capabilities.orientation || capabilities.deviceOrientation
   return orientation ? orientation.toLowerCase() : 'portrait'
@@ -163,11 +157,11 @@ export async function getOrientation(driver: Driver): Promise<string> {
 export async function getDriverInfo(driver: Driver): Promise<any> {
   const capabilities = driver.options.desiredCapabilities as Record<string, any>
   const sessionId = driver.sessionId
-  const browserName = capabilities.browserName
+  const browserName = capabilities.browserName ?? capabilities.browser_name
   const deviceName = capabilities.device ? capabilities.device : capabilities.deviceName
-  const platformName = capabilities.platformName || capabilities.platform
+  const platformName = capabilities.platformName ?? capabilities.platform
   const platformVersion = capabilities.osVersion ? capabilities.osVersion : capabilities.platformVersion
-  const isMobile = ['android', 'ios'].includes(platformName && platformName.toLowerCase())
+  const isMobile = ['android', 'ios'].includes(platformName?.toLowerCase())
   const isNative = isMobile && !browserName
   return {
     browserName,
@@ -185,7 +179,7 @@ export async function getTitle(driver: Driver): Promise<string> {
 export async function getUrl(driver: Driver): Promise<string> {
   return call(driver, 'url')
 }
-export async function visit(driver: Driver, url: string): Promise<string> {
+export async function visit(driver: Driver, url: string): Promise<void> {
   return call(driver, 'url', url)
 }
 export async function takeScreenshot(driver: Driver): Promise<string> {
@@ -225,8 +219,8 @@ const browserOptionsNames: Record<string, string> = {
 }
 export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
   // config prep
-  const {testSetup} = require('@applitools/sdk-shared')
-  const {browser = '', capabilities, url, configurable = true, args = [], headless} = testSetup.Env({
+  const parseEnv = require('@applitools/test-utils/src/parse-env')
+  const {browser = '', capabilities, url, configurable = true, args = [], headless} = parseEnv({
     ...env,
     legacy: true,
   })

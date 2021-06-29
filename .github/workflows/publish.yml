@@ -4,11 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       packages:
-        description: "package names (aliases)"
+        description: 'package names (aliases)'
         required: true
       version:
         description: "version type (specify 'major', 'minor, or 'patch')"
-        default: "patch"
+        default: 'patch'
 env:
   CVG_TESTS_REMOTE: http://localhost:4444/wd/hub
   APPLITOOLS_API_KEY_SDK: ${{secrets.APPLITOOLS_API_KEY_SDK}}
@@ -32,6 +32,26 @@ jobs:
           packages: ${{github.event.inputs.packages}}
           release-version: ${{github.event.inputs.version}}
 
+  types:
+    needs: setup
+    if: ${{fromJSON(needs.setup.outputs.packages).types}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).types.package}}
+      - name: Publish
+        uses: ./.github/actions/publish
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).types.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).types.releaseVersion}}
   utils:
     needs: setup
     if: ${{fromJSON(needs.setup.outputs.packages).utils}}
@@ -72,6 +92,26 @@ jobs:
         with:
           package: ${{fromJSON(needs.setup.outputs.packages).snippets.package}}
           version: ${{fromJSON(needs.setup.outputs.packages).snippets.releaseVersion}}
+  test-utils:
+    needs: setup
+    if: ${{fromJSON(needs.setup.outputs.packages).test-utils}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).test-utils.package}}
+      - name: Publish
+        uses: ./.github/actions/publish
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).test-utils.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).test-utils.releaseVersion}}
 
   logger:
     needs: [setup, utils]
@@ -133,9 +173,49 @@ jobs:
         with:
           package: ${{fromJSON(needs.setup.outputs.packages).driver.package}}
           version: ${{fromJSON(needs.setup.outputs.packages).driver.releaseVersion}}
+  test-server:
+    needs: [setup, utils]
+    if: ${{fromJSON(needs.setup.outputs.packages).test-server && !failure() && !cancelled()}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).test-server.package}}
+      - name: Publish
+        uses: ./.github/actions/publish
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).test-server.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).test-server.releaseVersion}}
+  scripts:
+    needs: [setup, test-utils]
+    if: ${{fromJSON(needs.setup.outputs.packages).scripts && !failure() && !cancelled()}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).scripts.package}}
+      - name: Publish
+        uses: ./.github/actions/publish
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).scripts.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).scripts.releaseVersion}}
 
   api:
-    needs: [setup, utils, logger]
+    needs: [setup, types, utils, logger]
     if: ${{fromJSON(needs.setup.outputs.packages).api && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
@@ -196,8 +276,102 @@ jobs:
           package: ${{fromJSON(needs.setup.outputs.packages).vgc.package}}
           version: ${{fromJSON(needs.setup.outputs.packages).vgc.releaseVersion}}
 
+  universal:
+    needs: [setup, utils, types, core, vgc]
+    if: ${{fromJSON(needs.setup.outputs.packages).universal && !failure() && !cancelled()}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).universal.package}}
+        env: ${{fromJSON(needs.setup.outputs.packages).universal.env}}
+      - name: Publish
+        id: publish
+        uses: ./.github/actions/publish
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).universal.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).universal.releaseVersion}}
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{steps.publish.outputs.tag}}
+          files: |
+            packages/${{fromJSON(needs.setup.outputs.packages).universal.package}}/bin/cli-linux
+            packages/${{fromJSON(needs.setup.outputs.packages).universal.package}}/bin/cli-macos
+            packages/${{fromJSON(needs.setup.outputs.packages).universal.package}}/bin/cli-win.exe
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
+  playwright-universal:
+    needs: [setup, types, utils, test-utils, api, universal]
+    if: ${{fromJSON(needs.setup.outputs.packages).playwright-universal && !failure() && !cancelled()}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).playwright-universal.package}}
+          report: prod
+        env: ${{fromJSON(needs.setup.outputs.packages).playwright-universal.env}}
+      - name: Publish
+        uses: ./.github/actions/publish
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).playwright-universal.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).playwright-universal.releaseVersion}}
+      - name: Save release and testing artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-tests-report-playwright-universal
+          retention-days: 30
+          path: |
+            packages/${{fromJSON(needs.setup.outputs.packages).playwright-universal.package}}/coverage-tests-metadata.json
+            packages/${{fromJSON(needs.setup.outputs.packages).playwright-universal.package}}/coverage-test-report.xml
+  selenium-universal:
+    needs: [setup, types, utils, test-utils, api, universal]
+    if: ${{fromJSON(needs.setup.outputs.packages).selenium-universal && !failure() && !cancelled()}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).selenium-universal.package}}
+          report: prod
+        env: ${{fromJSON(needs.setup.outputs.packages).selenium-universal.env}}
+      - name: Publish
+        uses: ./.github/actions/publish
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).selenium-universal.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).selenium-universal.releaseVersion}}
+      - name: Save release and testing artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-tests-report-selenium-universal
+          retention-days: 30
+          path: |
+            packages/${{fromJSON(needs.setup.outputs.packages).selenium-universal.package}}/coverage-tests-metadata.json
+            packages/${{fromJSON(needs.setup.outputs.packages).selenium-universal.package}}/coverage-test-report.xml
+
   playwright:
-    needs: [setup, utils, api, core, vgc]
+    needs: [setup, utils, test-utils, api, core, vgc]
     if: ${{fromJSON(needs.setup.outputs.packages).playwright && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
@@ -227,7 +401,7 @@ jobs:
             packages/${{fromJSON(needs.setup.outputs.packages).playwright.package}}/coverage-tests-metadata.json
             packages/${{fromJSON(needs.setup.outputs.packages).playwright.package}}/coverage-test-report.xml
   puppeteer:
-    needs: [setup, utils, api, core, vgc]
+    needs: [setup, utils, test-utils, api, core, vgc]
     if: ${{fromJSON(needs.setup.outputs.packages).puppeteer && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
@@ -257,7 +431,7 @@ jobs:
             packages/${{fromJSON(needs.setup.outputs.packages).puppeteer.package}}/coverage-tests-metadata.json
             packages/${{fromJSON(needs.setup.outputs.packages).puppeteer.package}}/coverage-test-report.xml
   webdriverio:
-    needs: [setup, utils, api, core, vgc]
+    needs: [setup, utils, test-utils, api, core, vgc]
     if: ${{fromJSON(needs.setup.outputs.packages).webdriverio && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
@@ -286,8 +460,38 @@ jobs:
           path: |
             packages/${{fromJSON(needs.setup.outputs.packages).webdriverio.package}}/coverage-tests-metadata.json
             packages/${{fromJSON(needs.setup.outputs.packages).webdriverio.package}}/coverage-test-report.xml
+  webdriverio-service:
+    needs: [setup, webdriverio]
+    if: ${{fromJSON(needs.setup.outputs.packages).webdriverio-service && !failure() && !cancelled()}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).webdriverio-service.package}}
+          report: prod
+        env: ${{fromJSON(needs.setup.outputs.packages).webdriverio-service.env}}
+      - name: Publish
+        uses: ./.github/actions/publish
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).webdriverio-service.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).webdriverio-service.releaseVersion}}
+      - name: Save release and testing artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: coverage-tests-report-webdriverio-service
+          retention-days: 30
+          path: |
+            packages/${{fromJSON(needs.setup.outputs.packages).webdriverio-service.package}}/coverage-tests-metadata.json
+            packages/${{fromJSON(needs.setup.outputs.packages).webdriverio-service.package}}/coverage-test-report.xml
   webdriverio-legacy:
-    needs: [setup, utils, api, core, vgc]
+    needs: [setup, utils, test-utils, api, core, vgc]
     if: ${{fromJSON(needs.setup.outputs.packages).webdriverio-legacy && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
@@ -317,7 +521,7 @@ jobs:
             packages/${{fromJSON(needs.setup.outputs.packages).webdriverio-legacy.package}}/coverage-tests-metadata.json
             packages/${{fromJSON(needs.setup.outputs.packages).webdriverio-legacy.package}}/coverage-test-report.xml
   selenium:
-    needs: [setup, utils, api, core, vgc]
+    needs: [setup, utils, test-utils, api, core, vgc]
     if: ${{fromJSON(needs.setup.outputs.packages).selenium && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
@@ -347,7 +551,7 @@ jobs:
             packages/${{fromJSON(needs.setup.outputs.packages).selenium.package}}/coverage-tests-metadata.json
             packages/${{fromJSON(needs.setup.outputs.packages).selenium.package}}/coverage-test-report.xml
   protractor:
-    needs: [setup, utils, api, core, vgc]
+    needs: [setup, utils, test-utils, api, core, vgc]
     if: ${{fromJSON(needs.setup.outputs.packages).protractor && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
@@ -377,7 +581,7 @@ jobs:
             packages/${{fromJSON(needs.setup.outputs.packages).protractor.package}}/coverage-tests-metadata.json
             packages/${{fromJSON(needs.setup.outputs.packages).protractor.package}}/coverage-test-report.xml
   nightwatch:
-    needs: [setup, utils, api, core, vgc]
+    needs: [setup, utils, test-utils, api, core, vgc]
     if: ${{fromJSON(needs.setup.outputs.packages).nightwatch && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
@@ -407,7 +611,7 @@ jobs:
             packages/${{fromJSON(needs.setup.outputs.packages).nightwatch.package}}/coverage-tests-metadata.json
             packages/${{fromJSON(needs.setup.outputs.packages).nightwatch.package}}/coverage-test-report.xml
   testcafe:
-    needs: [setup, utils, api, core, vgc]
+    needs: [setup, utils, test-utils, api, core, vgc]
     if: ${{fromJSON(needs.setup.outputs.packages).testcafe && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
@@ -436,3 +640,26 @@ jobs:
           path: |
             packages/${{fromJSON(needs.setup.outputs.packages).testcafe.package}}/coverage-tests-metadata.json
             packages/${{fromJSON(needs.setup.outputs.packages).testcafe.package}}/coverage-test-report.xml
+  storybook:
+    needs: [setup, utils, test-utils, core, vgc]
+    if: ${{fromJSON(needs.setup.outputs.packages).storybook && !failure() && !cancelled()}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).storybook.package}}
+        env: ${{fromJSON(needs.setup.outputs.packages).storybook.env}}
+      - name: Publish
+        uses: ./.github/actions/publish
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).storybook.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).storybook.releaseVersion}}
+    env:
+      STDOUT_LEVEL: 1

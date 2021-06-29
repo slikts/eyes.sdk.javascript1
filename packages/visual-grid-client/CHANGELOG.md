@@ -4,6 +4,26 @@
 - add the option get and set rendering info separately from eyesOpen. This will also validate the response from getRenderInfo and will throw the appropriate exception.
 
 
+## 15.8.11 - 2021/6/15
+
+- updated to @applitools/eyes-sdk-core@12.21.1 (from 12.21.0)
+
+## 15.8.10 - 2021/6/15
+
+- updated to @applitools/eyes-sdk-core@12.21.0 (from 12.20.3)
+
+## 15.8.9 - 2021/6/8
+
+- updated to @applitools/eyes-sdk-core@12.20.3 (from 12.20.2)
+
+## 15.8.8 - 2021/6/1
+
+- updated to @applitools/eyes-sdk-core@12.20.2 (from 12.20.0)
+
+## 15.8.7 - 2021/5/24
+
+- updated to @applitools/eyes-sdk-core@12.20.0 (from 12.19.3)
+
 ## 15.8.6 - 2021/5/13
 
 - updated to @applitools/eyes-sdk-core@12.19.3 (from 12.19.2)

@@ -3,9 +3,43 @@
 ## Unreleased
 
 
+## 12.21.2 - 2021/6/27
+
+- fix return driver from eyes open
+
+## 12.21.1 - 2021/6/15
+
+- move `@applitools/types` to dependencies
+- updated to @applitools/types@1.0.3 (from 1.0.2)
+
+## 12.21.0 - 2021/6/15
+
+- handle generated batch id from eyes-api
+
+## 12.20.3 - 2021/6/8
+
+- replace setWindowRect with setWindowSize in spec driver
+- fix errors thrown during `EyesVisualGrid::close`
+- updated to @applitools/driver@1.0.7 (from 1.0.6)
+
+## 12.20.2 - 2021/6/1
+
+- updated to @applitools/dom-snapshot@4.5.3 (from 4.5.2)
+
+## 12.20.1 - 2021/5/30
+
+- fix browser configuration for emulated device with `name` property
+- updated to @applitools/dom-snapshot@4.5.2 (from 4.5.1)
+
+## 12.20.0 - 2021/5/24
+
+- add wrappers to work with new internal api
+- updated to @applitools/driver@1.0.6 (from 1.0.5)
+- updated to @applitools/screenshoter@3.0.8 (from 3.0.7)
+
 ## 12.19.3 - 2021/5/13
 
-fixed image cropping algorithm to not copy data into a heap
+- fixed image cropping algorithm to not copy data into a heap
 - updated to @applitools/screenshoter@3.0.7 (from 3.0.6)
 
 ## 12.19.2 - 2021/5/12

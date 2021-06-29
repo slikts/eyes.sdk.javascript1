@@ -223,8 +223,6 @@ class EyesVisualGrid extends EyesCore {
     this._getEmulatedDevicesSizes = getEmulatedDevicesSizes
 
     await this._initCommon()
-
-    return this._driver.wrapper
   }
   /**
    * @param {string|CheckSettings<TElement, TSelector>} [nameOrCheckSettings] - name of the test case
@@ -339,7 +337,9 @@ class EyesVisualGrid extends EyesCore {
           this._runner._allTestResult.push(...results)
         }
         if (isErrorCaught) {
-          const error = TypeUtils.isArray(results) ? results[0] : results
+          const error = TypeUtils.isArray(results)
+            ? results.find(result => result instanceof Error)
+            : results
           if (throwEx || !error.getTestResults) throw error
           else return error.getTestResults()
         }

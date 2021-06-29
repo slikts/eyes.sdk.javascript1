@@ -10,36 +10,35 @@ describe('Eyes', () => {
   beforeEach(() => {
     sdk = makeSDK()
     Eyes._spec = sdk
-    Eyes.prototype._spec = sdk
   })
 
   it('should create classic eyes by default', async () => {
     const eyes = new Eyes()
     assert.ok(eyes.runner instanceof api.ClassicRunner)
-    eyes.open(driver)
+    await eyes.open(driver)
     assert.deepStrictEqual(
-      sdk.history.filter(h => h.command === 'makeEyes'),
-      [{command: 'makeEyes', data: {type: 'classic'}}],
+      sdk.history.filter(h => h.command === 'makeManager'),
+      [{command: 'makeManager', data: {type: 'classic'}}],
     )
   })
 
   it('should create vg eyes with concurrency', async () => {
     const eyes = new Eyes(new api.VisualGridRunner({testConcurrency: 7}))
     assert.ok(eyes.runner instanceof api.VisualGridRunner)
-    eyes.open(driver)
+    await eyes.open(driver)
     assert.deepStrictEqual(
-      sdk.history.filter(h => h.command === 'makeEyes'),
-      [{command: 'makeEyes', data: {type: 'vg', concurrency: 7, legacy: false}}],
+      sdk.history.filter(h => h.command === 'makeManager'),
+      [{command: 'makeManager', data: {type: 'vg', concurrency: 7, legacy: false}}],
     )
   })
 
   it('should create vg eyes with legacy concurrency', async () => {
     const eyes = new Eyes(new api.VisualGridRunner(7))
     assert.ok(eyes.runner instanceof api.VisualGridRunner)
-    eyes.open(driver)
+    await eyes.open(driver)
     assert.deepStrictEqual(
-      sdk.history.filter(h => h.command === 'makeEyes'),
-      [{command: 'makeEyes', data: {type: 'vg', concurrency: 7, legacy: true}}],
+      sdk.history.filter(h => h.command === 'makeManager'),
+      [{command: 'makeManager', data: {type: 'vg', concurrency: 7, legacy: true}}],
     )
   })
 
@@ -60,10 +59,11 @@ describe('Eyes', () => {
       testName: 'test',
       batch: {id: 'batch-id'},
     }
-    eyes.open(driver, openConfig)
+    await eyes.open(driver, openConfig)
+
     assert.deepStrictEqual(
-      sdk.history.filter(h => h.command === 'open'),
-      [{command: 'open', data: {driver, config: {...config, ...openConfig}}}],
+      sdk.history.filter(h => h.command === 'makeEyes'),
+      [{command: 'makeEyes', data: {driver, config: {...config, ...openConfig}}}],
     )
   })
 
@@ -83,10 +83,10 @@ describe('Eyes', () => {
       viewportSize: {width: 300, height: 400},
       sessionType: 'PROGRESSION',
     }
-    eyes.open(driver, openConfig.appName, openConfig.testName, openConfig.viewportSize, openConfig.sessionType)
+    await eyes.open(driver, openConfig.appName, openConfig.testName, openConfig.viewportSize, openConfig.sessionType)
     assert.deepStrictEqual(
-      sdk.history.filter(h => h.command === 'open'),
-      [{command: 'open', data: {driver, config: {...config, ...openConfig}}}],
+      sdk.history.filter(h => h.command === 'makeEyes'),
+      [{command: 'makeEyes', data: {driver, config: {...config, ...openConfig}}}],
     )
   })
 

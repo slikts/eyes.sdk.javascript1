@@ -1,23 +1,33 @@
 const core = require('@actions/core')
 
 const PACKAGES = [
+  {name: 'types', dirname: 'types', aliases: ['@applitools/types']},
   {name: 'utils', dirname: 'utils', aliases: ['@applitools/utils']},
+  {name: 'test-utils', dirname: 'test-utils', aliases: ['@applitools/test-utils']},
   {name: 'snippets', dirname: 'snippets', aliases: ['@applitools/snippets']},
   {name: 'logger', dirname: 'logger', aliases: ['@applitools/logger']},
   {name: 'screenshoter', dirname: 'screenshoter', aliases: ['@applitools/screenshoter']},
   {name: 'driver', dirname: 'driver', aliases: ['@applitools/driver']},
+  {name: 'scripts', dirname: 'scripts', aliases: ['@applitools/scripts']},
+  {name: 'test-server', dirname: 'test-server', aliases: ['@applitools/test-server']},
   {name: 'api', dirname: 'eyes-api', aliases: ['@applitools/eyes-api']},
   {name: 'core', dirname: 'eyes-sdk-core', aliases: ['@applitools/eyes-sdk-core']},
   {name: 'vgc', dirname: 'visual-grid-client', aliases: ['@applitools/visual-grid-client']},
 
+  {name: 'universal', dirname: 'eyes-universal', sdk: true, aliases: ['usdk', '@applitools/eyes-universal']},
+  {name: 'playwright-universal', dirname: 'eyes-playwright-universal', framework: 'playwright', sdk: true, aliases: ['playwright/u', '@applitools/eyes-playwright']},
   {name: 'playwright', dirname: 'eyes-playwright', framework: 'playwright', sdk: true, aliases: ['@applitools/eyes-playwright']},
   {name: 'puppeteer', dirname: 'eyes-puppeteer', framework: 'puppeteer', sdk: true, aliases: ['pptr', '@applitools/eyes-puppeteer']},
   {name: 'webdriverio', dirname: 'eyes-webdriverio-5', framework: 'webdriverio', sdk: true, aliases: ['wdio', 'eyes-webdriverio', '@applitools/eyes-webdriverio']},
+  {name: 'webdriverio-service', dirname: 'eyes-webdriverio-5-service', framework: 'webdriverio', sdk: true, aliases: ['wdio-service', 'eyes-webdriverio-service', '@applitools/eyes-webdriverio-service']},
   {name: 'webdriverio-legacy', dirname: 'eyes-webdriverio-4', framework: 'webdriverio', sdk: true, aliases: ['wdio-legacy', 'eyes.webdriverio', '@applitools/eyes.webdriverio']},
   {name: 'selenium', dirname: 'eyes-selenium', framework: 'selenium-webdriver', sdk: true, aliases: ['@applitools/eyes-selenium']},
+  {name: 'selenium-universal', dirname: 'eyes-selenium-universal', framework: 'selenium-webdriver', sdk: true, aliases: ['selenium/u', '@applitools/eyes-selenium']},
   {name: 'protractor', dirname: 'eyes-protractor', framework: 'protractor', sdk: true, aliases: ['@applitools/eyes-protractor']},
   {name: 'nightwatch', dirname: 'eyes-nightwatch', framework: 'nightwatch', sdk: true, aliases: ['@applitools/eyes-nightwatch']},
   {name: 'testcafe', dirname: 'eyes-testcafe', framework: 'testcafe', sdk: true, aliases: ['@applitools/eyes-testcafe']},
+  {name: 'cypress', dirname: 'eyes-cypress', framework: 'cypress', sdk: true, aliases: ['cy', '@applitools/eyes-cypress']},
+  {name: 'storybook', dirname: 'eyes-storybook', framework: 'storybook', sdk: true, aliases: ['@applitools/eyes-storybook']},
 ]
 
 const packageSettings = core.getInput('packages', {required: true})

@@ -3,6 +3,21 @@
 ## Unreleased
 
 
+## 1.8.3 - 2021/6/27
+
+- fix nightwatch-api support
+- updated to @applitools/eyes-api@1.0.6 (from 1.0.5)
+- updated to @applitools/eyes-sdk-core@12.21.2 (from 12.21.1)
+
+## 1.8.2 - 2021/5/25
+
+- added full typescript support
+- introduced @applitools/eyes-api package with new api
+- updated to @applitools/eyes-api@1.0.3 (from 1.0.1)
+- updated to @applitools/eyes-sdk-core@12.20.0 (from 12.19.2)
+- updated to @applitools/utils@1.2.0 (from 1.1.3)
+- updated to @applitools/visual-grid-client@15.8.7 (from 15.8.5)
+
 ## 1.8.1 - 2021/5/12
 
 - updated to @applitools/eyes-api@1.0.1 (from 1.0.0)
