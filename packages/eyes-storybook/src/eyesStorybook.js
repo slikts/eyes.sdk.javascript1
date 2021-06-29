@@ -66,8 +66,6 @@ async function eyesStorybook({
     logger: logger.extend('vgc'),
   });
 
-  await getSetRenderInfo();
-
   const initPage = makeInitPage({
     iframeUrl,
     config,
@@ -104,6 +102,7 @@ async function eyesStorybook({
     },
   });
   try {
+    await getSetRenderInfo();
     const [stories] = await Promise.all(
       [getStoriesWithSpinner()].concat(
         new Array(CONCURRENT_PAGES).fill().map(async () => {

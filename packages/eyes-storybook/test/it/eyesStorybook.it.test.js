@@ -348,7 +348,7 @@ describe('eyesStorybook', () => {
   });
 
   it('fail immediately, wrong api key', async () => {
-    const config = {apiKey: 'INVALIDAPIKEY'};
+    const config = {apiKey: 'INVALIDAPIKEY'}; // this is a well-known apiKey that is meant to return 401 from fake eyes server
     let errorMessage;
 
     try {
@@ -361,6 +361,7 @@ describe('eyesStorybook', () => {
           browser: [{name: 'chrome', width: 800, height: 600}],
         },
         logger,
+        performance,
       });
     } catch (e) {
       errorMessage = e.message;
