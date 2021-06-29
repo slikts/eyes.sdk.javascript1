@@ -1,37 +1,30 @@
-import * as utils from '@applitools/utils'
+import {makeMessenger} from './messenger'
 
-function sendMessage(name, payload) {
-  const key = utils.general.guid()
-  window.postMessage({name, key, payload, isAPI: true}, '*')
-  return new Promise((resolve, reject) => {
-    window.addEventListener('message', handler)
-    function handler({data}) {
-      if (!data.isContent) return
-      if (data.name === name && data.key === key) {
-        if (data.payload.error) reject(data.payload.error)
-        else resolve(data.payload.result)
-        window.removeEventListener('message', handler)
-      }
-    }
-  })
-}
+const messenger = makeMessenger({
+  onMessage: fn => window.addEventListener('applitools-message', ({detail}) => fn(detail)),
+  sendMessage: detail => window.dispatchEvent(new CustomEvent('applitools-message', {detail}))
+})
 
 class Core {
+  async makeEyes(config) {
+    const eyes = await messenger.request('Core.makeEyes', config)
+    return new Eyes({eyes})
+  }
   async makeManager(config) {
-    const manager = await sendMessage('Core.makeManager', config)
+    const manager = await messenger.request('Core.makeManager', config)
     return new EyesManager({manager})
   }
   async getViewportSize() {
-    return sendMessage('Core.getViewportSize')
+    return messenger.request('Core.getViewportSize')
   }
   async setViewportSize(options) {
-    return sendMessage('Core.setViewportSize', options)
+    return messenger.request('Core.setViewportSize', options)
   }
   async closeBatches(options) {
-    return sendMessage('Core.closeBatches', options)
+    return messenger.request('Core.closeBatches', options)
   }
   async deleteTest(options) {
-    return sendMessage('Core.deleteTest', options)
+    return messenger.request('Core.deleteTest', options)
   }
 }
 
@@ -40,11 +33,11 @@ class EyesManager {
     this._manager = manager
   }
   async makeEyes(options) {
-    const eyes = await sendMessage('EyesManager.makeEyes', {manager: this._manager, ...options})
+    const eyes = await messenger.request('EyesManager.makeEyes', {manager: this._manager, ...options})
     return new Eyes({eyes})
   }
   async closeAllEyes() {
-    return sendMessage('EyesManager.closeAllEyes', {manager: this._manager})
+    return messenger.request('EyesManager.closeAllEyes', {manager: this._manager})
   }
 }
 
@@ -53,22 +46,22 @@ class Eyes {
     this._eyes = eyes
   }
   async check(options) {
-    return sendMessage('Eyes.check', {eyes: this._eyes, ...options})
+    return messenger.request('Eyes.check', {eyes: this._eyes, ...options})
   }
   async locate(options) {
-    return sendMessage('Eyes.locate', {eyes: this._eyes, ...options})
+    return messenger.request('Eyes.locate', {eyes: this._eyes, ...options})
   }
   async extractText(options) {
-    return sendMessage('Eyes.extractText', {eyes: this._eyes, ...options})
+    return messenger.request('Eyes.extractText', {eyes: this._eyes, ...options})
   }
   async extractTextRegions(options) {
-    return sendMessage('Eyes.extractTextRegions', {eyes: this._eyes, ...options})
+    return messenger.request('Eyes.extractTextRegions', {eyes: this._eyes, ...options})
   }
   async close() {
-    return sendMessage('Eyes.close', {eyes: this._eyes})
+    return messenger.request('Eyes.close', {eyes: this._eyes})
   }
   async abort() {
-    return sendMessage('Eyes.abort', {eyes: this._eyes})
+    return messenger.request('Eyes.abort', {eyes: this._eyes})
   }
 }
 

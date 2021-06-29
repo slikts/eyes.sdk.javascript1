@@ -23,18 +23,18 @@ export default {
   resolve: {
     extensions: ['.js', '.json'],
     alias: {
+      fs: require.resolve('./src/builtins/fs.js'),
+      url: require.resolve('./src/builtins/url.js'),
+      perf_hooks: require.resolve('./src/builtins/perf_hooks.js'),
+      assert: require.resolve('assert/'),
       util: require.resolve('util/'),
-      url: require.resolve('./src/url.js'),
-      fs: require.resolve('./src/fs.js'),
       crypto: require.resolve('crypto-browserify'),
       os: require.resolve('os-browserify/browser'),
       path: require.resolve('path-browserify'),
       stream: require.resolve('stream-browserify'),
-      perf_hooks: require.resolve('universal-perf-hooks/dist/browser.js'),
       zlib: require.resolve('browserify-zlib'),
       module: false,
       child_process: false,
-      '@applitools/screenshoter': false,
     },
   },
   plugins: [
@@ -53,9 +53,6 @@ export default {
           filter: (resourcePath) => /(captureDomAndPoll|pollResult)\.js$/.test(resourcePath)
         },
       ]
-    }),
-    new webpack.DefinePlugin({
-      'process.env': {}
     }),
     new webpack.ProvidePlugin({
       Buffer: [require.resolve('buffer'), 'Buffer'],

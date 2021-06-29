@@ -10,7 +10,7 @@ export function isContext(context) {
 }
 
 export function isElement(element) {
-  return utils.types.has(element, 'elementId')
+  return utils.types.has(element, 'applitools-ref-id')
 }
 
 export function isSelector(selector) {
@@ -38,21 +38,17 @@ export async function parentContext(context) {
 export async function childContext(context, element) {
   const childFrameId = await new Promise(async (resolve, reject) => {
     const key = utils.general.guid()
+    browser.runtime.onMessage.addListener(handler)
     function handler(data, sender) {
       if (data.isPong && data.key === key) {
         resolve(sender.frameId)
         browser.runtime.onMessage.removeListener(handler)
       }
     }
-    browser.runtime.onMessage.addListener(handler)
-    await browser.tabs.sendMessage(
-      context.tabId,
-      {
-        name: 'Driver.executeScript',
-        payload: {script: `return arguments[0].contentWindow.postMessage({key: ${key}, isPing: true})`, arg: element},
-      },
-      {frameId: context.frameId},
-    )
+    await browser.tabs.executeScript(context.tabId, {
+      code: `refer.deref(${JSON.stringify(element)}).contentWindow.dispatchEvent(new CustomEvent('applitools-child-frame'))`,
+      frameId: context.frameId,
+    })
     setTimeout(() => reject(new Error('No such frame')), 5000)
   })
 
@@ -60,27 +56,57 @@ export async function childContext(context, element) {
 }
 
 export async function executeScript(context, script, arg) {
-  return await browser.tabs.sendMessage(
-    context.tabId,
-    {name: 'Driver.executeScript', payload: {script: script.toString(), arg}},
-    {frameId: context.frameId},
-  )
+  script = utils.types.isFunction(script) ? `return (${script}).apply(null, arguments)` : script
+  const [result] = await browser.tabs.executeScript(context.tabId, {
+    frameId: context.frameId,
+    code: `(function() {
+      const fn = new Function(${JSON.stringify(script)});
+      const result = fn(refer.deref(${JSON.stringify(arg)}));
+      return JSON.stringify(refer.ref(result));
+    })()`
+  })
+  return JSON.parse(result)
 }
 
 export async function findElement(context, selector) {
-  return await browser.tabs.sendMessage(
-    context.tabId,
-    {name: 'Driver.findElement', payload: {selector}},
-    {frameId: context.frameId},
-  )
+  selector = utils.types.isString(selector) ? {type: 'css', selector} : selector
+  if (selector.type === 'css') {
+    const [element] = await browser.tabs.executeScript(context.tabId, {
+      frameId: context.frameId,
+      code: `JSON.stringify(refer.ref(document.querySelector('${selector.selector}')))`
+    })
+    return JSON.parse(element)
+  } else if (selector.type === 'xpath') {
+    const [element] = await browser.tabs.executeScript(context.tabId, {
+      frameId: context.frameId,
+      code: `JSON.stringify(refer.ref(document.evaluate('${selector.selector}', document, null, XPathResult.FIRST_ORDERED_NODE_TYPE).singleNodeValue))`,
+    })
+    return JSON.parse(element)
+  }
 }
 
 export async function findElements(context, selector) {
-  return await browser.tabs.sendMessage(
-    context.tabId,
-    {name: 'Driver.findElements', payload: {selector}},
-    {frameId: context.frameId},
-  )
+  selector = utils.types.isString(selector) ? {type: 'css', selector} : selector
+  if (selector.type === 'css') {
+    const [elements] = await browser.tabs.executeScript(context.tabId, {
+      frameId: context.frameId,
+      code: `JSON.stringify(Array.from(document.querySelectorAll('${selector.selector}'), refer.ref))`
+    })
+    return JSON.parse(elements)
+  } else if (selector.type === 'xpath') {
+    const [elements] = await browser.tabs.executeScript(context.tabId, {
+      frameId: context.frameId,
+      code: `(function() {
+        const iterator = document.evaluate('${selector.selector}', document, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE);
+        const elements = [];
+        for (let element = iterator.iterateNext(); element !== null; element = iterator.iterateNext()) {
+          elements.push(refer.ref(element));
+        }
+        return JSON.stringify(elements);
+      })()`,
+    })
+    return JSON.parse(elements)
+  }
 }
 
 export async function takeScreenshot(driver) {
@@ -88,6 +114,7 @@ export async function takeScreenshot(driver) {
   await browser.tabs.update(driver.tabId, {active:true})
   const url = await browser.tabs.captureVisibleTab(driver.windowId, {format: 'png'})
   await browser.tabs.update(activeTab.id, {active:true})
+  await utils.general.sleep(500)
   return url.replace(/^data:image\/png;base64,/, '')
 }
 

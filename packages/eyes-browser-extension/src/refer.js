@@ -1,15 +1,21 @@
 import * as utils from '@applitools/utils'
 
-export function makeRefer() {
+const REF_ID = 'applitools-ref-id'
+
+export function makeRefer({check = () => true, validate = () => {}} = {}) {
   const store = new Map()
 
-  return {ref, deref}
+  return {isRef, ref, deref}
+
+  function isRef(ref) {
+    return utils.types.has(ref, REF_ID)
+  }
 
   function ref(value) {
-    if (value instanceof HTMLElement) {
-      const elementId = utils.general.guid()
-      store.set(elementId, value)
-      return {elementId}
+    if (check(value)) {
+      const refId = utils.general.guid()
+      store.set(refId, value)
+      return {[REF_ID]: refId}
     } else if (utils.types.isArray(value)) {
       return value.map(ref)
     } else if (utils.types.isObject(value)) {
@@ -19,21 +25,17 @@ export function makeRefer() {
     }
   }
 
-  function deref(value) {
-    if (utils.types.has(value, 'elementId')) {
-      const element = store.get(value.elementId)
-      if (!element || !element.isConnected) {
-        const error = new Error('The referenced web element is no longer attached to the DOM')
-        error.name = 'StaleElementReferenceError'
-        throw error
-      }
-      return element
-    } else if (utils.types.isArray(value)) {
-      return value.map(deref)
-    } else if (utils.types.isObject(value)) {
-      return Object.entries(value).reduce((obj, [key, value]) => Object.assign(obj, {[key]: deref(value)}), {})
-    } else {
+  function deref(ref) {
+    if (isRef(ref)) {
+      const value = store.get(ref[REF_ID])
+      validate(value)
       return value
+    } else if (utils.types.isArray(ref)) {
+      return ref.map(deref)
+    } else if (utils.types.isObject(ref)) {
+      return Object.entries(ref).reduce((obj, [key, ref]) => Object.assign(obj, {[key]: deref(ref)}), {})
+    } else {
+      return ref
     }
   }
 }
