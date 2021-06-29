@@ -5,10 +5,10 @@
 
   </center>
 
-The Applitools Eyes SDK can be executed from any general agent which can automate a browser, without the need for prior knowledge on the technical automation technology (e.g. the "driver").
-This is achieved by launching the browser with an installed Eyes SDK browser extension.
+The Applitools Eyes SDK can be executed from any general agent which can automate a browser, without prior determination of the specific automation technology (e.g. the "driver").
+This is achieved by launching the browser with an installed Eyes SDK browser extension. Once the browser extension is running, it is possible for the automation agent to communicate with it, in order to perform any operation that Applitools SDK's support.
 
-First and foremost, this means that this can be achieved only on browsers which support the WebExtension standard, namely Chrome, Firefox, Edge, and Safari.
+Being a browser extension means that this can be achieved only on browsers which support the WebExtension standard, namely Chrome, Firefox, Edge, and Safari.
 At the moment, we support only Chrome.
 
 ## Usage
@@ -17,54 +17,21 @@ The automation environment should communicate with the Eyes SDK browser extensio
 
 ### API
 
-Here is the JS methods that are exposed 
-
-```js
-// TODO should we expose makeManager? Or pass EyesManagerConfig in eyesOpen? 
-
-__eyesOpen(configuration: EyesConfig)
-
-__eyesCheck(checkSettings)
-
-__eyesClose()
-
-```
-
-#### __eyesOpen
-
-This function should be called for opening the Eyes session. It expects as input a JSON object of the type [EyesConfig](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/config.ts#L25).
-
-#### __eyesCheck
-
-This function should be called for performing a visual checkpoint, after `__eyesOpen` was called. It expects as input a JSON object of the type [CheckSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/setting.ts#L66).
-
-#### __eyesClose
-
-This function should be called to close the Eyes session. It receives no input, and returns a JSON object of the type [TestResult](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/data.ts#L205).
-
+TBD
 ### Example
 
+In JavaScript Selenium this would look similar to the following:
+
 ```js
-// TODO example in C#
-
-driver.exectueScript(`__eyesOpen({
-    apiKey: "<API key>,
-    appName: "My App",
-    testName: "My test",
-    viewportSize: {width: 1200, height: 800},
-})`)
-
-driver.executeScript(`__eyesCheck({
-
-})`)
-
-driver.executeScript(`__eyesClose()`)
+driver.exectueScript(`TBD for open operation`)
+driver.exectueScript(`TBD for check operation`)
+driver.exectueScript(`TBD for close operation`)
 ```
 
 ### Script timeout and polling
 
- // TODO expose pollResult
+TBD
 
- ## Tosca user API
+## Tosca user API
 
- // TODO
+TBD
