@@ -6,7 +6,6 @@
   "scripts": {
     "lint": "eslint '**/*.js'",
     "build": "webpack",
-    "build:page": "webpack --config webpack.config.page.babel.js",
     "generate:tests": "coverage-tests generate ./test/coverage/config.js --name 'eyes-testcafe'",
     "test": "yarn build && mocha --no-timeouts test/e2e",
     "setup": "yarn docker:setup",
