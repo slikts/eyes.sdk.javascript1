@@ -7,11 +7,12 @@
     "lint": "eslint '**/*.js'",
     "build": "webpack",
     "generate:tests": "coverage-tests generate ./test/coverage/config.js --name 'eyes-testcafe'",
-    "test": "yarn build && mocha --no-timeouts test/e2e",
-    "setup": "yarn docker:setup",
-    "docker:setup": "VOLUME=./build:/extension node ../scripts/scripts/generate-docker-compose-config.js && docker-compose up -d",
-    "docker:teardown": "docker-compose down",
-    "deps": "bongo deps"
+    "test": "yarn build && yarn test:it && yarn test:coverage",
+    "test:it": "mocha --no-timeouts ./test/it/*.spec.js",
+    "test:coverage": "yarn generate:tests && APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-browser-extension' APPLITOOLS_BATCH_ID=$(uuidgen) XUNIT_FILE=coverage-test-report.xml mocha --config .mocharc.cvg.js",
+    "report": "coverage-tests report https://raw.githubusercontent.com/applitools/sdk.coverage.tests/master/js/config.js --name 'eyes-browser-extension'",
+    "deps": "bongo deps",
+    "gh:test": "gh workflow run test.yml -f packages='browser-extension' -f links='eyes-sdk-core eyes-api utils types sdk-shared visual-grid-client' -f linking-depth='1'"
   },
   "keywords": [],
   "author": "",

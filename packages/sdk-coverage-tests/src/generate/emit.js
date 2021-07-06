@@ -1,12 +1,12 @@
 const {useEmitter} = require('../emitter')
 const {isFunction} = require('../common-util')
 
-function emitTests(tests, config) {
+function emitTests(tests, options) {
   const emittedTests = []
   const errors = []
   for (const test of tests) {
     try {
-      emittedTests.push(emitTest(test, config))
+      emittedTests.push(emitTest(test, options))
     } catch (error) {
       errors.push({test, error})
     }

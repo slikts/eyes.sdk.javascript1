@@ -17,6 +17,11 @@ async function generate(options) {
       ...configLoader(options),
       ...options,
     }
+
+    if (config.env) {
+      Object.entries(config.env).forEach(([key, value]) => (process.env[key] = value))
+    }
+
     console.log(`Creating coverage tests for ${config.name}...\n`)
 
     const tests = await testsLoader(config)

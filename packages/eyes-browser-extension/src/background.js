@@ -1,9 +1,10 @@
 import browser from 'webextension-polyfill'
-import * as spec from './spec-driver'
 import {makeSDK} from '@applitools/eyes-sdk-core'
 import {makeMessenger} from './messenger'
 import {makeRefer} from './refer'
+import * as spec from './spec-driver'
 
+window.browser = browser
 window.spec = spec
 window.sdk = makeSDK({
   name: 'eyes.browser-extension',

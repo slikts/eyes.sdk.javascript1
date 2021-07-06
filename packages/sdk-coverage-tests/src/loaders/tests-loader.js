@@ -3,6 +3,7 @@ const babel = require('@babel/core')
 const {
   isString,
   isUrl,
+  isFunction,
   toPascalCase,
   mergeObjects,
   loadFile,
@@ -32,7 +33,10 @@ async function loadTests(path) {
 function transformTests(code) {
   const transformer = ({types: t}) => {
     const isTransformable = path => {
-      return !!path.findParent(path => path.isObjectMethod() && path.node.key.name === 'test')
+      return !!path.findParent(path => {
+        if (path.isObjectMethod()) return path.node.key.name === 'test'
+        if (path.isFunctionExpression()) return path.node.id.name === 'test'
+      })
     }
     const operators = {
       '+': 'add',
@@ -45,13 +49,14 @@ function transformTests(code) {
       visitor: {
         BinaryExpression(path) {
           if (!isTransformable(path)) return
-          if (operators[path.node.operator])
+          if (operators[path.node.operator]) {
             path.replaceWith(
               t.callExpression(t.identifier(`this.operators.${operators[path.node.operator]}`), [
                 path.node.left,
                 path.node.right,
               ]),
             )
+          }
         },
         VariableDeclarator(path) {
           if (!path.node.init) return
@@ -102,8 +107,14 @@ async function testsLoader({tests: testsPath, overrides, ignoreSkip, ignoreSkipE
 }
 
 function filterTests(tests, {emitOnly = [], emitSkipped, ignoreSkipEmit}) {
-  if (emitOnly.length > 0) {
-    return tests.filter(test => {
+  const filteredTests = tests.filter(test => {
+    return (ignoreSkipEmit || !test.skipEmit) && (emitSkipped || !test.skip)
+  })
+
+  if (isFunction(emitOnly)) {
+    return filteredTests.filter(emitOnly)
+  } else if (emitOnly.length > 0) {
+    return filteredTests.filter(test => {
       return emitOnly.some(pattern => {
         if (pattern.startsWith('/') && pattern.endsWith('/')) {
           const regexp = new RegExp(pattern.slice(1, -1), 'i')
@@ -113,9 +124,7 @@ function filterTests(tests, {emitOnly = [], emitSkipped, ignoreSkipEmit}) {
       })
     })
   } else {
-    return tests.filter(test => {
-      return (ignoreSkipEmit || !test.skipEmit) && (emitSkipped || !test.skip)
-    })
+    return filteredTests
   }
 }
 

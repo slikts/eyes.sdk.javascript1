@@ -40,13 +40,13 @@ export async function childContext(context, element) {
     const key = utils.general.guid()
     browser.runtime.onMessage.addListener(handler)
     function handler(data, sender) {
-      if (data.isPong && data.key === key) {
+      if (data.key === key) {
         resolve(sender.frameId)
         browser.runtime.onMessage.removeListener(handler)
       }
     }
     await browser.tabs.executeScript(context.tabId, {
-      code: `refer.deref(${JSON.stringify(element)}).contentWindow.dispatchEvent(new CustomEvent('applitools-child-frame'))`,
+      code: `refer.deref(${JSON.stringify(element)}).contentWindow.dispatchEvent(new CustomEvent('applitools-frame-message', {detail: {key: '${key}'}}))`,
       frameId: context.frameId,
     })
     setTimeout(() => reject(new Error('No such frame')), 5000)

@@ -1,11 +1,11 @@
 module.exports = {
   extends: 'https://raw.githubusercontent.com/applitools/sdk.coverage.tests/master/js/config.js',
-  emitter: './test/coverage/emitter.js',
-  overrides: [
-    'https://raw.githubusercontent.com/applitools/sdk.coverage.tests/master/js/overrides.js',
-    {
-      'check region by selector with vg classic': {},
-      'check frame after manual switch to frame with vg classic': {},
-    },
-  ],
+  emitter: '/Users/ep/Documents/applitools/sdk.coverage.tests/js/emitter.js',
+  env: {
+    NO_SDK: true,
+    SPEC_DRIVER_PATH: './test/utils/spec-driver.js',
+    SETUP_EYES_PATH: './test/utils/setup-eyes.js',
+  },
+  emitOnly: () => true,
+  
 }
