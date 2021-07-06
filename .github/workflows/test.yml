@@ -29,6 +29,7 @@ env:
   SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
   NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
   AZURE_STORAGE_CONNECTION_STRING: ${{secrets.AZURE_STORAGE_CONNECTION_STRING}}
+  DISPLAY: ':99'
 jobs:
   setup:
     name: Setup
@@ -59,9 +60,9 @@ jobs:
           node-version: 14
       - name: xvfb
         run: |
-          sudo apt-get install -y xvfb libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xinput0 libxcb-xfixes0
-          Xvfb -ac :99 -screen 0 1280x1024x16 &
-          export DISPLAY=:99
+          sudo apt-get install -y xvfb
+          Xvfb -ac $DISPLAY -screen 0 1280x1024x16
+          echo "we are here"
       - name: Run tests
         uses: ./.github/actions/tests
         with:
