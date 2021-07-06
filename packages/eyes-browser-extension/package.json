@@ -31,7 +31,6 @@
     "babel-loader": "^8.2.2",
     "browserify-zlib": "^0.2.0",
     "buffer": "^6.0.3",
-    "chromedriver": "^91.0.1",
     "copy-webpack-plugin": "^7.0.0",
     "core-js": "^3.14.0",
     "crypto-browserify": "^3.12.0",
@@ -43,15 +42,13 @@
     "selenium-webdriver": "^4.0.0-beta.4",
     "stream-browserify": "^3.0.0",
     "util": "^0.12.3",
-    "webdriver": "^7.7.4",
-    "webdriverio": "^7.7.4",
     "webextension-polyfill": "^0.7.0",
     "webpack": "^5.39.1",
     "webpack-cli": "^4.7.2"
   },
   "dependencies": {
-    "@applitools/eyes-sdk-core": "12.15.0",
+    "@applitools/eyes-sdk-core": "12.21.3",
     "@applitools/utils": "1.2.0",
-    "@applitools/visual-grid-client": "15.6.0"
+    "@applitools/visual-grid-client": "15.8.13"
   }
 }
