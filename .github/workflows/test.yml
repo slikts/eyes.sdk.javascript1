@@ -60,7 +60,8 @@ jobs:
       - name: xvfb
         run: |
           sudo apt-get install -y xvfb libxkbcommon-x11-0 libxcb-icccm4 libxcb-image0 libxcb-keysyms1 libxcb-randr0 libxcb-render-util0 libxcb-xinerama0 libxcb-xinput0 libxcb-xfixes0
-          sudo /usr/bin/Xvfb :0 -screen 0 1280x1024x24 &
+          Xvfb -ac :99 -screen 0 1280x1024x16 &
+          export DISPLAY=:99
       - name: Run tests
         uses: ./.github/actions/tests
         with:
