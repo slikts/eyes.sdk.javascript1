@@ -8,14 +8,18 @@ on:
         required: true
       type:
         description: testing type (unit, it, e2e, coverage)
+        required: false
       links:
         description: linked package names
         default: eyes-sdk-core
+        required: false
       linking-depth:
         description: linking depth
-        default: 0
+        default: '0'
+        required: false
       grep:
         description: grep pattern
+        required: false
 env:
   CVG_TESTS_REMOTE: http://localhost:4444/wd/hub
   APPLITOOLS_API_KEY_SDK: ${{secrets.APPLITOOLS_API_KEY_SDK}}
