@@ -79,6 +79,8 @@ const packages = packageSettings.split(/[\s,]+/).reduce((packages, packageSettin
   if (allowVariations) packages.push(package)
   else packages[package.name] = package
 
+  console.log(JSON.stringify(packages, null, 2))
+
   return packages
 }, allowVariations ? [] : {})
 
