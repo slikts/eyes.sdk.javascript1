@@ -18,6 +18,7 @@
   "author": "",
   "license": "ISC",
   "devDependencies": {
+    "@applitools/scripts": "^1.0.1",
     "@applitools/sdk-coverage-tests": "^2.3.13",
     "@applitools/sdk-release-kit": "^0.13.0",
     "@applitools/test-utils": "^1.0.4",
