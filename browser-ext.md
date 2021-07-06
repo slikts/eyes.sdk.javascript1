@@ -13,30 +13,29 @@ At the moment, we support only Chrome.
 
 The Eyes SDK browser extension supports both UFG and Classic modes of operation, with all features currently supported in standard JS SDK's, e.g. the JavaScript Selenium SDK.
 
+## Limitations
+
+No headless Chrome.
+
+## Installation
+
+GitHub releases
+
 ## Usage
 
 The automation environment should communicate with the Eyes SDK browser extension by executing JavaScript on the automated browser window.
 
 ### API
 
-TBD
-
-<!--
 Here is the JS methods that are exposed 
 
-```js
-__eyes.open(configuration: EyesConfig, manager: EyesManagerConfig)
+#### __applitools.openEyes
 
-__eyes.check(checkSettings: CheckSettings)
+of the type [EyesManagerConfig](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/config.ts#L19).
 
-__eyes.close()
-```
+This function should be called for opening the Eyes session. It expects as input a JSON object of the type [EyesConfig](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/config.ts#L25).
 
-#### __eyes.open
-
-This function should be called for opening the Eyes session. It expects as input a JSON object of the type [EyesConfig](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/config.ts#L25), and a second parameter to configure a manager, of the type [EyesManagerConfig](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/config.ts#L19).
-
-#### __eyesCheck
+#### __eyes.check
 
 This function should be called for performing a visual checkpoint, after `__eyesOpen` was called. It expects as input a JSON object of the type [CheckSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/setting.ts#L66).
 
