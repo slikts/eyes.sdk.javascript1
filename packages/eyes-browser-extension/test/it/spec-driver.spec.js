@@ -19,8 +19,7 @@ describe('spec driver', async () => {
       })
       destroyBrowser = () => context.close()
 
-      console.log(context.backgroundPages().length)
-      backgroundPage = await context.waitForEvent('backgroundpage')
+      backgroundPage = context.backgroundPages()[0] || await context.waitForEvent('backgroundpage')
       contentPage = await context.newPage()
       await contentPage.goto(url)
 
