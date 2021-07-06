@@ -19,10 +19,11 @@ describe('spec driver', async () => {
       })
       destroyBrowser = () => context.close()
 
+      console.log(context.backgroundPages().length)
       backgroundPage = await context.waitForEvent('backgroundpage')
       contentPage = await context.newPage()
       await contentPage.goto(url)
-      
+
       const [activeTab] = await backgroundPage.evaluate(() => browser.tabs.query({active: true}))
       driver = {windowId: activeTab.windowId, tabId: activeTab.id}
     })
