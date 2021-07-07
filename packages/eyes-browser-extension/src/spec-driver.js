@@ -57,15 +57,29 @@ export async function childContext(context, element) {
 
 export async function executeScript(context, script, arg) {
   script = utils.types.isFunction(script) ? `return (${script}).apply(null, arguments)` : script
-  const [result] = await browser.tabs.executeScript(context.tabId, {
+  const [response] = await browser.tabs.executeScript(context.tabId, {
     frameId: context.frameId,
-    code: `(function() {
-      const fn = new Function(${JSON.stringify(script)});
-      const result = fn(refer.deref(${JSON.stringify(arg)}));
-      return JSON.stringify(refer.ref(result));
-    })()`
+    code: `JSON.stringify((function() {
+      try {
+        const fn = new Function(${JSON.stringify(script)});
+        const result = fn(refer.deref(${JSON.stringify(arg)}));
+        return {result: refer.ref(result)};
+      } catch (error) {
+        return {error: error instanceof Error ? {message: error.message, stack: error.stack} : error}
+      }
+    })())`
   })
-  return JSON.parse(result)
+  const {result, error} = JSON.parse(response)
+
+  if (error) {
+    if (utils.types.has(error, ['message', 'stack'])) {
+      const err = new Error(error.message)
+      err.stack = error.stack
+      throw err
+    }
+    throw error
+  }
+  else return result
 }
 
 export async function findElement(context, selector) {
@@ -96,14 +110,14 @@ export async function findElements(context, selector) {
   } else if (selector.type === 'xpath') {
     const [elements] = await browser.tabs.executeScript(context.tabId, {
       frameId: context.frameId,
-      code: `(function() {
+      code: `JSON.stringify((function() {
         const iterator = document.evaluate('${selector.selector}', document, null, XPathResult.ORDERED_NODE_ITERATOR_TYPE);
         const elements = [];
         for (let element = iterator.iterateNext(); element !== null; element = iterator.iterateNext()) {
           elements.push(refer.ref(element));
         }
-        return JSON.stringify(elements);
-      })()`,
+        return elements;
+      })())`,
     })
     return JSON.parse(elements)
   }

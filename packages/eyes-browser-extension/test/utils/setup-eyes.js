@@ -10,7 +10,7 @@ function setupEyes({driver, vg, ...config} = {}) {
         // return driver.evaluate(() => __applitools.)
       }
     },
-    async getViewportSize(_driver, size) {
+    async getViewportSize(_driver) {
       return driver.evaluate(() => __applitools.getViewportSize())
     },
     async open(_driver, appName, testName, viewportSize) {
@@ -33,19 +33,19 @@ function setupEyes({driver, vg, ...config} = {}) {
       })
     },
     async check(settings) {
-      return driver.evaluate(settings => __eyes.check({settings}), settings)
+      return driver.evaluate(settings => window.__eyes && window.__eyes.check({settings}), settings)
     },
     async locate(settings) {
-      return driver.evaluate(settings => __eyes.locate({settings}), settings)
+      return driver.evaluate(settings => window.__eyes && window.__eyes.locate({settings}), settings)
     },
     async extractText(regions) {
-      return driver.evaluate(regions => __eyes.extractText({regions}), regions)
+      return driver.evaluate(regions => window.__eyes && window.__eyes.extractText({regions}), regions)
     },
     async extractTextRegions(settings) {
-      return driver.evaluate(settings => __eyes.extractTextRegions({settings}), settings)
+      return driver.evaluate(settings => window.__eyes && window.__eyes.extractTextRegions({settings}), settings)
     },
     async close(throwErr = true) {
-      const result = await driver.evaluate(() => __eyes.close())
+      const result = await driver.evaluate(() => window.__eyes && window.__eyes.close())
 
       if (throwErr) {
         if (result.status !== 'Passed') throw result
@@ -53,7 +53,7 @@ function setupEyes({driver, vg, ...config} = {}) {
       return result
     },
     async abort() {
-      return driver.evaluate(() => __eyes.abort())
+      return driver.evaluate(() => window.__eyes && window.__eyes.abort())
     }
   }
 }

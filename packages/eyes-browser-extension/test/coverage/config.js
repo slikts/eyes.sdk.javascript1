@@ -11,7 +11,11 @@ module.exports = {
       if (!test.vg) return {config: {branchName: 'onscreen'}}
     },
     {
+      // not possible because of browser api
       'should not fail if scroll root is stale': {skipEmit: true},
+      // not possible because of core api
+      'should throw if no checkpoints before close': {skipEmit: true},
+      'should return actual viewport size': {skipEmit: true} // no data classes
     }
   ],
   emitOnly: test => {
