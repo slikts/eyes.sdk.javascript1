@@ -9,18 +9,21 @@ const {
   loadFile,
   runCode,
   requireUrl,
+  isObject,
 } = require('../common-util')
 const {useFramework} = require('../framework')
 
 function loadOverrides(overrides) {
   if (Array.isArray(overrides)) {
-    return overrides.reduce((overrides, item) => Object.assign(overrides, loadOverrides(item)), {})
+    return overrides.reduce((overrides, item) => overrides.concat(loadOverrides(item)), [])
+  } else if (isString(overrides)) {
+    const requiredOverrides = isUrl(overrides)
+      ? requireUrl(overrides)
+      : require(path.resolve(overrides))
+    return [].concat(loadOverrides(requiredOverrides))
+  } else {
+    return [overrides]
   }
-
-  if (!isString(overrides)) return overrides
-  return isUrl(overrides)
-    ? requireUrl(overrides)
-    : require(path.resolve(path.resolve('.'), overrides))
 }
 
 async function loadTests(path) {
@@ -75,10 +78,16 @@ function transformTests(code) {
   return transformed.code
 }
 
-async function testsLoader({tests: testsPath, overrides, ignoreSkip, ignoreSkipEmit}) {
+async function testsLoader({
+  tests: testsPath,
+  overrides,
+  ignoreSkip,
+  ignoreSkipEmit,
+  emitOnly = [],
+}) {
   const {tests, testsConfig} = await loadTests(testsPath)
   const overrideTests = loadOverrides(overrides)
-  const normalizedTests = Object.entries(tests).reduce((tests, [testName, {variants, ...test}]) => {
+  const processedTests = Object.entries(tests).reduce((tests, [testName, {variants, ...test}]) => {
     test.group = testName
     test.key = test.key || toPascalCase(testName)
     test.name = testName
@@ -86,47 +95,44 @@ async function testsLoader({tests: testsPath, overrides, ignoreSkip, ignoreSkipE
       Object.entries(variants).forEach(([variantName, variant]) => {
         variant.key = variant.key || test.key + toPascalCase(variantName)
         variant.name = variantName ? test.name + ' ' + variantName : test.name
-        const testVariant = mergeObjects(test, variant, overrideTests[variant.name])
-        tests.push(normalizeTest(testVariant))
+        tests.push(mergeObjects(test, variant))
       })
     } else {
-      tests.push(normalizeTest(mergeObjects(test, overrideTests[test.name])))
+      tests.push(test)
     }
     return tests
   }, [])
 
-  return normalizedTests
+  return processedTests.map(test => {
+    const mergedTest = mergeObjects(
+      test,
+      ...overrideTests.map(overrideTests => {
+        if (isFunction(overrideTests)) return overrideTests(test)
+        else if (isObject(overrideTests)) return overrideTests[test.name]
+      }),
+    )
+    return normalizeTest(mergedTest)
+  })
 
   function normalizeTest(test) {
+    test.page = test.page && testsConfig.pages[test.page]
     test.config = test.config || {}
     test.skip = test.skip && !ignoreSkip
     test.skipEmit = test.skipEmit && !ignoreSkipEmit
-    test.page = test.page && testsConfig.pages[test.page]
+    if (!test.skipEmit) {
+      if (isFunction(emitOnly)) {
+        test.skipEmit = !emitOnly(test)
+      } else if (emitOnly.length > 0) {
+        test.skipEmit = !emitOnly.some(pattern => {
+          if (pattern.startsWith('/') && pattern.endsWith('/')) {
+            return new RegExp(pattern.slice(1, -1), 'i').test(test.name)
+          }
+          return test.name === pattern
+        })
+      }
+    }
     return test
   }
 }
 
-function filterTests(tests, {emitOnly = [], emitSkipped, ignoreSkipEmit}) {
-  const filteredTests = tests.filter(test => {
-    return (ignoreSkipEmit || !test.skipEmit) && (emitSkipped || !test.skip)
-  })
-
-  if (isFunction(emitOnly)) {
-    return filteredTests.filter(emitOnly)
-  } else if (emitOnly.length > 0) {
-    return filteredTests.filter(test => {
-      return emitOnly.some(pattern => {
-        if (pattern.startsWith('/') && pattern.endsWith('/')) {
-          const regexp = new RegExp(pattern.slice(1, -1), 'i')
-          return regexp.test(test.name)
-        }
-        return test.name === pattern
-      })
-    })
-  } else {
-    return filteredTests
-  }
-}
-
 exports.testsLoader = testsLoader
-exports.filterTests = filterTests
