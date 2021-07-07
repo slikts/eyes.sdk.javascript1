@@ -10,6 +10,9 @@ function setupEyes({driver, vg, ...config} = {}) {
         // return driver.evaluate(() => __applitools.)
       }
     },
+    async getViewportSize(_driver, size) {
+      return driver.evaluate(() => __applitools.getViewportSize())
+    },
     async open(_driver, appName, testName, viewportSize) {
       return driver.evaluate(async options => window.__eyes = await __applitools.makeEyes(options), {
         type: vg ? 'vg' : 'classic',
