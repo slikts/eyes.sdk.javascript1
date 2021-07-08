@@ -1,6 +1,7 @@
 import browser from 'webextension-polyfill'
 import {makeRefer} from './refer'
 import {makeMessenger} from './messenger'
+import {unmark} from './marker'
 
 const apiScript = document.createElement('script')
 apiScript.src = browser.runtime.getURL('api.js')
@@ -18,7 +19,7 @@ window.refer = makeRefer({
 })
 
 const apiMessenger = makeMessenger({
-  onMessage: fn => window.addEventListener('applitools-message', ({detail}) => fn(detail)),
+  onMessage: fn => window.addEventListener('applitools-message', ({detail}) => fn(unmark(detail))),
   sendMessage: detail => window.dispatchEvent(new CustomEvent('applitools-message', {detail}))
 })
 const frameMessenger = makeMessenger({

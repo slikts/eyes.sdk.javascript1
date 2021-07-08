@@ -90,8 +90,6 @@ module.exports = {
   ],
   emitOnly: test => {
     if (test.api === 'classic') return false
-    if (!test.name.startsWith('check')) return false
-    if (++i > 45) return false
     return true
   },
 }

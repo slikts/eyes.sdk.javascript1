@@ -1,8 +1,9 @@
 import {makeMessenger} from './messenger'
+import {mark} from './marker'
 
 const messenger = makeMessenger({
   onMessage: fn => window.addEventListener('applitools-message', ({detail}) => fn(detail)),
-  sendMessage: detail => window.dispatchEvent(new CustomEvent('applitools-message', {detail}))
+  sendMessage: detail => window.dispatchEvent(new CustomEvent('applitools-message', {detail: mark(detail)}))
 })
 
 class Core {
