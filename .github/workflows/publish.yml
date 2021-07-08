@@ -371,7 +371,7 @@ jobs:
             packages/${{fromJSON(needs.setup.outputs.packages).selenium-universal.package}}/coverage-test-report.xml
 
   browser-extension:
-    needs: [setup, utils, core, vgc]
+    needs: [setup, utils, test-utils, core, vgc]
     if: ${{fromJSON(needs.setup.outputs.packages).browser-extension && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
