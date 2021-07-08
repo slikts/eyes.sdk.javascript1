@@ -15,11 +15,14 @@ The Eyes SDK browser extension supports both UFG and Classic modes of operation,
 
 ## Limitations
 
-No headless Chrome.
+Headless Chrome does not support browser extensions, therefore the Eyes SDK browser extension doesn't work when running Chrome in headless mode.
 
 ## Installation
 
-GitHub releases
+The extension is released as a `.crx` file under GitHub releases: https://github.com/applitools/eyes.sdk.javascript1/releases
+Download this file and double click it, or drag it into Google Chrome in order to install the extension.
+
+// TODO gif
 
 ## Usage
 
@@ -31,28 +34,74 @@ Here is the JS methods that are exposed
 
 #### __applitools.openEyes
 
-of the type [EyesManagerConfig](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/config.ts#L19).
+This function creates a visual test and returns the `Eyes` instance for creating visual checkpoints and for closing the test. It expects an input of the type [EyesManagerConfig](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/config.ts#L19), with an additional property `config` of the type [EyesConfig](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/config.ts#L25).
 
-This function should be called for opening the Eyes session. It expects as input a JSON object of the type [EyesConfig](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/config.ts#L25).
+Returns: instance of `Eyes` which has `check` and `close` methods.
 
-#### __eyes.check
+Example:
 
-This function should be called for performing a visual checkpoint, after `__eyesOpen` was called. It expects as input a JSON object of the type [CheckSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/setting.ts#L66).
+```js
+// classic mode
+__applitools.openEyes({
+  config: {appName: 'My App', testName: 'My test', apiKey: '<your API key>'}
+})
 
-#### __eyesClose
+// Ultra fast grid mode
+__applitools.openEyes({
+  type: 'vg',
+  concurrency: 10,
+  config: {appName: 'My App', testName: 'My test', apiKey: '<your API key>'}
+})
+```
+
+#### __applitools.getEyes()
+
+Returns the last created `Eyes` instance (return value of `__applitools.openEyes`) for this browser tab.
+
+#### eyes.check
+
+This function should be called for performing a visual checkpoint. It expects as input a JSON object of the type [CheckSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/setting.ts#L66).
+
+Example:
+
+```js
+// viewport screenshot
+__applitools.getEyes().check({fully: true})
+
+// full page screenshot
+__applitools.getEyes().check({fully: true})
+
+// element screenshot
+__applitools.getEyes().check({target: 'h1'})
+
+// region screenshot
+__applitools.getEyes().check({target: {width: 200, height: 80, top: 20, left: 10}})
+```
+
+#### eyes.close
 
 This function should be called to close the Eyes session. It receives no input, and returns a JSON object of the type [TestResult](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/data.ts#L205).
 
--->
+Example:
+
+```js
+__applitools.getEyes().close()
+```
 
 ### Example
 
 In JavaScript Selenium this would look similar to the following:
 
 ```js
-driver.exectueScript(`TBD for open operation`)
-driver.exectueScript(`TBD for check operation`)
-driver.exectueScript(`TBD for close operation`)
+await driver.exectueScript(`return __applitools.openEyes({
+  type: 'vg',
+  concurrency: 10,
+  config: {appName: 'My App', testName: 'My test', apiKey: '<your API key>'}
+})`)
+
+await driver.exectueScript(`return __applitools.getEyes().check({})`)
+
+await driver.exectueScript(`return __applitools.getEyes().close()`)
 ```
 
 ### Script timeout and polling
