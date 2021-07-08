@@ -178,7 +178,7 @@ describe('spec driver', async () => {
         },
       })
     })
-    it('getCookies()', async () => {
+    it.skip('getCookies()', async () => {
       await getCookies(true)
     })
   })
@@ -214,6 +214,9 @@ describe('spec driver', async () => {
           platformVersion: '10',
         },
       })
+    })
+    it.skip('getCookies()', async () => {
+      await getCookies(true)
     })
   })
 
@@ -528,7 +531,6 @@ describe('spec driver', async () => {
       expected,
     )
   }
-
   async function getCookies(legacy = false) {
     if (!legacy) {
       const cdpCommand = [
@@ -573,10 +575,11 @@ describe('spec driver', async () => {
       })
     } else {
       // TODO: implement IE test
-      // await browser.addCookie({name: 'hello', value: 'world'})
-      // assert.deepStrictEqual(await spec.getCookies(browser), [
-      //   {name: 'hello', value: 'world', domain: 'applitools.github.io'},
-      // ])
+
+      await browser.addCookie({name: 'hello', value: 'world'})
+      assert.deepStrictEqual(await spec.getCookies(browser), [
+        {name: 'hello', value: 'world', domain: 'applitools.github.io'},
+      ])
     }
   }
 })

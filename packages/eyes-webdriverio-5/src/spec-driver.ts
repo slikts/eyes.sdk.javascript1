@@ -309,7 +309,8 @@ export async function getCookies(browser: Driver): Promise<types.CookieObject> {
     const {cookies} = await browser.sendCommandAndGetResult('Network.getAllCookies', {})
     allCookies = {cookies, all: true}
   } else {
-    allCookies = {cookies: await browser.getCookies(), all: false}
+    const cookies = await browser.getCookies()
+    allCookies = {cookies, all: false}
   }
 
   return {
