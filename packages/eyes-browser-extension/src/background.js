@@ -13,15 +13,26 @@ window.sdk = makeSDK({
   VisualGridClient: require('@applitools/visual-grid-client'),
 })
 
+browser.tabs.onUpdated.addListener((tabId, change) => {
+  if (change.status === 'complete') {
+    const manager = refer.get(`manager-${tabId}`)
+    if (manager) messenger.emit('Core.setManager', {manager}, {tabId})
+    const eyes = refer.get(`eyes-${tabId}`)
+    if (eyes) messenger.emit('Core.setEyes', {eyes}, {tabId})
+  }
+})
+
 const refer = makeRefer()
 const messenger = makeMessenger({
   onMessage: fn => browser.runtime.onMessage.addListener((message, sender) => fn(message, sender)),
-  sendMessage: (message, receiver) => browser.tabs.sendMessage(receiver.tab.id, message, {frameId: receiver.frameId})
+  sendMessage: (message, receiver) => browser.tabs.sendMessage(receiver.tabId ?? receiver.tab.id, message, {frameId: receiver.frameId})
 })
 
 messenger.command('Core.makeManager', async config => {
   const manager = await sdk.makeManager(config)
-  return refer.ref(manager)
+  const managerRef = refer.ref(manager, `manager-${sender.tab.id}`)
+  messenger.emit('Core.setManager', {manager: managerRef}, {tabId: sender.tab.id})
+  return managerRef
 })
 messenger.command('Core.makeEyes', async (config, sender) => {
   const manager = await sdk.makeManager(config)
@@ -30,7 +41,9 @@ messenger.command('Core.makeEyes', async (config, sender) => {
     config: config.config,
     on: config.on
   })
-  return refer.ref(eyes)
+  const eyesRef = refer.ref(eyes, `eyes-${sender.tab.id}`)
+  messenger.emit('Core.setEyes', {eyes: eyesRef}, {tabId: sender.tab.id})
+  return eyesRef
 })
 messenger.command('Core.getViewportSize', async (_, sender) => {
   return sdk.getViewportSize({

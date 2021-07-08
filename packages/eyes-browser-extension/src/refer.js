@@ -4,18 +4,25 @@ const REF_ID = 'applitools-ref-id'
 
 export function makeRefer({check = () => true, validate = () => {}} = {}) {
   const store = new Map()
+  const shorthands = new Map()
 
-  return {isRef, ref, deref}
+  return {isRef, get, ref, deref}
 
   function isRef(ref) {
     return utils.types.has(ref, REF_ID)
   }
 
-  function ref(value) {
+  function get(key) {
+    return shorthands.get(key)
+  }
+
+  function ref(value, key) {
     if (check(value)) {
       const refId = utils.general.guid()
       store.set(refId, value)
-      return {[REF_ID]: refId}
+      const ref = {[REF_ID]: refId}
+      if (key) shorthands.set(key, ref)
+      return ref
     } else if (utils.types.isArray(value)) {
       return value.map(ref)
     } else if (utils.types.isObject(value)) {

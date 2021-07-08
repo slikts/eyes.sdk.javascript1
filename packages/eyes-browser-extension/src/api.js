@@ -6,14 +6,17 @@ const messenger = makeMessenger({
   sendMessage: detail => window.dispatchEvent(new CustomEvent('applitools-message', {detail: mark(detail)}))
 })
 
+messenger.on('Core.setManager', manager => (window.__applitools.manager = new EyesManager({manager})))
+messenger.on('Core.setEyes', eyes => (window.__applitools.eyes = new Eyes({eyes})))
+
 class Core {
-  async makeEyes(config) {
-    const eyes = await messenger.request('Core.makeEyes', config)
-    return new Eyes({eyes})
-  }
   async makeManager(config) {
     const manager = await messenger.request('Core.makeManager', config)
     return new EyesManager({manager})
+  }
+  async makeEyes(config) {
+    const eyes = await messenger.request('Core.makeEyes', config)
+    return new Eyes({eyes})
   }
   async getViewportSize() {
     return messenger.request('Core.getViewportSize')

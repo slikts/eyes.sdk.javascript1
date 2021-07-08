@@ -18,6 +18,7 @@ window.refer = makeRefer({
   }
 })
 
+// These messengers are required because user API cannot directly communicate with background script
 const apiMessenger = makeMessenger({
   onMessage: fn => window.addEventListener('applitools-message', ({detail}) => fn(unmark(detail))),
   sendMessage: detail => window.dispatchEvent(new CustomEvent('applitools-message', {detail}))
@@ -32,9 +33,12 @@ const backgroundMessenger = makeMessenger({
 })
 
 // NOTE: Listen for commands from page/api script.
-// This is required because user API cannot directly communicate with background script
 apiMessenger.command(async (name, payload) => backgroundMessenger.request(name, payload))
 
 // NOTE: Listen for one single command triggered from childContext in spec driver
 // This is a workaround to get frameId of cross origin iframe
 frameMessenger.on('*', (_, type) => backgroundMessenger.emit(type))
+
+// NOTE: Listen for events initiated by the background script
+backgroundMessenger.on('*', async (payload, name) => apiMessenger.emit(name, payload))
+
