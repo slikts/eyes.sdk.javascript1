@@ -370,6 +370,31 @@ jobs:
             packages/${{fromJSON(needs.setup.outputs.packages).selenium-universal.package}}/coverage-tests-metadata.json
             packages/${{fromJSON(needs.setup.outputs.packages).selenium-universal.package}}/coverage-test-report.xml
 
+  browser-extension:
+    needs: [setup, utils, core, vgc]
+    if: ${{fromJSON(needs.setup.outputs.packages).browser-extension && !failure() && !cancelled()}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      # - name: Run tests
+      #   uses: ./.github/actions/tests
+      #   with:
+      #     package: ${{fromJSON(needs.setup.outputs.packages).browser-extension.package}}
+      #   env: ${{fromJSON(needs.setup.outputs.packages).browser-extension.env}}
+      - name: Create GitHub release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{steps.publish.outputs.tag}}
+          files: |
+            packages/${{fromJSON(needs.setup.outputs.packages).browser-extension.package}}/build
+        env:
+          GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
+
   playwright:
     needs: [setup, utils, test-utils, api, core, vgc]
     if: ${{fromJSON(needs.setup.outputs.packages).playwright && !failure() && !cancelled()}}
