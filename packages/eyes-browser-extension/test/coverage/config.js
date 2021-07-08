@@ -1,3 +1,5 @@
+let i = 0
+
 module.exports = {
   extends: 'https://raw.githubusercontent.com/applitools/sdk.coverage.tests/master/js/config.js',
   env: {
@@ -89,6 +91,7 @@ module.exports = {
   emitOnly: test => {
     if (test.api === 'classic') return false
     if (!test.name.startsWith('check')) return false
+    if (++i > 15) return false
     return true
   },
 }
