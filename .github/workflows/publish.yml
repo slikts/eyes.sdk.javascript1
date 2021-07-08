@@ -389,7 +389,7 @@ jobs:
       - name: Create GitHub release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{steps.publish.outputs.tag}}
+          tag_name: '@applitools/eyes-browser-extension@0.0.1'
           files: |
             packages/${{fromJSON(needs.setup.outputs.packages).browser-extension.package}}/build
         env:
