@@ -15,8 +15,8 @@ class Core {
     const manager = await messenger.request('Core.makeManager', config)
     return new EyesManager({manager})
   }
-  async makeEyes(config) {
-    const eyes = await messenger.request('Core.makeEyes', config)
+  async openEyes(config) {
+    const eyes = await messenger.request('Core.openEyes', config)
     return new Eyes({eyes})
   }
   async getViewportSize() {
@@ -37,8 +37,8 @@ class EyesManager {
   constructor({manager}) {
     this._manager = manager
   }
-  async makeEyes(options) {
-    const eyes = await messenger.request('EyesManager.makeEyes', {manager: this._manager, ...options})
+  async openEyes(options) {
+    const eyes = await messenger.request('EyesManager.openEyes', {manager: this._manager, ...options})
     return new Eyes({eyes})
   }
   async closeAllEyes() {

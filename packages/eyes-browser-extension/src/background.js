@@ -35,9 +35,9 @@ messenger.command('Core.makeManager', async (config, sender) => {
   messenger.emit('Core.setManager', {manager: managerRef}, {tabId: sender.tab.id})
   return managerRef
 })
-messenger.command('Core.makeEyes', async (config, sender) => {
+messenger.command('Core.openEyes', async (config, sender) => {
   const manager = await window.sdk.makeManager(config)
-  const eyes = await manager.makeEyes({
+  const eyes = await manager.openEyes({
     driver: {tabId: sender.tab.id, windowId: sender.tab.windowId, frameId: sender.frameId},
     config: config.config,
     on: config.on,
@@ -64,8 +64,8 @@ messenger.command('Core.deleteTest', async settings => {
   return window.sdk.deleteTest(settings)
 })
 
-messenger.command('EyesManager.makeEyes', async ({manager, config, on}, sender) => {
-  const eyes = await refer.deref(manager).makeEyes({
+messenger.command('EyesManager.openEyes', async ({manager, config, on}, sender) => {
+  const eyes = await refer.deref(manager).openEyes({
     driver: {tabId: sender.tab.id, windowId: sender.tab.windowId, frameId: sender.frameId},
     config,
     on,
