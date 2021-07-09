@@ -33,10 +33,10 @@
     "@applitools/snippets" "2.1.3"
     "@applitools/utils" "1.2.0"
 
-"@applitools/eyes-sdk-core@12.21.0":
-  version "12.21.0"
-  resolved "https://registry.yarnpkg.com/@applitools/eyes-sdk-core/-/eyes-sdk-core-12.21.0.tgz#7ad44e9f7651235c90e8d3744ab0159e0f7c58fd"
-  integrity sha512-/mLMGwAXtJPGqxWHJ4oOaaR0IvXt+thoeQ8KUTvUMhqOeeRXoH0qh8fnW1XKRNvRNPRgOb30+XwD9n0zAn244Q==
+"@applitools/eyes-sdk-core@12.21.2":
+  version "12.21.2"
+  resolved "https://registry.yarnpkg.com/@applitools/eyes-sdk-core/-/eyes-sdk-core-12.21.2.tgz#b66658e4701270c4ba311e7c854a2fdea9409926"
+  integrity sha512-9JUn5GPvJmm1APlKMK+BcKgIr9w9VkxscpuKps+F2YTufAr/fhzBdxpvBCI/jir7FLQP19eTI2Z0cDQU3UsJ1Q==
   dependencies:
     "@applitools/dom-capture" "11.0.1"
     "@applitools/dom-snapshot" "4.5.3"
@@ -44,6 +44,7 @@
     "@applitools/isomorphic-fetch" "3.0.0"
     "@applitools/screenshoter" "3.0.8"
     "@applitools/snippets" "2.1.3"
+    "@applitools/types" "1.0.3"
     axios "0.21.1"
     chalk "3.0.0"
     cosmiconfig "6.0.0"
@@ -204,12 +205,12 @@
   resolved "https://registry.yarnpkg.com/@applitools/utils/-/utils-1.2.0.tgz#a79774ffdb894a73fbca5d24eba66ef17119a7c6"
   integrity sha512-NzynRgRavbTns5M85DJXXaMY/57xBte3F/tnK5nr3DSBhKTQnkjXIFwryPU5bVwEcpoGEVF0T1Gyq37WnDe38Q==
 
-"@applitools/visual-grid-client@15.8.10":
-  version "15.8.10"
-  resolved "https://registry.yarnpkg.com/@applitools/visual-grid-client/-/visual-grid-client-15.8.10.tgz#1f1a52f191f882e6f5aaa54456f0721011967509"
-  integrity sha512-hFALf2SG/c+YQPA1J9uxpZTneMdhwkNR6stmFep2FzJybh9BZ1ql7ysUgCYHacw7o7k2Mt6rS8FTqGP5SJSSAg==
+"@applitools/visual-grid-client@15.8.12":
+  version "15.8.12"
+  resolved "https://registry.yarnpkg.com/@applitools/visual-grid-client/-/visual-grid-client-15.8.12.tgz#3c9a546bcd03010bcf853f9c03260c34cc29d87a"
+  integrity sha512-Xz8wZj1dkyILlSY5D1nvZOK74VUQJ6KhpC8OfXVYC2tdo3/Lm0mLi2ewFLOIfJCYLDzqyE5LEEAX0bbiG+hZsw==
   dependencies:
-    "@applitools/eyes-sdk-core" "12.21.0"
+    "@applitools/eyes-sdk-core" "12.21.2"
     "@applitools/functional-commons" "1.6.0"
     "@applitools/http-commons" "2.4.3"
     "@applitools/isomorphic-fetch" "3.0.0"

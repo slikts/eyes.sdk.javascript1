@@ -3,6 +3,27 @@
 ## Unreleased
 
 
+## 3.22.6 - 2021/7/7
+
+- document runBefore and runAfter functions caveats
+- updated to @applitools/dom-snapshot@4.5.4 (from 4.5.3)
+
+  ## 3.22.5 - 2021/6/30
+
+ - fail immediately when the api key is invalid 
+- updated to @applitools/eyes-puppeteer@1.7.4 (from 1.7.3)
+- updated to @applitools/eyes-sdk-core@12.21.3 (from 12.21.2)
+- updated to @applitools/visual-grid-client@15.8.13 (from 15.8.12)
+
+## 3.22.4 - 2021/6/29
+
+- fix storybook url `html` extensions
+- updated to @applitools/driver@1.0.7 (from 1.0.6)
+- updated to @applitools/eyes-sdk-core@12.21.2 (from 12.20.2)
+- updated to @applitools/visual-grid-client@15.8.11 (from 15.8.8)
+- updated to @applitools/visual-grid-client@15.8.12 (from 15.8.11)
+- updated to @applitools/eyes-puppeteer@1.7.3 (from 1.7.2)
+
 ## 3.22.3 - 2021/6/1
 
 - fix browser config

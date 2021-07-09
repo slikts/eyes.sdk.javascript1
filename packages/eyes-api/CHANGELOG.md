@@ -4,6 +4,14 @@
 
 - rename makeEyes to openEyes
 
+## 1.0.7 - 2021/6/30
+
+- create plain enums types
+
+## 1.0.6 - 2021/6/27
+
+- support thenable webdrivers
+
 ## 1.0.5 - 2021/6/15
 
 - updated to @applitools/types@1.0.3 (from 1.0.2)
