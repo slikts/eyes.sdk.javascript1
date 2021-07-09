@@ -389,6 +389,7 @@ jobs:
       - name: Update version
         id: version
         run: |
+          cd packages/${{fromJSON(needs.setup.outputs.packages).browser-extension.package}}
           yarn version --${{fromJSON(needs.setup.outputs.packages).browser-extension.releaseVersion}}
           echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
       - name: Publish to GitHub
