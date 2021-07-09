@@ -7,6 +7,9 @@ inputs:
   version:
     description: version type (patch, major, minor)
     required: true
+  skip-npm:
+    description: should the package be published in npm
+    default: false
 outputs:
   tag:
     description: name of the tag pushed after publishing
@@ -42,7 +45,7 @@ runs:
         git status
         npm run deps --if-present
         git status
-        yarn publish "--${{inputs.version}}" --access public
+        if [ "${{inputs.npm}}" = false ]; then yarn publish "--${{inputs.version}}"; else yarn version "--${{inputs.version}}"; fi
         git status
 
         echo "::set-output name=tag::$(git describe --tags --abbrev=0)"

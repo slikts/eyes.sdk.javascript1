@@ -293,7 +293,7 @@ jobs:
           package: ${{fromJSON(needs.setup.outputs.packages).universal.package}}
         env: ${{fromJSON(needs.setup.outputs.packages).universal.env}}
       - name: Publish to NPM
-        id: version
+        id: publish
         uses: ./.github/actions/publish
         with:
           package: ${{fromJSON(needs.setup.outputs.packages).universal.package}}
@@ -301,7 +301,7 @@ jobs:
       - name: Publish to GitHub
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{steps.version.outputs.tag}}
+          tag_name: ${{steps.publish.outputs.tag}}
           files: |
             packages/${{fromJSON(needs.setup.outputs.packages).universal.package}}/bin/cli-linux
             packages/${{fromJSON(needs.setup.outputs.packages).universal.package}}/bin/cli-macos
@@ -388,11 +388,11 @@ jobs:
       #   env: ${{fromJSON(needs.setup.outputs.packages).browser-extension.env}}
       - name: Update version
         id: version
-        run: |
-          cd packages/${{fromJSON(needs.setup.outputs.packages).browser-extension.package}}
-          yarn
-          yarn version --${{fromJSON(needs.setup.outputs.packages).browser-extension.releaseVersion}}
-          echo "::set-output name=tag::$(git describe --tags --abbrev=0)"
+        uses: ./.github/actions/publish
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).universal.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).universal.releaseVersion}}
+          skip-npm: true
       - name: Publish to GitHub
         uses: softprops/action-gh-release@v1
         with:
