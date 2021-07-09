@@ -1,5 +1,3 @@
-let i = 0
-
 module.exports = {
   extends: 'https://raw.githubusercontent.com/applitools/sdk.coverage.tests/master/js/config.js',
   env: {
@@ -22,7 +20,7 @@ module.exports = {
       // not possible because of core api
       'should throw if no checkpoints before close': {skipEmit: true},
       'should return actual viewport size': {skipEmit: true}, // no data classes
-    }
+    },
   ],
   emitOnly: test => {
     if (test.api === 'classic') return false

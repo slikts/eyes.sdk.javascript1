@@ -2,7 +2,7 @@ import * as utils from '@applitools/utils'
 
 const REF_ID = 'applitools-ref-id'
 
-export function makeRefer({check = () => true, validate = () => {}} = {}) {
+export function makeRefer({check = () => true, validate = () => void 0} = {}) {
   const store = new Map()
   const shorthands = new Map()
 

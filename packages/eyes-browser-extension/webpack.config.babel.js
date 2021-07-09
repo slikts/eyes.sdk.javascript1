@@ -15,7 +15,7 @@ export default {
     api: ['./src/api'],
   },
   output: {
-    path: path.resolve(__dirname, './build'),
+    path: path.resolve(__dirname, './dist'),
     filename: '[name].js',
     publicPath: '/assets/',
     libraryTarget: 'umd',
@@ -46,25 +46,25 @@ export default {
           transform: content => {
             const {version} = require('./package.json')
             return content.toString('utf8').replace(/__PACKAGE_VERSION__/g, version)
-          }
+          },
         },
-        { from: './assets', to: './assets' },
+        {from: './assets', to: './assets'},
         {
           from: path.resolve(path.dirname(require.resolve('@applitools/dom-snapshot')), './dist/*.js'),
           to: './assets/dom-snapshot/[name].[ext]',
-          filter: resourcePath => /(processPagePoll|pollResult)\.js$/.test(resourcePath)
+          filter: resourcePath => /(processPagePoll|pollResult)\.js$/.test(resourcePath),
         },
         {
           from: path.resolve(path.dirname(require.resolve('@applitools/dom-capture')), './dist/*.js'),
           to: './assets/dom-capture/[name].[ext]',
-          filter: resourcePath => /(captureDomAndPoll|pollResult)\.js$/.test(resourcePath)
+          filter: resourcePath => /(captureDomAndPoll|pollResult)\.js$/.test(resourcePath),
         },
-      ]
+      ],
     }),
     new webpack.ProvidePlugin({
       Buffer: [require.resolve('buffer'), 'Buffer'],
       process: [require.resolve('process')],
-      setImmediate: [require.resolve('core-js/features/set-immediate')]
+      setImmediate: [require.resolve('core-js/features/set-immediate')],
     }),
   ],
 }

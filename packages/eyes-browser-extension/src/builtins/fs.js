@@ -1,7 +1,7 @@
 import browser from 'webextension-polyfill'
 import * as path from 'path'
 
-export async function readFile(filePath, options, callback) {
+export async function readFile(filePath, _options, callback) {
   const directory = filePath.includes('dom-snapshot') ? 'dom-snapshot' : 'dom-capture'
   const fileUrl = browser.runtime.getURL(`assets/${directory}/${path.basename(filePath)}`)
   try {

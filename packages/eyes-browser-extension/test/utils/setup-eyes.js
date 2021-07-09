@@ -2,19 +2,17 @@ function setupEyes({driver, vg, ...config} = {}) {
   return {
     constructor: {
       async setViewportSize(_driver, size) {
-        return driver.evaluate(size => __applitools.setViewportSize({size}), size)
+        return driver.evaluate(size => window.__applitools.setViewportSize({size}), size)
       },
     },
     runner: {
-      getAllTestResults(throwErr) {
-        // return driver.evaluate(() => __applitools.)
-      }
+      getAllTestResults(_throwErr) {},
     },
     async getViewportSize(_driver) {
-      return driver.evaluate(() => __applitools.getViewportSize())
+      return driver.evaluate(() => window.__applitools.getViewportSize())
     },
     async open(_driver, appName, testName, viewportSize) {
-      return driver.evaluate(async options => window.__eyes = await __applitools.makeEyes(options), {
+      return driver.evaluate(async options => (window.__eyes = await window.__applitools.makeEyes(options)), {
         type: vg ? 'vg' : 'classic',
         concurrency: 10,
         config: {
@@ -54,7 +52,7 @@ function setupEyes({driver, vg, ...config} = {}) {
     },
     async abort() {
       return driver.evaluate(() => window.__eyes && window.__eyes.abort())
-    }
+    },
   }
 }
 

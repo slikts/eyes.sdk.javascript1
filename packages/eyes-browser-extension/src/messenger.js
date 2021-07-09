@@ -22,7 +22,6 @@ export function makeMessenger({sendMessage, onMessage}) {
     fns.forEach(fn => fn(payload, key ? {name, key} : name, ...rest))
   })
 
-
   return {
     emit,
     on,
@@ -88,10 +87,11 @@ export function makeMessenger({sendMessage, onMessage}) {
     }
     return on(name, async (payload, type, ...rest) => {
       try {
-        const result = name === '*'
-          ? await fn(utils.types.isString(type) ? type : type.name, payload, ...rest)
-          : await fn(payload, ...rest)
-          emit(type, {result}, ...rest)
+        const result =
+          name === '*'
+            ? await fn(utils.types.isString(type) ? type : type.name, payload, ...rest)
+            : await fn(payload, ...rest)
+        emit(type, {result}, ...rest)
       } catch (error) {
         emit(type, {error: {message: error.message, stack: error.stack}}, ...rest)
       }

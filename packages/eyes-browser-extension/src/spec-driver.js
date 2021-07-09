@@ -46,7 +46,9 @@ export async function childContext(context, element) {
       }
     }
     await browser.tabs.executeScript(context.tabId, {
-      code: `refer.deref(${JSON.stringify(element)}).contentWindow.dispatchEvent(new CustomEvent('applitools-frame-message', {detail: {key: '${key}'}}))`,
+      code: `refer.deref(${JSON.stringify(
+        element,
+      )}).contentWindow.dispatchEvent(new CustomEvent('applitools-frame-message', {detail: {key: '${key}'}}))`,
       frameId: context.frameId,
     })
     setTimeout(() => reject(new Error('No such frame')), 5000)
@@ -67,7 +69,7 @@ export async function executeScript(context, script, arg) {
       } catch (error) {
         return {error: error instanceof Error ? {message: error.message, stack: error.stack} : error}
       }
-    })())`
+    })())`,
   })
   const {result, error} = JSON.parse(response)
 
@@ -78,8 +80,7 @@ export async function executeScript(context, script, arg) {
       throw err
     }
     throw error
-  }
-  else return result
+  } else return result
 }
 
 export async function findElement(context, selector) {
@@ -87,7 +88,7 @@ export async function findElement(context, selector) {
   if (selector.type === 'css') {
     const [element] = await browser.tabs.executeScript(context.tabId, {
       frameId: context.frameId,
-      code: `JSON.stringify(refer.ref(document.querySelector('${selector.selector}')))`
+      code: `JSON.stringify(refer.ref(document.querySelector('${selector.selector}')))`,
     })
     return JSON.parse(element)
   } else if (selector.type === 'xpath') {
@@ -104,7 +105,7 @@ export async function findElements(context, selector) {
   if (selector.type === 'css') {
     const [elements] = await browser.tabs.executeScript(context.tabId, {
       frameId: context.frameId,
-      code: `JSON.stringify(Array.from(document.querySelectorAll('${selector.selector}'), refer.ref))`
+      code: `JSON.stringify(Array.from(document.querySelectorAll('${selector.selector}'), refer.ref))`,
     })
     return JSON.parse(elements)
   } else if (selector.type === 'xpath') {
@@ -125,26 +126,26 @@ export async function findElements(context, selector) {
 
 export async function takeScreenshot(driver) {
   const [activeTab] = await browser.tabs.query({windowId: driver.windowId, active: true})
-  await browser.tabs.update(driver.tabId, {active:true})
+  await browser.tabs.update(driver.tabId, {active: true})
   const url = await browser.tabs.captureVisibleTab(driver.windowId, {format: 'png'})
-  await browser.tabs.update(activeTab.id, {active:true})
+  await browser.tabs.update(activeTab.id, {active: true})
   await utils.general.sleep(500)
   return url.replace(/^data:image\/png;base64,/, '')
 }
 
 export async function getTitle(driver) {
-  const {title} = await browser.tabs.get(driver.tabId);
+  const {title} = await browser.tabs.get(driver.tabId)
   return title
 }
 
 export async function getUrl(driver) {
-  const {url} = await browser.tabs.get(driver.tabId);
+  const {url} = await browser.tabs.get(driver.tabId)
   return url
 }
 
 export async function getWindowSize(driver) {
   const [size] = await browser.tabs.executeScript(driver.tabId, {
-    code: 'JSON.stringify({width: window.outerWidth, height: window.outerHeight})'
+    code: 'JSON.stringify({width: window.outerWidth, height: window.outerHeight})',
   })
   return JSON.parse(size)
 }
@@ -154,6 +155,6 @@ export async function setWindowSize(driver, size) {
     left: 0,
     top: 0,
     width: size.width,
-    height: size.height
+    height: size.height,
   })
 }

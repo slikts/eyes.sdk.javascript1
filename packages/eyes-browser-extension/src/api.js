@@ -1,9 +1,10 @@
 import {makeMessenger} from './messenger'
-import {mark} from './marker'
+import {makeMark} from './marker'
 
+const mark = makeMark()
 const messenger = makeMessenger({
   onMessage: fn => window.addEventListener('applitools-message', ({detail}) => fn(detail)),
-  sendMessage: detail => window.dispatchEvent(new CustomEvent('applitools-message', {detail: mark(detail)}))
+  sendMessage: detail => window.dispatchEvent(new CustomEvent('applitools-message', {detail: mark(detail)})),
 })
 
 messenger.on('Core.setManager', manager => (window.__applitools.manager = new EyesManager({manager})))

@@ -25,42 +25,43 @@ browser.tabs.onUpdated.addListener((tabId, change) => {
 const refer = makeRefer()
 const messenger = makeMessenger({
   onMessage: fn => browser.runtime.onMessage.addListener((message, sender) => fn(message, sender)),
-  sendMessage: (message, receiver) => browser.tabs.sendMessage(receiver.tabId ?? receiver.tab.id, message, {frameId: receiver.frameId})
+  sendMessage: (message, receiver) =>
+    browser.tabs.sendMessage(receiver.tabId ?? receiver.tab.id, message, {frameId: receiver.frameId}),
 })
 
-messenger.command('Core.makeManager', async config => {
-  const manager = await sdk.makeManager(config)
+messenger.command('Core.makeManager', async (config, sender) => {
+  const manager = await window.sdk.makeManager(config)
   const managerRef = refer.ref(manager, `manager-${sender.tab.id}`)
   messenger.emit('Core.setManager', {manager: managerRef}, {tabId: sender.tab.id})
   return managerRef
 })
 messenger.command('Core.makeEyes', async (config, sender) => {
-  const manager = await sdk.makeManager(config)
+  const manager = await window.sdk.makeManager(config)
   const eyes = await manager.makeEyes({
     driver: {tabId: sender.tab.id, windowId: sender.tab.windowId, frameId: sender.frameId},
     config: config.config,
-    on: config.on
+    on: config.on,
   })
   const eyesRef = refer.ref(eyes, `eyes-${sender.tab.id}`)
   messenger.emit('Core.setEyes', {eyes: eyesRef}, {tabId: sender.tab.id})
   return eyesRef
 })
 messenger.command('Core.getViewportSize', async (_, sender) => {
-  return sdk.getViewportSize({
+  return window.sdk.getViewportSize({
     driver: {tabId: sender.tab.id, windowId: sender.tab.windowId},
   })
 })
 messenger.command('Core.setViewportSize', async ({size}, sender) => {
-  return sdk.setViewportSize({
+  return window.sdk.setViewportSize({
     driver: {tabId: sender.tab.id, windowId: sender.tab.windowId},
     size,
   })
 })
 messenger.command('Core.closeBatches', async settings => {
-  return sdk.closeAllBatches(settings)
+  return window.sdk.closeAllBatches(settings)
 })
 messenger.command('Core.deleteTest', async settings => {
-  return sdk.deleteTest(settings) 
+  return window.sdk.deleteTest(settings)
 })
 
 messenger.command('EyesManager.makeEyes', async ({manager, config, on}, sender) => {

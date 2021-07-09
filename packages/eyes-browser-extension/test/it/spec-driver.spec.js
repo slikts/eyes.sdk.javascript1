@@ -1,3 +1,5 @@
+/* global browser, spec */
+
 const assert = require('assert')
 const fs = require('fs')
 const os = require('os')
@@ -19,7 +21,7 @@ describe('spec driver', async () => {
       })
       destroyBrowser = () => context.close()
 
-      backgroundPage = context.backgroundPages()[0] || await context.waitForEvent('backgroundpage')
+      backgroundPage = context.backgroundPages()[0] || (await context.waitForEvent('backgroundpage'))
       contentPage = await context.newPage()
       await contentPage.goto(url)
 
@@ -49,7 +51,7 @@ describe('spec driver', async () => {
     it('isSelector(wrong)', async () => {
       await isSelector({input: {}, expected: false})
     })
-    it('executeScript(script, args)', async () =>{
+    it('executeScript(script, args)', async () => {
       await executeScript()
     })
     it('mainContext()', async () => {
@@ -106,7 +108,10 @@ describe('spec driver', async () => {
       obj: {key: 'value', obj: {key: 0}},
       arr: [0, 1, 2, {key: 3}],
     }
-    const result = await backgroundPage.evaluate(([driver, arg]) => spec.executeScript(driver, arg => arg, arg), [driver, arg])
+    const result = await backgroundPage.evaluate(
+      ([driver, arg]) => spec.executeScript(driver, arg => arg, arg),
+      [driver, arg],
+    )
 
     assert.deepStrictEqual(result, arg)
   }
@@ -115,52 +120,80 @@ describe('spec driver', async () => {
     assert.strictEqual(mainContext.frameId, 0)
   }
   async function parentContext() {
-    const nestedFrame = await backgroundPage.evaluate(async ([driver]) => {
-      const frames = await browser.webNavigation.getAllFrames({tabId: driver.tabId})
-      return frames[frames.length - 1]
-    }, [driver])
-    const parentContext = await backgroundPage.evaluate(([context]) => spec.parentContext(context), [{...driver, frameId: nestedFrame.frameId}])
+    const nestedFrame = await backgroundPage.evaluate(
+      async ([driver]) => {
+        const frames = await browser.webNavigation.getAllFrames({tabId: driver.tabId})
+        return frames[frames.length - 1]
+      },
+      [driver],
+    )
+    const parentContext = await backgroundPage.evaluate(
+      ([context]) => spec.parentContext(context),
+      [{...driver, frameId: nestedFrame.frameId}],
+    )
     assert.deepStrictEqual(parentContext, {...driver, frameId: nestedFrame.parentFrameId})
   }
   async function childContext() {
-  const childFrame = await backgroundPage.evaluate(async ([driver]) => {
-    const frames = await browser.webNavigation.getAllFrames({tabId: driver.tabId})
-    return frames.find(frame => frame.url === 'https://applitools.github.io/demo/TestPages/FramesTestPage/frame2.html')
-  }, [driver])
-  const childContext = await backgroundPage.evaluate(async ([context]) => {
-    const [element] = await browser.tabs.executeScript(context.tabId, {
-      code: `JSON.stringify(refer.ref(document.querySelector('[src="./frame2.html"]')))`,
-      frameId: context.frameId
-    })
-    return spec.childContext(context, JSON.parse(element))
-  }, [{...driver, frameId: 0}])
-  assert.deepStrictEqual(childContext.frameId, childFrame.frameId)
+    const childFrame = await backgroundPage.evaluate(
+      async ([driver]) => {
+        const frames = await browser.webNavigation.getAllFrames({tabId: driver.tabId})
+        return frames.find(
+          frame => frame.url === 'https://applitools.github.io/demo/TestPages/FramesTestPage/frame2.html',
+        )
+      },
+      [driver],
+    )
+    const childContext = await backgroundPage.evaluate(
+      async ([context]) => {
+        const [element] = await browser.tabs.executeScript(context.tabId, {
+          code: `JSON.stringify(refer.ref(document.querySelector('[src="./frame2.html"]')))`,
+          frameId: context.frameId,
+        })
+        return spec.childContext(context, JSON.parse(element))
+      },
+      [{...driver, frameId: 0}],
+    )
+    assert.deepStrictEqual(childContext.frameId, childFrame.frameId)
   }
   async function findElement({input, expected} = {}) {
-    const element = await backgroundPage.evaluate(([driver, selector]) => spec.findElement(driver, selector), [driver, input])
+    const element = await backgroundPage.evaluate(
+      ([driver, selector]) => spec.findElement(driver, selector),
+      [driver, input],
+    )
     if (element === expected) return
-    const elementKey = await contentPage.$eval(input, element => element.dataset.key = 'element-key')
-    const isCorrectElement = await backgroundPage.evaluate(async ([context, element, elementKey]) => {
-      const [isCorrectElement] = await browser.tabs.executeScript(context.tabId, {
-        code: `refer.deref(${JSON.stringify(element)}).dataset.key === '${elementKey}'`,
-        frameId: context.frameId
-      })
-      return isCorrectElement
-    }, [{...driver, frameId: 0}, element, elementKey])
-    assert.ok(isCorrectElement)
-  }
-  async function findElements({input, expected} = {}) {
-    const elements = await backgroundPage.evaluate(([driver, selector]) => spec.findElements(driver, selector), [driver, input])
-    const elementKeys = await contentPage.$$eval(input, elements => elements.map((element, index) => element.dataset.key = `element-key-${index}`))
-    assert.strictEqual(elements.length, elementKeys.length)
-    for (const [index, elementKey] of elementKeys.entries()) {
-      const isCorrectElement = await backgroundPage.evaluate(async ([context, element, elementKey]) => {
+    const elementKey = await contentPage.$eval(input, element => (element.dataset.key = 'element-key'))
+    const isCorrectElement = await backgroundPage.evaluate(
+      async ([context, element, elementKey]) => {
         const [isCorrectElement] = await browser.tabs.executeScript(context.tabId, {
           code: `refer.deref(${JSON.stringify(element)}).dataset.key === '${elementKey}'`,
-          frameId: context.frameId
+          frameId: context.frameId,
         })
         return isCorrectElement
-      }, [{...driver, frameId: 0}, elements[index], elementKey])
+      },
+      [{...driver, frameId: 0}, element, elementKey],
+    )
+    assert.ok(isCorrectElement)
+  }
+  async function findElements({input} = {}) {
+    const elements = await backgroundPage.evaluate(
+      ([driver, selector]) => spec.findElements(driver, selector),
+      [driver, input],
+    )
+    const elementKeys = await contentPage.$$eval(input, elements =>
+      elements.map((element, index) => (element.dataset.key = `element-key-${index}`)),
+    )
+    assert.strictEqual(elements.length, elementKeys.length)
+    for (const [index, elementKey] of elementKeys.entries()) {
+      const isCorrectElement = await backgroundPage.evaluate(
+        async ([context, element, elementKey]) => {
+          const [isCorrectElement] = await browser.tabs.executeScript(context.tabId, {
+            code: `refer.deref(${JSON.stringify(element)}).dataset.key === '${elementKey}'`,
+            frameId: context.frameId,
+          })
+          return isCorrectElement
+        },
+        [{...driver, frameId: 0}, elements[index], elementKey],
+      )
       assert.ok(isCorrectElement)
     }
   }
