@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- isEqualElements is not required method in for SpecDriver anymore
 - rename makeEyes to openEyes
 
 ## 1.0.3 - 2021/6/15
