@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+add build zip command
 
 ## 0.1.4 - 2021/7/9
 

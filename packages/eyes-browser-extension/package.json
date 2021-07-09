@@ -10,7 +10,9 @@
   },
   "scripts": {
     "lint": "eslint '**/*.js'",
-    "build": "webpack",
+    "build": "yarn build:dist && yarn build:zip",
+    "build:dist": "webpack",
+    "build:zip": "zip -r eyes-browser-extension.zip dist",
     "generate:tests": "coverage-tests generate ./test/coverage/config.js --name 'eyes-testcafe'",
     "test": "yarn build && yarn test:it && yarn test:coverage",
     "test:it": "mocha --no-timeouts ./test/it/*.spec.js",
