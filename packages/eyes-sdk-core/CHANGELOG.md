@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- rename makeEyes to openEyes
 
 ## 12.21.1 - 2021/6/15
 

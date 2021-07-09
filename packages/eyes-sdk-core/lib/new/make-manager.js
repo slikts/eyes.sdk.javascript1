@@ -1,7 +1,7 @@
 const VisualGridRunner = require('../runner/VisualGridRunner')
 const ClassicRunner = require('../runner/ClassicRunner')
 
-const makeOpenEyes = require('./make-eyes')
+const makeOpenEyes = require('./open-eyes')
 const makeCloseAllEyes = require('./close-all-eyes')
 
 function makeMakeManager(sdk) {
