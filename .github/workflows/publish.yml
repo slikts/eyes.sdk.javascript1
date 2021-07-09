@@ -390,8 +390,8 @@ jobs:
         id: version
         uses: ./.github/actions/publish
         with:
-          package: ${{fromJSON(needs.setup.outputs.packages).universal.package}}
-          version: ${{fromJSON(needs.setup.outputs.packages).universal.releaseVersion}}
+          package: ${{fromJSON(needs.setup.outputs.packages).browser-extension.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).browser-extension.releaseVersion}}
           skip-npm: true
       - name: Publish to GitHub
         uses: softprops/action-gh-release@v1
