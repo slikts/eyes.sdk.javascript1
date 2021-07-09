@@ -2,8 +2,8 @@
   "description": "Applitools Eyes browser extension SDK",
   "manifest_version": 2,
   "name": "Applitools Eyes browser extension SDK",
-  "version": "0.1.0",
-  "version_name": "0.1.0",
+  "version": "__PACKAGE_VERSION__",
+  "version_name": "__PACKAGE_VERSION__",
   "homepage_url": "https://applitools.com/",
   "icons": {
     "70": "assets/icons/icon_70.png",

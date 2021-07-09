@@ -40,17 +40,24 @@ export default {
   plugins: [
     new CopyWebpackPlugin({
       patterns: [
-        { from: './src/manifest.json', to: './' },
+        {
+          from: './manifest.json',
+          to: './',
+          transform: content => {
+            const {version} = require('./package.json')
+            return content.toString('utf8').replace(/__PACKAGE_VERSION__/g, version)
+          }
+        },
         { from: './assets', to: './assets' },
         {
           from: path.resolve(path.dirname(require.resolve('@applitools/dom-snapshot')), './dist/*.js'),
           to: './assets/dom-snapshot/[name].[ext]',
-          filter: (resourcePath) => /(processPagePoll|pollResult)\.js$/.test(resourcePath)
+          filter: resourcePath => /(processPagePoll|pollResult)\.js$/.test(resourcePath)
         },
         {
           from: path.resolve(path.dirname(require.resolve('@applitools/dom-capture')), './dist/*.js'),
           to: './assets/dom-capture/[name].[ext]',
-          filter: (resourcePath) => /(captureDomAndPoll|pollResult)\.js$/.test(resourcePath)
+          filter: resourcePath => /(captureDomAndPoll|pollResult)\.js$/.test(resourcePath)
         },
       ]
     }),
