@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+
+## 0.1.6 - 2021/7/9
+
 - rename makeEyes to openEyes
 
 ## 0.1.5 - 2021/7/9
