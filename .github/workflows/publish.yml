@@ -398,7 +398,7 @@ jobs:
         with:
           tag_name: ${{steps.version.outputs.tag}}
           files: |
-            packages/${{fromJSON(needs.setup.outputs.packages).browser-extension.package}}/build
+            packages/${{fromJSON(needs.setup.outputs.packages).browser-extension.package}}/dist
         env:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
