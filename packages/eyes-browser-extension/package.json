@@ -1,6 +1,6 @@
 {
   "name": "eyes-browser-extension",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "",
   "keywords": [],
   "license": "ISC",
@@ -19,7 +19,7 @@
     "deps": "bongo deps",
     "gh:test": "gh workflow run test.yml -f packages='browser-extension' -f links='eyes-sdk-core utils visual-grid-client' -f linking-depth='1'",
     "gh:publish": "gh workflow run publish.yml -f packages='browser-extension'",
-    "preversion": "bongo preversion && yarn build && yarn test",
+    "preversion": "bongo preversion",
     "version": "yarn build && bongo version",
     "postversion": "bongo postversion --skip-release-notification"
   },
@@ -27,7 +27,7 @@
     "@applitools/eyes-sdk-core": "12.21.3",
     "@applitools/utils": "1.2.0",
     "@applitools/visual-grid-client": "15.8.13",
-    "webextension-polyfill": "^0.7.0"
+    "webextension-polyfill": "0.7.0"
   },
   "devDependencies": {
     "@applitools/scripts": "^1.0.1",
