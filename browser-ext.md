@@ -42,40 +42,36 @@ Example:
 
 ```js
 // classic mode
-__applitools.openEyes({
+const eyes = await __applitools.openEyes({
   config: {appName: 'My App', testName: 'My test', apiKey: '<your API key>'}
 })
 
 // Ultra fast grid mode
-__applitools.openEyes({
+const eyes = await __applitools.openEyes({
   type: 'vg',
   concurrency: 10,
   config: {appName: 'My App', testName: 'My test', apiKey: '<your API key>'}
 })
 ```
 
-#### __applitools.getEyes()
-
-Returns the last created `Eyes` instance (return value of `__applitools.openEyes`) for this browser tab.
-
 #### eyes.check
 
-This function should be called for performing a visual checkpoint. It expects as input a JSON object of the type [CheckSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/setting.ts#L66).
+This function should be called for performing a visual checkpoint. It expects as input a JSON object with property `settings` of the type [CheckSettings](https://github.com/applitools/eyes.sdk.javascript1/blob/0eec1b760d07489f62d95b9441d0ee5c560c24a1/packages/types/src/setting.ts#L66).
 
 Example:
 
 ```js
 // viewport screenshot
-__applitools.getEyes().check({fully: true})
+eyes.check({})
 
 // full page screenshot
-__applitools.getEyes().check({fully: true})
+eyes.check({settings: {fully: true}})
 
 // element screenshot
-__applitools.getEyes().check({target: 'h1'})
+eyes.check({settings: {target: 'h1'}})
 
 // region screenshot
-__applitools.getEyes().check({target: {width: 200, height: 80, top: 20, left: 10}})
+eyes.check({settings: {target: {width: 200, height: 80, top: 20, left: 10}}})
 ```
 
 #### eyes.close
@@ -85,7 +81,22 @@ This function should be called to close the Eyes session. It receives no input, 
 Example:
 
 ```js
-__applitools.getEyes().close()
+eyes.close()
+```
+
+#### __applitools.eyes property
+
+Since `eyes` is returned from `__applitools.openEyes` in the context of the browser tab, page navigations will cause it to be cleaned up and there will be no reference to it.
+
+For this case, it's possible to use the property `__applitools.eyes` to get to the last created `Eyes` instance.
+
+Example:
+
+```js
+await __applitools.openEyes({config: {appName: 'My App', testName: 'My test', apiKey: '<your API key>'}})
+await __applitools.eyes.check({})
+await __applitools.eyes.close()
+
 ```
 
 ### Example
@@ -99,9 +110,9 @@ await driver.exectueScript(`return __applitools.openEyes({
   config: {appName: 'My App', testName: 'My test', apiKey: '<your API key>'}
 })`)
 
-await driver.exectueScript(`return __applitools.getEyes().check({})`)
+await driver.exectueScript(`return __applitools.eyes.check({})`)
 
-await driver.exectueScript(`return __applitools.getEyes().close()`)
+await driver.exectueScript(`return __applitools.eyes.close()`)
 ```
 
 ### Script timeout and polling
