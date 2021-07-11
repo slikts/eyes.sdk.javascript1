@@ -20,7 +20,7 @@ export function isSelector(selector) {
 export function isStaleElementError(error) {
   if (!error) return false
   error = error.originalError || error
-  return error instanceof Error && error.name === 'StaleElementReferenceError'
+  return error instanceof Error && error.message === 'StaleElementReferenceError'
 }
 
 export async function mainContext(context) {

@@ -21,3 +21,4 @@ tests/e2e/code-export/javascript-mocha/**/*.spec.js
 *.rb
 *.py
 *.cs
+eyes-browser-extension.zip

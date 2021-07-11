@@ -11,9 +11,7 @@ window.refer = makeRefer({
   check: element => element instanceof HTMLElement,
   validate: element => {
     if (!element || !element.isConnected) {
-      const error = new Error('The referenced web element is no longer attached to the DOM')
-      error.name = 'StaleElementReferenceError'
-      throw error
+      throw new Error('StaleElementReferenceError')
     }
   },
 })

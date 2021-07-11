@@ -7,8 +7,8 @@ const messenger = makeMessenger({
   sendMessage: detail => window.dispatchEvent(new CustomEvent('applitools-message', {detail: mark(detail)})),
 })
 
-messenger.on('Core.setManager', manager => (window.__applitools.manager = new EyesManager({manager})))
-messenger.on('Core.setEyes', eyes => (window.__applitools.eyes = new Eyes({eyes})))
+messenger.on('Core.setManager', ({manager}) => (window.__applitools.manager = new EyesManager({manager})))
+messenger.on('Core.setEyes', ({eyes}) => (window.__applitools.eyes = new Eyes({eyes})))
 
 class Core {
   async makeManager(config) {
