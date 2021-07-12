@@ -2,7 +2,9 @@ const {Builder, By} = require('selenium-webdriver')
 const path = require('path')
 
 ;(async function main() {
-  const extensionPath = path.resolve(__dirname, 'dist')
+  const extensionPath = process.argv[2] ? process.argv[2] : path.resolve(__dirname, 'dist')
+  console.log('loading Eyes browser extension from', extensionPath)
+
   const driver = await new Builder()
     .withCapabilities({
       browserName: 'chrome',
