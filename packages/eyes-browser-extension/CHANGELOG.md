@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- fix setEyes, setManager, StaleElementReferenceError, and add demo script
 
 ## 0.1.6 - 2021/7/9
 
