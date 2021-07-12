@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+
+## 0.1.8 - 2021/7/12
+
 - try to fix build:zip + ability to provide external extension path for demo
 
 ## 0.1.7 - 2021/7/12
