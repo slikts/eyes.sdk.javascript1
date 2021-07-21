@@ -201,7 +201,7 @@ describe('spec driver', async () => {
         cookies: [
           {
             domain: 'applitools.github.io',
-            expiry: -1,
+            expires: -1,
             name: 'hello',
             value: 'world',
             path: '/',

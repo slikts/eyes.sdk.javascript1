@@ -192,19 +192,11 @@ export async function waitUntilDisplayed(frame: Context, selector: Selector): Pr
 }
 
 export async function getCookies(page: Driver): Promise<types.CookiesObject> {
-  const cookies = await page.cookies()
+  const cdpSession = await page.target().createCDPSession()
+  const {cookies} = await cdpSession.send('Network.getAllCookies')
 
   return {
-    cookies: cookies.map((cookie: any) => ({
-      name: cookie.name,
-      value: cookie.value,
-      domain: cookie.domain,
-      path: cookie.path,
-      expiry: cookie.expires ?? cookie.expiry,
-      sameSite: cookie.sameSite,
-      httpOnly: cookie.httpOnly,
-      secure: cookie.secure,
-    })),
+    cookies,
     all: true,
   }
 }

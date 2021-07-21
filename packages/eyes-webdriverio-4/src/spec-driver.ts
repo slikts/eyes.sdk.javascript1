@@ -199,7 +199,16 @@ export async function getCookies(browser: Driver): Promise<types.CookiesObject> 
   const {isMobile, browserName} = await getDriverInfo(browser)
   let allCookies
   if (!isMobile && browserName.search(/chrome/i) !== -1) {
-    const {cookies} = await (browser as any).sendCommandAndGetResult('Network.getAllCookies', {})
+    browser.addCommand('executeCdp', async () => {
+      return await (browser as any).requestHandler.create(
+        {
+          path: '/session/:sessionId/chromium/send_command_and_get_result',
+          method: 'POST',
+        },
+        {value: 'Network.getAllCookies'},
+      )
+    })
+    const {cookies} = await (browser as any).executeCdp()
     allCookies = {cookies, all: true}
   } else {
     const cookies = await browser.getCookie()
@@ -207,16 +216,7 @@ export async function getCookies(browser: Driver): Promise<types.CookiesObject> 
   }
 
   return {
-    cookies: allCookies.cookies.map((cookie: any) => ({
-      name: cookie.name,
-      value: cookie.value,
-      domain: cookie.domain,
-      path: cookie.path,
-      expiry: cookie.expires ?? cookie.expiry,
-      sameSite: cookie.sameSite,
-      httpOnly: cookie.httpOnly,
-      secure: cookie.secure,
-    })),
+    cookies: allCookies.cookies,
     all: allCookies.all,
   }
 }

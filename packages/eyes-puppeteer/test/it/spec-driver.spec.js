@@ -47,7 +47,24 @@ describe('spec driver', async () => {
         expected: {width: 501, height: 502},
       }),
     )
-    it('getCookies()', getCookies())
+    it(
+      'getCookies()',
+      getCookies({
+        all: true,
+        cookies: [
+          {
+            domain: 'applitools.github.io',
+            expiry: -1,
+            sameSite: undefined,
+            httpOnly: false,
+            path: '/',
+            secure: true,
+            name: 'hello',
+            value: 'world',
+          },
+        ],
+      }),
+    )
   })
 
   function isDriver({input, expected}) {
@@ -215,6 +232,13 @@ describe('spec driver', async () => {
       const actual = await page.url()
       assert.deepStrictEqual(actual, blank)
       await page.goto(url)
+    }
+  }
+
+  function getCookies(expected) {
+    return async () => {
+      await page.setCookie({name: 'hello', value: 'world'})
+      assert.deepStrictEqual(await spec.getCookies(page), expected)
     }
   }
 })

@@ -233,7 +233,6 @@ export async function waitUntilDisplayed(driver: Driver, selector: Selector, tim
 export async function getCookies(driver: Driver): Promise<types.CookiesObject> {
   const {browserName, isMobile} = await getDriverInfo(driver)
   const seleniumVersion3 = process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3'
-  console.log(seleniumVersion3)
   let allCookies
   if (!isMobile && browserName.search(/chrome/i) !== -1) {
     const cmd = require('selenium-webdriver/lib/command')
@@ -253,16 +252,7 @@ export async function getCookies(driver: Driver): Promise<types.CookiesObject> {
   }
 
   return {
-    cookies: allCookies.cookies.map((cookie: any) => ({
-      name: cookie.name,
-      value: cookie.value,
-      domain: cookie.domain,
-      path: cookie.path,
-      expiry: cookie.expires ?? cookie.expiry,
-      sameSite: cookie.sameSite,
-      httpOnly: cookie.httpOnly,
-      secure: cookie.secure,
-    })),
+    cookies: allCookies.cookies,
     all: allCookies.all,
   }
 }

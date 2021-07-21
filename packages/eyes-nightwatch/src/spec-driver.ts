@@ -214,16 +214,7 @@ export async function getCookies(driver: Driver): Promise<types.CookiesObject> {
   const cookies = await call(driver, 'getCookies')
 
   return {
-    cookies: cookies.map((cookie: any) => ({
-      name: cookie.name,
-      value: cookie.value,
-      domain: cookie.domain,
-      path: cookie.path,
-      expiry: cookie.expires ?? cookie.expiry,
-      sameSite: cookie.sameSite,
-      httpOnly: cookie.httpOnly,
-      secure: cookie.secure,
-    })),
+    cookies,
     all: false,
   }
 }

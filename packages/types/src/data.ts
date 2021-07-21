@@ -278,7 +278,8 @@ export type Cookie = {
   value: string
   domain?: string
   path?: string
-  expires?: Date
+  expires?: number
+  expiry?: Date
   sameSite?: string
   httpOnly?: boolean
   secure?: boolean

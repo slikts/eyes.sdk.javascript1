@@ -43,7 +43,7 @@ describe('TestCookies', () => {
     await destroyDriver()
   })
 
-  it('get cookies', async () => {
+  it('get cookies (@allCookies)', async () => {
     const url = adjustUrlToDocker('http://localhost:5557?name=token&value=12345&path=/images')
     await spec.visit(driver, url)
     const eyes = setupEyes({vg: true, disableBrowserFetching: true})

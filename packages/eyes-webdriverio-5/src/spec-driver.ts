@@ -315,16 +315,7 @@ export async function getCookies(browser: Driver): Promise<types.CookieObject> {
   }
 
   return {
-    cookies: allCookies.cookies.map((cookie: any) => ({
-      name: cookie.name,
-      value: cookie.value,
-      domain: cookie.domain,
-      path: cookie.path,
-      expiry: cookie.expires ?? cookie.expiry,
-      sameSite: cookie.sameSite,
-      httpOnly: cookie.httpOnly,
-      secure: cookie.secure,
-    })),
+    cookies: allCookies.cookies,
     all: allCookies.all,
   }
 }
