@@ -108,7 +108,8 @@ async function takeDomSnapshots({
   }
 
   async function onSnapshotContext(context) {
-    cookieJar.push(...(await context.getCookies()))
+    const cookies = await context.getCookies()
+    cookieJar.push(...cookies)
   }
 }
 

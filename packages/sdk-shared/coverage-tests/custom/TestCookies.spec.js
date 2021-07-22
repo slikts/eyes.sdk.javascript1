@@ -26,7 +26,7 @@ describe('TestCookies', () => {
   })
 
   beforeEach(async () => {
-    ;[driver, destroyDriver] = await spec.build({browser: 'chrome'})
+    ;[driver, destroyDriver] = await spec.build({browser: 'chrome', headless: false})
   })
 
   afterEach(async () => {

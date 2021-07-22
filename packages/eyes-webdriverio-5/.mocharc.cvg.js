@@ -12,6 +12,7 @@ const tags = {
     'ie',
     'edge',
     'safari',
+    'allCookies'
   ],
   cdp: ['chrome']
 }

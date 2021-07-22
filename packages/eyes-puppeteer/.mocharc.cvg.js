@@ -1,6 +1,6 @@
 const {mochaGrep} = require('@applitools/test-utils')
 
-const tags = ['chrome', 'chromium']
+const tags = ['chrome', 'chromium', 'allCookies']
 
 module.exports = {
   spec: [

@@ -502,7 +502,6 @@ class EyesDriver {
 
   async getCookies() {
     const {cookies, all} = await this.spec.getCookies(this._driver)
-    console.log('got cookie', cookies)
     if (!all) return null
     return cookies.map(cookie => ({
       name: cookie.name,
