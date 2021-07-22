@@ -199,17 +199,15 @@ export async function getCookies(browser: Driver): Promise<types.CookiesObject> 
   const {isMobile, browserName} = await getDriverInfo(browser)
   let allCookies
   if (!isMobile && browserName.search(/chrome/i) !== -1) {
-    browser.addCommand('executeCdp', async () => {
-      return await (browser as any).requestHandler.create(
-        {
-          path: '/session/:sessionId/chromium/send_command_and_get_result',
-          method: 'POST',
-        },
-        {value: 'Network.getAllCookies'},
-      )
-    })
-    const {cookies} = await (browser as any).executeCdp()
-    allCookies = {cookies, all: true}
+    const cookies = await (browser as any).requestHandler.create(
+      {
+        path: '/session/:sessionId/goog/cdp/execute',
+        method: 'POST',
+      },
+      {cmd: 'Network.getAllCookies', params: {}},
+    )
+
+    allCookies = {cookies: cookies.value.cookies, all: true}
   } else {
     const cookies = await browser.getCookie()
     allCookies = {cookies, all: false}
@@ -290,6 +288,7 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
     if (browserOptionsName) {
       const browserOptions = options.desiredCapabilities[browserOptionsName] || {}
       browserOptions.args = [...(browserOptions.args || []), ...args]
+      if (browser !== 'firefox') browserOptions.w3c = false
       if (headless) browserOptions.args.push('headless')
       if (attach) {
         browserOptions.debuggerAddress = attach === true ? 'localhost:9222' : attach

@@ -112,14 +112,13 @@ describe('spec driver', async () => {
         },
       })
     })
-    it.only('getCookies()', async () => {
+    it('getCookies()', async () => {
       await getCookies({
         all: true,
         cookies: [
           {
             domain: 'applitools.github.io',
-            expiry: -1,
-            sameSite: undefined,
+            expires: 16741494013,
             httpOnly: false,
             path: '/',
             secure: true,
@@ -204,6 +203,23 @@ describe('spec driver', async () => {
           platformName: 'Android',
           platformVersion: '10.0',
         },
+      })
+    })
+    it('getCookies()', async () => {
+      await spec.visit(browser, url)
+      await getCookies({
+        all: false,
+        cookies: [
+          {
+            domain: 'applitools.github.io',
+            expiry: 16741494013,
+            httpOnly: false,
+            path: '/',
+            secure: true,
+            name: 'hello',
+            value: 'world',
+          },
+        ],
       })
     })
   })
@@ -378,7 +394,14 @@ describe('spec driver', async () => {
     )
   }
   async function getCookies(expected) {
-    await browser.setCookie({name: 'hello', value: 'world', secure: true})
-    assert.deepStrictEqual(await spec.getCookies(browser), expected)
+    await browser.setCookie({name: 'hello', value: 'world', secure: true, expiry: 16741494013})
+    const result = await spec.getCookies(browser)
+    delete result.cookies[0].priority
+    delete result.cookies[0].sameParty
+    delete result.cookies[0].session
+    delete result.cookies[0].size
+    delete result.cookies[0].sourcePort
+    delete result.cookies[0].sourceScheme
+    assert.deepStrictEqual(result, expected)
   }
 })
