@@ -398,7 +398,19 @@ class Context {
 
   async getCookies() {
     await this.focus()
-    return this.spec.getCookies(this._context)
+    const {cookies} = this.spec.getCookies(this._context)
+    return cookies && cookies.length > 0
+      ? cookies.map(cookie => ({
+          name: cookie.name,
+          value: cookie.value,
+          domain: cookie.domain,
+          path: cookie.path,
+          expiry: cookie.expiry || cookie.expires,
+          sameSite: cookie.sameSite,
+          httpOnly: cookie.httpOnly,
+          secure: cookie.secure,
+        }))
+      : []
   }
 }
 

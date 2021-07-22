@@ -443,6 +443,21 @@ class Driver {
     if (this._isNative) return null
     return this.spec.getUrl(this._driver)
   }
+
+  async getCookies() {
+    const {cookies, all} = await this.spec.getCookies(this._driver)
+    if (!all) return null
+    return cookies.map(cookie => ({
+      name: cookie.name,
+      value: cookie.value,
+      domain: cookie.domain,
+      path: cookie.path,
+      expiry: cookie.expires,
+      sameSite: cookie.sameSite,
+      httpOnly: cookie.httpOnly,
+      secure: cookie.secure,
+    }))
+  }
 }
 
 module.exports = Driver
