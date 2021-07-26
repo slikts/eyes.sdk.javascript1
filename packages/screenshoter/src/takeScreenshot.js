@@ -217,9 +217,7 @@ function makeTakeNativeScreenshot({logger, driver, stabilization = {}, debug = {
   return async function takeScreenshot({name} = {}) {
     logger.verbose('Taking native driver screenshot...')
     const image = makeImage(
-      stabilization.crop || process.env.APPLITOOLS_SKIP_MOBILE_NATIVE_SCREENSHOT_HOOK
-        ? await driver.takeScreenshot()
-        : await takeViewportScreenshot(),
+      stabilization.crop ? await driver.takeScreenshot() : await takeViewportScreenshot(),
     )
     await saveScreenshot(image, {path: debug.path, name, suffix: 'original', logger})
 
@@ -237,8 +235,6 @@ function makeTakeNativeScreenshot({logger, driver, stabilization = {}, debug = {
       await image.scale(stabilization.scale)
       await saveScreenshot(image, {path: debug.path, name, suffix: 'scaled', logger})
     }
-
-    process.env.APPLITOOLS_SKIP_MOBILE_NATIVE_SCREENSHOT_HOOK = undefined // TODO remove
 
     return image
   }

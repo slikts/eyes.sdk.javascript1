@@ -27,12 +27,15 @@ async function screenshoter({
     frames.length > 0
       ? await originalContext.context(frames.reduce((parent, frame) => ({...frame, parent}), null))
       : originalContext
+
   const scrollingStates = []
-  for (const nextContext of targetContext.path) {
-    const scrollingElement = await nextContext.getScrollRootElement()
-    if (hideScrollbars) await scrollingElement.hideScrollbars()
-    const scrollingState = await defaultScroller.getState(scrollingElement)
-    scrollingStates.push(scrollingState)
+  if (!driver.isNative) {
+    for (const nextContext of targetContext.path) {
+      const scrollingElement = await nextContext.getScrollingElement()
+      if (hideScrollbars) await scrollingElement.hideScrollbars()
+      const scrollingState = await defaultScroller.getState(scrollingElement)
+      scrollingStates.push(scrollingState)
+    }
   }
 
   const activeElement = hideCaret && !driver.isNative ? await targetContext.blurElement() : null
@@ -81,7 +84,7 @@ async function screenshoter({
     if (hideCaret && activeElement) await targetContext.focusElement(activeElement)
 
     for (const prevContext of targetContext.path.reverse()) {
-      const scrollingElement = await prevContext.getScrollRootElement()
+      const scrollingElement = await prevContext.getScrollingElement()
       if (hideScrollbars) await scrollingElement.restoreScrollbars()
       const scrollingState = scrollingStates.shift()
       await defaultScroller.restoreState(scrollingState, scrollingElement)
@@ -94,7 +97,7 @@ async function screenshoter({
 async function getTargetArea({logger, context, target, fully, scrollingMode}) {
   if (target) {
     if (utils.types.has(target, ['x', 'y', 'width', 'height'])) {
-      const scrollingElement = await context.getScrollRootElement()
+      const scrollingElement = await context.getScrollingElement()
       return {
         context,
         region: target,
@@ -106,10 +109,10 @@ async function getTargetArea({logger, context, target, fully, scrollingMode}) {
 
       if (fully) {
         const isScrollable = await element.isScrollable()
-        const scrollingElement = isScrollable ? element : await context.getScrollRootElement()
+        const scrollingElement = isScrollable ? element : await context.getScrollingElement()
         return {
           context,
-          region: isScrollable ? null : await element.getRect(),
+          region: isScrollable ? null : await element.getRegion(),
           scroller: makeScroller({
             logger,
             element: scrollingElement,
@@ -117,16 +120,16 @@ async function getTargetArea({logger, context, target, fully, scrollingMode}) {
           }),
         }
       } else {
-        const scrollingElement = await context.getScrollRootElement()
+        const scrollingElement = await context.getScrollingElement()
         return {
           context,
-          region: await element.getRect(),
+          region: await element.getRegion(),
           scroller: makeScroller({logger, element: scrollingElement, scrollingMode}),
         }
       }
     }
   } else if (!context.isMain && !fully) {
-    const scrollingElement = await context.parent.getScrollRootElement()
+    const scrollingElement = await context.parent.getScrollingElement()
     const element = await context.getFrameElement()
     return {
       context: context.parent,
@@ -134,7 +137,7 @@ async function getTargetArea({logger, context, target, fully, scrollingMode}) {
       scroller: makeScroller({logger, element: scrollingElement, scrollingMode}),
     }
   } else {
-    const scrollingElement = await context.getScrollRootElement()
+    const scrollingElement = await context.getScrollingElement()
     return {
       context,
       scroller: makeScroller({logger, element: scrollingElement, scrollingMode}),

@@ -1,6 +1,6 @@
 const webdriverio = require('webdriverio')
 const utils = require('@applitools/utils')
-const driver = require('@applitools/driver')
+const {Driver} = require('@applitools/driver')
 
 // #region HELPERS
 
@@ -85,6 +85,28 @@ async function findElements(browser, selector) {
   const elements = await browser.$$(transformSelector(selector))
   return Array.from(elements)
 }
+async function getElementRegion(browser, element) {
+  const extendedElement = await browser.$(element)
+  if (utils.types.isFunction(extendedElement, 'getRect')) {
+    return extendedElement.getRect()
+  } else {
+    const rect = {x: 0, y: 0, width: 0, height: 0}
+    if (utils.types.isFunction(extendedElement.getLocation)) {
+      const location = await extendedElement.getLocation()
+      rect.x = location.x
+      rect.y = location.y
+    }
+    if (utils.types.isFunction(extendedElement.getSize)) {
+      const size = await extendedElement.getSize()
+      rect.width = size.width
+      rect.height = size.height
+    }
+    return rect
+  }
+}
+async function getElementAttribute(browser, element, name) {
+  return browser.getElementAttribute(extractElementId(element), name)
+}
 async function getWindowSize(browser) {
   if (utils.types.isFunction(browser.getWindowRect)) {
     return browser.getWindowRect()
@@ -105,6 +127,7 @@ async function getOrientation(browser) {
   return orientation.toLowerCase()
 }
 async function getDriverInfo(browser) {
+  const viewportRect = browser.capabilities.viewportRect
   return {
     sessionId: browser.sessionId,
     isMobile: browser.isMobile,
@@ -116,6 +139,13 @@ async function getDriverInfo(browser) {
     platformVersion: browser.capabilities.platformVersion,
     browserName: browser.capabilities.browserName,
     browserVersion: browser.capabilities.browserVersion,
+    pixelRatio: browser.capabilities.pixelRatio,
+    viewportRegion: {
+      x: viewportRect.left,
+      y: viewportRect.top,
+      width: viewportRect.width,
+      height: viewportRect.height,
+    },
   }
 }
 async function takeScreenshot(driver) {
@@ -127,6 +157,9 @@ async function visit(browser, url) {
 async function click(browser, element) {
   if (isSelector(element)) element = await findElement(browser, element)
   return element.click()
+}
+async function performAction(browser, actions) {
+  return browser.touchAction(actions)
 }
 
 // #endregion
@@ -144,6 +177,8 @@ const spec = {
   childContext,
   findElement,
   findElements,
+  getElementRegion,
+  getElementAttribute,
   getWindowSize,
   setWindowSize,
   getOrientation,
@@ -151,23 +186,48 @@ const spec = {
   takeScreenshot,
   visit,
   click,
+  performAction,
 }
 
-async function makeDriver() {
-  const browser = await webdriverio.remote({
-    protocol: 'http',
-    hostname: 'localhost',
-    path: '/wd/hub',
-    port: 4444,
-    logLevel: 'silent',
-    capabilities: {
-      browserName: 'chrome',
+async function makeDriver({type = 'web'} = {}) {
+  const capabilities = {
+    web: {
+      protocol: 'http',
+      hostname: 'localhost',
+      path: '/wd/hub',
+      port: 4444,
+      logLevel: 'silent',
+      capabilities: {
+        browserName: 'chrome',
+      },
     },
-  })
+    android: {
+      protocol: 'https',
+      hostname: 'ondemand.saucelabs.com',
+      path: '/wd/hub',
+      port: 443,
+      logLevel: 'silent',
+      capabilities: {
+        browserName: '',
+        name: 'Android Demo',
+        platformName: 'Android',
+        platformVersion: '7.0',
+        appiumVersion: '1.20.2',
+        deviceName: 'Samsung Galaxy S8 FHD GoogleAPI Emulator',
+        automationName: 'uiautomator2',
+        newCommandTimeout: 600,
+        app: 'https://applitools.jfrog.io/artifactory/Examples/android/1.3/app-debug.apk',
+        username: process.env.SAUCE_USERNAME,
+        accessKey: process.env.SAUCE_ACCESS_KEY,
+      },
+    },
+  }
 
-  const logger = {log: () => null, verbose: () => null}
+  const browser = await webdriverio.remote(capabilities[type])
 
-  return [driver.makeDriver(spec, logger, browser), () => browser.deleteSession()]
+  const logger = console
+
+  return [new Driver({spec, logger, driver: browser}), () => browser.deleteSession()]
 }
 
 module.exports = makeDriver

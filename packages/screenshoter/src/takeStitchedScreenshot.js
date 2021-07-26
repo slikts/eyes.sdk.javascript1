@@ -30,7 +30,10 @@ async function takeStitchedScreenshot({
   logger.verbose('Getting initial image...')
   let image = await takeScreenshot({name: 'initial'})
 
-  const cropRegion = await context.getRegionInViewport(region || (await scroller.getClientRect()))
+  const cropRegion = await driver.getRegionInViewport(
+    context,
+    region || (await scroller.getClientRegion()),
+  )
 
   logger.verbose('cropping...')
   await image.crop(cropRegion)
@@ -46,10 +49,10 @@ async function takeStitchedScreenshot({
     height: Math.round(region.height),
   }
 
-  const partSize = {width: image.width, height: Math.max(image.height - overlap, 10)}
-  logger.verbose(`Image part size: ${partSize}`)
-
-  const [_, ...partRegions] = utils.geometry.divide(region, partSize)
+  const [_, ...partRegions] = utils.geometry.divide(region, image.size, {
+    top: overlap,
+    bottom: overlap,
+  })
   logger.verbose('Part regions', partRegions)
 
   logger.verbose('Creating stitched image composition container')

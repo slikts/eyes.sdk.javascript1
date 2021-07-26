@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- add element selector to `isStaleElementError`
 
 ## 1.0.5 - 2021/7/19
 

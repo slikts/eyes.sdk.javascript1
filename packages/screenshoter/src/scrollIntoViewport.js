@@ -5,18 +5,18 @@ async function scrollIntoViewport({logger, context, scroller, region}) {
     logger.verbose(`NATIVE context identified, skipping 'ensure element visible'`)
     return
   }
-  const elementContextRect = region ? {...region} : await scroller.getClientRect()
+  const elementContextRegion = region ? {...region} : await scroller.getClientRegion()
   const contextViewportLocation = await context.getLocationInViewport()
-  const elementViewportRect = utils.geometry.offset(elementContextRect, contextViewportLocation)
-  const viewportRect = await context.main.getRect()
-  if (utils.geometry.contains(viewportRect, elementViewportRect)) return {x: 0, y: 0}
+  const elementViewportRegion = utils.geometry.offset(elementContextRegion, contextViewportLocation)
+  const viewportRegion = await context.main.getRegion()
+  if (utils.geometry.contains(viewportRegion, elementViewportRegion)) return {x: 0, y: 0}
 
   let currentContext = context
-  let remainingOffset = {x: elementContextRect.x, y: elementContextRect.y}
+  let remainingOffset = {x: elementContextRegion.x, y: elementContextRegion.y}
   while (currentContext) {
     const scrollRootElement = await currentContext.getScrollRootElement()
     const scrollRootOffset = scrollRootElement
-      ? await scrollRootElement.getClientRect().then(rect => ({x: rect.x, y: rect.y}))
+      ? await scrollRootElement.getClientRegion().then(rect => ({x: rect.x, y: rect.y}))
       : {x: 0, y: 0}
 
     const actualOffset = await scroller.moveTo(

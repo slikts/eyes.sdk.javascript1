@@ -22,6 +22,9 @@ function makeImage(data) {
   }
 
   return {
+    get size() {
+      return image.width && image.height ? {width: image.width, height: image.height} : size
+    },
     get width() {
       return image.width || size.width
     },

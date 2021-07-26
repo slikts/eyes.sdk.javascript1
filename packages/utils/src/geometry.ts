@@ -24,9 +24,9 @@ export function isEmpty(sizeOrRegion: RectangleSize | Region): boolean {
   return sizeOrRegion.width === 0 && sizeOrRegion.height === 0
 }
 
+export function scale(region: Region, scaleRatio: number): Region
 export function scale(location: Location, scaleRatio: number): Location
 export function scale(size: RectangleSize, scaleRatio: number): RectangleSize
-export function scale(region: Region, scaleRatio: number): Region
 export function scale(target: Location | RectangleSize | Region, scaleRatio: number): typeof target {
   const result = {...target} as any
   if (types.has(target, ['x', 'y'])) {
@@ -40,8 +40,8 @@ export function scale(target: Location | RectangleSize | Region, scaleRatio: num
   return result
 }
 
-export function offset(location: Location, offset: Location): Location
 export function offset(region: Region, offset: Location): Region
+export function offset(location: Location, offset: Location): Location
 export function offset(target: Location | Region, offset: Location): typeof target {
   const result = {...target}
   result.x += offset.x
@@ -49,8 +49,8 @@ export function offset(target: Location | Region, offset: Location): typeof targ
   return result
 }
 
-export function offsetNegative(location: Location, offset: Location): Location
 export function offsetNegative(region: Region, offset: Location): Region
+export function offsetNegative(location: Location, offset: Location): Location
 export function offsetNegative(target: Location | Region, offset: Location): typeof target {
   const result = {...target}
   result.x -= offset.x
@@ -93,9 +93,9 @@ export function contains(region: Region, locationOrRegion: Location | Region): b
   return false
 }
 
+export function equals(region1: Region, region2: Region): boolean
 export function equals(location1: Location, location2: Location): boolean
 export function equals(size1: RectangleSize, size2: RectangleSize): boolean
-export function equals(region1: Region, region2: Region): boolean
 export function equals(
   locationOrSizeOrRegion1: Location | RectangleSize | Region,
   locationOrSizeOrRegion2: Location | RectangleSize | Region,
@@ -131,7 +131,7 @@ export function equals(
   }
 }
 
-export function divide(region: Region, size: RectangleSize): Region[] {
+export function divide(region: Region, size: RectangleSize, padding?: {top?: number; bottom?: number}): Region[] {
   guard.notNull(region, {name: 'region'})
   guard.notNull(size, {name: 'size'})
   guard.isNumber(size.width, {name: 'size.width', gt: 0})
@@ -144,7 +144,8 @@ export function divide(region: Region, size: RectangleSize): Region[] {
 
   let currentY = region.y
   while (currentY < maxY) {
-    const nextY = Math.min(currentY + size.height, maxY)
+    let nextY = Math.min(currentY + size.height, maxY)
+    if (nextY < maxY) nextY -= padding?.bottom ?? 0
     const currentHeight = nextY - currentY
 
     let currentX = region.x
@@ -155,7 +156,7 @@ export function divide(region: Region, size: RectangleSize): Region[] {
       currentX = nextX
     }
 
-    currentY = nextY
+    currentY = nextY + padding?.top ?? 0
   }
   return subRegions
 }

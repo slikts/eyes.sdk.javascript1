@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- fix overload order
 
 ## 1.2.0 - 2021/5/23
 

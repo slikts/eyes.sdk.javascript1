@@ -1,48 +1,23 @@
 const utils = require('@applitools/utils')
 const snippets = require('@applitools/snippets')
 
-/**
- * Returns viewport size of current context
- * @param {Logger} logger
- * @param {EyesContext} context
- * @return {RectangleSize} viewport size
- */
-async function getViewportSize(logger, context) {
-  logger.verbose('EyesUtils.getViewportSize()')
-  let size
-  if (!context.driver.isNative) {
-    size = await context.execute(snippets.getViewportSize)
-  } else {
-    const rect = await context.driver.getWindowSize()
-    size = {width: rect.width, height: rect.height}
-    if (size.height > size.width) {
-      const orientation = await context.driver.getOrientation()
-      if (orientation === 'landscape') {
-        size = {width: size.height, height: size.width}
-      }
-    }
-  }
-  logger.verbose('Done! Viewport size: ', size)
-  return size
+async function getViewportSize({driver}) {
+  return driver.mainContext.execute(snippets.getViewportSize)
 }
-/**
- * Set viewport size of the window
- * @param {Logger} logger
- * @param {EyesContext} context
- * @param {RectangleSize} requiredViewportSize - required viewport size to set
- */
-async function setViewportSize(logger, context, requiredViewportSize) {
+
+async function setViewportSize({driver, size, logger}) {
   // First we will set the window size to the required size.
   // Then we'll check the viewport size and increase the window size accordingly.
+  const requiredViewportSize = size
   logger.verbose(`setViewportSize(${requiredViewportSize})`)
 
-  let actualViewportSize = await getViewportSize(logger, context)
+  let actualViewportSize = await driver.getViewportSize()
   logger.verbose(`Initial viewport size: ${actualViewportSize}`)
   // If the viewport size is already the required size
   if (utils.geometry.equals(actualViewportSize, requiredViewportSize)) return true
 
   let actualWindowSize = await context.driver.getWindowSize()
-  actualViewportSize = await getViewportSize(logger, context)
+  actualViewportSize = await driver.getViewportSize()
   logger.verbose(`actualWindowSize: ${actualWindowSize}, actualViewportSize: ${actualViewportSize}`)
 
   const sleep = 3000
@@ -56,7 +31,7 @@ async function setViewportSize(logger, context, requiredViewportSize) {
     logger.verbose(`Attempt to set window size to ${requiredWindowSize}. Retries left: ${retries}`)
     await context.driver.setWindowSize(requiredWindowSize)
     await utils.general.sleep(sleep)
-    actualViewportSize = await getViewportSize(logger, context)
+    actualViewportSize = await driver.getViewportSize()
     if (utils.geometry.equals(actualViewportSize, requiredViewportSize)) return true
     logger.verbose(
       `Attempt to set viewport size to ${requiredViewportSize} failed. actualViewportSize=${actualViewportSize}`,
@@ -85,93 +60,34 @@ async function getDocumentSize(_logger, context) {
     throw new Error('Failed to extract entire size!', err)
   }
 }
-/**
- * Get content size of the specified element
- * @param {Logger} _logger
- * @param {EyesContext} context
- * @param {EyesElement} element
- * @returns {Promise<Region>} element content size
- */
-async function getElementContentSize(_logger, context, element) {
-  try {
-    const {width = 0, height = 0} = await context.execute(snippets.getElementContentSize, [element])
-    return {width, height}
-  } catch (err) {
-    throw new Error('Failed to extract element size!', err)
-  }
+
+async function getElementContentSize({context, element}) {
+  return context.execute(snippets.getElementContentSize, [element])
 }
-/**
- * Get element client rect relative to the current context
- * @param {Logger} _logger
- * @param {EyesContext} context
- * @param {EyesElement} element
- * @return {Promise<Region>} element client rect
- */
-async function getElementClientRect(_logger, context, element) {
-  const rect = await context.execute(snippets.getElementRect, [element, true])
-  return rect
+async function getElementRegion({context, element, withBorders = true}) {
+  return context.execute(snippets.getElementRect, [element, withBorders])
 }
-/**
- * Get element rect relative to the current context
- * @param {Logger} _logger
- * @param {EyesContext} context
- * @param {EyesElement} element
- * @return {Promise<Region>} element rect
- */
-async function getElementRect(_logger, context, element) {
-  const rect = await context.execute(snippets.getElementRect, [element, false])
-  return rect
-}
-/**
- * Get device pixel ratio
- * @param {Logger} _logger
- * @param {EyesContext} context
- * @return {Promise<number>} device pixel ratio
- */
 async function getPixelRatio(_logger, context) {
   const pixelRatio = await context.execute(snippets.getPixelRatio)
   return Number.parseFloat(pixelRatio)
 }
 async function getUserAgent(_logger, context) {
-  const userAgent = await context.execute(snippets.getUserAgent)
-  return userAgent
+  return context.execute(snippets.getUserAgent)
 }
 async function getInnerOffset(_logger, context, element) {
   const {x = 0, y = 0} = await context.execute(snippets.getElementInnerOffset, [element])
   return {x, y}
 }
-/**
- * Get current context scroll position of the specified element or default scrolling element
- * @param {Logger} _logger
- * @param {EyesContext} context
- * @param {EyesElement} [element] - element to extract scroll position
- * @return {Promise<Location>} scroll position
- */
 async function getScrollOffset(_logger, context, element) {
   const {x = 0, y = 0} = await context.execute(snippets.getElementScrollOffset, [element])
   return {x, y}
 }
-/**
- * Set current context scroll position for the specified element or default scrolling element
- * @param {Logger} _logger
- * @param {EyesContext} context
- * @param {Location} location - required scroll position
- * @param {EyesElement} [element] - element to set scroll position
- * @return {Promise<Location>} actual scroll position after set
- */
 async function scrollTo(_logger, context, offset, element) {
   return context.execute(snippets.scrollTo, [
     element,
     {x: Math.round(offset.x), y: Math.round(offset.y)},
   ])
 }
-/**
- * Get translate position of the specified element or default scrolling element
- * @param {Logger} _logger
- * @param {EyesContext} context
- * @param {EyesElement} [element] - element to extract translate position
- * @return {Promise<Location>} translate position
- */
 async function getTranslateOffset(_logger, context, element) {
   return context.execute(snippets.getElementTranslateOffset, [element])
 }
@@ -341,7 +257,7 @@ async function getContextInfo(_logger, context) {
  */
 async function getChildFramesInfo(_logger, context) {
   const info = await context.execute(snippets.getChildFramesInfo)
-  return info.map(([element, isCORS, src]) => ({element, isCORS, src}))
+  return info
 }
 
 async function addPageMarker(_logger, context) {
@@ -357,8 +273,7 @@ module.exports = {
   setViewportSize,
   getDocumentSize,
   getElementContentSize,
-  getElementClientRect,
-  getElementRect,
+  getElementRegion,
   getPixelRatio,
   getUserAgent,
   getScrollOffset,
