@@ -25,9 +25,9 @@ export function isEmpty(sizeOrRegion: RectangleSize | Region): boolean {
 }
 
 export function scale(region: Region, scaleRatio: number): Region
-export function scale(location: Location, scaleRatio: number): Location
 export function scale(size: RectangleSize, scaleRatio: number): RectangleSize
-export function scale(target: Location | RectangleSize | Region, scaleRatio: number): typeof target {
+export function scale(location: Location, scaleRatio: number): Location
+export function scale(target: Region | RectangleSize | Location, scaleRatio: number): typeof target {
   const result = {...target} as any
   if (types.has(target, ['x', 'y'])) {
     result.x = target.x * scaleRatio
@@ -131,32 +131,43 @@ export function equals(
   }
 }
 
-export function divide(region: Region, size: RectangleSize, padding?: {top?: number; bottom?: number}): Region[] {
+export function divide(region: Region, size: RectangleSize, padding: {top?: number; bottom?: number} = {}): Region[] {
   guard.notNull(region, {name: 'region'})
   guard.notNull(size, {name: 'size'})
   guard.isNumber(size.width, {name: 'size.width', gt: 0})
   guard.isNumber(size.height, {name: 'size.height', gt: 0})
+
+  padding.top ??= 0
+  padding.bottom ??= 0
 
   const subRegions = []
 
   const maxX = region.x + region.width
   const maxY = region.y + region.height
 
+  const stepX = size.width
+  const stepY = size.height - (padding.top + padding.bottom)
+
   let currentY = region.y
   while (currentY < maxY) {
-    let nextY = Math.min(currentY + size.height, maxY)
-    if (nextY < maxY) nextY -= padding?.bottom ?? 0
+    let nextY = Math.min(currentY + stepY, maxY)
+
+    // first region
+    if (currentY === region.y) nextY += padding.top
+    // last region
+    else if (nextY + padding.bottom === maxY) nextY += padding.bottom
+
     const currentHeight = nextY - currentY
 
     let currentX = region.x
     while (currentX < maxX) {
-      const nextX = Math.min(currentX + size.width, maxX)
+      const nextX = Math.min(currentX + stepX, maxX)
       const currentWidth = nextX - currentX
       subRegions.push({x: currentX, y: currentY, width: currentWidth, height: currentHeight})
       currentX = nextX
     }
 
-    currentY = nextY + padding?.top ?? 0
+    currentY = nextY
   }
   return subRegions
 }

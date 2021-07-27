@@ -184,7 +184,10 @@ export class Context<TDriver, TContext, TElement, TSelector> {
       await this.driver.switchTo(this)
       return this
     }
+
     await this.parent.preserveInnerOffset()
+
+    if (this.parent.isMain) await this.parent.preserveRegions()
     await this.preserveRegions()
 
     this._target = await this._spec.childContext(this.parent.target, this._element.target)
@@ -213,7 +216,7 @@ export class Context<TDriver, TContext, TElement, TSelector> {
     } else if (this.isReference(reference)) {
       return new Context({spec: this._spec, parent: this, driver: this.driver, reference, logger: this._logger})
     } else if (utils.types.has(reference, 'reference')) {
-      const parent = utils.types.has(reference, 'parent') ? await this.context(reference.parent) : this
+      const parent = reference.parent ? await this.context(reference.parent) : this
       return new Context({
         spec: this._spec,
         parent,

@@ -287,10 +287,12 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     return this.currentContext
   }
 
-  async normalizeRegionInViewport(region: types.Region): Promise<types.Region> {
+  async normalizeRegion(region: types.Region): Promise<types.Region> {
     if (!this._driverInfo.viewportRegion) return region
-    const viewportOffset = utils.geometry.location(this._driverInfo.viewportRegion)
-    return utils.geometry.offsetNegative(region, viewportOffset)
+    return utils.geometry.scale(
+      utils.geometry.offsetNegative(region, utils.geometry.location(this._driverInfo.viewportRegion)),
+      1 / this.pixelRatio,
+    )
   }
 
   async getRegionInViewport(
@@ -304,8 +306,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
       height: region.height,
     }
     const contextLocationInViewport = await context.getLocationInViewport()
-    const scrollRootElement = await context.getScrollingElement()
-    const contextSize = utils.geometry.size(await scrollRootElement.getClientRegion())
+    const contextSize = utils.geometry.size(await context.getClientRegion())
 
     await context.focus()
 
@@ -316,9 +317,9 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
       utils.geometry.offsetNegative(region, contextInnerOffset),
     )
 
-    const regionInViewport = !context.isMain
-      ? utils.geometry.offset(regionInContext, contextLocationInViewport)
-      : regionInContext
+    const regionInViewport = context.isMain
+      ? regionInContext
+      : utils.geometry.offset(regionInContext, contextLocationInViewport)
 
     return regionInViewport
   }
@@ -343,16 +344,17 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     let size
     if (this.isNative) {
       this._logger.log('Extracting viewport size from native driver')
-      size = this._driverInfo.viewportRegion
-        ? utils.geometry.size(this._driverInfo.viewportRegion)
-        : await this._spec.getWindowSize(this.target)
-      if (size.height > size.width) {
-        const orientation = await this.getOrientation()
-        if (orientation === 'landscape') {
-          size = {width: size.height, height: size.width}
+      if (this._driverInfo?.viewportRegion) {
+        size = utils.geometry.scale(utils.geometry.size(this._driverInfo.viewportRegion), 1 / this.pixelRatio)
+      } else {
+        size = await this._spec.getWindowSize(this.target)
+        if (size.height > size.width) {
+          const orientation = await this.getOrientation()
+          if (orientation === 'landscape') {
+            size = {width: size.height, height: size.width}
+          }
         }
       }
-      return size
     } else if (this._spec.getViewportSize) {
       this._logger.log('Extracting viewport size from web driver using spec method')
       size = await this._spec.getViewportSize(this.target)
@@ -367,6 +369,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   }
 
   async setViewportSize(size: types.Size): Promise<void> {
+    if (this.isMobile) return
     if (this._spec.setViewportSize) {
       this._logger.log('Setting viewport size to', size, 'using spec method')
       await this._spec.setViewportSize(this.target, size)
@@ -389,7 +392,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
         height: currentWindowSize.height + (requiredViewportSize.height - currentViewportSize.height),
       }
       this._logger.log(`Attempt #${attempt} to set viewport size by setting window size to`, requiredWindowSize)
-      await this._spec.setWindowSize(this.target, size)
+      await this._spec.setWindowSize(this.target, requiredWindowSize)
       await utils.general.sleep(3000)
       currentWindowSize = requiredWindowSize
       currentViewportSize = await this.getViewportSize()

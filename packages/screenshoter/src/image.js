@@ -1,5 +1,6 @@
 const fs = require('fs')
 const stream = require('stream')
+const path = require('path')
 const png = require('png-async')
 const utils = require('@applitools/utils')
 
@@ -16,12 +17,20 @@ function makeImage(data) {
   } else if (Buffer.isBuffer(data)) {
     image = fromBuffer(data)
     size = extractPngSize(data)
-  } else {
+  } else if (data.isImage) {
+    image = data.toObject()
+    size = data.size
+  } else if (utils.types.has(data, ['width', 'height'])) {
     image = fromSize(data)
     size = data
+  } else {
+    throw new Error('Unable to create an image abstraction from unknown data')
   }
 
   return {
+    get isImage() {
+      return true
+    },
     get size() {
       return image.width && image.height ? {width: image.width, height: image.height} : size
     },
@@ -36,7 +45,7 @@ function makeImage(data) {
       return this
     },
     async crop(region) {
-      image = await crop(await image, region)
+      image = await extract(await image, region)
       return this
     },
     async rotate(degree) {
@@ -46,6 +55,17 @@ function makeImage(data) {
     async copy(image2, offset) {
       image = await copy(await image, image2, offset)
       return this
+    },
+    async replace(image2, region) {
+      image = await replace(await image, image2, region)
+      return this
+    },
+    async debug(debug) {
+      if (!debug || !debug.path) return
+      const timestamp = new Date().toISOString().replace(/[-T:.]/g, '_')
+      const filename =
+        ['screenshot', timestamp, debug.name, debug.suffix].filter(part => part).join('_') + '.png'
+      return toFile(await image, path.join(debug.path, filename)).catch(() => null)
     },
     async toObject() {
       image = await image
@@ -62,6 +82,12 @@ function makeImage(data) {
       return toFile(await image, path)
     },
   }
+}
+
+function extractPngSize(buffer) {
+  return buffer.slice(12, 16).toString('ascii') === 'IHDR'
+    ? {width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20)}
+    : {width: 0, height: 0}
 }
 
 async function fromBuffer(buffer) {
@@ -105,12 +131,6 @@ async function toFile(image, path) {
   })
 }
 
-function extractPngSize(buffer) {
-  return buffer.slice(12, 16).toString('ascii') === 'IHDR'
-    ? {width: buffer.readUInt32BE(16), height: buffer.readUInt32BE(20)}
-    : {width: 0, height: 0}
-}
-
 async function scale(image, scaleRatio) {
   if (scaleRatio === 1) return image
 
@@ -140,7 +160,7 @@ async function resize(image, size) {
   return image
 }
 
-async function crop(image, region) {
+async function extract(image, region) {
   if (utils.types.has(region, ['left', 'right', 'top', 'bottom'])) {
     region = {
       x: region.left,
@@ -155,37 +175,31 @@ async function crop(image, region) {
   const dstWidth = Math.round(Math.min(image.width - srcX, region.width))
   const dstHeight = Math.round(Math.min(image.height - srcY, region.height))
 
+  const extracted = new png.Image({filterType: 4, width: dstWidth, height: dstHeight})
+
   if (srcX === 0 && dstWidth === image.width) {
     const srcOffset = srcY * image.width * 4
     const dstLength = dstWidth * dstHeight * 4
-    image.data = image.data.subarray(srcOffset, srcOffset + dstLength)
-    image.width = dstWidth
-    image.height = dstHeight
-
-    return image
+    extracted.data.set(image.data.subarray(srcOffset, srcOffset + dstLength))
+  } else {
+    const chunkLength = dstWidth * 4
+    for (let chunk = 0; chunk < dstHeight; ++chunk) {
+      const srcOffset = ((srcY + chunk) * image.width + srcX) * 4
+      extracted.data.set(
+        image.data.subarray(srcOffset, srcOffset + chunkLength),
+        chunk * chunkLength,
+      )
+    }
   }
 
-  const cropped = Buffer.alloc(dstWidth * dstHeight * 4)
-
-  const chunkLength = dstWidth * 4
-  for (let chunk = 0; chunk < dstHeight; ++chunk) {
-    const srcOffset = ((srcY + chunk) * image.width + srcX) * 4
-    cropped.set(image.data.subarray(srcOffset, srcOffset + chunkLength), chunk * chunkLength)
-  }
-
-  image.data = cropped
-  image.width = dstWidth
-  image.height = dstHeight
-
-  return image
+  return extracted
 }
 
 async function rotate(image, degrees) {
   degrees = (360 + degrees) % 360
 
-  const dstImage = {
-    data: Buffer.alloc(image.data.length),
-  }
+  const dstImage = new png.Image({filterType: 4, width: image.width, height: image.height})
+
   if (degrees === 90) {
     dstImage.width = image.height
     dstImage.height = image.width
@@ -214,14 +228,10 @@ async function rotate(image, degrees) {
       }
     }
   } else {
-    return image
+    return dstImage.data.set(image.data)
   }
 
-  image.data = dstImage.data
-  image.width = dstImage.width
-  image.height = dstImage.height
-
-  return image
+  return dstImage
 }
 
 async function copy(dstImage, srcImage, offset) {
@@ -233,7 +243,6 @@ async function copy(dstImage, srcImage, offset) {
   if (dstX === 0 && srcWidth === dstImage.width && srcWidth === srcImage.width) {
     const dstOffset = dstY * dstImage.width * 4
     dstImage.data.set(srcImage.data.subarray(0, srcWidth * srcHeight * 4), dstOffset)
-
     return dstImage
   }
 
@@ -242,6 +251,108 @@ async function copy(dstImage, srcImage, offset) {
     const srcOffset = chunk * srcImage.width * 4
     const dstOffset = ((dstY + chunk) * dstImage.width + dstX) * 4
     dstImage.data.set(srcImage.data.subarray(srcOffset, srcOffset + chunkLength), dstOffset)
+  }
+
+  return dstImage
+}
+
+async function replace(baseImage, srcImage, region) {
+  region = utils.geometry.intersect(
+    {x: 0, y: 0, width: baseImage.width, height: baseImage.height},
+    region,
+  )
+
+  if (
+    region.x === 0 &&
+    region.y === 0 &&
+    region.width >= baseImage.width &&
+    region.height >= baseImage.height
+  ) {
+    return srcImage
+  }
+
+  if (region.width === srcImage.width && region.height === srcImage.height) {
+    await copy(baseImage, srcImage, {x: region.x, y: region.y})
+    return baseImage
+  }
+
+  const dstImage = new png.Image({
+    filterType: 4,
+    width: baseImage.width - region.width + srcImage.width,
+    height: baseImage.height - region.height + srcImage.height,
+  })
+
+  if (region.width === srcImage.width) {
+    const topImage = await extract(baseImage, {
+      x: 0,
+      y: 0,
+      width: baseImage.width,
+      height: region.y + region.height,
+    })
+    await copy(dstImage, topImage, {x: 0, y: 0})
+  } else if (region.height === srcImage.height) {
+    const leftImage = await extract(baseImage, {
+      x: 0,
+      y: 0,
+      width: region.x + region.width,
+      height: baseImage.height,
+    })
+    await copy(dstImage, leftImage, {x: 0, y: 0})
+  } else {
+    const topLeftImage = await extract(baseImage, {
+      x: 0,
+      y: 0,
+      width: region.x + region.width,
+      height: region.y + region.height,
+    })
+    await copy(dstImage, topLeftImage, {x: 0, y: 0})
+    const topRightImage = await extract(baseImage, {
+      x: region.x + region.width,
+      y: 0,
+      width: baseImage.width - (region.x + region.width),
+      height: region.y + region.height,
+    })
+    await copy(dstImage, topRightImage, {x: region.x + srcImage.width, y: 0})
+  }
+
+  await copy(dstImage, srcImage, {x: region.x, y: region.y})
+
+  if (baseImage.height > region.y + region.height) {
+    if (region.width === srcImage.width) {
+      const bottomImage = await extract(baseImage, {
+        x: 0,
+        y: region.y + region.height,
+        width: baseImage.width,
+        height: baseImage.height - (region.y + region.height),
+      })
+      await copy(dstImage, bottomImage, {x: 0, y: region.y + srcImage.height})
+    } else if (region.height === srcImage.height) {
+      const rightImage = await extract(baseImage, {
+        x: region.x + region.width,
+        y: 0,
+        width: baseImage.width - (region.x + region.width),
+        height: baseImage.height,
+      })
+      await copy(dstImage, rightImage, {x: region.x + srcImage.width, y: 0})
+    } else {
+      const bottomLeftImage = await extract(baseImage, {
+        x: 0,
+        y: region.y + region.height,
+        width: region.x + region.width,
+        height: baseImage.height - (region.y + region.height),
+      })
+      await copy(dstImage, bottomLeftImage, {x: 0, y: region.y + srcImage.height})
+      const bottomRightImage = await extract(baseImage, {
+        x: region.x + region.width,
+        y: region.y + region.height,
+        width: baseImage.width - (region.x + region.width),
+        height: baseImage.height - (region.y + region.height),
+      })
+      await copy(dstImage, bottomRightImage, {
+        x: region.x + srcImage.width,
+        y: region.y + srcImage.height,
+      })
+    }
   }
 
   return dstImage

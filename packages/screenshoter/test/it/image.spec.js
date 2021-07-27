@@ -78,4 +78,36 @@ describe('image', () => {
     assert.strictEqual(actual.width, 1000)
     assert.strictEqual(actual.height, 50000)
   })
+
+  it('should replace region in image with a higher and wider image', async () => {
+    const image = await makeImage('./test/fixtures/image/house.png')
+    const replace = await makeImage({width: 200, height: 200}).toObject()
+    replace.data.fill(Buffer.from([0xff, 0, 0, 0xff]))
+    await image.replace(replace, {x: 200, y: 200, width: 100, height: 100})
+    const actual = await image.toObject()
+    const expected = await makeImage(
+      './test/fixtures/image/house.replaced-higher-wider.png',
+    ).toObject()
+    assert.ok(pixelmatch(actual.data, expected.data, null, expected.width, expected.height) === 0)
+  })
+
+  it('should replace region in image with a higher image', async () => {
+    const image = await makeImage('./test/fixtures/image/house.png')
+    const replace = await makeImage({width: 200, height: 200}).toObject()
+    replace.data.fill(Buffer.from([0, 0xff, 0, 0xff]))
+    await image.replace(replace, {x: 200, y: 200, width: 200, height: 100})
+    const actual = await image.toObject()
+    const expected = await makeImage('./test/fixtures/image/house.replaced-higher.png').toObject()
+    assert.ok(pixelmatch(actual.data, expected.data, null, expected.width, expected.height) === 0)
+  })
+
+  it('should replace region in image with a higher image', async () => {
+    const image = await makeImage('./test/fixtures/image/house.png')
+    const replace = await makeImage({width: 200, height: 200}).toObject()
+    replace.data.fill(Buffer.from([0, 0, 0xff, 0xff]))
+    await image.replace(replace, {x: 200, y: 200, width: 100, height: 200})
+    const actual = await image.toObject()
+    const expected = await makeImage('./test/fixtures/image/house.replaced-wider.png').toObject()
+    assert.ok(pixelmatch(actual.data, expected.data, null, expected.width, expected.height) === 0)
+  })
 })

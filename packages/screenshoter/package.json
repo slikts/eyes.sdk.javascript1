@@ -33,7 +33,7 @@
     "lint": "eslint . --ext .js",
     "test": "yarn test:it && yarn test:coverage",
     "test:it": "mocha --no-timeouts './test/it/*.spec.js'",
-    "test:coverage": "mocha --no-timeouts './test/coverage/*.spec.js'",
+    "test:e2e": "mocha --no-timeouts './test/e2e/*.spec.js'",
     "docker:setup": "node ../scripts/scripts/generate-docker-compose-config.js && docker-compose up -d",
     "docker:teardown": "docker-compose down",
     "setup": "yarn docker:setup",

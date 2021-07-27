@@ -14,6 +14,7 @@ async function screenshoter({
   hideCaret,
   scrollingMode,
   overlap,
+  framed,
   wait,
   dom,
   stabilization,
@@ -60,6 +61,7 @@ async function screenshoter({
           scroller,
           region,
           overlap,
+          framed: framed && !region,
           wait,
           stabilization,
           debug,
@@ -130,10 +132,10 @@ async function getTargetArea({logger, context, target, fully, scrollingMode}) {
     }
   } else if (!context.isMain && !fully) {
     const scrollingElement = await context.parent.getScrollingElement()
-    const element = await context.getFrameElement()
+    const element = await context.getContextElement()
     return {
       context: context.parent,
-      region: await element.getClientRect(),
+      region: await element.getClientRegion(),
       scroller: makeScroller({logger, element: scrollingElement, scrollingMode}),
     }
   } else {

@@ -1,6 +1,5 @@
 const utils = require('@applitools/utils')
 const makeTakeScreenshot = require('./takeScreenshot')
-const saveScreenshot = require('./saveScreenshot')
 
 async function takeViewportScreenshot({logger, context, region, wait, stabilization, debug = {}}) {
   logger.verbose('Taking image of...')
@@ -13,9 +12,9 @@ async function takeViewportScreenshot({logger, context, region, wait, stabilizat
   await utils.general.sleep(wait)
 
   if (region) {
-    const cropRegion = await context.getRegionInViewport(region)
+    const cropRegion = await driver.getRegionInViewport(context, region)
     await image.crop(cropRegion)
-    await saveScreenshot(image, {path: debug.path, suffix: 'region', logger})
+    await image.debug({path: debug.path, suffix: 'region'})
     return {image, region: cropRegion}
   } else {
     return {image, region: {x: 0, y: 0, width: image.width, height: image.height}}

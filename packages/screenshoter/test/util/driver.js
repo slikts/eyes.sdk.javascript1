@@ -23,8 +23,9 @@ function transformSelector(selector) {
 
 // #region UTILITY
 
-function isDriver(page) {
-  return page.constructor.name === 'Browser'
+function isDriver(browser) {
+  if (!browser) return false
+  return browser.constructor.name === 'Browser'
 }
 function isElement(element) {
   if (!element) return false
@@ -90,18 +91,9 @@ async function getElementRegion(browser, element) {
   if (utils.types.isFunction(extendedElement, 'getRect')) {
     return extendedElement.getRect()
   } else {
-    const rect = {x: 0, y: 0, width: 0, height: 0}
-    if (utils.types.isFunction(extendedElement.getLocation)) {
-      const location = await extendedElement.getLocation()
-      rect.x = location.x
-      rect.y = location.y
-    }
-    if (utils.types.isFunction(extendedElement.getSize)) {
-      const size = await extendedElement.getSize()
-      rect.width = size.width
-      rect.height = size.height
-    }
-    return rect
+    const size = await extendedElement.getSize()
+    const location = utils.types.has(size, ['x', 'y']) ? size : await extendedElement.getLocation()
+    return {x: location.x, y: location.y, width: size.width, height: size.height}
   }
 }
 async function getElementAttribute(browser, element, name) {
@@ -127,8 +119,7 @@ async function getOrientation(browser) {
   return orientation.toLowerCase()
 }
 async function getDriverInfo(browser) {
-  const viewportRect = browser.capabilities.viewportRect
-  return {
+  const driverInfo = {
     sessionId: browser.sessionId,
     isMobile: browser.isMobile,
     isNative: browser.isMobile && !browser.capabilities.browserName,
@@ -140,13 +131,19 @@ async function getDriverInfo(browser) {
     browserName: browser.capabilities.browserName,
     browserVersion: browser.capabilities.browserVersion,
     pixelRatio: browser.capabilities.pixelRatio,
-    viewportRegion: {
+  }
+
+  if (browser.capabilities.viewportRect) {
+    const viewportRect = browser.capabilities.viewportRect
+    driverInfo.viewportRegion = {
       x: viewportRect.left,
       y: viewportRect.top,
       width: viewportRect.width,
       height: viewportRect.height,
-    },
+    }
   }
+
+  return driverInfo
 }
 async function takeScreenshot(driver) {
   return driver.takeScreenshot()
@@ -225,7 +222,7 @@ async function makeDriver({type = 'web'} = {}) {
 
   const browser = await webdriverio.remote(capabilities[type])
 
-  const logger = console
+  const logger = {log: () => {}, warn: () => {}, error: () => {}}
 
   return [new Driver({spec, logger, driver: browser}), () => browser.deleteSession()]
 }

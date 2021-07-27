@@ -1,7 +1,6 @@
 const utils = require('@applitools/utils')
 const makeImage = require('./image')
 const makeTakeScreenshot = require('./takeScreenshot')
-const saveScreenshot = require('./saveScreenshot')
 
 async function takeStitchedScreenshot({
   logger,
@@ -9,6 +8,7 @@ async function takeStitchedScreenshot({
   scroller,
   region,
   overlap = 50,
+  framed,
   wait,
   stabilization,
   debug = {},
@@ -29,6 +29,7 @@ async function takeStitchedScreenshot({
 
   logger.verbose('Getting initial image...')
   let image = await takeScreenshot({name: 'initial'})
+  const frameImage = framed ? makeImage(image) : null
 
   const cropRegion = await driver.getRegionInViewport(
     context,
@@ -37,7 +38,7 @@ async function takeStitchedScreenshot({
 
   logger.verbose('cropping...')
   await image.crop(cropRegion)
-  await saveScreenshot(image, {path: debug.path, name: 'initial', suffix: 'region', logger})
+  await image.debug({path: debug.path, name: 'initial', suffix: 'region'})
 
   if (region) region = utils.geometry.intersect(region, scrollerRegion)
   else region = scrollerRegion
@@ -49,10 +50,8 @@ async function takeStitchedScreenshot({
     height: Math.round(region.height),
   }
 
-  const [_, ...partRegions] = utils.geometry.divide(region, image.size, {
-    top: overlap,
-    bottom: overlap,
-  })
+  const padding = {top: 0, bottom: 0}
+  const [_, ...partRegions] = utils.geometry.divide(region, image.size, padding)
   logger.verbose('Part regions', partRegions)
 
   logger.verbose('Creating stitched image composition container')
@@ -65,44 +64,44 @@ async function takeStitchedScreenshot({
 
   let stitchedSize = {width: image.width, height: image.height}
   for (const partRegion of partRegions) {
-    const partOffset = {x: partRegion.x, y: partRegion.y}
-    const partSize = {width: partRegion.width, height: partRegion.height}
     const partName = `${partRegion.x}_${partRegion.y}_${partRegion.width}x${partRegion.height}`
-
     logger.verbose(`Processing part ${partName}`)
 
-    logger.verbose(`Move to ${partOffset}`)
-    const actualOffset = await scroller.moveTo(partOffset)
+    const partOffset = utils.geometry.location(partRegion)
+    const requiredOffset = utils.geometry.offsetNegative(partOffset, {x: 0, y: padding.top})
+
+    logger.verbose(`Move to ${requiredOffset}`)
+    const actualOffset = await scroller.moveTo(requiredOffset)
     const remainingOffset = utils.geometry.offsetNegative(
-      utils.geometry.offsetNegative(partOffset, actualOffset),
+      utils.geometry.offsetNegative(requiredOffset, actualOffset),
       expectedRemainingOffset,
     )
     const cropPartRegion = {
       x: cropRegion.x + remainingOffset.x,
-      y: cropRegion.y + remainingOffset.y,
-      width: Math.min(cropRegion.width, partSize.width),
-      height: Math.min(cropRegion.height, partSize.height),
+      y: cropRegion.y + remainingOffset.y + padding.top,
+      width: Math.min(cropRegion.width, partRegion.width),
+      height: Math.min(cropRegion.height, partRegion.height),
     }
     logger.verbose(`Actual offset is ${actualOffset}, remaining offset is ${remainingOffset}`)
 
     await utils.general.sleep(wait)
 
     // TODO maybe remove
-    if (!utils.geometry.isEmpty(cropPartRegion)) {
-      logger.verbose('Getting image...')
-      image = await takeScreenshot({name: partName})
+    if (utils.geometry.isEmpty(cropPartRegion)) continue
 
-      logger.verbose('cropping...')
-      await image.crop(cropPartRegion)
-      await saveScreenshot(image, {path: debug.path, name: partName, suffix: 'region', logger})
+    logger.verbose('Getting image...')
+    image = await takeScreenshot({name: partName})
 
-      await composition.copy(
-        await image.toObject(),
-        utils.geometry.offsetNegative(partOffset, initialOffset),
-      )
+    logger.verbose('cropping...')
+    await image.crop(cropPartRegion)
+    await image.debug({path: debug.path, name: partName, suffix: 'region'})
 
-      stitchedSize = {width: partOffset.x + image.width, height: partOffset.y + image.height}
-    }
+    await composition.copy(
+      await image.toObject(),
+      utils.geometry.offsetNegative(partOffset, initialOffset),
+    )
+
+    stitchedSize = {width: partOffset.x + image.width, height: partOffset.y + image.height}
   }
 
   logger.verbose(`Extracted entire size: ${region}`)
@@ -118,8 +117,16 @@ async function takeStitchedScreenshot({
     })
   }
 
-  await saveScreenshot(composition, {path: debug.path, name: 'stitched', logger})
-  return {image: composition, region: cropRegion}
+  await composition.debug({path: debug.path, name: 'stitched'})
+
+  if (frameImage) {
+    await frameImage.replace(await composition.toObject(), cropRegion)
+    await frameImage.debug({path: debug.path, name: 'framed'})
+
+    return {image: frameImage, region: utils.geometry.region(cropRegion, composition.size)}
+  } else {
+    return {image: composition, region: cropRegion}
+  }
 }
 
 module.exports = takeStitchedScreenshot

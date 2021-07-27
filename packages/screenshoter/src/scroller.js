@@ -78,12 +78,9 @@ function makeScroller({logger, element, scrollingMode = 'mixed'}) {
 
   async function scrollTo(offset, element = defaultElement) {
     try {
-      console.log('scrollTo')
       const scrollOffset = await element.scrollTo(offset)
-      console.log(scrollOffset)
       return scrollOffset
     } catch (err) {
-      console.log(err)
       // Sometimes it is expected e.g. on Appium, otherwise, take care
       logger.verbose(`Failed to set current scroll offset!.`, err)
       return {x: 0, y: 0}
