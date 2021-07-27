@@ -66,12 +66,12 @@ export function transformElement(element: Element): Element {
 export function extractSelector(element: Element): Selector {
   return utils.types.has(element, 'selector') ? (element.selector as string) : undefined
 }
-export function isStaleElementError(error: any): boolean {
+export function isStaleElementError(error: any, selector: Selector): boolean {
   if (!error) return false
   const errOrResult = error.originalError || error
   return errOrResult instanceof Error
     ? (errOrResult as any).seleniumStack && (errOrResult as any).seleniumStack.type === 'StaleElementReference'
-    : errOrResult.value && errOrResult.selector
+    : errOrResult.value && errOrResult.selector && errOrResult.selector === selector
 }
 export async function isEqualElements(_browser: Driver, element1: Element, element2: Element): Promise<boolean> {
   if (!element1 || !element2) return false
