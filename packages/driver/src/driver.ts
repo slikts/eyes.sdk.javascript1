@@ -324,11 +324,11 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     return regionInViewport
   }
 
-  async element(selector: TSelector): Promise<Element<TDriver, TContext, TElement, TSelector>> {
+  async element(selector: types.SpecSelector<TSelector>): Promise<Element<TDriver, TContext, TElement, TSelector>> {
     return this.currentContext.element(selector)
   }
 
-  async elements(selector: TSelector): Promise<Element<TDriver, TContext, TElement, TSelector>[]> {
+  async elements(selector: types.SpecSelector<TSelector>): Promise<Element<TDriver, TContext, TElement, TSelector>[]> {
     return this.currentContext.elements(selector)
   }
 

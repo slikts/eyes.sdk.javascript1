@@ -12,11 +12,9 @@ function extractElementId(element) {
 }
 
 function transformSelector(selector) {
-  if (utils.types.has(selector, ['type', 'selector'])) {
-    if (selector.type === 'css') return `css selector:${selector.selector}`
-    else if (selector.type === 'xpath') return `xpath:${selector.selector}`
-  }
-  return selector
+  if (!utils.types.has(selector, ['type', 'selector'])) return selector
+  else if (selector.type === 'css') return `css selector:${selector.selector}`
+  else return `${selector.type}:${selector.selector}`
 }
 
 // #endregion
@@ -205,8 +203,8 @@ async function makeDriver({type = 'web'} = {}) {
       port: 443,
       logLevel: 'silent',
       capabilities: {
-        browserName: '',
         name: 'Android Demo',
+        browserName: '',
         platformName: 'Android',
         platformVersion: '7.0',
         appiumVersion: '1.20.2',

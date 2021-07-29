@@ -239,7 +239,7 @@ function makeTakeNativeScreenshot({logger, driver, stabilization = {}, debug = {
   }
 
   async function takeViewportScreenshot() {
-    const base64 = await driver.execute('mobile: viewportScreenshot')
+    const base64 = await driver.execute('mobile:viewportScreenshot')
     // trimming line breaks since 3rd party grid providers can return them
     return base64.replace(/\r\n/g, '')
   }

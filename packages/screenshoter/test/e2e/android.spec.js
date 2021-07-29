@@ -29,11 +29,11 @@ describe('screenshoter', () => {
     region({scrollingMode: 'scroll'})
   })
 
-  it.only('take full region screenshot', () => {
+  it.skip('take full region screenshot', () => {
     return fullRegion({scrollingMode: 'scroll'})
   })
 
-  it.skip('take element screenshot', () => {
+  it('take element screenshot', () => {
     return element({scrollingMode: 'scroll'})
   })
 
@@ -51,14 +51,18 @@ describe('screenshoter', () => {
     )
   }
   async function fullApp(options) {
+    const button = await driver.element({type: 'id', selector: 'btn_recycler_view'})
+    await driver.target.$(button.target).then(button => button.click())
+
     const screenshot = await screenshoter({
       logger,
       driver,
       fully: true,
       framed: true,
+      debug: {path: './'},
       ...options,
     })
-    const actual = await screenshot.image.toObject()
+    const actual = await screenshot.image.toFile('./test/fixtures/android/app-fully2.png')
     const expected = await makeImage('./test/fixtures/android/app-fully.png').toObject()
     assert.strictEqual(
       pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
@@ -99,11 +103,11 @@ describe('screenshoter', () => {
     const screenshot = await screenshoter({
       logger,
       driver,
-      target: '#overflowing-div-image',
+      target: {type: 'id', selector: 'btn_recycler_view'},
       ...options,
     })
     const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/screenshoter/element.png').toObject()
+    const expected = await makeImage('./test/fixtures/android/element.png').toObject()
     assert.strictEqual(
       pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
       0,

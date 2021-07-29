@@ -3,7 +3,16 @@ import type {Context} from './context'
 import * as utils from '@applitools/utils'
 const snippets = require('@applitools/snippets')
 
+const ANDROID_CLASSES = [
+  'android.support.v7.widget.RecyclerView',
+  'androidx.recyclerview.widget.RecyclerView',
+  'androidx.viewpager2.widget.ViewPager2',
+  'android.widget.ListView',
+  'android.widget.GridView',
+]
+
 export type ElementState = {
+  contentSize?: types.Size
   scrollOffset?: types.Location
   transforms?: any
 }
@@ -93,154 +102,191 @@ export class Element<TDriver, TContext, TElement, TSelector> {
 
   async getRegion(): Promise<types.Region> {
     return this.withRefresh(async () => {
-      if (this.driver.isNative) {
+      if (this.driver.isWeb) {
+        return this.context.execute(snippets.getElementRect, [this, false])
+      } else {
         const region = await this._spec.getElementRegion(this.driver.target, this.target)
         return this.driver.normalizeRegion(region)
-      } else {
-        return this.context.execute(snippets.getElementRect, [this, false])
       }
     })
   }
 
   async getClientRegion(): Promise<types.Region> {
     return this.withRefresh(async () => {
-      if (this.driver.isNative) {
+      if (this.driver.isWeb) {
+        return this.context.execute(snippets.getElementRect, [this, true])
+      } else {
         const region = await this._spec.getElementRegion(this.driver.target, this.target)
         return this.driver.normalizeRegion(region)
-      } else {
-        return this.context.execute(snippets.getElementRect, [this, true])
       }
     })
   }
 
   async getContentSize(): Promise<types.Size> {
     return this.withRefresh(async () => {
-      if (this.driver.isNative) {
-        const data = JSON.parse(await this._spec.getElementAttribute(this.driver.target, this.target, 'contentSize'))
-        await utils.general.sleep(1500)
-        const contentSize = this.driver.isIOS
-          ? {width: data.width, height: data.scrollableOffset}
-          : {width: data.width, height: data.height + data.scrollableOffset}
-
-        return utils.geometry.scale(contentSize, 1 / this.driver.pixelRatio)
-      } else {
+      if (this.driver.isWeb) {
         return this.context.execute(snippets.getElementContentSize, [this])
+      } else {
+        if (this._state.contentSize) return this._state.contentSize
+        try {
+          const data = JSON.parse(await this._spec.getElementAttribute(this.driver.target, this.target, 'contentSize'))
+
+          let contentHeight
+
+          if (data.scrollableOffset === 0) {
+            const className = await this._spec.getElementAttribute(this.driver.target, this.target, 'className')
+            console.log(className)
+            if (ANDROID_CLASSES.includes(className)) {
+              const hiddenElement = await this.driver.element({
+                type: '-android uiautomator',
+                selector: 'new UiSelector().description("EyesAppiumHelper")',
+              })
+              if (hiddenElement) {
+                const g: any = this.driver.target
+                const e = await g.$(hiddenElement.target)
+                await e.click()
+                contentHeight = Number(await e.getText())
+              }
+            }
+          } else {
+            contentHeight = this.driver.isIOS ? data.scrollableOffset : data.height + data.scrollableOffset
+          }
+
+          this._state.contentSize = utils.geometry.scale(
+            {width: data.width, height: contentHeight},
+            1 / this.driver.pixelRatio,
+          )
+
+          // android has a bug when after extracting 'contentSize' attribute the element is being scrolled by undetermined number of pixels
+          const originalScrollOffset = await this.getScrollOffset()
+          this._state.scrollOffset = {x: -1, y: -1}
+          await this.scrollTo({x: 0, y: 0})
+          await this.scrollTo(originalScrollOffset)
+
+          return this._state.contentSize
+        } catch (err) {
+          console.log(err)
+          return utils.geometry.size(await this.getClientRegion())
+        }
       }
     })
   }
 
   async isScrollable() {
     return this.withRefresh(async () => {
-      if (this.driver.isNative) {
-        const isScrollable = JSON.parse(
-          await this._spec.getElementAttribute(this.driver.target, this.target, 'scrollable'),
-        )
-        return isScrollable || false
-      } else {
+      if (this.driver.isWeb) {
         return this.context.execute(snippets.isElementScrollable, [this])
+      } else {
+        const data = JSON.parse(await this._spec.getElementAttribute(this.driver.target, this.target, 'scrollable'))
+        return Boolean(data) || false
       }
     })
   }
 
   async scrollTo(offset: types.Location): Promise<types.Location> {
     return this.withRefresh(async () => {
-      if (this.driver.isNative) {
+      offset = {x: Math.round(offset.x), y: Math.round(offset.y)}
+      if (this.driver.isWeb) {
+        return this.context.execute(snippets.scrollTo, [this, offset])
+      } else {
         const currentScrollOffset = await this.getScrollOffset()
-        if (utils.geometry.equals(offset, currentScrollOffset)) {
-          return utils.geometry.scale(currentScrollOffset, 1 / this.driver.pixelRatio)
-        }
-        const scaledCurrentScrollOffset = utils.geometry.scale(currentScrollOffset, this.driver.pixelRatio)
-        const scaledOffset = utils.geometry.scale(offset, this.driver.pixelRatio)
+        if (utils.geometry.equals(offset, currentScrollOffset)) return currentScrollOffset
 
-        const region = await this._spec.getElementRegion(this.driver.target, this.target)
-        let contentSize = JSON.parse(
-          await this._spec.getElementAttribute(this.driver.target, this.target, 'contentSize'),
-        )
-        await utils.general.sleep(1500)
-        contentSize = this.driver.isIOS
-          ? {width: contentSize.width, height: contentSize.scrollableOffset}
-          : {width: contentSize.width, height: contentSize.height + contentSize.scrollableOffset}
-        const requiredOffset = {
-          x: Math.min(scaledOffset.x, region.width * (contentSize.width / region.width - 1)),
-          y: Math.min(scaledOffset.y, region.height * (contentSize.height / region.height - 1)),
+        const contentSize = await this.getContentSize()
+        const scrollableRegion = await this._spec.getElementRegion(this.driver.target, this.target)
+        const scaledScrollableRegion = utils.geometry.scale(scrollableRegion, 1 / this.driver.pixelRatio)
+        const maxOffset = {
+          x: Math.round(scaledScrollableRegion.width * (contentSize.width / scaledScrollableRegion.width - 1)),
+          y: Math.round(scaledScrollableRegion.height * (contentSize.height / scaledScrollableRegion.height - 1)),
         }
-        const padding = 24
+        let requiredOffset
+        let remainingOffset
+        if (offset.x === 0 && offset.y === 0) {
+          requiredOffset = offset
+          remainingOffset = {x: -maxOffset.x, y: -maxOffset.y}
+        } else {
+          requiredOffset = {x: Math.min(offset.x, maxOffset.x), y: Math.min(offset.y, maxOffset.y)}
+          remainingOffset = utils.geometry.offsetNegative(requiredOffset, currentScrollOffset)
+        }
+        remainingOffset = utils.geometry.scale(remainingOffset, this.driver.pixelRatio)
 
         const actions = []
 
-        const yDefaultOffset = Math.floor(region.y + region.height / 2)
-        let xOffset = requiredOffset.x - scaledCurrentScrollOffset.x
-        while (xOffset > 0) {
-          const xStart = region.x + Math.min(xOffset + padding, region.width - padding)
-          const xEnd = region.y + padding
+        const xPadding = Math.floor(scrollableRegion.width * 0.1)
+        const yCenter = Math.floor(scrollableRegion.y + scrollableRegion.height / 2)
+        const xLeft = scrollableRegion.y + xPadding
+        const xDirection = remainingOffset.y > 0 ? 'right' : 'left'
+        let xRemaining = Math.abs(remainingOffset.x)
+        while (xRemaining > 0) {
+          const xRight = scrollableRegion.x + Math.min(xRemaining + xPadding, scrollableRegion.width - xPadding)
+          const [xStart, xEnd] = xDirection === 'right' ? [xRight, xLeft] : [xLeft, xRight]
           actions.push(
-            {action: 'press', x: xStart, y: yDefaultOffset},
+            {action: 'press', x: xStart, y: yCenter},
             {action: 'wait', ms: 1500},
-            {action: 'moveTo', x: xEnd, y: yDefaultOffset},
+            {action: 'moveTo', x: xEnd, y: yCenter},
             {action: 'release'},
           )
-          xOffset -= xStart - xEnd
+          xRemaining -= xRight - xLeft
         }
 
-        const xDefaultOffset = Math.floor(region.x + region.width / 2)
-        let yOffset = requiredOffset.y - scaledCurrentScrollOffset.y
-        while (yOffset > 0) {
-          const yStart = region.y + Math.min(yOffset + padding, region.height - padding)
-          const yEnd = region.y + padding
+        const yPadding = Math.floor(scrollableRegion.height * 0.1)
+        const xCenter = Math.floor(scrollableRegion.x + scrollableRegion.width / 2) // 0
+        const yTop = scrollableRegion.y + yPadding
+        const yDirection = remainingOffset.y > 0 ? 'down' : 'up'
+        let yRemaining = Math.abs(remainingOffset.y) + 48
+        while (yRemaining > 0) {
+          const yBottom = scrollableRegion.y + Math.min(yRemaining + yPadding, scrollableRegion.height - yPadding)
+          const [yStart, yEnd] = yDirection === 'down' ? [yBottom, yTop] : [yTop, yBottom]
           actions.push(
-            {action: 'press', x: xDefaultOffset, y: yStart},
+            {action: 'press', x: xCenter, y: yStart},
             {action: 'wait', ms: 1500},
-            {action: 'moveTo', x: xDefaultOffset, y: yEnd},
+            {action: 'moveTo', x: xCenter, y: yEnd},
+            {action: 'wait', ms: 1500},
             {action: 'release'},
           )
-          yOffset -= yStart - yEnd
+          yRemaining -= yBottom - yTop
         }
 
         if (actions.length > 0) {
           await this._spec.performAction(this.driver.target, actions)
         }
 
-        this._state.scrollOffset = utils.geometry.scale(requiredOffset, 1 / this.driver.pixelRatio)
+        this._state.scrollOffset = requiredOffset
         return this._state.scrollOffset
-      } else {
-        return this.context.execute(snippets.scrollTo, [this, {x: Math.round(offset.x), y: Math.round(offset.y)}])
       }
     })
   }
 
   async translateTo(offset: types.Location): Promise<types.Location> {
-    return this.withRefresh(async () => {
-      if (this.driver.isNative) {
-        throw new Error('Cannot apply css translate scrolling on non-web element')
-      } else {
-        return this.context.execute(snippets.translateTo, [this, {x: Math.round(offset.x), y: Math.round(offset.y)}])
-      }
-    })
+    offset = {x: Math.round(offset.x), y: Math.round(offset.y)}
+    if (this.driver.isWeb) {
+      return this.withRefresh(async () => this.context.execute(snippets.translateTo, [this, offset]))
+    } else {
+      throw new Error('Cannot apply css translate scrolling on non-web element')
+    }
   }
 
   async getScrollOffset(): Promise<types.Location> {
-    if (this.driver.isNative) {
-      return utils.geometry.scale(this._state.scrollOffset ?? {x: 0, y: 0}, 1 / this.driver.pixelRatio)
-    } else {
+    if (this.driver.isWeb) {
       return this.withRefresh(() => this.context.execute(snippets.getElementScrollOffset, [this]))
+    } else {
+      return this._state.scrollOffset ?? {x: 0, y: 0}
     }
   }
 
   async getTranslateOffset(): Promise<types.Location> {
-    if (this.driver.isNative) {
-      throw new Error('Cannot apply css translate scrolling on non-web element')
-    } else {
+    if (this.driver.isWeb) {
       return this.withRefresh(() => this.context.execute(snippets.getElementTranslateOffset, [this]))
+    } else {
+      throw new Error('Cannot apply css translate scrolling on non-web element')
     }
   }
 
   async getInnerOffset(): Promise<types.Location> {
-    if (this.driver.isNative) {
-      return this._state.scrollOffset
-        ? utils.geometry.scale(this._state.scrollOffset, 1 / this.driver.pixelRatio)
-        : {x: 0, y: 0}
-    } else {
+    if (this.driver.isWeb) {
       return this.withRefresh(() => this.context.execute(snippets.getElementInnerOffset, [this]))
+    } else {
+      return this.getScrollOffset()
     }
   }
 

@@ -50,7 +50,7 @@ async function takeStitchedScreenshot({
     height: Math.round(region.height),
   }
 
-  const padding = {top: 0, bottom: 0}
+  const padding = {top: overlap, bottom: 0}
   const [_, ...partRegions] = utils.geometry.divide(region, image.size, padding)
   logger.verbose('Part regions', partRegions)
 

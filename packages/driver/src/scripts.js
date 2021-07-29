@@ -83,10 +83,7 @@ async function getScrollOffset(_logger, context, element) {
   return {x, y}
 }
 async function scrollTo(_logger, context, offset, element) {
-  return context.execute(snippets.scrollTo, [
-    element,
-    {x: Math.round(offset.x), y: Math.round(offset.y)},
-  ])
+  return context.execute(snippets.scrollTo, [element, {x: Math.round(offset.x), y: Math.round(offset.y)}])
 }
 async function getTranslateOffset(_logger, context, element) {
   return context.execute(snippets.getElementTranslateOffset, [element])
@@ -100,10 +97,7 @@ async function getTranslateOffset(_logger, context, element) {
  * @return {Promise<Location>} actual translate position after set
  */
 async function translateTo(_logger, context, offset, element) {
-  return context.execute(snippets.translateTo, [
-    element,
-    {x: Math.round(offset.x), y: Math.round(offset.y)},
-  ])
+  return context.execute(snippets.translateTo, [element, {x: Math.round(offset.x), y: Math.round(offset.y)}])
 }
 /**
  * Check if the specified element or default scrolling element is scrollable
@@ -132,10 +126,7 @@ async function markScrollRootElement(_logger, context, element) {
  * @return {Promise<Object>} element transforms
  */
 async function getTransforms(_logger, context, element) {
-  return context.execute(snippets.getElementStyleProperties, [
-    element,
-    ['transform', '-webkit-transform'],
-  ])
+  return context.execute(snippets.getElementStyleProperties, [element, ['transform', '-webkit-transform']])
 }
 /**
  * Set transforms for the specified element or default scrolling element
@@ -155,10 +146,7 @@ async function setTransforms(_logger, context, transforms, element) {
  * @return {Promise<string?>} overflow value
  */
 async function getOverflow(_logger, context, element) {
-  const {overflow} = await context.execute(snippets.getElementStyleProperties, [
-    element,
-    ['overflow'],
-  ])
+  const {overflow} = await context.execute(snippets.getElementStyleProperties, [element, ['overflow']])
   return overflow
 }
 /**
@@ -170,10 +158,7 @@ async function getOverflow(_logger, context, element) {
  */
 async function setOverflow(_logger, context, overflow, element) {
   try {
-    const original = await context.execute(snippets.setElementStyleProperties, [
-      element,
-      {overflow},
-    ])
+    const original = await context.execute(snippets.setElementStyleProperties, [element, {overflow}])
     await utils.general.sleep(200)
     return original.overflow
   } catch (err) {
