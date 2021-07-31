@@ -58,7 +58,7 @@ class MatchWindowTask {
     } else {
       const startTime = Date.now()
       let timeSpent = 0
-      while (timeSpent >= retryTimeout) {
+      while (retryTimeout >= timeSpent) {
         const {screenshot, appOutput, matchSettings} = await this._getMatchData({
           lastScreenshot: this._lastScreenshot,
           sendDom,

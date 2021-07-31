@@ -78,6 +78,7 @@ function makeScroller({logger, element, scrollingMode = 'mixed'}) {
 
   async function scrollTo(offset, element = defaultElement) {
     try {
+      offset = {x: Math.max(offset.x, 0), y: Math.max(offset.y, 0)}
       const scrollOffset = await element.scrollTo(offset)
       return scrollOffset
     } catch (err) {
@@ -89,6 +90,7 @@ function makeScroller({logger, element, scrollingMode = 'mixed'}) {
 
   async function translateTo(offset, element = defaultElement) {
     try {
+      offset = {x: Math.max(offset.x, 0), y: Math.max(offset.y, 0)}
       await element.scrollTo({x: 0, y: 0})
       const translateOffset = await element.translateTo(offset)
       return translateOffset
@@ -101,6 +103,7 @@ function makeScroller({logger, element, scrollingMode = 'mixed'}) {
 
   async function shiftTo(offset, element = defaultElement) {
     try {
+      offset = {x: Math.max(offset.x, 0), y: Math.max(offset.y, 0)}
       const scrollOffset = await element.scrollTo(offset)
       const remainingOffset = utils.geometry.offsetNegative(offset, scrollOffset)
       const translateOffset = await element.translateTo(remainingOffset)

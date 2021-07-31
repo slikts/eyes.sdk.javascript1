@@ -351,9 +351,13 @@ export class Context<TDriver, TContext, TElement, TSelector> {
 
   async getRegion(): Promise<types.Region> {
     if (this.isMain && this.isCurrent) {
+      const viewportRegion = utils.geometry.region({x: 0, y: 0}, await this.driver.getViewportSize())
       this._state.region = this._scrollingElement
-        ? await this._scrollingElement.getRegion()
-        : {x: 0, y: 0, ...(await this.driver.getViewportSize())}
+        ? utils.geometry.region(
+            {x: 0, y: 0},
+            utils.geometry.intersect(viewportRegion, await this._scrollingElement.getRegion()),
+          )
+        : viewportRegion
     } else if (this.parent?.isCurrent) {
       await this.init()
       this._state.region = await this._element.getRegion()
@@ -363,9 +367,13 @@ export class Context<TDriver, TContext, TElement, TSelector> {
 
   async getClientRegion(): Promise<types.Region> {
     if (this.isMain && this.isCurrent) {
+      const viewportRegion = utils.geometry.region({x: 0, y: 0}, await this.driver.getViewportSize())
       this._state.clientRegion = this._scrollingElement
-        ? await this._scrollingElement.getClientRegion()
-        : {x: 0, y: 0, ...(await this.driver.getViewportSize())}
+        ? utils.geometry.region(
+            {x: 0, y: 0},
+            utils.geometry.intersect(viewportRegion, await this._scrollingElement.getClientRegion()),
+          )
+        : viewportRegion
     } else if (this.parent?.isCurrent) {
       await this.init()
       this._state.clientRegion = await this._element.getClientRegion()
@@ -429,7 +437,7 @@ export class Context<TDriver, TContext, TElement, TSelector> {
         ? await currentContext.parent.getInnerOffset()
         : {x: 0, y: 0}
 
-      region = utils.geometry.intersect(region, contextRegion)
+      region = utils.geometry.intersect(contextRegion, utils.geometry.offset(contextRegion, region))
       region = utils.geometry.offsetNegative(region, parentContextInnerOffset)
 
       currentContext = currentContext.parent
