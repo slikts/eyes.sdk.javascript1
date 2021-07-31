@@ -141,7 +141,7 @@ async function getTargetArea({logger, context, target, window, fully, scrollingM
     const element = await context.getContextElement()
     return {
       context: context.parent,
-      region: await element.getClientRegion(),
+      region: await element.getRegion(), // IMHO we should use CLIENT (without borders) region here
       scroller: makeScroller({logger, element: scrollingElement, scrollingMode}),
     }
   } else {
