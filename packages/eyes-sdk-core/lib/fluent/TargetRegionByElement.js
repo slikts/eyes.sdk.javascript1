@@ -1,6 +1,5 @@
 'use strict'
 const GetRegion = require('./GetRegion')
-const EyesUtils = require('../sdk/EyesUtils')
 
 /**
  * @typedef {import('../config/AccessibilityRegionType').AccessibilityRegionType} AccessibilityRegionType
@@ -34,17 +33,6 @@ class TargetRegionByElement extends GetRegion {
   constructor(element) {
     super()
     this._element = element
-  }
-  /**
-   * @template TDriver
-   * @param {EyesWrappedDriver<TDriver, TElement, TSelector>} driver
-   * @return {Promise<TargetPersistedRegion[]>}
-   */
-  async toPersistedRegions(context) {
-    this._element = await this._element
-    await this._element.init(context)
-    const xpath = await EyesUtils.getElementXpath(context._logger, context, this._element)
-    return [{type: 'xpath', selector: xpath}]
   }
 }
 

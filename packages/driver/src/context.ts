@@ -229,11 +229,9 @@ export class Context<TDriver, TContext, TElement, TSelector> {
   }
 
   async element(
-    selectorOrElement: types.SpecSelector<TSelector> | TElement | Element<TDriver, TContext, TElement, TSelector>,
+    selectorOrElement: types.SpecSelector<TSelector> | TElement,
   ): Promise<Element<TDriver, TContext, TElement, TSelector>> {
-    if (this._spec.isElement(selectorOrElement) || selectorOrElement instanceof Element) {
-      return new Element({spec: this._spec, context: this, element: selectorOrElement, logger: this._logger})
-    } else if (this._spec.isSelector(selectorOrElement)) {
+    if (this._spec.isSelector(selectorOrElement)) {
       if (this.isRef) {
         return new Element({spec: this._spec, context: this, selector: selectorOrElement, logger: this._logger})
       }
@@ -242,20 +240,37 @@ export class Context<TDriver, TContext, TElement, TSelector> {
       return element
         ? new Element({spec: this._spec, context: this, element, selector: selectorOrElement, logger: this._logger})
         : null
+    } else if (this._spec.isElement(selectorOrElement)) {
+      return new Element({spec: this._spec, context: this, element: selectorOrElement, logger: this._logger})
     } else {
       throw new TypeError('Cannot find element using argument of unknown type!')
     }
   }
 
-  async elements(selector: types.SpecSelector<TSelector>): Promise<Element<TDriver, TContext, TElement, TSelector>[]> {
-    if (this._spec.isSelector(selector)) {
+  async elements(
+    selectorOrElement: types.SpecSelector<TSelector> | TElement,
+  ): Promise<Element<TDriver, TContext, TElement, TSelector>[]> {
+    if (this._spec.isSelector(selectorOrElement)) {
+      if (this.isRef) {
+        return [new Element({spec: this._spec, context: this, selector: selectorOrElement, logger: this._logger})]
+      }
+      await this.focus()
+      const elements = await this._spec.findElements(this.target, selectorOrElement)
+      return elements.map((element, index) => {
+        return new Element({
+          spec: this._spec,
+          context: this,
+          element,
+          selector: selectorOrElement,
+          index,
+          logger: this._logger,
+        })
+      })
+    } else if (this._spec.isElement(selectorOrElement)) {
+      return [new Element({spec: this._spec, context: this, element: selectorOrElement, logger: this._logger})]
+    } else {
       throw new TypeError('Cannot find elements using argument of unknown type!')
     }
-    await this.focus()
-    const elements = await this._spec.findElements(this.target, selector)
-    return elements.map(
-      element => new Element({spec: this._spec, context: this, element, selector, logger: this._logger}),
-    )
   }
 
   async execute(script: ((args: any) => any) | string, arg?: any): Promise<any> {
@@ -303,11 +318,15 @@ export class Context<TDriver, TContext, TElement, TSelector> {
     return this._scrollingElement
   }
 
-  async setScrollRootElement(
+  async setScrollingElement(
     scrollingElement: Element<TDriver, TContext, TElement, TSelector> | TElement | types.SpecSelector<TSelector>,
   ): Promise<void> {
-    if (scrollingElement === null) this._scrollingElement = null
-    else this._scrollingElement = await this.element(scrollingElement)
+    if (scrollingElement === undefined) return
+    else if (scrollingElement === null) this._scrollingElement = null
+    else {
+      this._scrollingElement =
+        scrollingElement instanceof Element ? scrollingElement : await this.element(scrollingElement)
+    }
   }
 
   async blurElement(element?: Element<TDriver, TContext, TElement, TSelector>): Promise<TElement> {

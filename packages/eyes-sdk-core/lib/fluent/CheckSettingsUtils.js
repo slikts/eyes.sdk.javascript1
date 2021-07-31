@@ -1,83 +1,148 @@
-'use strict'
 const TypeUtils = require('../utils/TypeUtils')
+const utils = require('@applitools/utils')
+const snippets = require('@applitools/snippets')
+const ImageMatchSettings = require('../config/ImageMatchSettings')
 
-/**
- * @typedef ElementAndIds
- * @prop {EyesElement[]} elements
- * @prop {String[]} elementIds
- */
+async function toPersistedCheckSettings({checkSettings, context, logger}) {
+  const elementsById = {}
 
-/**
- * @param {Object} object
- * @param {CheckSettings<TElement, TSelector>} object.checkSettings
- * @param {EyesContext<TElement, TSelector>} context
- * @returns {Promise<ElementAndIds>} all element ID's to be marked in the DOM
- */
-async function resolveAllRegionElements({checkSettings, context}) {
-  const targetArr = checkSettings.getTargetProvider() ? [checkSettings.getTargetProvider()] : []
-  return {
-    ...(await resolveElements(checkSettings.getIgnoreRegions())),
-    ...(await resolveElements(checkSettings.getFloatingRegions())),
-    ...(await resolveElements(checkSettings.getStrictRegions())),
-    ...(await resolveElements(checkSettings.getLayoutRegions())),
-    ...(await resolveElements(checkSettings.getContentRegions())),
-    ...(await resolveElements(checkSettings.getAccessibilityRegions())),
-    ...(await resolveElements(targetArr)),
+  const persistedCheckSettings = {
+    ...checkSettings,
+    region: (await referencesToPersistedRegions(checkSettings.region && [checkSettings.region]))[0],
+    ignoreRegions: await referencesToPersistedRegions(checkSettings.ignoreRegions),
+    floatingRegions: await referencesToPersistedRegions(checkSettings.floatingRegions),
+    strictRegions: await referencesToPersistedRegions(checkSettings.strictRegions),
+    layoutRegions: await referencesToPersistedRegions(checkSettings.layoutRegions),
+    contentRegions: await referencesToPersistedRegions(checkSettings.contentRegions),
+    accessibilityRegions: await referencesToPersistedRegions(checkSettings.accessibilityRegions),
   }
 
-  async function resolveElements(regions) {
-    const elementsById = {}
-    for (const region of regions) {
-      const regionElementsById = await region.resolveElements(context)
-      Object.assign(elementsById, regionElementsById)
+  await makePersistance()
+
+  return {persistedCheckSettings, cleanupPersistance}
+
+  async function referencesToPersistedRegions(references = []) {
+    const persistedRegions = []
+    for (const reference of references) {
+      const {region, ...options} = reference.region ? reference : {region: reference}
+      let referenceRegions
+      if (utils.types.has(region, ['width', 'height'])) {
+        referenceRegions = [region]
+      } else {
+        const elements = await context.elements(region)
+        referenceRegions = elements.map(element => {
+          const elementId = utils.general.guid()
+          elementsById[elementId] = element
+          return {
+            type: 'css',
+            selector: `[data-applitools-marker~="${elementId}"]`,
+          }
+        })
+      }
+
+      persistedRegions.push(...referenceRegions.map(region => (reference.region ? {region, ...options} : region)))
     }
-    return elementsById
+    return persistedRegions
+  }
+
+  async function makePersistance() {
+    await context.execute(snippets.setElementMarkers, [Object.values(elementsById), Object.keys(elementsById)])
+    logger.verbose(`elements marked: ${Object.keys(elementsById)}`)
+  }
+
+  async function cleanupPersistance() {
+    await context.execute(snippets.cleanupElementMarkers, [Object.values(elementsById)])
+    logger.verbose(`elements cleaned up: ${Object.keys(elementsById)}`)
   }
 }
 
 function toCheckWindowConfiguration({checkSettings, configuration}) {
   const config = {
-    ignore: persistRegions(checkSettings.getIgnoreRegions()),
-    floating: persistRegions(checkSettings.getFloatingRegions()),
-    strict: persistRegions(checkSettings.getStrictRegions()),
-    layout: persistRegions(checkSettings.getLayoutRegions()),
-    content: persistRegions(checkSettings.getContentRegions()),
-    accessibility: persistRegions(checkSettings.getAccessibilityRegions()),
-    target: !checkSettings._targetRegion && !checkSettings._targetElement ? 'window' : 'region',
-    fully: configuration.getForceFullPageScreenshot() || checkSettings.getStitchContent(),
-    tag: checkSettings.getName(),
-    scriptHooks: checkSettings.getScriptHooks(),
-    sendDom: configuration.getSendDom() || checkSettings.getSendDom(), // this is wrong, but kept for backwards compatibility,
-    ignoreDisplacements: checkSettings.getIgnoreDisplacements(),
-    matchLevel: TypeUtils.getOrDefault(
-      checkSettings.getMatchLevel(),
-      configuration.getMatchLevel(),
-    ),
-    visualGridOptions: TypeUtils.getOrDefault(
-      checkSettings.getVisualGridOptions(),
-      configuration.getVisualGridOptions(),
-    ),
-    enablePatterns: TypeUtils.getOrDefault(
-      checkSettings.getEnablePatterns(),
-      configuration.getEnablePatterns(),
-    ),
-    useDom: TypeUtils.getOrDefault(checkSettings.getUseDom(), configuration.getUseDom()),
-    variationGroupId: checkSettings.getVariationGroupId(),
+    ignore: checkSettings.ignoreRegions,
+    floating: checkSettings.floatingRegions,
+    strict: checkSettings.strictRegions,
+    layout: checkSettings.layoutRegions,
+    content: checkSettings.contentRegions,
+    accessibility: checkSettings.accessibilityRegions,
+    target: checkSettings.region ? 'region' : 'window',
+    fully: configuration.getForceFullPageScreenshot() || checkSettings.fully,
+    tag: checkSettings.name,
+    scriptHooks: checkSettings.hooks,
+    sendDom: configuration.getSendDom() || checkSettings.sendDom, // this is wrong, but kept for backwards compatibility,
+    ignoreDisplacements: checkSettings.ignoreDisplacement,
+    matchLevel: TypeUtils.getOrDefault(checkSettings.matchLevel, configuration.getMatchLevel()),
+    visualGridOptions: TypeUtils.getOrDefault(checkSettings.visualGridOptions, configuration.getVisualGridOptions()),
+    enablePatterns: TypeUtils.getOrDefault(checkSettings.enablePatterns, configuration.getEnablePatterns()),
+    useDom: TypeUtils.getOrDefault(checkSettings.useDom, configuration.getUseDom()),
+    variationGroupId: checkSettings.variantGroupId,
   }
 
   if (config.target === 'region') {
-    const type = checkSettings._targetRegion ? 'region' : 'selector'
-    config[type] = checkSettings.getTargetProvider().toPersistedRegions()[0]
+    config[utils.types.has(checkSettings.region, ['width', 'height']) ? 'region' : 'selector'] = checkSettings.region
   }
 
   return config
+}
 
-  function persistRegions(regions = []) {
-    return regions.reduce((persisted, region) => persisted.concat(region.toPersistedRegions()), [])
+async function toMatchSettings({checkSettings, configuration, targetRegion}) {
+  if (!checkSettings) return null
+
+  const matchSettings = {
+    matchLevel: checkSettings.matchLevel || configuration.getDefaultMatchSettings().getMatchLevel(),
+    ignoreCaret: checkSettings.ignoreCaret || configuration.getDefaultMatchSettings().getIgnoreCaret(),
+    useDom: checkSettings.useDom || configuration.getDefaultMatchSettings().getUseDom(),
+    enablePatterns: checkSettings.enablePatterns || configuration.getDefaultMatchSettings().getEnablePatterns(),
+    ignoreDisplacements:
+      checkSettings.ignoreDisplacements || configuration.getDefaultMatchSettings().getIgnoreDisplacements(),
+    accessibilitySettings: configuration.getDefaultMatchSettings().getAccessibilitySettings(),
+    exact: null,
+    ignore: await referencesToRegions(checkSettings.ignoreRegions),
+    layout: await referencesToRegions(checkSettings.layoutRegions),
+    strict: await referencesToRegions(checkSettings.strictRegions),
+    content: await referencesToRegions(checkSettings.contentRegions),
+    floating: await referencesToRegions(checkSettings.floatingRegions),
+    accessibility: await referencesToRegions(checkSettings.accessibilityRegions),
+  }
+
+  return new ImageMatchSettings(matchSettings)
+
+  async function referencesToRegions(references) {
+    if (!references) return references
+    const regions = []
+    for (const reference of references) {
+      const {region, ...options} = reference.region ? reference : {region: reference}
+      if (utils.types.has(region, ['width', 'height'])) {
+        return [
+          {
+            left: Math.round(region.x),
+            top: Math.round(region.y),
+            width: Math.round(region.width),
+            height: Math.round(region.height),
+            ...options,
+          },
+        ]
+      }
+
+      const elements = await context.elements(region)
+
+      const regions = []
+      for (const element of elements) {
+        const region = utils.geometry.intersect(targetRegion, await element.getRegion())
+        regions.push({
+          left: Math.round(region.x),
+          top: Math.round(region.y),
+          width: Math.round(region.width),
+          height: Math.round(region.height),
+          ...options,
+        })
+      }
+    }
+    return regions
   }
 }
 
 module.exports = {
-  resolveAllRegionElements,
+  toPersistedCheckSettings,
   toCheckWindowConfiguration,
+  toMatchSettings,
 }

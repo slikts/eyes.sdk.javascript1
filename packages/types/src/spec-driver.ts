@@ -30,6 +30,6 @@ export interface SpecDriver<TDriver, TContext, TElement, TSelector> {
   getTitle(driver: TDriver): Promise<string>
   getUrl(driver: TDriver): Promise<string>
   takeScreenshot(driver: TDriver): Promise<Buffer | string>
-  performAction(driver: TDriver, steps: any[]): Promise<void>
+  performAction?(driver: TDriver, steps: any[]): Promise<void>
   visit?(driver: TDriver, url: string): Promise<void>
 }

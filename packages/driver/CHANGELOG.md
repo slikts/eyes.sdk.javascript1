@@ -4,6 +4,7 @@
 
 - add types support
 - add default implementation for element comparison
+- add native device automation support
 
 ## 1.0.7 - 2021/6/8
 

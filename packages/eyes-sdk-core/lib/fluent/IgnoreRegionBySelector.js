@@ -2,7 +2,6 @@
 const Region = require('../geometry/Region')
 const CoordinatesTypes = require('../geometry/CoordinatesType')
 const GetRegion = require('./GetRegion')
-const EyesUtils = require('../sdk/EyesUtils')
 
 /**
  * @typedef {import('../config/AccessibilityRegionType').AccessibilityRegionType} AccessibilityRegionType
@@ -51,14 +50,6 @@ class IgnoreRegionBySelector extends GetRegion {
       regions.push(new Region(lTag.getX(), lTag.getY(), rect.getWidth(), rect.getHeight()))
     }
     return regions
-  }
-  /**
-   * @template TDriver, TElement
-   * @param {EyesWrappedDriver<TDriver, TElement, TSelector>} driver
-   * @return {Promise<PersistedRegions[]>}
-   */
-  async toPersistedRegions(driver) {
-    return EyesUtils.locatorToPersistedRegions(driver._logger, driver, this._selector)
   }
 }
 

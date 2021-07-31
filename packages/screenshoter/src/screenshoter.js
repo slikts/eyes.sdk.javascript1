@@ -22,36 +22,35 @@ async function screenshoter({
   takeDomCapture,
 }) {
   const originalContext = driver.currentContext
-  const defaultScroller = makeScroller({logger, scrollingMode})
 
   const targetContext =
     frames.length > 0
       ? await originalContext.context(frames.reduce((parent, frame) => ({...frame, parent}), null))
       : originalContext
 
-  const scrollingStates = []
   if (!driver.isNative) {
     for (const nextContext of targetContext.path) {
       const scrollingElement = await nextContext.getScrollingElement()
       if (hideScrollbars) await scrollingElement.hideScrollbars()
-      const scrollingState = await defaultScroller.getState(scrollingElement)
-      scrollingStates.push(scrollingState)
+      await scrollingElement.preserveState()
     }
   }
 
   const activeElement = hideCaret && !driver.isNative ? await targetContext.blurElement() : null
 
+  const window = !target && (!frames || frames.length === 0)
   const {context, scroller, region} = await getTargetArea({
     logger,
     context: targetContext,
+    window,
     target,
     fully,
     scrollingMode,
   })
 
-  const scrollerState = await scroller.getState()
+  const scrollerState = await scroller.preserveState()
 
-  await scrollIntoViewport({logger, context, scroller, region})
+  if (!window) await scrollIntoViewport({logger, context, scroller, region})
 
   try {
     const screenshot = fully
@@ -88,16 +87,21 @@ async function screenshoter({
     for (const prevContext of targetContext.path.reverse()) {
       const scrollingElement = await prevContext.getScrollingElement()
       if (hideScrollbars) await scrollingElement.restoreScrollbars()
-      const scrollingState = scrollingStates.shift()
-      await defaultScroller.restoreState(scrollingState, scrollingElement)
+      await scrollingElement.restoreState()
     }
 
     await originalContext.focus()
   }
 }
 
-async function getTargetArea({logger, context, target, fully, scrollingMode}) {
-  if (target) {
+async function getTargetArea({logger, context, target, window, fully, scrollingMode}) {
+  if (window) {
+    const scrollingElement = await context.main.getScrollingElement()
+    return {
+      context: context.main,
+      scroller: makeScroller({logger, element: scrollingElement, scrollingMode}),
+    }
+  } else if (target) {
     if (utils.types.has(target, ['x', 'y', 'width', 'height'])) {
       const scrollingElement = await context.getScrollingElement()
       return {

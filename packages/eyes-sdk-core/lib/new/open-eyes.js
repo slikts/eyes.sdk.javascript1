@@ -1,4 +1,3 @@
-const FixedCutProvider = require('../cropping/FixedCutProvider')
 const SessionEventHandler = require('../events/SessionEventHandler')
 const RemoteSessionEventHandler = require('../events/RemoteSessionEventHandler')
 
@@ -16,11 +15,11 @@ function makeOpenEyes({sdk, runner}) {
     const eyes = new sdk.EyesFactory(runner)
     eyes.setConfiguration(config)
     if (config.scrollRootElement) eyes.setScrollRootElement(config.scrollRootElement)
-    if (config.cut && config.cut.top !== undefined) {
-      eyes.setCutProvider(
-        new FixedCutProvider(config.cut.top, config.cut.bottom, config.cut.left, config.cut.right),
-      )
-    }
+    // if (config.cut && config.cut.top !== undefined) {
+    //   eyes.setCutProvider(
+    //     new FixedCutProvider(config.cut.top, config.cut.bottom, config.cut.left, config.cut.right),
+    //   )
+    // }
     if (config.rotation) eyes.setRotation(config.rotation)
     if (config.scaleRatio) eyes.setScaleRatio(config.scaleRatio)
     if (config.logs) {

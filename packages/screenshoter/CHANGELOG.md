@@ -3,6 +3,7 @@
 
 ## Unreleased
 
+- improve support of native devices
 
 ## 3.0.8 - 2021/5/24
 
@@ -10,8 +11,8 @@
 
 ## 3.0.7 - 2021/5/13
 
-fixed image cropping algorithm to not copy data into a heap
-optimized image rotation and image copping algorithms
+- fixed image cropping algorithm to not copy data into a heap
+- optimized image rotation and image copping algorithms
 
 ## 3.0.6 - 2021/5/11
 

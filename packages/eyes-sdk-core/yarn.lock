@@ -35,7 +35,7 @@
     css-tree "1.0.0-alpha.39"
     pako "1.0.11"
 
-"@applitools/driver@1.0.7":
+"@applitools/driver@1.0.7", "@applitools/driver@^1.0.7":
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/@applitools/driver/-/driver-1.0.7.tgz#f2b96fd43ae4c7e381bfba666687041a73c1c54a"
   integrity sha512-cQL7Z/LAISnd8IXA7rJCr4EgURZ4Ypg3c4lCfMObPGz8fHjQnbAgdinTk7ceplkgoVBCrh4EPk23umOEbq6Ugw==
@@ -129,7 +129,7 @@
   dependencies:
     debug "^4.1.0"
 
-"@applitools/screenshoter@3.0.8":
+"@applitools/screenshoter@3.0.8", "@applitools/screenshoter@^3.0.8":
   version "3.0.8"
   resolved "https://registry.yarnpkg.com/@applitools/screenshoter/-/screenshoter-3.0.8.tgz#abc762151eb7325b3c8770446e1ab4442fbefc9f"
   integrity sha512-6TlypQcBD/fMoSigpHQlCbYpCuFHiULl8+LkelfvLIP7FVYWDFjq21hv3iMlm28GU14LtLDv6DtMkDVxEssI4Q==
@@ -215,7 +215,7 @@
   resolved "https://registry.yarnpkg.com/@applitools/types/-/types-1.0.4.tgz#09d461e6da2654b2e503da509e33d0254e5f789b"
   integrity sha512-qD07Vnif3koE5tz45RqP/AKnnjTJvdttum1zBD6MjbB2t6xxrvTRbGkgz2PC5b5zw8fPqsT3zoUK25JDW32JLg==
 
-"@applitools/utils@1.2.0":
+"@applitools/utils@1.2.0", "@applitools/utils@^1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@applitools/utils/-/utils-1.2.0.tgz#a79774ffdb894a73fbca5d24eba66ef17119a7c6"
   integrity sha512-NzynRgRavbTns5M85DJXXaMY/57xBte3F/tnK5nr3DSBhKTQnkjXIFwryPU5bVwEcpoGEVF0T1Gyq37WnDe38Q==

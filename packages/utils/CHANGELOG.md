@@ -3,6 +3,7 @@
 ## Unreleased
 
 - fix overload order
+- fix `gt` and `gte` properties behavior in `isNumber` argument guard
 
 ## 1.2.0 - 2021/5/23
 

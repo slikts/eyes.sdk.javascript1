@@ -2,7 +2,6 @@
 const CoordinatesType = require('../geometry/CoordinatesType')
 const FloatingMatchSettings = require('../config/FloatingMatchSettings')
 const GetFloatingRegion = require('./GetFloatingRegion')
-const EyesUtils = require('../sdk/EyesUtils')
 
 /**
  * @typedef {import('../config/AccessibilityRegionType').AccessibilityRegionType} AccessibilityRegionType
@@ -69,24 +68,6 @@ class FloatingRegionByElement extends GetFloatingRegion {
       maxRightOffset: this._maxRightOffset,
     })
     return [floatingRegion]
-  }
-  /**
-   * @template TDriver, TSelector
-   * @param {EyesWrappedDriver<TDriver, TElement, TSelector>} driver
-   * @return {Promise<FloatingPersistedRegion[]>}
-   */
-  async toPersistedRegions(context) {
-    const xpath = await EyesUtils.getElementXpath(context._logger, context, await this._element)
-    return [
-      {
-        type: 'xpath',
-        selector: xpath,
-        maxUpOffset: this._maxUpOffset,
-        maxDownOffset: this._maxDownOffset,
-        maxLeftOffset: this._maxLeftOffset,
-        maxRightOffset: this._maxRightOffset,
-      },
-    ]
   }
 }
 

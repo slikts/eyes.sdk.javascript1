@@ -2,7 +2,6 @@
 const Region = require('../geometry/Region')
 const CoordinatesTypes = require('../geometry/CoordinatesType')
 const GetRegion = require('./GetRegion')
-const EyesUtils = require('../sdk/EyesUtils')
 
 /**
  * @typedef {import('../config/AccessibilityRegionType').AccessibilityRegionType} AccessibilityRegionType
@@ -50,15 +49,6 @@ class IgnoreRegionByElement extends GetRegion {
       CoordinatesTypes.SCREENSHOT_AS_IS,
     )
     return [new Region(lTag.getX(), lTag.getY(), rect.getWidth(), rect.getHeight())]
-  }
-  /**
-   * @template TDriver, TSelector
-   * @param {EyesWrappedDriver<TDriver, TElement, TSelector>} driver
-   * @return {Promise<IgnorePersistedRegion[]>}
-   */
-  async toPersistedRegions(context) {
-    const xpath = await EyesUtils.getElementXpath(context._logger, context, await this._element)
-    return [{type: 'xpath', selector: xpath}]
   }
 }
 

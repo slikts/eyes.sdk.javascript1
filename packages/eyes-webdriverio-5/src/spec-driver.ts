@@ -85,6 +85,7 @@ function scriptRunner(script: string, arg: any, ...elements: Element[]) {
 // #region UTILITY
 
 export function isDriver(browser: any): browser is Driver {
+  if (!browser) return false
   return browser.constructor.name === 'Browser'
 }
 export function isElement(element: any): element is Element {

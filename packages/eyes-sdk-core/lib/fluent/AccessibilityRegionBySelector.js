@@ -2,7 +2,6 @@
 const AccessibilityMatchSettings = require('../config/AccessibilityMatchSettings')
 const CoordinatesTypes = require('../geometry/CoordinatesType')
 const GetAccessibilityRegion = require('./GetAccessibilityRegion')
-const EyesUtils = require('../sdk/EyesUtils')
 
 /**
  * @typedef {import('../config/AccessibilityRegionType').AccessibilityRegionType} AccessibilityRegionType
@@ -61,19 +60,6 @@ class AccessibilityRegionBySelector extends GetAccessibilityRegion {
     }
 
     return regions
-  }
-  /**
-   * @template TDriver, TElement
-   * @param {EyesWrappedDriver<TDriver, TElement, TSelector>} driver
-   * @return {Promise<AccessibilityPersistedRegion[]>}
-   */
-  async toPersistedRegions(driver) {
-    const regions = await EyesUtils.locatorToPersistedRegions(
-      driver._logger,
-      driver,
-      this._selector,
-    )
-    return regions.map(reg => ({...reg, accessibilityType: this._type}))
   }
 }
 
