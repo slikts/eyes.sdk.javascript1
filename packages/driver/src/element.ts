@@ -311,6 +311,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
 
   async hideScrollbars(): Promise<void> {
     if (this.driver.isNative) return
+    if (this._originalOverflow) return
     return this.withRefresh(async () => {
       const {overflow} = await this.context.execute(snippets.setElementStyleProperties, [this, {overflow: 'hidden'}])
       this._originalOverflow = overflow
@@ -318,6 +319,8 @@ export class Element<TDriver, TContext, TElement, TSelector> {
   }
 
   async restoreScrollbars(): Promise<void> {
+    if (this.driver.isNative) return
+    if (!this._originalOverflow) return
     return this.withRefresh(async () => {
       await this.context.execute(snippets.setElementStyleProperties, [this, {overflow: this._originalOverflow}])
     })
