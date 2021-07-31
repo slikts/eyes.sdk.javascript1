@@ -29,7 +29,6 @@ exports.RenderStatusResults = require('../lib/renderer/RenderStatusResults')
 exports.RGridResource = require('../lib/renderer/RGridResource')
 exports.RGridDom = require('../lib/renderer/RGridDom')
 
-exports.NullRegionProvider = require('../lib/positioning/NullRegionProvider')
 exports.EyesBase = require('../lib/sdk/EyesBase')
 
 exports.getTunnelAgentFromProxy = require('../lib/server/getTunnelAgentFromProxy')
