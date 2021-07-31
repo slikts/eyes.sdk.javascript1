@@ -68,18 +68,18 @@ async function screenshoter({
         })
       : await takeViewportScreenshot({logger, context, region, wait, stabilization, debug})
 
-    if (!dom) return screenshot
-
-    // temporary solution
-    if (fully) {
-      await context.execute(
-        'arguments[0].setAttribute("data-applitools-scroll", "true")',
-        scroller.element,
-      )
+    if (dom) {
+      // temporary solution
+      if (fully) {
+        await context.execute(
+          'arguments[0].setAttribute("data-applitools-scroll", "true")',
+          scroller.element,
+        )
+      }
+      screenshot.dom = await takeDomCapture()
     }
 
-    return {...screenshot, dom: await takeDomCapture()}
-    // ---
+    return {...screenshot, region}
   } finally {
     await scroller.element.restoreScrollbars()
     await scroller.restoreState(scrollerState)

@@ -123,9 +123,12 @@ async function takeStitchedScreenshot({
     await frameImage.replace(await composition.toObject(), cropRegion)
     await frameImage.debug({path: debug.path, name: 'framed'})
 
-    return {image: frameImage, region: utils.geometry.region(cropRegion, composition.size)}
+    return {
+      image: frameImage,
+      viewportRegion: utils.geometry.region({x: 0, y: 0}, composition.size),
+    }
   } else {
-    return {image: composition, region: cropRegion}
+    return {image: composition, viewportRegion: cropRegion}
   }
 }
 

@@ -84,7 +84,7 @@ function toCheckWindowConfiguration({checkSettings, configuration}) {
   return config
 }
 
-async function toMatchSettings({checkSettings, configuration, targetRegion}) {
+async function toMatchSettings({context, checkSettings, configuration, targetRegion}) {
   if (!checkSettings) return null
 
   const matchSettings = {
@@ -112,22 +112,18 @@ async function toMatchSettings({checkSettings, configuration, targetRegion}) {
     for (const reference of references) {
       const {region, ...options} = reference.region ? reference : {region: reference}
       if (utils.types.has(region, ['width', 'height'])) {
-        return [
-          {
-            left: Math.round(region.x),
-            top: Math.round(region.y),
-            width: Math.round(region.width),
-            height: Math.round(region.height),
-            ...options,
-          },
-        ]
+        regions.push({
+          left: Math.round(region.x),
+          top: Math.round(region.y),
+          width: Math.round(region.width),
+          height: Math.round(region.height),
+          ...options,
+        })
       }
 
       const elements = await context.elements(region)
-
-      const regions = []
       for (const element of elements) {
-        const region = utils.geometry.intersect(targetRegion, await element.getRegion())
+        const region = utils.geometry.subtraction(await element.getRegion(), targetRegion)
         regions.push({
           left: Math.round(region.x),
           top: Math.round(region.y),

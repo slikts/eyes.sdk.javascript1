@@ -129,7 +129,7 @@ class EyesCore extends EyesBase {
       extractTextInputs.push({
         domUrl,
         screenshotUrl,
-        location: {x: Math.round(screenshot.region.x), y: Math.round(screenshot.region.y)},
+        location: {x: Math.round(screenshot.viewportRegion.x), y: Math.round(screenshot.viewportRegion.y)},
         region: {
           left: 0,
           top: 0,
@@ -142,9 +142,7 @@ class EyesCore extends EyesBase {
       })
     }
 
-    const results = await Promise.all(
-      extractTextInputs.map(input => this._serverConnector.extractText(input)),
-    )
+    const results = await Promise.all(extractTextInputs.map(input => this._serverConnector.extractText(input)))
 
     return results.reduce((strs, result) => strs.concat(result), [])
   }
@@ -166,9 +164,7 @@ class EyesCore extends EyesBase {
       wait: this._configuration.getWaitBeforeScreenshots(),
       stabilization: {
         crop:
-          this._cutProviderHandler.get() instanceof NullCutProvider
-            ? null
-            : this._cutProviderHandler.get().toObject(),
+          this._cutProviderHandler.get() instanceof NullCutProvider ? null : this._cutProviderHandler.get().toObject(),
         scale:
           this._scaleProviderHandler.get() instanceof NullScaleProvider
             ? null
@@ -211,7 +207,6 @@ class EyesCore extends EyesBase {
     const logger = new Logger(process.env.APPLITOOLS_SHOW_LOGS)
     const eyesDriver = await this.spec.newDriver(logger, driver).init()
     if (!eyesDriver.isMobile) {
-
       ArgumentGuard.notNull(viewportSize, 'viewportSize')
       await eyesDriver.setViewportSize(viewportSize)
     }

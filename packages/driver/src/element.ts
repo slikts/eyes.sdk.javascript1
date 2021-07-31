@@ -323,6 +323,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
     if (!this._originalOverflow) return
     return this.withRefresh(async () => {
       await this.context.execute(snippets.setElementStyleProperties, [this, {overflow: this._originalOverflow}])
+      this._originalOverflow = null
     })
   }
 

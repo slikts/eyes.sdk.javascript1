@@ -266,7 +266,7 @@ function makeCheckWindow({
 
       const regions = getMatchRegions({selectorRegions, imageLocation})
 
-      const checkSettings = createCheckSettings({
+      const checkSettings = {
         ...regions,
         useDom,
         enablePatterns,
@@ -274,7 +274,7 @@ function makeCheckWindow({
         renderId,
         matchLevel,
         variationGroupId,
-      })
+      }
 
       logger.verbose(
         `checkWindow waiting for openEyes. test=${testName}, stepCount #${currStepCount}`,

@@ -38,6 +38,8 @@ exports.TypeUtils = require('../lib/utils/TypeUtils')
 exports.GeneralUtils = require('../lib/utils/GeneralUtils')
 exports.ConfigUtils = require('../lib/utils/ConfigUtils')
 
+exports.ImageMatchSettings = require('../lib/config/ImageMatchSettings')
+
 exports.RunnerStartedEvent = require('../lib/logging/RunnerStartedEvent')
 exports.MatchResult = require('../lib/match/MatchResult')
 
