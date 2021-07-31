@@ -73,6 +73,8 @@ class EyesClassic extends EyesCore {
 
   async _check(checkSettings, closeAfterMatch = false, throwEx = true) {
     this._context = await this._driver.refreshContexts()
+    await this._context.main.setScrollingElement(this._scrollRootElement)
+    await this._context.setScrollingElement(checkSettings.scrollRootElement)
 
     this._checkSettings = checkSettings
 
@@ -92,6 +94,7 @@ class EyesClassic extends EyesCore {
       overlap: this._configuration.getStitchOverlap(),
       wait: this._configuration.getWaitBeforeScreenshots(),
       stabilization: {}, // TODO
+      // debug: {path: './'},
       logger: this._logger,
       takeDomCapture: () => takeDomCapture(this._logger, this._context),
     }

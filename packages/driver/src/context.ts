@@ -351,7 +351,9 @@ export class Context<TDriver, TContext, TElement, TSelector> {
 
   async getRegion(): Promise<types.Region> {
     if (this.isMain && this.isCurrent) {
-      this._state.region = {x: 0, y: 0, ...(await this.driver.getViewportSize())}
+      this._state.region = this._scrollingElement
+        ? await this._scrollingElement.getRegion()
+        : {x: 0, y: 0, ...(await this.driver.getViewportSize())}
     } else if (this.parent?.isCurrent) {
       await this.init()
       this._state.region = await this._element.getRegion()
@@ -361,7 +363,9 @@ export class Context<TDriver, TContext, TElement, TSelector> {
 
   async getClientRegion(): Promise<types.Region> {
     if (this.isMain && this.isCurrent) {
-      this._state.clientRegion = {x: 0, y: 0, ...(await this.driver.getViewportSize())}
+      this._state.clientRegion = this._scrollingElement
+        ? await this._scrollingElement.getClientRegion()
+        : {x: 0, y: 0, ...(await this.driver.getViewportSize())}
     } else if (this.parent?.isCurrent) {
       await this.init()
       this._state.clientRegion = await this._element.getClientRegion()
@@ -409,6 +413,28 @@ export class Context<TDriver, TContext, TElement, TSelector> {
       currentContext = currentContext.parent
     }
     return location
+  }
+
+  async getRegionInViewport(): Promise<types.Region> {
+    if (this.isMain) {
+      return utils.geometry.offsetNegative(await this.getClientRegion(), await this.getInnerOffset())
+    }
+
+    let region = {x: 0, y: 0, width: Infinity, height: Infinity}
+
+    let currentContext = this as Context<TDriver, TContext, TElement, TSelector>
+    while (currentContext) {
+      const contextRegion = await currentContext.getClientRegion()
+      const parentContextInnerOffset = currentContext.parent
+        ? await currentContext.parent.getInnerOffset()
+        : {x: 0, y: 0}
+
+      region = utils.geometry.intersect(region, contextRegion)
+      region = utils.geometry.offsetNegative(region, parentContextInnerOffset)
+
+      currentContext = currentContext.parent
+    }
+    return region
   }
 
   private async preserveInnerOffset() {

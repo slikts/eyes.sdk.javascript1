@@ -14,14 +14,14 @@ async function scrollIntoViewport({logger, context, scroller, region}) {
   let currentContext = context
   let remainingOffset = {x: elementContextRegion.x, y: elementContextRegion.y}
   while (currentContext) {
-    const scrollRootElement = await currentContext.getScrollingElement()
-    const scrollRootOffset = scrollRootElement
-      ? await scrollRootElement.getClientRegion().then(rect => ({x: rect.x, y: rect.y}))
+    const scrollingElement = await currentContext.getScrollingElement()
+    const scrollingElementOffset = scrollingElement
+      ? utils.geometry.location(await scrollingElement.getClientRegion())
       : {x: 0, y: 0}
 
     const actualOffset = await scroller.moveTo(
-      utils.geometry.offsetNegative(remainingOffset, scrollRootOffset),
-      scrollRootElement,
+      utils.geometry.offsetNegative(remainingOffset, scrollingElementOffset),
+      scrollingElement,
     )
 
     remainingOffset = utils.geometry.offset(

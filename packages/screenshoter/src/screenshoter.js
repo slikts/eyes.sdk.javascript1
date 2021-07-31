@@ -81,7 +81,7 @@ async function screenshoter({
     return {...screenshot, dom: await takeDomCapture()}
     // ---
   } finally {
-    if (hideScrollbars) await scroller.element.restoreScrollbars()
+    await scroller.element.restoreScrollbars()
     await scroller.restoreState(scrollerState)
 
     if (hideCaret && activeElement) await targetContext.focusElement(activeElement)
