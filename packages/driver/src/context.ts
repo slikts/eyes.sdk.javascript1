@@ -423,21 +423,21 @@ export class Context<TDriver, TContext, TElement, TSelector> {
     return location
   }
 
-  async getRegionInViewport(): Promise<types.Region> {
+  async getRegionInViewport(region: types.Region): Promise<types.Region> {
     if (this.isMain) {
       return utils.geometry.offsetNegative(await this.getClientRegion(), await this.getInnerOffset())
     }
 
-    let region = {x: 0, y: 0, width: Infinity, height: Infinity}
-
     let currentContext = this as Context<TDriver, TContext, TElement, TSelector>
+
+    if (!region) region = {x: 0, y: 0, width: Infinity, height: Infinity}
+    else region = region = utils.geometry.offsetNegative(region, await currentContext.getInnerOffset())
+
     while (currentContext) {
       const contextRegion = await currentContext.getClientRegion()
-      const parentContextInnerOffset = currentContext.parent
-        ? await currentContext.parent.getInnerOffset()
-        : {x: 0, y: 0}
+      const parentContextInnerOffset = (await currentContext.parent?.getInnerOffset()) ?? {x: 0, y: 0}
 
-      region = utils.geometry.intersect(contextRegion, utils.geometry.offset(contextRegion, region))
+      region = utils.geometry.intersect(contextRegion, utils.geometry.offset(region, contextRegion))
       region = utils.geometry.offsetNegative(region, parentContextInnerOffset)
 
       currentContext = currentContext.parent

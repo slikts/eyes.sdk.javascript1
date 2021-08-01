@@ -18,7 +18,7 @@ async function takeViewportScreenshot({logger, context, region, wait, stabilizat
     await image.debug({path: debug.path, suffix: 'region'})
     return {image, viewportRegion: cropRegion}
   } else {
-    return {image, region: {x: 0, y: 0, width: image.width, height: image.height}}
+    return {image, viewportRegion: {x: 0, y: 0, width: image.width, height: image.height}}
   }
 }
 

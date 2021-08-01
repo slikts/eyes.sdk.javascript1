@@ -75,6 +75,10 @@ async function screenshoter({
           'arguments[0].setAttribute("data-applitools-scroll", "true")',
           scroller.element,
         )
+        if (!region) {
+          const scrollingElement = await context.main.getScrollingElement()
+          await scroller.moveTo({x: 0, y: 0}, scrollingElement)
+        }
       }
       screenshot.dom = await takeDomCapture()
     }

@@ -1914,7 +1914,7 @@ class EyesBase {
     if (!domUrl && TypeUtils.getOrDefault(sendDom, await this.getSendDom())) {
       const domJson = await this.tryCaptureDom()
       if (domJson) {
-        domUrl = this._serverConnector.postDomSnapshot(GeneralUtils.guid(), domJson)
+        domUrl = await this._serverConnector.postDomSnapshot(GeneralUtils.guid(), domJson)
       }
     }
     this._logger.verbose(`domUrl: ${domUrl}`)

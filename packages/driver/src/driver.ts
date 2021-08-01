@@ -305,22 +305,9 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
       width: region.width,
       height: region.height,
     }
-    const contextRegionInViewport = await context.getRegionInViewport()
-
     await context.focus()
 
-    const contextInnerOffset = await context.getInnerOffset().catch(() => ({x: 0, y: 0}))
-
-    const regionInContext = utils.geometry.intersect(
-      utils.geometry.region({x: 0, y: 0}, contextRegionInViewport),
-      utils.geometry.offsetNegative(region, contextInnerOffset),
-    )
-
-    const regionInViewport = context.isMain
-      ? regionInContext
-      : utils.geometry.offset(regionInContext, contextRegionInViewport)
-
-    return regionInViewport
+    return context.getRegionInViewport(region)
   }
 
   async element(selector: types.SpecSelector<TSelector>): Promise<Element<TDriver, TContext, TElement, TSelector>> {
