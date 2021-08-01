@@ -65,7 +65,7 @@ function toCheckWindowConfiguration({checkSettings, configuration}) {
     content: checkSettings.contentRegions,
     accessibility: checkSettings.accessibilityRegions,
     target: checkSettings.region ? 'region' : 'window',
-    fully: configuration.getForceFullPageScreenshot() || checkSettings.fully,
+    fully: configuration.getForceFullPageScreenshot() || checkSettings.fully || false,
     tag: checkSettings.name,
     scriptHooks: checkSettings.hooks,
     sendDom: configuration.getSendDom() || checkSettings.sendDom, // this is wrong, but kept for backwards compatibility,

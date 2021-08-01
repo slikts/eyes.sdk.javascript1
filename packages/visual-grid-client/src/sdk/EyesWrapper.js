@@ -169,7 +169,24 @@ class EyesWrapper extends EyesBase {
     this.screenshotUrl = screenshotUrl
     this.domUrl = domUrl
     this.imageLocation = imageLocation || Location.ZERO
-    this.mathSettings = new ImageMatchSettings(checkSettings)
+    this.matchSettings = new ImageMatchSettings({
+      ...checkSettings,
+      matchLevel:
+        checkSettings.matchLevel || this._configuration.getDefaultMatchSettings().getMatchLevel(),
+      ignoreCaret:
+        checkSettings.ignoreCaret || this._configuration.getDefaultMatchSettings().getIgnoreCaret(),
+      useDom: checkSettings.useDom || this._configuration.getDefaultMatchSettings().getUseDom(),
+      enablePatterns:
+        checkSettings.enablePatterns ||
+        this._configuration.getDefaultMatchSettings().getEnablePatterns(),
+      ignoreDisplacements:
+        checkSettings.ignoreDisplacements ||
+        this._configuration.getDefaultMatchSettings().getIgnoreDisplacements(),
+      accessibilitySettings: this._configuration
+        .getDefaultMatchSettings()
+        .getAccessibilitySettings(),
+      exact: null,
+    })
     return closeAfterMatch
       ? this.checkWindowAndCloseBase({
           name: tag,

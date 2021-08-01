@@ -12,7 +12,7 @@ async function takeViewportScreenshot({logger, context, region, wait, stabilizat
   await utils.general.sleep(wait)
 
   if (region) {
-    const cropRegion = await driver.getRegionInViewport(context, region)
+    const cropRegion = await context.getRegionInViewport(region)
     if (utils.geometry.isEmpty(cropRegion)) throw new Error('Screenshot region is out of viewport')
     await image.crop(cropRegion)
     await image.debug({path: debug.path, suffix: 'region'})
