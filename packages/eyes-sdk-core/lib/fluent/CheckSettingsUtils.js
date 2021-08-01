@@ -119,18 +119,18 @@ async function toMatchSettings({context, checkSettings, configuration, targetReg
           height: Math.round(region.height),
           ...options,
         })
-      }
-
-      const elements = await context.elements(region)
-      for (const element of elements) {
-        const region = utils.geometry.subtraction(await element.getRegion(), targetRegion)
-        regions.push({
-          left: Math.round(region.x),
-          top: Math.round(region.y),
-          width: Math.round(region.width),
-          height: Math.round(region.height),
-          ...options,
-        })
+      } else {
+        const elements = await context.elements(region)
+        for (const element of elements) {
+          const region = utils.geometry.subtraction(await element.getRegion(), targetRegion)
+          regions.push({
+            left: Math.round(region.x),
+            top: Math.round(region.y),
+            width: Math.round(region.width),
+            height: Math.round(region.height),
+            ...options,
+          })
+        }
       }
     }
     return regions

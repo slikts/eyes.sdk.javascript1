@@ -164,7 +164,7 @@ class Region {
       })
     }
 
-    const {left, top, width, height, coordinatesType, error} = varArg1
+    const {left = varArg1.x, top = varArg1.y, width, height, coordinatesType, error} = varArg1
 
     if (error) {
       this._error = error

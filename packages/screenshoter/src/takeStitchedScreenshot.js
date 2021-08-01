@@ -51,7 +51,7 @@ async function takeStitchedScreenshot({
   }
 
   const padding = {top: overlap, bottom: 0}
-  const [_, ...partRegions] = utils.geometry.divide(region, image.size, padding)
+  const [initialRegion, ...partRegions] = utils.geometry.divide(region, image.size, padding)
   logger.verbose('Part regions', partRegions)
 
   logger.verbose('Creating stitched image composition container')
@@ -67,8 +67,9 @@ async function takeStitchedScreenshot({
     const partName = `${partRegion.x}_${partRegion.y}_${partRegion.width}x${partRegion.height}`
     logger.verbose(`Processing part ${partName}`)
 
+    const topPadding = initialRegion.y !== partRegion.y ? padding.top : 0
     const partOffset = utils.geometry.location(partRegion)
-    const requiredOffset = utils.geometry.offsetNegative(partOffset, {x: 0, y: padding.top})
+    const requiredOffset = utils.geometry.offsetNegative(partOffset, {x: 0, y: topPadding})
 
     logger.verbose(`Move to ${requiredOffset}`)
     const actualOffset = await scroller.moveTo(requiredOffset)
@@ -78,7 +79,7 @@ async function takeStitchedScreenshot({
     )
     const cropPartRegion = {
       x: cropRegion.x + remainingOffset.x,
-      y: cropRegion.y + remainingOffset.y + padding.top,
+      y: cropRegion.y + remainingOffset.y + topPadding,
       width: Math.min(cropRegion.width, partRegion.width),
       height: Math.min(cropRegion.height, partRegion.height),
     }

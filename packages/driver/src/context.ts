@@ -285,7 +285,7 @@ export class Context<TDriver, TContext, TElement, TSelector> {
 
     function serialize(this: Context<TDriver, TContext, TElement, TSelector>, value: any): any {
       if (this._spec.isElement(value) || value instanceof Element) {
-        return value
+        return value instanceof Element ? value.toJSON() : value
       } else if (utils.types.isArray(value)) {
         return value.map(value => serialize.call(this, value))
       } else if (utils.types.isObject(value)) {
