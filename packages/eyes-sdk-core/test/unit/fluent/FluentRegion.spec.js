@@ -3,7 +3,7 @@
 const assert = require('assert')
 const {Region, FluentRegion, CoordinatesType, Location} = require('../../../index')
 const MockDriver = require('../../utils/MockDriver')
-const {createFakeDriver} = require('../../utils/FakeSDK')
+const {createFakeDriver} = require('../../utils/FakeEyesDriver')
 
 describe('FluentRegion', () => {
   let driver,
