@@ -148,6 +148,10 @@ class MockDriver {
         )
       }
     })
+    this.mockScript(snippets.getDocumentSize, () => {
+      // TODO get window for context: `this.contexts.get(this._contextId)`
+      return {width: this._window.rect.width, height: this._window.rect.height}
+    })
     this.mockScript('dom-snapshot', () => FakeDomSnapshot.generateDomSnapshot(this))
   }
   mockScript(scriptMatcher, resultGenerator) {
