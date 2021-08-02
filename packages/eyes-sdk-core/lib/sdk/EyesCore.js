@@ -129,7 +129,7 @@ class EyesCore extends EyesBase {
       extractTextInputs.push({
         domUrl,
         screenshotUrl,
-        location: {x: Math.round(screenshot.viewportRegion.x), y: Math.round(screenshot.viewportRegion.y)},
+        location: {x: Math.round(screenshot.region.x), y: Math.round(screenshot.region.y)},
         region: {
           left: 0,
           top: 0,

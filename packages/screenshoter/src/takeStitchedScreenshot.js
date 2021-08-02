@@ -15,7 +15,7 @@ async function takeStitchedScreenshot({
 }) {
   logger.verbose('Taking full image of...')
 
-  const scrollerRegion = utils.geometry.region({x: 0, y: 0}, await scroller.getSize())
+  const scrollerRegion = utils.geometry.region({x: 0, y: 0}, await scroller.getContentSize())
   logger.verbose(`Scroller size: ${scrollerRegion}`)
 
   const driver = context.driver
@@ -31,10 +31,9 @@ async function takeStitchedScreenshot({
   let image = await takeScreenshot({name: 'initial'})
   const frameImage = framed ? makeImage(image) : null
 
-  const cropRegion = await driver.getRegionInViewport(
-    context,
-    region || (await scroller.getClientRegion()),
-  )
+  const targetRegion = region || (await scroller.getClientRegion())
+
+  const cropRegion = await driver.getRegionInViewport(context, targetRegion)
 
   logger.verbose('cropping...')
   await image.crop(cropRegion)
@@ -120,16 +119,24 @@ async function takeStitchedScreenshot({
 
   await composition.debug({path: debug.path, name: 'stitched'})
 
+  const locationInMainContext = await context.getLocationInMainContext()
+
   if (frameImage) {
     await frameImage.replace(await composition.toObject(), cropRegion)
     await frameImage.debug({path: debug.path, name: 'framed'})
 
     return {
       image: frameImage,
-      viewportRegion: utils.geometry.region({x: 0, y: 0}, composition.size),
+      region: utils.geometry.region({x: 0, y: 0}, frameImage.size),
     }
   } else {
-    return {image: composition, viewportRegion: cropRegion}
+    return {
+      image: composition,
+      region: utils.geometry.region(
+        utils.geometry.offset(locationInMainContext, region),
+        composition.size,
+      ),
+    }
   }
 }
 

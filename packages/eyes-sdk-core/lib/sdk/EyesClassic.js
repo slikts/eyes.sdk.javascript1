@@ -116,7 +116,8 @@ class EyesClassic extends EyesCore {
     this._logger.verbose('getScreenshot()')
 
     const screenshot = await screenshoter(this._screenshotSettings)
-    this._imageLocation = new Location(Math.round(screenshot.viewportRegion.x), Math.round(screenshot.viewportRegion.y))
+    console.log({...screenshot, dom: !!screenshot.dom})
+    this._imageLocation = new Location(Math.round(screenshot.region.x), Math.round(screenshot.region.y))
     this._dom = screenshot.dom
 
     this._matchSettings = await CheckSettingsUtils.toMatchSettings({

@@ -388,7 +388,7 @@ export class Context<TDriver, TContext, TElement, TSelector> {
   async getInnerOffset(): Promise<types.Location> {
     if (this.isCurrent) {
       const scrollingElement = await this.getScrollingElement()
-      return scrollingElement.getInnerOffset()
+      this._state.innerOffset = await scrollingElement.getInnerOffset()
     }
     return this._state.innerOffset
   }
@@ -410,9 +410,7 @@ export class Context<TDriver, TContext, TElement, TSelector> {
     let currentContext = this as Context<TDriver, TContext, TElement, TSelector>
     while (currentContext) {
       const contextLocation = utils.geometry.location(await currentContext.getClientRegion())
-      const parentContextInnerOffset = currentContext.parent
-        ? await currentContext.parent.getInnerOffset()
-        : {x: 0, y: 0}
+      const parentContextInnerOffset = (await currentContext.parent?.getInnerOffset()) ?? {x: 0, y: 0}
 
       location = utils.geometry.offsetNegative(
         utils.geometry.offset(location, contextLocation),
@@ -424,14 +422,10 @@ export class Context<TDriver, TContext, TElement, TSelector> {
   }
 
   async getRegionInViewport(region: types.Region): Promise<types.Region> {
-    if (this.isMain) {
-      return utils.geometry.offsetNegative(await this.getClientRegion(), await this.getInnerOffset())
-    }
-
     let currentContext = this as Context<TDriver, TContext, TElement, TSelector>
 
-    if (!region) region = {x: 0, y: 0, width: Infinity, height: Infinity}
-    else region = region = utils.geometry.offsetNegative(region, await currentContext.getInnerOffset())
+    if (region) region = utils.geometry.offsetNegative(region, await currentContext.getInnerOffset())
+    else region = {x: 0, y: 0, width: Infinity, height: Infinity}
 
     while (currentContext) {
       const contextRegion = await currentContext.getClientRegion()
