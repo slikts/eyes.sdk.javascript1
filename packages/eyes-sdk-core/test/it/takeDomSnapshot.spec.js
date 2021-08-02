@@ -1,6 +1,6 @@
 const takeDomSnapshot = require('../../lib/utils/takeDomSnapshot')
 const {expect} = require('chai')
-const {createFakeDriver} = require('../utils/FakeSDK')
+const {createFakeDriver} = require('../utils/FakeEyesDriver')
 const MockDriver = require('../utils/MockDriver')
 const Logger = require('../../lib/logging/Logger')
 const {presult} = require('../../lib/utils/GeneralUtils')
