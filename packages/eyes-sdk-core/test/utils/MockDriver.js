@@ -68,9 +68,7 @@ class MockDriver {
       return element.rect || {x: 0, y: 0, width: 100, height: 100}
     })
     this.mockScript(snippets.getElementComputedStyleProperties, ([element, properties]) => {
-      return properties.map(
-        property => (element.styles || {})[property] || DEFAULT_STYLES[property],
-      )
+      return properties.map(property => (element.styles || {})[property] || DEFAULT_STYLES[property])
     })
     this.mockScript(snippets.getElementProperties, ([element, properties]) => {
       return properties.map(property => (element.props || {})[property] || DEFAULT_PROPS[property])
@@ -129,14 +127,9 @@ class MockDriver {
     })
     this.mockScript(snippets.getElementXpath, ([element]) => {
       if (element.xpath) return element.xpath
-      const elements = Array.from(this._elements.values()).reduce(
-        (elements, array) => elements.concat(array),
-        [],
-      )
+      const elements = Array.from(this._elements.values()).reduce((elements, array) => elements.concat(array), [])
       const index = elements.findIndex(({id}) => id === element.id)
-      return index >= 0
-        ? `/HTML[1]/BODY[1]/DIV[${index + 1}]`
-        : `//[data-fake-selector="${element.selector}"]`
+      return index >= 0 ? `/HTML[1]/BODY[1]/DIV[${index + 1}]` : `//[data-fake-selector="${element.selector}"]`
     })
     this.mockScript(snippets.blurElement, () => {
       return null
@@ -204,9 +197,7 @@ class MockDriver {
       if (node.children) {
         this.mockElements(node.children, {
           parentId: element.frame ? null : element.id,
-          parentContextId: element.frame
-            ? this._contexts.get(element.contextId).id
-            : parentContextId,
+          parentContextId: element.frame ? this._contexts.get(element.contextId).id : parentContextId,
         })
       }
     }
@@ -234,6 +225,7 @@ class MockDriver {
       platformVersion: this._platform ? this._platform.version : null,
       browserName: this._browser ? this._browser.name : null,
       browserVersion: this._browser ? this._browser.version : null,
+      userAgent: 'bla',
     }
   }
   async executeScript(script, args = []) {
@@ -333,10 +325,7 @@ function serialize(value) {
     return value.map(serialize)
   } else if (TypeUtils.isObject(value)) {
     if (typeof value.id === 'symbol') return value
-    return Object.entries(value).reduce(
-      (json, [key, value]) => Object.assign(json, {[key]: serialize(value)}),
-      {},
-    )
+    return Object.entries(value).reduce((json, [key, value]) => Object.assign(json, {[key]: serialize(value)}), {})
   } else if (TypeUtils.isFunction(value)) {
     return value.toString()
   } else {

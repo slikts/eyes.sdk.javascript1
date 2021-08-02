@@ -1,9 +1,9 @@
 'use strict'
 
 const assert = require('assert')
-const {Region, Logger, FluentRegion, CoordinatesType, Location} = require('../../../index')
+const {Region, FluentRegion, CoordinatesType, Location} = require('../../../index')
 const MockDriver = require('../../utils/MockDriver')
-const {Driver} = require('../../utils/FakeSDK')
+const {createFakeDriver} = require('../../utils/FakeSDK')
 
 describe('FluentRegion', () => {
   let driver,
@@ -16,7 +16,7 @@ describe('FluentRegion', () => {
     const mock = new MockDriver()
     mock.mockElement('custom selector', {rect: rect1})
     mock.mockElement('custom selector', {rect: rect2})
-    driver = new Driver(new Logger(false), mock)
+    driver = createFakeDriver(mock)
     element = await driver.element('custom selector')
     screenshot = {
       convertLocation: (loc, from, to) => {
