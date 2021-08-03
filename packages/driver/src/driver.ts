@@ -127,7 +127,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
 
     const spec = this._spec
 
-    let currentContext = await this.currentContext.target
+    let currentContext = this.currentContext.target
     let contextInfo = await getContextInfo(currentContext)
 
     const path = []

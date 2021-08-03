@@ -36,6 +36,7 @@ function transformSelector(selector: Selector): string {
 // #region UTILITY
 
 export function isDriver(browser: any): browser is Driver {
+  if (!browser) return false
   return Boolean(browser.getPrototype && browser.desiredCapabilities && browser.requestHandler)
 }
 export function isElement(element: any): element is Element {
@@ -48,6 +49,14 @@ export function isSelector(selector: any): selector is Selector {
   return (
     utils.types.isString(selector) || utils.types.has(selector, ['type', 'selector']) || selector instanceof legacy.By
   )
+}
+export function transformDriver(browser: Driver): Driver {
+  return new Proxy(browser, {
+    get: (target, key) => {
+      if (key === 'then') return undefined
+      return Reflect.get(target, key)
+    },
+  })
 }
 export function transformElement(element: Element): Element {
   const elementId = extractElementId(utils.types.has(element, 'value') ? element.value : element)
@@ -114,20 +123,41 @@ export async function setWindowSize(browser: Driver, size: {width: number; heigh
   await browser.windowHandleSize(size)
 }
 export async function getDriverInfo(browser: Driver): Promise<any> {
-  return {
+  const capabilities = browser.desiredCapabilities as any
+
+  const info: any = {
     sessionId: (browser as any).requestHandler.sessionID || browser.sessionId,
     isMobile: browser.isMobile,
-    isNative: browser.isMobile && !browser.desiredCapabilities.browserName,
-    deviceName: browser.desiredCapabilities.deviceName,
+    isNative: browser.isMobile && !capabilities.browserName,
+    deviceName: capabilities.deviceName,
     platformName:
       (browser.isIOS && 'iOS') ||
       (browser.isAndroid && 'Android') ||
-      browser.desiredCapabilities.platformName ||
-      browser.desiredCapabilities.platform,
-    platformVersion: browser.desiredCapabilities.platformVersion,
-    browserName: browser.desiredCapabilities.browserName ?? (browser.desiredCapabilities as any).name,
-    browserVersion: browser.desiredCapabilities.browserVersion ?? browser.desiredCapabilities.version,
+      capabilities.platformName ||
+      capabilities.platform,
+    platformVersion: capabilities.platformVersion,
+    browserName: capabilities.browserName ?? capabilities.name,
+    browserVersion: capabilities.browserVersion ?? capabilities.version,
+    pixelRatio: capabilities.pixelRatio,
   }
+
+  if (info.isNative) {
+    const {pixelRatio, viewportRect}: any = utils.types.has(capabilities, ['viewportRect', 'pixelRatio'])
+      ? capabilities
+      : await browser.session()
+
+    info.pixelRatio = pixelRatio
+    if (viewportRect) {
+      info.viewportRegion = {
+        x: viewportRect.left,
+        y: viewportRect.top,
+        width: viewportRect.width,
+        height: viewportRect.height,
+      }
+    }
+  }
+
+  return info
 }
 export async function getTitle(browser: Driver): Promise<string> {
   return browser.getTitle()

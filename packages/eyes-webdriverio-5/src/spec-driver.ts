@@ -307,8 +307,6 @@ export async function performAction(browser: Driver, steps: any[]): Promise<void
   return browser.touchAction(steps as any)
 }
 
-// #region
-
 // #endregion
 
 // #region TESTING
