@@ -78,14 +78,17 @@ export async function executeScript(browser: Driver, script: ((arg: any) => any)
   const {value} = await browser.execute(script, arg)
   return value
 }
-export async function mainContext(browser: Driver): Promise<void> {
+export async function mainContext(browser: Driver): Promise<Driver> {
   await browser.frame(null)
+  return browser
 }
-export async function parentContext(browser: Driver): Promise<void> {
+export async function parentContext(browser: Driver): Promise<Driver> {
   await browser.frameParent()
+  return browser
 }
-export async function childContext(browser: Driver, element: Element): Promise<any> {
+export async function childContext(browser: Driver, element: Element): Promise<Driver> {
   await browser.frame(element)
+  return browser
 }
 export async function findElement(browser: Driver, selector: Selector): Promise<Element> {
   const {value} = await browser.element(transformSelector(selector))

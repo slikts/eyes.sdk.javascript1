@@ -198,7 +198,7 @@ class EyesCore extends EyesBase {
 
   async getViewportSize() {
     const viewportSize = this._viewportSizeHandler.get()
-    return viewportSize ? viewportSize : this._driver.getViewportSize()
+    return viewportSize || (this._driver.isNative ? this._driver.getDisplaySize() : this._driver.getViewportSize())
   }
 
   async setViewportSize(viewportSize) {

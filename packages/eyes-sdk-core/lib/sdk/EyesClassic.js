@@ -54,7 +54,7 @@ class EyesClassic extends EyesCore {
     this._configuration.setSessionType(TypeUtils.getOrDefault(sessionType, this._configuration.getSessionType()))
 
     if (!this._configuration.getViewportSize()) {
-      const vs = await this._driver.getViewportSize()
+      const vs = this._driver.isNative ? await this._driver.getDisplaySize() : await this._driver.getViewportSize()
       this._configuration.setViewportSize(vs)
     }
 

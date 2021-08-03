@@ -396,6 +396,12 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     throw new Error('Failed to set viewport size!')
   }
 
+  async getDisplaySize(): Promise<types.Size> {
+    if (this.isWeb) return
+    const size = await this._spec.getWindowSize(this.target)
+    return utils.geometry.scale(size, 1 / this.pixelRatio)
+  }
+
   async getOrientation(): Promise<'portrait' | 'landscape'> {
     if (this.isWeb) return
     const orientation = this._spec.getOrientation(this.target)
