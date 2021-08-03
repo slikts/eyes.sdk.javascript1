@@ -59,7 +59,7 @@ jobs:
         with:
           node-version: 14
       - name: Setup xvfb
-        if: ${{matrix.package === 'browser-extension'}}
+        if: ${{matrix.package == 'browser-extension'}}
         run: |
           sudo apt-get install -y xvfb
           Xvfb -ac $DISPLAY -screen 0 1280x1024x16 &
