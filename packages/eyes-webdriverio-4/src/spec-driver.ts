@@ -137,7 +137,7 @@ export async function getDriverInfo(browser: Driver): Promise<any> {
   if (info.isNative) {
     const {pixelRatio, viewportRect}: any = utils.types.has(capabilities, ['viewportRect', 'pixelRatio'])
       ? capabilities
-      : await browser.session()
+      : await browser.session().then(({value}) => value)
 
     info.pixelRatio = pixelRatio
     if (viewportRect) {
