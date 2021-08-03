@@ -53,7 +53,7 @@ async function takeStitchedScreenshot({
     height: Math.round(region.height),
   }
 
-  const padding = {top: overlap, bottom: 0}
+  const padding = {top: 0, bottom: overlap}
   const [initialRegion, ...partRegions] = utils.geometry.divide(region, image.size, padding)
   logger.verbose('Part regions', partRegions)
 
@@ -137,7 +137,7 @@ async function takeStitchedScreenshot({
     return {
       image: composition,
       region: utils.geometry.region(
-        utils.geometry.offset(locationInMainContext, region),
+        utils.geometry.offset(locationInMainContext, targetRegion),
         composition.size,
       ),
     }

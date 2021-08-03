@@ -127,16 +127,18 @@ async function getTargetArea({logger, context, target, window, fully, scrollingM
       if (!element) throw new Error('Element not found!')
 
       if (fully) {
+        if (scrollingMode === 'css') {
+          return {
+            context,
+            scroller: makeScroller({logger, element, scrollingMode: 'mixed'}),
+          }
+        }
         const isScrollable = await element.isScrollable()
         const scrollingElement = isScrollable ? element : await context.getScrollingElement()
         return {
           context,
           region: isScrollable ? null : await element.getRegion(),
-          scroller: makeScroller({
-            logger,
-            element: scrollingElement,
-            scrollingMode: isScrollable && scrollingMode === 'css' ? 'mixed' : scrollingMode,
-          }),
+          scroller: makeScroller({logger, element: scrollingElement, scrollingMode}),
         }
       } else {
         const scrollingElement = await context.getScrollingElement()

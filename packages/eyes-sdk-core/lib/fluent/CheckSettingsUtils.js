@@ -106,7 +106,7 @@ function toCheckWindowConfiguration({checkSettings, configuration}) {
     tag: checkSettings.name,
     scriptHooks: checkSettings.hooks,
     sendDom: configuration.getSendDom() || checkSettings.sendDom, // this is wrong, but kept for backwards compatibility,
-    ignoreDisplacements: checkSettings.ignoreDisplacement,
+    ignoreDisplacements: checkSettings.ignoreDisplacements,
     matchLevel: TypeUtils.getOrDefault(checkSettings.matchLevel, configuration.getMatchLevel()),
     visualGridOptions: TypeUtils.getOrDefault(checkSettings.visualGridOptions, configuration.getVisualGridOptions()),
     enablePatterns: TypeUtils.getOrDefault(checkSettings.enablePatterns, configuration.getEnablePatterns()),
@@ -168,10 +168,10 @@ async function toMatchSettings({context, checkSettings = {}, configuration, targ
       } else {
         const elements = await context.elements(region)
         for (const element of elements) {
-          const region = utils.geometry.subtraction(await element.getRegion(), targetRegion)
+          const region = await element.getRegion()
           regions.push({
-            left: Math.round(region.x),
-            top: Math.round(region.y),
+            left: Math.max(0, Math.round(region.x - targetRegion.x)),
+            top: Math.max(0, Math.round(region.y - targetRegion.y)),
             width: Math.round(region.width),
             height: Math.round(region.height),
             ...options,

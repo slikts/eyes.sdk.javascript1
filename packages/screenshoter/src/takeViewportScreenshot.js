@@ -16,9 +16,9 @@ async function takeViewportScreenshot({logger, context, region, wait, stabilizat
     if (utils.geometry.isEmpty(cropRegion)) throw new Error('Screenshot region is out of viewport')
     await image.crop(cropRegion)
     await image.debug({path: debug.path, suffix: 'region'})
-    return {image, region}
+    return {image, region: utils.geometry.offset(region, await context.getLocationInMainContext())}
   } else {
-    return {image, region: {x: 0, y: 0, width: image.width, height: image.height}}
+    return {image, region: utils.geometry.region(await context.main.getInnerOffset(), image.size)}
   }
 }
 
