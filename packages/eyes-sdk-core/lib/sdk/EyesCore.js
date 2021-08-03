@@ -37,11 +37,23 @@ class EyesCore extends EyesBase {
   async locate(visualLocatorSettings) {
     ArgumentGuard.notNull(visualLocatorSettings, 'visualLocatorSettings')
     this._logger.verbose('Get locators with given names: ', visualLocatorSettings.locatorNames)
-    const screenshot = await this._getViewportScreenshot()
-    const screenshotBuffer = await screenshot.getImage().getImageBuffer()
-    const id = GeneralUtils.guid()
+    const screenshot = await screenshoter({
+      logger: this._logger,
+      driver: this._driver,
+      hideScrollbars: this._configuration.getHideScrollbars(),
+      hideCaret: this._configuration.getHideCaret(),
+      scrollingMode: this._configuration.getStitchMode().toLocaleLowerCase(),
+      overlap: this._configuration.getStitchOverlap(),
+      wait: this._configuration.getWaitBeforeScreenshots(),
+      stabilization: {
+        crop: this.getCut(),
+        scale: this.getScaleRatio(),
+        rotation: this.getRotation(),
+      },
+      debug: this.getDebugScreenshots(),
+    })
     await this.getAndSaveRenderingInfo()
-    const imageUrl = await this._serverConnector.uploadScreenshot(id, screenshotBuffer)
+    const imageUrl = await this._serverConnector.uploadScreenshot(GeneralUtils.guid(), await screenshot.image.toPng())
     const appName = this._configuration.getAppName()
     return this._serverConnector.postLocators({
       appName,
@@ -172,7 +184,7 @@ class EyesCore extends EyesBase {
     const logger = new Logger(process.env.APPLITOOLS_SHOW_LOGS)
     const wrapper = await new Driver({spec: this.spec, driver, logger}).init()
     const viewportSize = await wrapper.getViewportSize()
-    return viewportSize.toJSON()
+    return viewportSize
   }
 
   static async setViewportSize(driver, viewportSize) {
