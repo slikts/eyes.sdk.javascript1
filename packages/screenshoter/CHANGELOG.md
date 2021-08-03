@@ -3,6 +3,9 @@
 
 ## Unreleased
 
+
+## 3.1.0 - 2021/8/4
+
 - improve support of native devices
 - updated to @applitools/snippets@2.1.4 (from 2.1.3)
 - updated to @applitools/utils@1.2.1 (from 1.2.0)
