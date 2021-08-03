@@ -53,7 +53,8 @@ async function takeStitchedScreenshot({
     height: Math.round(region.height),
   }
 
-  const padding = {top: 0, bottom: overlap}
+  // TODO padding should be provided from args instead of overlap
+  const padding = {top: driver.isNative ? overlap : 0, bottom: overlap}
   const [initialRegion, ...partRegions] = utils.geometry.divide(region, image.size, padding)
   logger.verbose('Part regions', partRegions)
 
