@@ -1,16 +1,5 @@
-const snippets = require('@applitools/snippets')
 const GeneralUtils = require('../utils/GeneralUtils')
 const EyesError = require('../errors/EyesError')
-
-async function markScrollRootElement(_logger, context, element) {
-  return context.execute(snippets.setElementAttributes, [element, {'data-applitools-scroll': true}])
-}
-async function getElementXpath(logger, context, element) {
-  return context.execute(snippets.getElementXpath, [element]).catch(err => {
-    logger.verbose('Warning: Failed to get element selector (xpath)', err)
-    return null
-  })
-}
 
 async function executePollScript(logger, context, scripts, {executionTimeout = 5 * 60 * 1000, pollTimeout = 200} = {}) {
   logger.verbose('Executing poll script')
@@ -54,7 +43,5 @@ async function executePollScript(logger, context, scripts, {executionTimeout = 5
 }
 
 module.exports = {
-  markScrollRootElement,
-  getElementXpath,
   executePollScript,
 }
