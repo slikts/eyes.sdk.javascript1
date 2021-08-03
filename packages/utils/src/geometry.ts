@@ -158,7 +158,7 @@ export function divide(region: Region, size: RectangleSize, padding: {top?: numb
   const maxY = region.y + region.height
 
   const stepX = size.width
-  const stepY = size.height - (padding.top + padding.bottom)
+  const stepY = padding.top + padding.bottom < size.height ? size.height - padding.top + padding.bottom : size.height
 
   let currentY = region.y
   while (currentY < maxY) {
@@ -167,7 +167,7 @@ export function divide(region: Region, size: RectangleSize, padding: {top?: numb
     // first region
     if (currentY === region.y) nextY += padding.top
     // last region
-    else if (nextY + padding.bottom === maxY) nextY += padding.bottom
+    else if (nextY + padding.bottom >= maxY) nextY += padding.bottom
 
     const currentHeight = nextY - currentY
 

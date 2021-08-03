@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- add iPhone XS appium version
 
 ## 1.0.4 - 2021/6/15
 
