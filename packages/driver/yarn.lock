@@ -63,10 +63,10 @@
   resolved "https://registry.yarnpkg.com/@applitools/snippets/-/snippets-2.1.3.tgz#8596bb70c884e4d220798b62d9f17db77c36992c"
   integrity sha512-c4efLfVK/yHBPJnNjqO8GcEd98m276NgPhUy+b7aIf2MazbQq2kYMnDUsONeKXS8SucnPyuhFO1JL6xkq9bnYw==
 
-"@applitools/types@^1.0.4":
-  version "1.0.4"
-  resolved "https://registry.yarnpkg.com/@applitools/types/-/types-1.0.4.tgz#09d461e6da2654b2e503da509e33d0254e5f789b"
-  integrity sha512-qD07Vnif3koE5tz45RqP/AKnnjTJvdttum1zBD6MjbB2t6xxrvTRbGkgz2PC5b5zw8fPqsT3zoUK25JDW32JLg==
+"@applitools/types@1.0.5":
+  version "1.0.5"
+  resolved "https://registry.yarnpkg.com/@applitools/types/-/types-1.0.5.tgz#038e0036573e387c97de6b50fa87dd5dbfb5cbc6"
+  integrity sha512-8kUgOJvhyA747HkaGIOAiyV9ae/zeHpWyIG7Wvr6QfcyiEzM+bxuzSoQyuS+18s7UNjrffdri9SBr2IGHvGcQQ==
 
 "@applitools/utils@1.2.0":
   version "1.2.0"

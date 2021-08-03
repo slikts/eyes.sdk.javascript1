@@ -5,6 +5,7 @@
 - add types support
 - add default implementation for element comparison
 - add native device automation support
+- updated to @applitools/types@1.0.5 (from 1.0.4)
 
 ## 1.0.7 - 2021/6/8
 
