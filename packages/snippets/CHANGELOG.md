@@ -3,6 +3,9 @@
 
 ## Unreleased
 
+
+## 2.1.4 - 2021/8/3
+
 - add `isEqualElements` snippet
 
 ## 2.1.3 - 2021/3/11
