@@ -537,7 +537,7 @@ class Region {
       top: this._top,
       width: this._width,
       height: this._height,
-      coordinatesType: this._coordinatesType,
+      // coordinatesType: this._coordinatesType,
     }
   }
 

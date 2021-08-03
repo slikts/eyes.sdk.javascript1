@@ -152,10 +152,14 @@ class MockDriver {
       // TODO get window for context: `this.contexts.get(this._contextId)`
       return {width: this._window.rect.width, height: this._window.rect.height}
     })
+
+    this.mockScript(snippets.getElementContentSize, ([element]) => {
+      return element.rect || {x: 0, y: 0, width: 100, height: 100}
+    })
     this.mockScript('dom-snapshot', () => FakeDomSnapshot.generateDomSnapshot(this))
   }
   mockScript(scriptMatcher, resultGenerator) {
-    this._scripts.set(scriptMatcher, resultGenerator)
+    this._scripts.set(String(scriptMatcher), resultGenerator)
   }
   mockElement(selector, state) {
     const element = {
@@ -229,13 +233,11 @@ class MockDriver {
       platformVersion: this._platform ? this._platform.version : null,
       browserName: this._browser ? this._browser.name : null,
       browserVersion: this._browser ? this._browser.version : null,
-      userAgent: 'bla',
     }
   }
   async executeScript(script, args = []) {
     if (this.info.isNative) throw new Error("Native context doesn't support this method")
-    args = serialize(args)
-    let result = this._scripts.get(script)
+    let result = this._scripts.get(String(script))
     if (!result) {
       const name = Object.keys(WELL_KNOWN_SCRIPTS).find(name => WELL_KNOWN_SCRIPTS[name](script))
       if (!name) return null

@@ -1,11 +1,12 @@
-const assert = require('assert')
-const {Logger} = require('../../index')
-const MockDriver = require('../utils/MockDriver')
-const {Driver} = require('../utils/FakeSDK')
+import assert from 'assert'
+import {Driver, Context} from '../../src/index'
 
-describe('EyesContext', () => {
-  let logger = new Logger(false)
-  let mock, driver, context
+const MockDriver = require('../fixtures/mock-driver')
+const spec = require('../fixtures/spec-driver')
+
+describe('context', () => {
+  let mock: any, driver: Driver<any, any, any, any>, context: Context<any, any, any, any>
+  const logger = {log: () => null as any, warn: () => null as any, error: () => null as any}
 
   beforeEach(() => {
     mock = new MockDriver()
@@ -34,13 +35,13 @@ describe('EyesContext', () => {
         ],
       },
     ])
-    driver = new Driver(logger, mock)
+    driver = new Driver({logger, spec, driver: mock})
     context = driver.currentContext
   })
 
   it('constructor(logger, context, {driver})', async () => {
     assert.ok(context.isMain)
-    assert.ok(context.unwrapped)
+    assert.ok(context.target)
   })
 
   it('context(element)', async () => {
@@ -56,8 +57,8 @@ describe('EyesContext', () => {
     const childContext11 = await childContext1.context('frame1-1')
     await childContext11.init()
 
-    assert.strictEqual(childContext1._element.unwrapped.selector, 'frame1')
-    assert.strictEqual(childContext11._element.unwrapped.selector, 'frame1-1')
+    assert.strictEqual((await childContext1.getContextElement()).target.selector, 'frame1')
+    assert.strictEqual((await childContext11.getContextElement()).target.selector, 'frame1-1')
     assert.strictEqual(driver.currentContext, childContext1)
   })
 
@@ -77,24 +78,21 @@ describe('EyesContext', () => {
     assert.strictEqual(element.selector, 'frame1-1--element1')
   })
 
-  it('getFrameElement()', async () => {
+  it('getContextElement()', async () => {
     const mainContext = context
     const childContext = await context.context('frame1')
 
-    assert.strictEqual(await mainContext.getFrameElement(), null)
-    assert.strictEqual((await childContext.getFrameElement()).unwrapped.selector, 'frame1')
+    assert.strictEqual(await mainContext.getContextElement(), null)
+    assert.strictEqual((await childContext.getContextElement()).target.selector, 'frame1')
   })
 
-  it('getScrollRootElement()', async () => {
+  it('getScrollingElement()', async () => {
     const mainContext = context
-    await mainContext.setScrollRootElement(await mock.findElement('element-scroll'))
+    await mainContext.setScrollingElement(await mock.findElement('element-scroll'))
     const childContext = await context.context('frame1')
 
-    assert.strictEqual(
-      (await mainContext.getScrollRootElement()).unwrapped.selector,
-      'element-scroll',
-    )
-    assert.strictEqual((await childContext.getScrollRootElement()).unwrapped.selector, 'html')
+    assert.strictEqual((await mainContext.getScrollingElement()).target.selector, 'element-scroll')
+    assert.strictEqual((await childContext.getScrollingElement()).target.selector, 'html')
   })
 
   it('getClientRect()', async () => {
@@ -102,21 +100,19 @@ describe('EyesContext', () => {
     const childContext11 = await childContext1.context('frame1-1')
     await childContext11.init()
 
-    const rectContext11 = await childContext11.getClientRect()
-    assert.deepStrictEqual(rectContext11.toJSON(), {
-      coordinatesType: 'CONTEXT_RELATIVE',
-      left: 1,
-      top: 2,
+    const rectContext11 = await childContext11.getClientRegion()
+    assert.deepStrictEqual(rectContext11, {
+      x: 1,
+      y: 2,
       width: 101,
       height: 102,
     })
     assert.strictEqual(driver.currentContext, childContext11.parent)
 
-    const rectContext1 = await childContext1.getClientRect()
-    assert.deepStrictEqual(rectContext1.toJSON(), {
-      coordinatesType: 'CONTEXT_RELATIVE',
-      left: 0,
-      top: 0,
+    const rectContext1 = await childContext1.getClientRegion()
+    assert.deepStrictEqual(rectContext1, {
+      x: 0,
+      y: 0,
       width: 100,
       height: 100,
     })
@@ -124,22 +120,12 @@ describe('EyesContext', () => {
   })
 
   it('getLocationInViewport()', async () => {
-    await context.setScrollRootElement('element-scroll')
+    await context.setScrollingElement('element-scroll')
     const childContext1 = await context.context('frame1')
     const childContext11 = await childContext1.context('frame1-1')
     await childContext11.init()
 
     const locationContext11 = await childContext11.getLocationInViewport()
-    assert.deepStrictEqual(locationContext11.toJSON(), {x: -20, y: -20})
-  })
-
-  it('getEffectiveSize()', async () => {
-    await context.setScrollRootElement('element-scroll')
-    const childContext1 = await context.context('frame1')
-    const childContext11 = await childContext1.context('frame1-1')
-    await childContext11.init()
-
-    const sizeContext11 = await childContext11.getEffectiveSize()
-    assert.deepStrictEqual(sizeContext11.toJSON(), {width: 100, height: 100})
+    assert.deepStrictEqual(locationContext11, {x: -20, y: -20})
   })
 })

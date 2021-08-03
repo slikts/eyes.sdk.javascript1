@@ -2,11 +2,8 @@
 
 const {Region} = require('@applitools/eyes-sdk-core/shared')
 
-function selectorObject(region) {
-  region = region.region || region
-  return region.type === 'xpath' || region.type === 'css'
-    ? {type: region.type, selector: region.selector}
-    : region.selector
+function selectorObject({selector, type}) {
+  return type === 'xpath' || type === 'css' ? {type, selector} : selector
 }
 
 function calculateSelectorsToFindRegionsFor({
@@ -36,7 +33,7 @@ function calculateSelectorsToFindRegionsFor({
   }
 
   const selectorsToFindRegionsFor = Array.from(userRegions.values()).reduce((prev, regions) => {
-    prev.push(...regions.filter(region => (region.region || region).selector).map(selectorObject))
+    prev.push(...regions.filter(region => region.selector).map(selectorObject))
     return prev
   }, [])
 
@@ -47,13 +44,14 @@ function calculateSelectorsToFindRegionsFor({
     let selectorRegionIndex = 0
     return Array.from(userRegions.entries()).reduce((allRegions, [regionName, userInput]) => {
       const regionValues = userInput.reduce((regions, userRegion) => {
-        const region = userRegion.region || userRegion
-        const codedRegions = region.selector ? selectorRegions[selectorRegionIndex++] : [region]
+        const codedRegions = userRegion.selector
+          ? selectorRegions[selectorRegionIndex++]
+          : [userRegion]
 
         if (codedRegions && codedRegions.length > 0) {
           codedRegions.forEach(region => {
             const regionObject = regionify({region})
-            if (imageLocation && region.selector) {
+            if (imageLocation && userRegion.selector) {
               regionObject.left = Math.max(0, regionObject.left - imageLocation.x)
               regionObject.top = Math.max(0, regionObject.top - imageLocation.y)
             }
@@ -83,7 +81,7 @@ function regionWithUserInput({regionObject, userRegion, regionName}) {
   // accesibility regions
   if (regionName === 'accessibility') {
     Object.assign(regionObject, {
-      type: userRegion.type,
+      accessibilityType: userRegion.accessibilityType,
     })
   }
   // floating region

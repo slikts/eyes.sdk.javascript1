@@ -1,5 +1,5 @@
 'use strict'
-const {makeDriver} = require('@applitools/driver')
+const {Driver} = require('@applitools/driver')
 const screenshoter = require('@applitools/screenshoter')
 const ArgumentGuard = require('../utils/ArgumentGuard')
 const Region = require('../geometry/Region')
@@ -11,7 +11,6 @@ const EyesBase = require('./EyesBase')
 const Logger = require('../logging/Logger')
 const GeneralUtils = require('../utils/GeneralUtils')
 const TypeUtils = require('../utils/TypeUtils')
-const TestResults = require('../TestResults')
 const takeDomCapture = require('../utils/takeDomCapture')
 
 class EyesCore extends EyesBase {
@@ -26,21 +25,12 @@ class EyesCore extends EyesBase {
     this._rotation = undefined
   }
 
-  async check(checkSettings) {
+  async check(checkSettings = {}) {
     return this._check(checkSettings)
   }
 
   async checkAndClose(checkSettings, throwEx) {
-    if (this._configuration.getIsDisabled()) {
-      this._logger.log(`checkAndClose(${checkSettings}): Ignored`)
-      return new TestResults()
-    }
-    ArgumentGuard.isValidState(this._isOpen, 'Eyes not open')
-
-    checkSettings = this.spec.newCheckSettings(checkSettings)
-
     this._logger.verbose(`checkAndClose(checkSettings) - begin`)
-
     return this._check(checkSettings, true, throwEx)
   }
 
@@ -64,8 +54,7 @@ class EyesCore extends EyesBase {
   async extractText(regions) {
     if (!TypeUtils.isArray(regions)) regions = [regions]
 
-    const driver = makeDriver(this._driver.spec, this._logger, this._driver.wrapper)
-    await driver.refreshContexts()
+    await this._driver.refreshContexts()
 
     const extractTextInputs = []
 
@@ -74,7 +63,7 @@ class EyesCore extends EyesBase {
 
       const screenshot = await screenshoter({
         logger: this._logger,
-        driver,
+        driver: this._driver,
         target: Region.isRegionCompatible(region.target)
           ? {
               x: region.target.left,
@@ -91,21 +80,11 @@ class EyesCore extends EyesBase {
         overlap: this._configuration.getStitchOverlap(),
         wait: this._configuration.getWaitBeforeScreenshots(),
         stabilization: {
-          crop:
-            this._cutProviderHandler.get() instanceof NullCutProvider
-              ? null
-              : this._cutProviderHandler.get().toObject(),
-          scale:
-            this._scaleProviderHandler.get() instanceof NullScaleProvider
-              ? null
-              : this._scaleProviderHandler.get().getScaleRatio(),
+          crop: this.getCut(),
+          scale: this.getScaleRatio(),
+          rotation: this.getRotation(),
         },
-        debug: {
-          path:
-            this._debugScreenshotsProvider instanceof NullDebugScreenshotProvider
-              ? null
-              : this._debugScreenshotsProvider.getPath(),
-        },
+        debug: this.getDebugScreenshots(),
         takeDomCapture: () => takeDomCapture(this._logger, this._context),
       })
 
@@ -150,12 +129,11 @@ class EyesCore extends EyesBase {
   async extractTextRegions(config) {
     ArgumentGuard.notNull(config.patterns, 'patterns')
 
-    const driver = makeDriver(this._driver.spec, this._logger, this._driver.wrapper)
-    await driver.refreshContexts()
+    await this._driver.refreshContexts()
 
     const screenshot = await screenshoter({
       logger: this._logger,
-      driver,
+      driver: this._driver,
       dom: true,
       hideScrollbars: false,
       hideCaret: this._configuration.getHideCaret(),
@@ -163,19 +141,11 @@ class EyesCore extends EyesBase {
       overlap: this._configuration.getStitchOverlap(),
       wait: this._configuration.getWaitBeforeScreenshots(),
       stabilization: {
-        crop:
-          this._cutProviderHandler.get() instanceof NullCutProvider ? null : this._cutProviderHandler.get().toObject(),
-        scale:
-          this._scaleProviderHandler.get() instanceof NullScaleProvider
-            ? null
-            : this._scaleProviderHandler.get().getScaleRatio(),
+        crop: this.getCut(),
+        scale: this.getScaleRatio(),
+        rotation: this.getRotation(),
       },
-      debug: {
-        path:
-          this._debugScreenshotsProvider instanceof NullDebugScreenshotProvider
-            ? null
-            : this._debugScreenshotsProvider.getPath(),
-      },
+      debug: this.getDebugScreenshots(),
       takeDomCapture: () => takeDomCapture(this._logger, this._context),
     })
 
@@ -198,25 +168,25 @@ class EyesCore extends EyesBase {
 
   /* ------------ Getters/Setters ------------ */
 
-  async getViewportSize() {
-    const viewportSize = this._viewportSizeHandler.get()
-    return viewportSize ? viewportSize : this._driver.getViewportSize()
+  static async getViewportSize(driver) {
+    const logger = new Logger(process.env.APPLITOOLS_SHOW_LOGS)
+    const wrapper = await new Driver({spec: this.spec, driver, logger}).init()
+    const viewportSize = await wrapper.getViewportSize()
+    return viewportSize.toJSON()
   }
 
   static async setViewportSize(driver, viewportSize) {
     const logger = new Logger(process.env.APPLITOOLS_SHOW_LOGS)
-    const eyesDriver = await this.spec.newDriver(logger, driver).init()
-    if (!eyesDriver.isMobile) {
+    const wrapper = await new Driver({spec: this.spec, driver, logger}).init()
+    if (!wrapper.isMobile) {
       ArgumentGuard.notNull(viewportSize, 'viewportSize')
-      await eyesDriver.setViewportSize(viewportSize)
+      await wrapper.setViewportSize(viewportSize)
     }
   }
 
-  static async getViewportSize(driver) {
-    const logger = new Logger(process.env.APPLITOOLS_SHOW_LOGS)
-    const eyesDriver = await this.spec.newDriver(logger, driver).init()
-    const viewportSize = await eyesDriver.getViewportSize()
-    return viewportSize.toJSON()
+  async getViewportSize() {
+    const viewportSize = this._viewportSizeHandler.get()
+    return viewportSize ? viewportSize : this._driver.getViewportSize()
   }
 
   async setViewportSize(viewportSize) {
@@ -306,22 +276,34 @@ class EyesCore extends EyesBase {
 
   setRotation(rotation) {
     this._rotation = rotation
-
-    if (this._driver) {
-      this._driver.setRotation(rotation)
-    }
   }
 
   getRotation() {
     return this._rotation
   }
 
-  setForcedImageRotation(degrees) {
-    this.setRotation(new ImageRotation(degrees))
+  setScaleRatio(scaleRatio) {
+    this._scaleRatio = scaleRatio
   }
 
-  getForcedImageRotation() {
-    return this.getRotation().getRotation()
+  getScaleRatio() {
+    return this._scaleRatio
+  }
+
+  setCut(cut) {
+    this._cut = cut
+  }
+
+  getCut() {
+    return this._cut
+  }
+
+  setDebugScreenshots(debugScreenshots) {
+    this._debugScreenshots = debugScreenshots
+  }
+
+  getDebugScreenshots() {
+    return this._debugScreenshots
   }
 
   getDomUrl() {

@@ -160,28 +160,6 @@ export async function findElements(browser: Driver, selector: Selector): Promise
   const elements = await browser.$$(transformSelector(selector))
   return Array.from(elements)
 }
-export async function getElementRect(
-  browser: Driver,
-  element: Element,
-): Promise<{x: number; y: number; width: number; height: number}> {
-  const extendedElement = await browser.$(element as any)
-  if (utils.types.isFunction(extendedElement, 'getRect')) {
-    return extendedElement.getRect()
-  } else {
-    const rect = {x: 0, y: 0, width: 0, height: 0}
-    if (utils.types.isFunction(extendedElement.getLocation)) {
-      const location = await extendedElement.getLocation()
-      rect.x = location.x
-      rect.y = location.y
-    }
-    if (utils.types.isFunction(extendedElement.getSize)) {
-      const size = await extendedElement.getSize()
-      rect.width = size.width
-      rect.height = size.height
-    }
-    return rect
-  }
-}
 export async function getWindowSize(browser: Driver): Promise<{width: number; height: number}> {
   if (utils.types.isFunction(browser.getWindowRect)) {
     const rect = await browser.getWindowRect()
@@ -197,10 +175,6 @@ export async function setWindowSize(browser: Driver, size: {width: number; heigh
     await browser.setWindowPosition(0, 0)
     await browser.setWindowSize(size.width, size.height)
   }
-}
-export async function getOrientation(browser: Driver): Promise<'portrait' | 'landscape'> {
-  const orientation = await browser.getOrientation()
-  return orientation.toLowerCase() as 'portrait' | 'landscape'
 }
 export async function getDriverInfo(browser: Driver): Promise<any> {
   const capabilities = browser.capabilities as any
@@ -274,6 +248,47 @@ export async function waitUntilDisplayed(browser: Driver, selector: Selector, ti
     await element.waitForDisplayed({timeout})
   }
 }
+
+// #region MOBILE COMMANDS
+
+export async function getOrientation(browser: Driver): Promise<'portrait' | 'landscape'> {
+  const orientation = await browser.getOrientation()
+  return orientation.toLowerCase() as 'portrait' | 'landscape'
+}
+export async function getElementRegion(
+  browser: Driver,
+  element: Element,
+): Promise<{x: number; y: number; width: number; height: number}> {
+  const extendedElement = await browser.$(element as any)
+  if (utils.types.isFunction(extendedElement, 'getRect')) {
+    return extendedElement.getRect()
+  } else {
+    const region = {x: 0, y: 0, width: 0, height: 0}
+    if (utils.types.isFunction(extendedElement.getLocation)) {
+      const location = await extendedElement.getLocation()
+      region.x = location.x
+      region.y = location.y
+    }
+    if (utils.types.isFunction(extendedElement.getSize)) {
+      const size = await extendedElement.getSize()
+      region.width = size.width
+      region.height = size.height
+    }
+    return region
+  }
+}
+export async function getElementAttribute(browser: Driver, element: Element, attr: string): Promise<string> {
+  return browser.getElementAttribute(extractElementId(element), attr)
+}
+export async function getElementText(browser: Driver, element: Element): Promise<string> {
+  const extendedElement = await browser.$(element as any)
+  return extendedElement.getText()
+}
+export async function performAction(browser: Driver, steps: any[]): Promise<void> {
+  return browser.touchAction(steps as any)
+}
+
+// #region
 
 // #endregion
 

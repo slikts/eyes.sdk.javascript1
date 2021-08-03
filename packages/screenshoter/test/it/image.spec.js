@@ -63,7 +63,7 @@ describe('image', () => {
   it('should copy one image to another', async () => {
     const image = await makeImage('./test/fixtures/image/house.png').toObject()
     const composition = makeImage({width: image.width, height: image.height * 2})
-    await composition.copy(image, {x: 0, y: 0})
+    await composition.copy(image, {x: 0.1, y: 0.2})
     await composition.copy(image, {x: 0, y: image.height})
     const actual = await composition.toObject()
     const expected = await makeImage('./test/fixtures/image/house.stitched.png').toObject()

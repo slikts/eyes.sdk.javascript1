@@ -58,12 +58,49 @@ async function toPersistedCheckSettings({checkSettings, context, logger}) {
 
 function toCheckWindowConfiguration({checkSettings, configuration}) {
   const config = {
-    ignore: checkSettings.ignoreRegions,
-    floating: checkSettings.floatingRegions,
-    strict: checkSettings.strictRegions,
-    layout: checkSettings.layoutRegions,
-    content: checkSettings.contentRegions,
-    accessibility: checkSettings.accessibilityRegions,
+    ignore:
+      checkSettings.ignoreRegions &&
+      checkSettings.ignoreRegions.map(region => {
+        return utils.types.has(region, ['x', 'y'])
+          ? {left: region.x, top: region.y, width: region.width, height: region.height}
+          : region
+      }),
+    floating:
+      checkSettings.floatingRegions &&
+      checkSettings.floatingRegions.map(({region, ...offsets}) => {
+        return utils.types.has(region, ['x', 'y'])
+          ? {left: region.x, top: region.y, width: region.width, height: region.height, ...offsets}
+          : {...region, ...offsets}
+      }),
+    strict:
+      checkSettings.strictRegions &&
+      checkSettings.strictRegions.map(region => {
+        return utils.types.has(region, ['x', 'y'])
+          ? {left: region.x, top: region.y, width: region.width, height: region.height}
+          : region
+      }),
+    layout:
+      checkSettings.layoutRegions &&
+      checkSettings.layoutRegions.map(region => {
+        return utils.types.has(region, ['x', 'y'])
+          ? {left: region.x, top: region.y, width: region.width, height: region.height}
+          : region
+      }),
+    content:
+      checkSettings.contentRegions &&
+      checkSettings.contentRegions.map(region => {
+        return utils.types.has(region, ['x', 'y'])
+          ? {left: region.x, top: region.y, width: region.width, height: region.height}
+          : region
+      }),
+    accessibility:
+      checkSettings.accessibilityRegions &&
+      checkSettings.accessibilityRegions.map(({region, type}) => {
+        if (utils.types.has(region, ['x', 'y'])) {
+          region = {left: region.x, top: region.y, width: region.width, height: region.height}
+        }
+        return {...region, accessibilityType: type}
+      }),
     target: checkSettings.region ? 'region' : 'window',
     fully: configuration.getForceFullPageScreenshot() || checkSettings.fully || false,
     tag: checkSettings.name,
@@ -74,19 +111,28 @@ function toCheckWindowConfiguration({checkSettings, configuration}) {
     visualGridOptions: TypeUtils.getOrDefault(checkSettings.visualGridOptions, configuration.getVisualGridOptions()),
     enablePatterns: TypeUtils.getOrDefault(checkSettings.enablePatterns, configuration.getEnablePatterns()),
     useDom: TypeUtils.getOrDefault(checkSettings.useDom, configuration.getUseDom()),
-    variationGroupId: checkSettings.variantGroupId,
+    variationGroupId: checkSettings.variationGroupId,
   }
 
   if (config.target === 'region') {
-    config[utils.types.has(checkSettings.region, ['width', 'height']) ? 'region' : 'selector'] = checkSettings.region
+    if (utils.types.has(checkSettings.region, ['width', 'height'])) {
+      config.region = utils.types.has(checkSettings.region, ['x', 'y'])
+        ? {
+            left: checkSettings.region.x,
+            top: checkSettings.region.y,
+            width: checkSettings.region.width,
+            height: checkSettings.region.height,
+          }
+        : checkSettings.region
+    } else {
+      config.selector = checkSettings.region
+    }
   }
 
   return config
 }
 
-async function toMatchSettings({context, checkSettings, configuration, targetRegion}) {
-  if (!checkSettings) return null
-
+async function toMatchSettings({context, checkSettings = {}, configuration, targetRegion}) {
   const matchSettings = {
     matchLevel: checkSettings.matchLevel || configuration.getDefaultMatchSettings().getMatchLevel(),
     ignoreCaret: checkSettings.ignoreCaret || configuration.getDefaultMatchSettings().getIgnoreCaret(),

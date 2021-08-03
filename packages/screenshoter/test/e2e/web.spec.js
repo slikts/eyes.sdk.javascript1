@@ -6,7 +6,7 @@ const makeImage = require('../../src/image')
 
 // TODO add overflowed regions tests
 
-describe('screenshoter', () => {
+describe('screenshoter web', () => {
   const logger = {log: () => null, verbose: () => null}
   let driver, destroyDriver
 

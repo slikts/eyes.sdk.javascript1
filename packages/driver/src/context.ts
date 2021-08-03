@@ -158,7 +158,12 @@ export class Context<TDriver, TContext, TElement, TSelector> {
       }
     } else if (this._spec.isElement(this._reference) || this._reference instanceof Element) {
       this._logger.log('Initialize context from reference element', this._reference)
-      this._element = new Element({spec: this._spec, context: this.parent, element: this._reference})
+      this._element = new Element({
+        spec: this._spec,
+        context: this.parent,
+        element: this._reference,
+        logger: this._logger,
+      })
     } else {
       throw new TypeError('Reference type does not supported')
     }
@@ -388,7 +393,7 @@ export class Context<TDriver, TContext, TElement, TSelector> {
   async getInnerOffset(): Promise<types.Location> {
     if (this.isCurrent) {
       const scrollingElement = await this.getScrollingElement()
-      this._state.innerOffset = await scrollingElement.getInnerOffset()
+      this._state.innerOffset = scrollingElement ? await scrollingElement.getInnerOffset() : {x: 0, y: 0}
     }
     return this._state.innerOffset
   }

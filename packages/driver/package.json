@@ -32,6 +32,7 @@
   "scripts": {
     "lint": "eslint '**/*.ts' '**/*.js'",
     "build": "tsc",
+    "test": "mocha --no-timeouts -r ts-node/register ./test/**/*.spec.ts",
     "deps": "bongo deps",
     "preversion": "bongo preversion",
     "version": "bongo version",
@@ -49,6 +50,7 @@
   },
   "devDependencies": {
     "@applitools/sdk-release-kit": "0.13.0",
+    "@types/mocha": "^9.0.0",
     "@types/node": "^16.3.3",
     "@typescript-eslint/eslint-plugin": "^4.28.3",
     "@typescript-eslint/parser": "^4.28.3",
@@ -58,7 +60,9 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.1.4",
     "husky": "^4.3.7",
+    "mocha": "^9.0.3",
     "prettier": "^2.3.2",
+    "ts-node": "^10.1.0",
     "typescript": "^4.3.5"
   },
   "engines": {

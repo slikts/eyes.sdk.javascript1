@@ -1,10 +1,13 @@
-const assert = require('assert')
-const {Logger} = require('../../index')
-const MockDriver = require('../utils/MockDriver')
-const {Driver} = require('../utils/FakeSDK')
+import assert from 'assert'
+import {Driver} from '../../src/index'
 
-describe('EyesDriver', () => {
-  let mock, driver
+const MockDriver = require('../fixtures/mock-driver')
+const spec = require('../fixtures/spec-driver')
+
+const logger = {log: () => null as any, warn: () => null as any, error: () => null as any}
+
+describe('driver', () => {
+  let mock: any, driver: Driver<any, any, any, any>
 
   before(async () => {
     mock = new MockDriver()
@@ -40,7 +43,7 @@ describe('EyesDriver', () => {
         ],
       },
     ])
-    driver = new Driver(new Logger(Boolean(process.env.APPLITOOLS_SHOW_LOGS)), mock)
+    driver = new Driver({logger, spec, driver: mock})
     await driver.init()
   })
 
@@ -73,7 +76,7 @@ describe('EyesDriver', () => {
   it('switchToMainContext()', async () => {
     const mainContextDocument = await driver.element('html')
     await driver.switchToChildContext('frame0')
-    await driver.switchToMainContext(null)
+    await driver.switchToMainContext()
     assert.strictEqual(driver.currentContext, driver.mainContext)
     const currentContextDocument = await driver.element('html')
     assert.ok(await mainContextDocument.equals(currentContextDocument))
@@ -153,11 +156,14 @@ describe('EyesDriver', () => {
       return trackedFrameChain()
     })
   })
+
   describe('refreshContexts() when parentContext not implemented', () => {
     before(() => {
       // unable to deep clone driver object atm
-      delete driver.spec.parentContext
+      // @ts-ignore
+      delete driver._spec.parentContext
     })
+
     afterEach(async () => {
       await driver.switchToMainContext()
     })
@@ -192,7 +198,7 @@ describe('EyesDriver', () => {
   })
 
   async function untrackedFrameChainSameOrigin() {
-    const frameElements = [null]
+    const frameElements = [null] as any[]
     const frameElement = await mock.findElement('frame0')
     frameElements.push(frameElement)
     await mock.switchToFrame(frameElement)
@@ -206,7 +212,7 @@ describe('EyesDriver', () => {
   }
 
   async function untrackedCorsFrameChain() {
-    const frameElements = [null]
+    const frameElements = [null] as any[]
     const frameElement1 = await mock.findElement('frame1')
     frameElements.push(frameElement1)
     await mock.switchToFrame(frameElement1)
@@ -223,7 +229,7 @@ describe('EyesDriver', () => {
   }
 
   async function untrackedMixedFrameChain1() {
-    const frameElements = [null]
+    const frameElements = [null] as any[]
     const frameElement1 = await mock.findElement('frame1')
     frameElements.push(frameElement1)
     await mock.switchToFrame(frameElement1)
@@ -240,7 +246,7 @@ describe('EyesDriver', () => {
   }
 
   async function untrackedMixedFrameChain2() {
-    const frameElements = [null]
+    const frameElements = [null] as any[]
     const frameElement1 = await mock.findElement('frame1')
     frameElements.push(frameElement1)
     await mock.switchToFrame(frameElement1)
@@ -257,7 +263,7 @@ describe('EyesDriver', () => {
   }
 
   async function partiallyTrackedFrameChain1() {
-    const frameElements = [null]
+    const frameElements = [null] as any[]
     const frameElement2 = await mock.findElement('frame2')
     frameElements.push(frameElement2)
     await driver.switchToChildContext(frameElement2)
@@ -277,7 +283,7 @@ describe('EyesDriver', () => {
   }
 
   async function partiallyTrackedFrameChain2() {
-    const frameElements = [null]
+    const frameElements = [null] as any[]
     const frameElement2 = await mock.findElement('frame2')
     frameElements.push(frameElement2)
     await mock.switchToFrame(frameElement2)
@@ -297,7 +303,7 @@ describe('EyesDriver', () => {
   }
 
   async function trackedFrameChain() {
-    const frameElements = [null]
+    const frameElements = [null] as any[]
     const frameElement2 = await mock.findElement('frame2')
     frameElements.push(frameElement2)
     await driver.switchToChildContext(frameElement2)
@@ -317,16 +323,11 @@ describe('EyesDriver', () => {
   }
 })
 
-describe('EyesDriver native', () => {
-  let driver
+describe('driver native', () => {
+  let driver: Driver<any, any, any, any>
 
   before(async () => {
-    driver = new Driver(
-      new Logger(Boolean(process.env.APPLITOOLS_SHOW_LOGS)),
-      new MockDriver({
-        device: {isNative: true},
-      }),
-    )
+    driver = new Driver({logger, spec, driver: new MockDriver({device: {isNative: true}})})
     await driver.init()
   })
 
@@ -338,16 +339,17 @@ describe('EyesDriver native', () => {
   })
 
   describe('from driver info', () => {
-    let driver
+    let driver: Driver<any, any, any, any>
 
     before(async () => {
-      driver = new Driver(
-        new Logger(Boolean(process.env.APPLITOOLS_SHOW_LOGS)),
-        new MockDriver({
+      driver = new Driver({
+        logger,
+        spec,
+        driver: new MockDriver({
           device: {isNative: true, name: 'MobilePhone'},
           platform: {name: 'OS', version: 'V'},
         }),
-      )
+      })
       await driver.init()
     })
 
@@ -364,20 +366,21 @@ describe('EyesDriver native', () => {
     })
 
     it('returns browser name', () => {
-      assert.strictEqual(driver.browserName, undefined)
+      assert.strictEqual(driver.browserName, null)
     })
 
     it('returns browser version', () => {
-      assert.strictEqual(driver.browserVersion, undefined)
+      assert.strictEqual(driver.browserVersion, null)
     })
   })
 
   describe('from no info', () => {
     before(async () => {
-      driver = new Driver(
-        new Logger(Boolean(process.env.APPLITOOLS_SHOW_LOGS)),
-        new MockDriver({device: {isNative: true}}),
-      )
+      driver = new Driver({
+        logger,
+        spec,
+        driver: new MockDriver({device: {isNative: true}}),
+      })
       await driver.init()
     })
 
@@ -386,36 +389,42 @@ describe('EyesDriver native', () => {
     })
 
     it('returns platform name', () => {
-      assert.strictEqual(driver.platformName, undefined)
+      assert.strictEqual(driver.platformName, null)
     })
 
     it('returns platform version', () => {
-      assert.strictEqual(driver.platformVersion, undefined)
+      assert.strictEqual(driver.platformVersion, null)
     })
 
     it('returns browser name', () => {
-      assert.strictEqual(driver.browserName, undefined)
+      assert.strictEqual(driver.browserName, null)
     })
 
     it('returns browser version', () => {
-      assert.strictEqual(driver.browserVersion, undefined)
+      assert.strictEqual(driver.browserVersion, null)
     })
   })
 })
 
-describe('EyesDriver mobile', () => {
-  let driver
+describe('driver mobile', () => {
+  let driver: Driver<any, any, any, any>
+
+  before(async () => {
+    driver = new Driver({logger, spec, driver: new MockDriver({device: {isNative: true}})})
+    await driver.init()
+  })
 
   describe('from driver info', () => {
     before(async () => {
-      driver = new Driver(
-        new Logger(Boolean(process.env.APPLITOOLS_SHOW_LOGS)),
-        new MockDriver({
+      driver = new Driver({
+        logger,
+        spec,
+        driver: new MockDriver({
           device: {isMobile: true, name: 'MobilePhone'},
           platform: {name: 'OS', version: 'V'},
           browser: {name: 'Browser', version: '3'},
         }),
-      )
+      })
       await driver.init()
     })
 
@@ -442,18 +451,18 @@ describe('EyesDriver mobile', () => {
 
   describe('from ua info', () => {
     before(async () => {
-      driver = new Driver(
-        new Logger(Boolean(process.env.APPLITOOLS_SHOW_LOGS)),
-        new MockDriver({
-          ua:
-            'Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.1 Mobile/15E148 Safari/604.1',
+      driver = new Driver({
+        logger,
+        spec,
+        driver: new MockDriver({
+          ua: 'Mozilla/5.0 (iPhone; CPU iPhone OS 12_3_1 like Mac OS X) AppleWebKit/605.1.15 (KHTML, like Gecko) Version/12.1.1 Mobile/15E148 Safari/604.1',
         }),
-      )
+      })
       await driver.init()
     })
 
     it('returns device name', () => {
-      assert.strictEqual(driver.deviceName, undefined)
+      assert.strictEqual(driver.deviceName, null)
     })
 
     it('returns platform name', () => {

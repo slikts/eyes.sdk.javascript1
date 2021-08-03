@@ -71,7 +71,7 @@ class EyesClassic extends EyesCore {
     )
   }
 
-  async _check(checkSettings, closeAfterMatch = false, throwEx = true) {
+  async _check(checkSettings = {}, closeAfterMatch = false, throwEx = true) {
     this._context = await this._driver.refreshContexts()
     await this._context.main.setScrollingElement(this._scrollRootElement)
     await this._context.setScrollingElement(checkSettings.scrollRootElement)
@@ -97,7 +97,7 @@ class EyesClassic extends EyesCore {
       stabilization: {}, // TODO
       // debug: {path: './'},
       logger: this._logger,
-      takeDomCapture: () => takeDomCapture(this._logger, this._context),
+      takeDomCapture: () => takeDomCapture(this._logger, this._context).catch(() => null),
     }
 
     return this.checkWindowBase({
@@ -116,7 +116,6 @@ class EyesClassic extends EyesCore {
     this._logger.verbose('getScreenshot()')
 
     const screenshot = await screenshoter(this._screenshotSettings)
-    console.log({...screenshot, dom: !!screenshot.dom})
     this._imageLocation = new Location(Math.round(screenshot.region.x), Math.round(screenshot.region.y))
     this._dom = screenshot.dom
 

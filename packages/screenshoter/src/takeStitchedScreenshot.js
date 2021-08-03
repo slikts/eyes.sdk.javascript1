@@ -33,7 +33,11 @@ async function takeStitchedScreenshot({
 
   const targetRegion = region || (await scroller.getClientRegion())
 
-  const cropRegion = await driver.getRegionInViewport(context, targetRegion)
+  // TODO the solution should not check driver specifics,
+  // in this case target region coordinate should be already related to the scrolling element of the context
+  const cropRegion = driver.isNative
+    ? targetRegion
+    : await driver.getRegionInViewport(context, targetRegion)
 
   logger.verbose('cropping...')
   await image.crop(cropRegion)

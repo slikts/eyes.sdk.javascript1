@@ -3,14 +3,6 @@ import type {Context} from './context'
 import * as utils from '@applitools/utils'
 const snippets = require('@applitools/snippets')
 
-const ANDROID_CLASSES = [
-  'android.support.v7.widget.RecyclerView',
-  'androidx.recyclerview.widget.RecyclerView',
-  'androidx.viewpager2.widget.ViewPager2',
-  'android.widget.ListView',
-  'android.widget.GridView',
-]
-
 export type ElementState = {
   contentSize?: types.Size
   scrollOffset?: types.Location
@@ -101,86 +93,167 @@ export class Element<TDriver, TContext, TElement, TSelector> {
   }
 
   async getRegion(): Promise<types.Region> {
-    return this.withRefresh(async () => {
+    const region = await this.withRefresh(async () => {
       if (this.driver.isWeb) {
+        this._logger.log('Extracting region of web element with selector', this.selector)
         return this.context.execute(snippets.getElementRect, [this, false])
       } else {
+        this._logger.log('Extracting region of native element with selector', this.selector)
         const region = await this._spec.getElementRegion(this.driver.target, this.target)
+        this._logger.log('Extracted native region', region)
         return this.driver.normalizeRegion(region)
       }
     })
+    this._logger.log('Extracted region', region)
+    return region
   }
 
   async getClientRegion(): Promise<types.Region> {
-    return this.withRefresh(async () => {
+    const region = await this.withRefresh(async () => {
       if (this.driver.isWeb) {
+        this._logger.log('Extracting region of web element with selector', this.selector)
         return this.context.execute(snippets.getElementRect, [this, true])
       } else {
+        this._logger.log('Extracting region of native element with selector', this.selector)
         const region = await this._spec.getElementRegion(this.driver.target, this.target)
+        this._logger.log('Extracted native region', region)
         return this.driver.normalizeRegion(region)
       }
     })
+    this._logger.log('Extracted client region', region)
+    return region
   }
 
   async getContentSize(): Promise<types.Size> {
-    return this.withRefresh(async () => {
+    if (this._state.contentSize) return this._state.contentSize
+
+    const size = await this.withRefresh(async () => {
       if (this.driver.isWeb) {
+        this._logger.log('Extracting content size of web element with selector', this.selector)
         return this.context.execute(snippets.getElementContentSize, [this])
       } else {
-        if (this._state.contentSize) return this._state.contentSize
+        this._logger.log('Extracting content size of native element with selector', this.selector)
         try {
-          const data = JSON.parse(await this._spec.getElementAttribute(this.driver.target, this.target, 'contentSize'))
-
-          let contentHeight
-
-          if (data.scrollableOffset === 0) {
+          let size
+          if (this.driver.isAndroid) {
             const className = await this._spec.getElementAttribute(this.driver.target, this.target, 'className')
-            console.log(className)
-            if (ANDROID_CLASSES.includes(className)) {
-              const hiddenElement = await this.driver.element({
+            if (
+              [
+                'android.support.v7.widget.RecyclerView',
+                'androidx.recyclerview.widget.RecyclerView',
+                'androidx.viewpager2.widget.ViewPager2',
+                'android.widget.ListView',
+                'android.widget.GridView',
+              ].includes(className)
+            ) {
+              this._logger.log('Trying to extract content size using android helper library')
+              const helperElement = await this.driver.element({
                 type: '-android uiautomator',
                 selector: 'new UiSelector().description("EyesAppiumHelper")',
               })
-              if (hiddenElement) {
-                const g: any = this.driver.target
-                const e = await g.$(hiddenElement.target)
-                await e.click()
-                contentHeight = Number(await e.getText())
+              if (helperElement) {
+                const elementRegion = await this._spec.getElementRegion(this.driver.target, this.target)
+                await helperElement.click()
+                const info = await this._spec.getElementText(this.driver.target, helperElement.target)
+                size = utils.geometry.scale(
+                  {width: elementRegion.width, height: Number(info)},
+                  1 / this.driver.pixelRatio,
+                )
+              } else {
+                this._logger.log('Helper library for android was not detected')
               }
             }
-          } else {
-            contentHeight = this.driver.isIOS ? data.scrollableOffset : data.height + data.scrollableOffset
+          } else if (this.driver.isIOS) {
+            const type = await this._spec.getElementAttribute(this.driver.target, this.target, 'type')
+            if (type === 'XCUIElementTypeScrollView') {
+              const elementRegion = await this._spec.getElementRegion(this.driver.target, this.target)
+              const [childElement] = await this.driver.elements({
+                type: 'xpath',
+                selector: '//XCUIElementTypeScrollView[1]/*', // We cannot be sure that our element is the first one
+              })
+              const childElementRegion = await this._spec.getElementRegion(this.driver.target, childElement.target)
+              size = {
+                width: elementRegion.width,
+                height: childElementRegion.y + childElementRegion.height - elementRegion.y,
+              }
+            } else if (type === 'XCUIElementTypeCollectionView') {
+              this._logger.log('Trying to extract content size using ios helper library')
+              const helperElement = await this.driver.element({
+                type: 'name',
+                selector: 'applitools_grab_scrollable_data_button',
+              })
+              if (helperElement) {
+                const helperElementRegion = await this._spec.getElementRegion(this.driver.target, helperElement.target)
+                await this._spec.performAction(this.driver.target, [
+                  {action: 'tap', x: helperElementRegion.x, y: helperElementRegion.y},
+                  {action: 'wait', ms: 1000},
+                  {action: 'release'},
+                ])
+                const infoElement = await this.driver.element({type: 'name', selector: 'applitools_content_size_label'})
+                const info = await this._spec.getElementText(this.driver.target, infoElement.target)
+                if (info) {
+                  const [_, width, height] = info.match(/\{(\d+),\s?(\d+)\}/)
+                  size = {width: Number(width), height: Number(height)}
+                }
+              } else {
+                this._logger.log('Helper library for ios was not detected')
+              }
+            }
           }
 
-          this._state.contentSize = utils.geometry.scale(
-            {width: data.width, height: contentHeight},
-            1 / this.driver.pixelRatio,
-          )
+          if (!size) {
+            const data = JSON.parse(
+              await this._spec.getElementAttribute(this.driver.target, this.target, 'contentSize'),
+            )
+            this._logger.log('Extracted native content size attribute', data)
+            size = this.driver.isIOS
+              ? {width: data.width, height: data.scrollableOffset}
+              : utils.geometry.scale(
+                  {width: data.width, height: data.height + data.scrollableOffset},
+                  1 / this.driver.pixelRatio,
+                )
+          }
 
-          // android has a bug when after extracting 'contentSize' attribute the element is being scrolled by undetermined number of pixels
-          const originalScrollOffset = await this.getScrollOffset()
-          this._state.scrollOffset = {x: -1, y: -1}
-          await this.scrollTo({x: 0, y: 0})
-          await this.scrollTo(originalScrollOffset)
+          this._state.contentSize = size
+
+          if (this.driver.isAndroid) {
+            this._logger.log('Stabilizing android scroll offset')
+
+            // android has a bug when after extracting 'contentSize' attribute the element is being scrolled by undetermined number of pixels
+            const originalScrollOffset = await this.getScrollOffset()
+            this._state.scrollOffset = {x: -1, y: -1}
+            await this.scrollTo({x: 0, y: 0})
+            await this.scrollTo(originalScrollOffset)
+          }
 
           return this._state.contentSize
         } catch (err) {
-          console.log(err)
+          this._logger.warn('Failed to extract content size, extracting client size instead')
+          this._logger.error(err)
           return utils.geometry.size(await this.getClientRegion())
         }
       }
     })
+
+    this._logger.log('Extracted content size', size)
+    return size
   }
 
   async isScrollable() {
-    return this.withRefresh(async () => {
+    this._logger.log('Check is element with selector', this.selector, 'is scrollable')
+    const isScrollable = await this.withRefresh(async () => {
       if (this.driver.isWeb) {
         return this.context.execute(snippets.isElementScrollable, [this])
-      } else {
+      } else if (this.driver.isAndroid) {
         const data = JSON.parse(await this._spec.getElementAttribute(this.driver.target, this.target, 'scrollable'))
         return Boolean(data) || false
+      } else if (this.driver.isIOS) {
+        const type = await this._spec.getElementAttribute(this.driver.target, this.target, 'type')
+        return ['XCUIElementTypeScrollView', 'XCUIElementTypeTable', 'XCUIElementTypeCollectionView'].includes(type)
       }
     })
+    this._logger.log('Element is scrollable', isScrollable)
+    return isScrollable
   }
 
   async scrollTo(offset: types.Location): Promise<types.Location> {
@@ -194,7 +267,9 @@ export class Element<TDriver, TContext, TElement, TSelector> {
 
         const contentSize = await this.getContentSize()
         const scrollableRegion = await this._spec.getElementRegion(this.driver.target, this.target)
-        const scaledScrollableRegion = utils.geometry.scale(scrollableRegion, 1 / this.driver.pixelRatio)
+        const scaledScrollableRegion = this.driver.isAndroid
+          ? utils.geometry.scale(scrollableRegion, 1 / this.driver.pixelRatio)
+          : scrollableRegion
         const maxOffset = {
           x: Math.round(scaledScrollableRegion.width * (contentSize.width / scaledScrollableRegion.width - 1)),
           y: Math.round(scaledScrollableRegion.height * (contentSize.height / scaledScrollableRegion.height - 1)),
@@ -208,7 +283,10 @@ export class Element<TDriver, TContext, TElement, TSelector> {
           requiredOffset = {x: Math.min(offset.x, maxOffset.x), y: Math.min(offset.y, maxOffset.y)}
           remainingOffset = utils.geometry.offsetNegative(requiredOffset, currentScrollOffset)
         }
-        remainingOffset = utils.geometry.scale(remainingOffset, this.driver.pixelRatio)
+
+        if (this.driver.isAndroid) {
+          remainingOffset = utils.geometry.scale(remainingOffset, this.driver.pixelRatio)
+        }
 
         const actions = []
 
@@ -233,7 +311,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
         const xCenter = Math.floor(scrollableRegion.x + scrollableRegion.width / 2) // 0
         const yTop = scrollableRegion.y + yPadding
         const yDirection = remainingOffset.y > 0 ? 'down' : 'up'
-        let yRemaining = Math.abs(remainingOffset.y) + 48
+        let yRemaining = Math.abs(remainingOffset.y) + (this.driver.isIOS ? 28 : 48) // ???
         while (yRemaining > 0) {
           const yBottom = scrollableRegion.y + Math.min(yRemaining + yPadding, scrollableRegion.height - yPadding)
           const [yStart, yEnd] = yDirection === 'down' ? [yBottom, yTop] : [yTop, yBottom]
@@ -288,6 +366,10 @@ export class Element<TDriver, TContext, TElement, TSelector> {
     } else {
       return this.getScrollOffset()
     }
+  }
+
+  async click(): Promise<void> {
+    await this._spec.click(this.context.target, this.target)
   }
 
   async preserveState(): Promise<ElementState> {

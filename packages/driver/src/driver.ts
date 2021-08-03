@@ -70,7 +70,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     return this._driverInfo?.userAgent
   }
   get pixelRatio() {
-    return this._driverInfo.pixelRatio
+    return this._driverInfo.pixelRatio ?? 1
   }
   get isNative(): boolean {
     return this._driverInfo?.isNative ?? false
@@ -83,6 +83,9 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   }
   get isIOS(): boolean {
     return this.platformName === 'iOS'
+  }
+  get isAndroid(): boolean {
+    return this.platformName === 'Android'
   }
   get isIE(): boolean {
     return /(internet explorer|ie)/i.test(this.browserName)
@@ -168,7 +171,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
         const childContext = await spec.childContext(context, childContextInfo.contextElement)
         const contentDocument = await spec.findElement(childContext, {type: 'css', selector: 'html'})
         const isWantedContext = await isEqualElements(childContext, contentDocument, contextInfo.documentElement)
-        await this._spec.parentContext(childContext)
+        await spec.parentContext(childContext)
         if (isWantedContext) return childContextInfo.contextElement
       }
     }
@@ -188,9 +191,10 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
         const childContext = await spec.childContext(context, childContextInfo.contextElement)
         const possibleContextPath = [...contextPath, childContextInfo.contextElement]
         const wantedContextPath = await findContextPath(childContext, contextInfo, possibleContextPath)
+        await spec.mainContext(context)
+
         if (wantedContextPath) return wantedContextPath
 
-        await spec.mainContext(context)
         for (const contextElement of contextPath) {
           await spec.childContext(context, contextElement)
         }
@@ -288,11 +292,14 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   }
 
   async normalizeRegion(region: types.Region): Promise<types.Region> {
-    if (!this._driverInfo.viewportRegion) return region
-    return utils.geometry.scale(
-      utils.geometry.offsetNegative(region, utils.geometry.location(this._driverInfo.viewportRegion)),
-      1 / this.pixelRatio,
-    )
+    if (!this._driverInfo.viewportRegion || !this.isNative) return region
+    const viewportRegion = this.isIOS
+      ? utils.geometry.scale(this._driverInfo.viewportRegion, 1 / this.pixelRatio)
+      : this._driverInfo.viewportRegion
+
+    const offsetRegion = utils.geometry.offsetNegative(region, utils.geometry.location(viewportRegion))
+
+    return this.isAndroid ? utils.geometry.scale(offsetRegion, 1 / this.pixelRatio) : offsetRegion
   }
 
   async getRegionInViewport(

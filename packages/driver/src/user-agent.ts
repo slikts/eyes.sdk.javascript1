@@ -57,7 +57,7 @@ export function parsePlatform(userAgent: string): PlatformInfo {
   } else if (platformName === 'Windows 2000' || platformName === 'Windows XP') {
     return {platformName: 'Windows', platformVersion: '5'}
   } else if (platformName === 'Windows NT') {
-    const result = {platformName: 'Window', platformVersion: platformMajorVersion}
+    const result = {platformName: 'Windows', platformVersion: platformMajorVersion}
     if (!platformMajorVersion) {
       result.platformVersion = '4'
     } else if (platformMajorVersion === '6' && platformMinorVersion === '1') {

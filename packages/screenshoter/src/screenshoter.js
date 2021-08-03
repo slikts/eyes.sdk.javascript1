@@ -1,4 +1,5 @@
 const utils = require('@applitools/utils')
+const snippets = require('@applitools/snippets')
 const makeScroller = require('./scroller')
 const takeStitchedScreenshot = require('./takeStitchedScreenshot')
 const takeViewportScreenshot = require('./takeViewportScreenshot')
@@ -28,10 +29,10 @@ async function screenshoter({
       ? await originalContext.context(frames.reduce((parent, frame) => ({...frame, parent}), null))
       : originalContext
 
-  if (!driver.isNative) {
-    for (const nextContext of targetContext.path) {
-      const scrollingElement = await nextContext.getScrollingElement()
-      if (hideScrollbars) await scrollingElement.hideScrollbars()
+  for (const nextContext of targetContext.path) {
+    const scrollingElement = await nextContext.getScrollingElement()
+    if (scrollingElement) {
+      if (driver.isWeb && hideScrollbars) await scrollingElement.hideScrollbars()
       await scrollingElement.preserveState()
     }
   }
@@ -48,7 +49,9 @@ async function screenshoter({
     scrollingMode,
   })
 
-  if (hideScrollbars) await scroller.element.hideScrollbars()
+  // IMHO problem with scrollbars should be solved by extracting client size of the content (without scrollbars),
+  // here we use a historical solution
+  if (driver.isWeb && (hideScrollbars || fully)) await scroller.element.hideScrollbars()
   const scrollerState = await scroller.preserveState()
 
   if (!window) await scrollIntoViewport({logger, context, scroller, region})
@@ -71,10 +74,10 @@ async function screenshoter({
     if (dom) {
       // temporary solution
       if (fully) {
-        await context.execute(
-          'arguments[0].setAttribute("data-applitools-scroll", "true")',
+        await context.execute(snippets.setElementAttributes, [
           scroller.element,
-        )
+          {'data-applitools-scroll': true},
+        ])
       }
 
       const scrollingElement = await context.main.getScrollingElement()
@@ -85,15 +88,19 @@ async function screenshoter({
 
     return screenshot
   } finally {
-    await scroller.element.restoreScrollbars()
-    await scroller.restoreState(scrollerState)
+    if (scroller.element) {
+      await scroller.element.restoreScrollbars()
+      await scroller.restoreState(scrollerState)
+    }
 
     if (hideCaret && activeElement) await targetContext.focusElement(activeElement)
 
     for (const prevContext of targetContext.path.reverse()) {
       const scrollingElement = await prevContext.getScrollingElement()
-      if (hideScrollbars) await scrollingElement.restoreScrollbars()
-      await scrollingElement.restoreState()
+      if (scrollingElement) {
+        if (driver.isWeb && hideScrollbars) await scrollingElement.restoreScrollbars()
+        await scrollingElement.restoreState()
+      }
     }
 
     await originalContext.focus()

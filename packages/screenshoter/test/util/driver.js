@@ -131,13 +131,20 @@ async function getDriverInfo(browser) {
     pixelRatio: browser.capabilities.pixelRatio,
   }
 
-  if (browser.capabilities.viewportRect) {
-    const viewportRect = browser.capabilities.viewportRect
-    driverInfo.viewportRegion = {
-      x: viewportRect.left,
-      y: viewportRect.top,
-      width: viewportRect.width,
-      height: viewportRect.height,
+  if (driverInfo.isNative) {
+    const {pixelRatio, viewportRect} =
+      browser.capabilities.viewportRect && browser.capabilities.pixelRatio
+        ? browser.capabilities
+        : await browser.getSession()
+
+    driverInfo.pixelRatio = pixelRatio
+    if (viewportRect) {
+      driverInfo.viewportRegion = {
+        x: viewportRect.left,
+        y: viewportRect.top,
+        width: viewportRect.width,
+        height: viewportRect.height,
+      }
     }
   }
 
@@ -151,10 +158,14 @@ async function visit(browser, url) {
 }
 async function click(browser, element) {
   if (isSelector(element)) element = await findElement(browser, element)
-  return element.click()
+  const extendedElement = await browser.$(element)
+  await extendedElement.click()
 }
 async function performAction(browser, actions) {
   return browser.touchAction(actions)
+}
+async function getElementText(browser, element) {
+  return browser.getElementText(extractElementId(element))
 }
 
 // #endregion
@@ -182,6 +193,7 @@ const spec = {
   visit,
   click,
   performAction,
+  getElementText,
 }
 
 async function makeDriver({type = 'web'} = {}) {
@@ -203,15 +215,52 @@ async function makeDriver({type = 'web'} = {}) {
       port: 443,
       logLevel: 'silent',
       capabilities: {
-        name: 'Android Demo',
+        name: 'Android Screenshoter Test',
         browserName: '',
         platformName: 'Android',
         platformVersion: '7.0',
         appiumVersion: '1.20.2',
         deviceName: 'Samsung Galaxy S8 FHD GoogleAPI Emulator',
         automationName: 'uiautomator2',
-        newCommandTimeout: 600,
         app: 'https://applitools.jfrog.io/artifactory/Examples/android/1.3/app-debug.apk',
+        username: process.env.SAUCE_USERNAME,
+        accessKey: process.env.SAUCE_ACCESS_KEY,
+      },
+    },
+    androidx: {
+      protocol: 'https',
+      hostname: 'ondemand.saucelabs.com',
+      path: '/wd/hub',
+      port: 443,
+      logLevel: 'silent',
+      capabilities: {
+        name: 'AndroidX Screenshoter Test',
+        browserName: '',
+        platformName: 'Android',
+        platformVersion: '10.0',
+        appiumVersion: '1.20.2',
+        deviceName: 'Google Pixel 3a XL GoogleAPI Emulator',
+        automationName: 'uiautomator2',
+        app: 'https://applitools.jfrog.io/artifactory/Examples/androidx/1.2.0/app_androidx.apk',
+        username: process.env.SAUCE_USERNAME,
+        accessKey: process.env.SAUCE_ACCESS_KEY,
+      },
+    },
+    ios: {
+      protocol: 'https',
+      hostname: 'ondemand.saucelabs.com',
+      path: '/wd/hub',
+      port: 443,
+      logLevel: 'silent',
+      capabilities: {
+        name: 'iOS Screenshoter Test',
+        deviceName: 'iPhone 11 Pro Simulator',
+        platformName: 'iOS',
+        platformVersion: '13.4',
+        appiumVersion: '1.19.2',
+        automationName: 'XCUITest',
+        app:
+          'https://applitools.jfrog.io/artifactory/Examples/IOSTestApp/1.5/app/IOSTestApp-1.5.zip',
         username: process.env.SAUCE_USERNAME,
         accessKey: process.env.SAUCE_ACCESS_KEY,
       },
