@@ -107,13 +107,6 @@ export async function findElements(browser: Driver, selector: Selector): Promise
   const {value} = await browser.elements(transformSelector(selector))
   return value
 }
-export async function getElementRect(
-  browser: Driver,
-  element: Element,
-): Promise<{x: number; y: number; width: number; height: number}> {
-  const {value} = await browser.elementIdRect(extractElementId(element))
-  return value
-}
 export async function getWindowSize(browser: Driver): Promise<{width: number; height: number}> {
   const {value: size} = (await browser.windowHandleSize()) as {value: {width: number; height: number}}
   return {width: size.width, height: size.height}
@@ -207,19 +200,8 @@ export async function getElementRegion(
   browser: Driver,
   element: Element,
 ): Promise<{x: number; y: number; width: number; height: number}> {
-  const extendedElement = (await browser.$(element as any)) as any
-  if (utils.types.isFunction(extendedElement, 'getRect')) {
-    return extendedElement.getRect()
-  } else {
-    const region = {x: 0, y: 0, width: 0, height: 0}
-    const location = await extendedElement.getLocation()
-    region.x = location.x
-    region.y = location.y
-    const size = await extendedElement.getSize()
-    region.width = size.width
-    region.height = size.height
-    return region
-  }
+  const {value} = await browser.elementIdRect(extractElementId(element))
+  return value
 }
 export async function getElementAttribute(browser: Driver, element: Element, attr: string): Promise<string> {
   const result = await browser.elementIdAttribute(extractElementId(element), attr)

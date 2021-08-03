@@ -93,6 +93,7 @@ const DEVICES = {
     capabilities: {
       platformName: 'iOS',
       platformVersion: '13.0',
+      appiumVersion: '1.19.2',
       deviceName: 'iPhone XS Simulator',
       ...SAUCE_CREDENTIALS,
     },
