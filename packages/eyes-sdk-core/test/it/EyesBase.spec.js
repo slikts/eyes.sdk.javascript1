@@ -52,8 +52,7 @@ describe('EyesBase', () => {
       eyes.setBatch('batch-name', 'some-batch-id')
       const result = await eyes.handleScmMergeBaseTime()
 
-      const expected =
-        'some-datetime-of-barnch-name-of-some-batch-id-parent-barnch-name-of-some-batch-id'
+      const expected = 'some-datetime-of-barnch-name-of-some-batch-id-parent-barnch-name-of-some-batch-id'
       assert.deepStrictEqual(result, expected)
     })
 
@@ -61,8 +60,7 @@ describe('EyesBase', () => {
       process.env.APPLITOOLS_BATCH_ID = 'some-batch-id'
       const result = await eyes.handleScmMergeBaseTime()
 
-      const expected =
-        'some-datetime-of-barnch-name-of-some-batch-id-parent-barnch-name-of-some-batch-id'
+      const expected = 'some-datetime-of-barnch-name-of-some-batch-id-parent-barnch-name-of-some-batch-id'
       assert.deepStrictEqual(result, expected)
     })
 

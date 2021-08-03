@@ -1,7 +1,7 @@
 const assert = require('assert')
 const {startFakeEyesServer} = require('@applitools/sdk-fake-eyes-server')
 const MockDriver = require('../utils/MockDriver')
-const {EyesClassic, CheckSettings} = require('../utils/FakeSDK')
+const {EyesClassic} = require('../utils/FakeSDK')
 
 describe('PreserveCheckSettingsFrameAfterCheck', () => {
   let server, serverUrl, driver, eyes

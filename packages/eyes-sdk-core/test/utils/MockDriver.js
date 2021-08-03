@@ -324,19 +324,4 @@ class MockDriver {
   }
 }
 
-function serialize(value) {
-  if (TypeUtils.hasMethod(value, 'toJSON')) {
-    return value.toJSON()
-  } else if (TypeUtils.isArray(value)) {
-    return value.map(serialize)
-  } else if (TypeUtils.isObject(value)) {
-    if (typeof value.id === 'symbol') return value
-    return Object.entries(value).reduce((json, [key, value]) => Object.assign(json, {[key]: serialize(value)}), {})
-  } else if (TypeUtils.isFunction(value)) {
-    return value.toString()
-  } else {
-    return value
-  }
-}
-
 module.exports = MockDriver

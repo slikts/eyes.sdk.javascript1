@@ -35,7 +35,7 @@
     css-tree "1.0.0-alpha.39"
     pako "1.0.11"
 
-"@applitools/driver@1.0.7", "@applitools/driver@^1.0.7":
+"@applitools/driver@1.0.7":
   version "1.0.7"
   resolved "https://registry.yarnpkg.com/@applitools/driver/-/driver-1.0.7.tgz#f2b96fd43ae4c7e381bfba666687041a73c1c54a"
   integrity sha512-cQL7Z/LAISnd8IXA7rJCr4EgURZ4Ypg3c4lCfMObPGz8fHjQnbAgdinTk7ceplkgoVBCrh4EPk23umOEbq6Ugw==
@@ -122,7 +122,7 @@
     ws "^7.0.0"
     xml-name-validator "^3.0.0"
 
-"@applitools/logger@^1.0.1":
+"@applitools/logger@1.0.1":
   version "1.0.1"
   resolved "https://registry.yarnpkg.com/@applitools/logger/-/logger-1.0.1.tgz#7a6007cd6b029ad91aeeb173df96b7a04b56a590"
   integrity sha512-nGQ7Ov4/R35yUPmOoxQEViAMtQFz6ep4dKdW1wytQp0+B4fu3G1Q1q+rQse81iLBcA9UcVpZk1rRCRqbO0mvlA==
@@ -137,7 +137,7 @@
   dependencies:
     debug "^4.1.0"
 
-"@applitools/screenshoter@3.0.8", "@applitools/screenshoter@^3.0.8":
+"@applitools/screenshoter@3.0.8":
   version "3.0.8"
   resolved "https://registry.yarnpkg.com/@applitools/screenshoter/-/screenshoter-3.0.8.tgz#abc762151eb7325b3c8770446e1ab4442fbefc9f"
   integrity sha512-6TlypQcBD/fMoSigpHQlCbYpCuFHiULl8+LkelfvLIP7FVYWDFjq21hv3iMlm28GU14LtLDv6DtMkDVxEssI4Q==
@@ -223,7 +223,7 @@
   resolved "https://registry.yarnpkg.com/@applitools/types/-/types-1.0.5.tgz#038e0036573e387c97de6b50fa87dd5dbfb5cbc6"
   integrity sha512-8kUgOJvhyA747HkaGIOAiyV9ae/zeHpWyIG7Wvr6QfcyiEzM+bxuzSoQyuS+18s7UNjrffdri9SBr2IGHvGcQQ==
 
-"@applitools/utils@1.2.0", "@applitools/utils@^1.2.0":
+"@applitools/utils@1.2.0":
   version "1.2.0"
   resolved "https://registry.yarnpkg.com/@applitools/utils/-/utils-1.2.0.tgz#a79774ffdb894a73fbca5d24eba66ef17119a7c6"
   integrity sha512-NzynRgRavbTns5M85DJXXaMY/57xBte3F/tnK5nr3DSBhKTQnkjXIFwryPU5bVwEcpoGEVF0T1Gyq37WnDe38Q==
@@ -2550,7 +2550,7 @@ pn@^1.1.0:
   resolved "https://registry.yarnpkg.com/pn/-/pn-1.1.0.tgz#e2f4cef0e219f463c179ab37463e4e1ecdccbafb"
   integrity sha512-2qHaIQr2VLRFoxe2nASzsV6ef4yOOH+Fi9FBOVH6cqeSgUnoyySPZkxzLuzd+RYOQTRpROA0ztTMqxROKSb/nA==
 
-png-async@0.9.4:
+png-async@0.9.4, png-async@^0.9.4:
   version "0.9.4"
   resolved "https://registry.yarnpkg.com/png-async/-/png-async-0.9.4.tgz#0638817508fcf4e732706b2f82c74c947cb83f78"
   integrity sha512-B//AXX9TkneKfgtOpT1mdUnnhk2BImGD+a98vImsMU8uo1dBeHyW/kM2erWZ/CsYteTPU/xKG+t6T62heHkC3A==
