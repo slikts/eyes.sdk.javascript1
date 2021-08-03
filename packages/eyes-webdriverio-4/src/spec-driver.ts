@@ -63,7 +63,7 @@ export function isStaleElementError(error: any, selector: Selector): boolean {
     ? (errOrResult as any).seleniumStack && (errOrResult as any).seleniumStack.type === 'StaleElementReference'
     : errOrResult.value && errOrResult.selector && errOrResult.selector === selector
 }
-export function isEqualElements(_browser: Driver, element1: Element, element2: Element): boolean {
+export async function isEqualElements(_browser: Driver, element1: Element, element2: Element): Promise<boolean> {
   if (!element1 || !element2) return false
   const elementId1 = extractElementId(element1)
   const elementId2 = extractElementId(element2)
