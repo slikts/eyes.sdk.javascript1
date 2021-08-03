@@ -178,7 +178,7 @@ export async function setWindowSize(browser: Driver, size: {width: number; heigh
 }
 export async function getDriverInfo(browser: Driver): Promise<any> {
   const capabilities = browser.capabilities as any
-  return {
+  const info: any = {
     sessionId: browser.sessionId,
     isMobile: browser.isMobile,
     isNative: browser.isMobile && !capabilities.browserName,
@@ -187,7 +187,26 @@ export async function getDriverInfo(browser: Driver): Promise<any> {
     platformVersion: capabilities.platformVersion,
     browserName: capabilities.browserName ?? capabilities.desired.browserName,
     browserVersion: capabilities.browserVersion ?? capabilities.version,
+    pixelRatio: capabilities.pixelRatio,
   }
+
+  if (info.isNative) {
+    const {pixelRatio, viewportRect} = utils.types.has(capabilities, ['viewportRect', 'pixelRatio'])
+      ? browser.capabilities
+      : await browser.getSession()
+
+    info.pixelRatio = pixelRatio
+    if (viewportRect) {
+      info.viewportRegion = {
+        x: viewportRect.left,
+        y: viewportRect.top,
+        width: viewportRect.width,
+        height: viewportRect.height,
+      }
+    }
+  }
+
+  return info
 }
 export async function getTitle(browser: Driver): Promise<string> {
   return browser.getTitle()

@@ -110,10 +110,6 @@ export async function setWindowSize(browser: Driver, size: {width: number; heigh
   await browser.windowHandlePosition({x: 0, y: 0})
   await browser.windowHandleSize(size)
 }
-export async function getOrientation(browser: Driver): Promise<string> {
-  const orientation = ((await browser.getOrientation()) as unknown) as string
-  return orientation.toLowerCase()
-}
 export async function getDriverInfo(browser: Driver): Promise<any> {
   return {
     sessionId: (browser as any).requestHandler.sessionID || browser.sessionId,
@@ -167,6 +163,42 @@ export async function waitUntilDisplayed(browser: Driver, selector: Selector, ti
 }
 
 // #endregion
+
+// #region MOBILE COMMANDS
+
+export async function getOrientation(browser: Driver): Promise<'portrait' | 'landscape'> {
+  const orientation = ((await browser.getOrientation()) as unknown) as string
+  return orientation.toLowerCase() as 'portrait' | 'landscape'
+}
+export async function getElementRegion(
+  browser: Driver,
+  element: Element,
+): Promise<{x: number; y: number; width: number; height: number}> {
+  const extendedElement = (await browser.$(element as any)) as any
+  if (utils.types.isFunction(extendedElement, 'getRect')) {
+    return extendedElement.getRect()
+  } else {
+    const region = {x: 0, y: 0, width: 0, height: 0}
+    const location = await extendedElement.getLocation()
+    region.x = location.x
+    region.y = location.y
+    const size = await extendedElement.getSize()
+    region.width = size.width
+    region.height = size.height
+    return region
+  }
+}
+export async function getElementAttribute(browser: Driver, element: Element, attr: string): Promise<string> {
+  const result = await browser.elementIdAttribute(extractElementId(element), attr)
+  return result.value
+}
+export async function getElementText(browser: Driver, element: Element): Promise<string> {
+  const result = browser.elementIdText(extractElementId(element))
+  return result.value
+}
+export async function performAction(browser: Driver, steps: any[]): Promise<void> {
+  await browser.touchPerform(steps.map(({action, ...options}) => ({action, options})))
+}
 
 // #region TESTING
 
