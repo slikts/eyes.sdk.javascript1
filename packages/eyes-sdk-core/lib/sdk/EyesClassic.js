@@ -117,7 +117,10 @@ class EyesClassic extends EyesCore {
         throwEx,
       })
     } finally {
-      if (this._restorePageState) await this._restorePageState()
+      if (this._restorePageState) {
+        await this._restorePageState()
+        this._restorePageState = null
+      }
     }
   }
 
@@ -236,7 +239,7 @@ class EyesClassic extends EyesCore {
 
   async getInferredEnvironment() {
     try {
-      const userAgent = await this._driver.userAgent
+      const userAgent = this._driver.userAgent
       return userAgent ? 'useragent:' + userAgent : userAgent
     } catch (err) {
       return null

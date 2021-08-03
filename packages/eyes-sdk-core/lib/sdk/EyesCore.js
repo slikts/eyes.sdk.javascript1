@@ -249,7 +249,7 @@ class EyesCore extends EyesBase {
   }
 
   getRemoteWebDriver() {
-    return this._driver.unwrapped
+    return this._driver.target
   }
 
   getRunner() {

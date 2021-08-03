@@ -88,7 +88,7 @@ async function screenshoter({
     }
 
     if (lazyRestorePageState) {
-      screenshoter.restorePageState = restorePageState
+      screenshot.restorePageState = restorePageState
     }
 
     return screenshot
