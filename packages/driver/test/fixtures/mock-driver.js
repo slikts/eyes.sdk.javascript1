@@ -120,7 +120,7 @@ class MockDriver {
       return 1
     })
     this.mockScript(snippets.getUserAgent, () => {
-      if (this._ua) return this._ua
+      if (this._ua !== undefined) return this._ua
       return this.info.isMobile ? DEFAULT_MOBILE_UA : DEFAULT_DESKTOP_UA
     })
     this.mockScript(snippets.getViewportSize, () => {
@@ -318,21 +318,6 @@ class MockDriver {
   }
   [inspect.custom]() {
     return '<MockDriver>'
-  }
-}
-
-function serialize(value) {
-  if (utils.types.isFunction(value, 'toJSON')) {
-    return value.toJSON()
-  } else if (utils.types.isArray(value)) {
-    return value.map(serialize)
-  } else if (utils.types.isObject(value)) {
-    if (typeof value.id === 'symbol') return value
-    return Object.entries(value).reduce((json, [key, value]) => Object.assign(json, {[key]: serialize(value)}), {})
-  } else if (utils.types.isFunction(value)) {
-    return value.toString()
-  } else {
-    return value
   }
 }
 

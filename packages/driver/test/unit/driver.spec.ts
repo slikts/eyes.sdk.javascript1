@@ -420,6 +420,7 @@ describe('driver mobile', () => {
         logger,
         spec,
         driver: new MockDriver({
+          ua: null,
           device: {isMobile: true, name: 'MobilePhone'},
           platform: {name: 'OS', version: 'V'},
           browser: {name: 'Browser', version: '3'},
@@ -429,6 +430,7 @@ describe('driver mobile', () => {
     })
 
     it('returns device name', () => {
+      console.log(driver)
       assert.strictEqual(driver.deviceName, 'MobilePhone')
     })
 

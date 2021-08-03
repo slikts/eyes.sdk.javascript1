@@ -104,7 +104,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     if (this.isWeb) {
       const userAgent = this._driverInfo?.userAgent ?? (await this.execute(snippets.getUserAgent))
       const pixelRatio = this._driverInfo?.pixelRatio ?? (await this.execute(snippets.getPixelRatio))
-      const userAgentInfo = parseUserAgent(userAgent)
+      const userAgentInfo = userAgent ? parseUserAgent(userAgent) : ({} as any)
       this._driverInfo = {
         ...this._driverInfo,
         isMobile: this._driverInfo?.isMobile ?? ['iOS', 'Android'].includes(userAgentInfo.platformName),
