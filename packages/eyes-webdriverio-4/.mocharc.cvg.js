@@ -18,7 +18,7 @@ module.exports = {
     './test/generic/*.spec.js',
     './node_modules/@applitools/sdk-shared/coverage-tests/custom/**/*.spec.js',
   ],
-  parallel: true,
+  // parallel: true,
   jobs: 15,
   timeout: 0,
   reporter: 'spec-xunit-file',
