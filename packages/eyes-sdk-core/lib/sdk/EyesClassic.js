@@ -45,7 +45,7 @@ class EyesClassic extends EyesCore {
   async open(driver, appName, testName, viewportSize, sessionType) {
     ArgumentGuard.notNull(driver, 'driver')
 
-    this._driver = await new Driver({spec: this.spec, driver, logger: this._logger}).init()
+    this._driver = await new Driver({spec: this.spec, driver, logger: this._logger._getNewLogger()}).init()
     this._context = this._driver.currentContext
 
     this._configuration.setAppName(TypeUtils.getOrDefault(appName, this._configuration.getAppName()))
@@ -94,28 +94,44 @@ class EyesClassic extends EyesCore {
       overlap: this._configuration.getStitchOverlap(),
       wait: this._configuration.getWaitBeforeScreenshots(),
       dom: checkSettings.sendDom || this._configuration.getSendDom(),
-      stabilization: {}, // TODO
-      // debug: {path: './'},
+      stabilization: {
+        crop: this.getCut(),
+        scale: this.getScaleRatio(),
+        rotation: this.getRotation(),
+      },
+      debug: this.getDebugScreenshots(),
       logger: this._logger,
+      lazyRestorePageState: true,
       takeDomCapture: () => takeDomCapture(this._logger, this._context).catch(() => null),
     }
 
-    return this.checkWindowBase({
-      name: checkSettings.name,
-      url: await this._driver.getUrl(),
-      renderId: checkSettings.renderId,
-      variationGroupId: checkSettings.variationGroupId,
-      sendDom: checkSettings.sendDom,
-      retryTimeout: checkSettings.timeout,
-      closeAfterMatch,
-      throwEx,
-    })
+    try {
+      return await this.checkWindowBase({
+        name: checkSettings.name,
+        url: await this._driver.getUrl(),
+        renderId: checkSettings.renderId,
+        variationGroupId: checkSettings.variationGroupId,
+        sendDom: checkSettings.sendDom,
+        retryTimeout: checkSettings.timeout,
+        closeAfterMatch,
+        throwEx,
+      })
+    } finally {
+      if (this._restorePageState) await this._restorePageState()
+    }
   }
 
   async getScreenshot() {
     this._logger.verbose('getScreenshot()')
 
+    if (this._restorePageState) {
+      await this._restorePageState()
+    }
+
     const screenshot = await screenshoter(this._screenshotSettings)
+
+    this._restorePageState = screenshot.restorePageState
+
     this._imageLocation = new Location(Math.round(screenshot.region.x), Math.round(screenshot.region.y))
     this._dom = screenshot.dom
 

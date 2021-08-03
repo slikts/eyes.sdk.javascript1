@@ -182,14 +182,14 @@ class EyesCore extends EyesBase {
 
   static async getViewportSize(driver) {
     const logger = new Logger(process.env.APPLITOOLS_SHOW_LOGS)
-    const wrapper = await new Driver({spec: this.spec, driver, logger}).init()
+    const wrapper = await new Driver({spec: this.spec, driver, logger: logger._getNewLogger()}).init()
     const viewportSize = await wrapper.getViewportSize()
     return viewportSize
   }
 
   static async setViewportSize(driver, viewportSize) {
     const logger = new Logger(process.env.APPLITOOLS_SHOW_LOGS)
-    const wrapper = await new Driver({spec: this.spec, driver, logger}).init()
+    const wrapper = await new Driver({spec: this.spec, driver, logger: logger._getNewLogger()}).init()
     if (!wrapper.isMobile) {
       ArgumentGuard.notNull(viewportSize, 'viewportSize')
       await wrapper.setViewportSize(viewportSize)

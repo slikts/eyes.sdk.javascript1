@@ -239,7 +239,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
     return size
   }
 
-  async isScrollable() {
+  async isScrollable(): Promise<boolean> {
     this._logger.log('Check is element with selector', this.selector, 'is scrollable')
     const isScrollable = await this.withRefresh(async () => {
       if (this.driver.isWeb) {
@@ -254,6 +254,18 @@ export class Element<TDriver, TContext, TElement, TSelector> {
     })
     this._logger.log('Element is scrollable', isScrollable)
     return isScrollable
+  }
+
+  async isRoot(): Promise<boolean> {
+    // TODO replace with snippet
+    return this.withRefresh(async () => {
+      if (this.driver.isWeb) {
+        const rootElement = await this.context.element({type: 'css', selector: 'html'})
+        return this.equals(rootElement)
+      } else {
+        return false
+      }
+    })
   }
 
   async scrollTo(offset: types.Location): Promise<types.Location> {

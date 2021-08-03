@@ -18,6 +18,7 @@ async function screenshoter({
   framed,
   wait,
   dom,
+  lazyRestorePageState,
   stabilization,
   debug,
   takeDomCapture,
@@ -86,8 +87,15 @@ async function screenshoter({
       screenshot.dom = await takeDomCapture()
     }
 
+    if (lazyRestorePageState) {
+      screenshoter.restorePageState = restorePageState
+    }
+
     return screenshot
   } finally {
+    if (!lazyRestorePageState) await restorePageState()
+  }
+  async function restorePageState() {
     if (scroller.element) {
       await scroller.element.restoreScrollbars()
       await scroller.restoreState(scrollerState)
@@ -127,18 +135,19 @@ async function getTargetArea({logger, context, target, window, fully, scrollingM
       if (!element) throw new Error('Element not found!')
 
       if (fully) {
-        if (scrollingMode === 'css') {
-          return {
-            context,
-            scroller: makeScroller({logger, element, scrollingMode: 'mixed'}),
-          }
-        }
         const isScrollable = await element.isScrollable()
         const scrollingElement = isScrollable ? element : await context.getScrollingElement()
         return {
           context,
           region: isScrollable ? null : await element.getRegion(),
-          scroller: makeScroller({logger, element: scrollingElement, scrollingMode}),
+          scroller: makeScroller({
+            logger,
+            element: scrollingElement,
+            scrollingMode:
+              scrollingMode === 'css' && !(await scrollingElement.isRoot())
+                ? 'mixed'
+                : scrollingMode,
+          }),
         }
       } else {
         const scrollingElement = await context.getScrollingElement()
