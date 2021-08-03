@@ -50,7 +50,7 @@ describe('screenshoter ios', () => {
   })
 
   async function viewport(options) {
-    const screenshot = await screenshoter({logger, driver, debug: {path: './'}, ...options})
+    const screenshot = await screenshoter({logger, driver, ...options})
     const actual = await screenshot.image.toObject()
     const expected = await makeImage('./test/fixtures/ios/app.png').toObject()
     assert.strictEqual(
@@ -68,6 +68,7 @@ describe('screenshoter ios', () => {
       fully: true,
       framed: true,
       scrollingMode: 'scroll',
+      wait: 1500,
       ...options,
     })
     const actual = await screenshot.image.toObject()
@@ -87,6 +88,7 @@ describe('screenshoter ios', () => {
       fully: true,
       framed: true,
       scrollingMode: 'scroll',
+      wait: 1500,
       ...options,
     })
     const actual = await screenshot.image.toObject()
@@ -106,6 +108,7 @@ describe('screenshoter ios', () => {
       fully: true,
       framed: true,
       scrollingMode: 'scroll',
+      wait: 1500,
       ...options,
     })
     const actual = await screenshot.image.toObject()
@@ -121,6 +124,7 @@ describe('screenshoter ios', () => {
       driver,
       target: {x: 30, y: 500, height: 100, width: 200},
       scrollingMode: 'scroll',
+      wait: 1500,
       ...options,
     })
     const actual = await screenshot.image.toObject()
@@ -174,6 +178,7 @@ describe('screenshoter ios', () => {
       target: {type: 'xpath', selector: '//XCUIElementTypeTable[1]'},
       fully: true,
       scrollingMode: 'scroll',
+      wait: 1500,
       ...options,
     })
     const actual = await screenshot.image.toObject()

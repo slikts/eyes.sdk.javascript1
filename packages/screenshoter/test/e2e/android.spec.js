@@ -77,6 +77,7 @@ describe('screenshoter', () => {
       fully: true,
       framed: true,
       scrollingMode: 'scroll',
+      wait: 1500,
       ...options,
     })
     const actual = await screenshot.image.toObject()
@@ -96,7 +97,7 @@ describe('screenshoter', () => {
       fully: true,
       framed: true,
       scrollingMode: 'scroll',
-      debug: {path: './'},
+      wait: 1500,
       ...options,
     })
     const actual = await screenshot.image.toObject()
@@ -165,6 +166,7 @@ describe('screenshoter', () => {
       target: {type: 'id', selector: 'recyclerView'},
       fully: true,
       scrollingMode: 'scroll',
+      wait: 1500,
       ...options,
     })
     const actual = await screenshot.image.toObject()

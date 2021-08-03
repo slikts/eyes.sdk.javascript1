@@ -39,6 +39,8 @@ async function takeStitchedScreenshot({
     ? targetRegion
     : await driver.getRegionInViewport(context, targetRegion)
 
+  console.log({cropRegion})
+
   logger.verbose('cropping...')
   await image.crop(cropRegion)
   await image.debug({path: debug.path, name: 'initial', suffix: 'region'})
