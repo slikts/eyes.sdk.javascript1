@@ -34,16 +34,16 @@
     "@applitools/types" "1.0.6"
     "@applitools/utils" "1.2.1"
 
-"@applitools/eyes-sdk-core@12.22.0":
-  version "12.22.0"
-  resolved "https://registry.yarnpkg.com/@applitools/eyes-sdk-core/-/eyes-sdk-core-12.22.0.tgz#1ead43f2d8262d1db07c88ca89b9040ae7416b6f"
-  integrity sha512-araFt+PSJjDHNO/hOzQV1CBhT/5ptKcQui1VnXmXGMZRA8+zWtJkmWdgViLhtZeegp+mMqPFfemPsee2LNayMA==
+"@applitools/eyes-sdk-core@12.22.1":
+  version "12.22.1"
+  resolved "https://registry.yarnpkg.com/@applitools/eyes-sdk-core/-/eyes-sdk-core-12.22.1.tgz#fd0125135eb42170883532fe0a3c847031b8ef27"
+  integrity sha512-+5176Z9wE2jxq7bV2ZAa0mpjAkUA5kEPVw5O6UTQoc2cELIfynPcP8NzrR8amXI3gNrDIgxeXhfbq1DYYyULiA==
   dependencies:
     "@applitools/dom-capture" "11.0.1"
     "@applitools/dom-snapshot" "4.5.6"
     "@applitools/driver" "1.1.0"
     "@applitools/isomorphic-fetch" "3.0.0"
-    "@applitools/logger" "1.0.1"
+    "@applitools/logger" "1.0.2"
     "@applitools/screenshoter" "3.1.0"
     "@applitools/snippets" "2.1.4"
     "@applitools/types" "1.0.6"
@@ -114,12 +114,12 @@
     ws "^7.0.0"
     xml-name-validator "^3.0.0"
 
-"@applitools/logger@1.0.1":
-  version "1.0.1"
-  resolved "https://registry.yarnpkg.com/@applitools/logger/-/logger-1.0.1.tgz#7a6007cd6b029ad91aeeb173df96b7a04b56a590"
-  integrity sha512-nGQ7Ov4/R35yUPmOoxQEViAMtQFz6ep4dKdW1wytQp0+B4fu3G1Q1q+rQse81iLBcA9UcVpZk1rRCRqbO0mvlA==
+"@applitools/logger@1.0.2":
+  version "1.0.2"
+  resolved "https://registry.yarnpkg.com/@applitools/logger/-/logger-1.0.2.tgz#ddde4677e640b8e91ea225c3c2183b10c90e5333"
+  integrity sha512-JtlonigdQ9NLGIG744+NURthujsAdevLzSgBKXgbQF+HlMsYZu6ONoXiFwUVechfkSK7uKmZKJPbcTK1rSdPLA==
   dependencies:
-    "@applitools/utils" "1.2.0"
+    "@applitools/utils" "1.2.1"
     chalk "3.0.0"
 
 "@applitools/monitoring-commons@^1.0.19":
