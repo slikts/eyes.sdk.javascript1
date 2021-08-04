@@ -1,6 +1,7 @@
 # Change Log
 
 ## Unreleased
+- updated to @applitools/logger@1.0.2 (from 1.0.1)
 
 
 ## 12.22.0 - 2021/8/3
