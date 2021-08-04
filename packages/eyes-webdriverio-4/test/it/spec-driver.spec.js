@@ -114,7 +114,7 @@ describe('spec driver', async () => {
     })
   })
 
-  describe('onscreen desktop (@webdriver)', async () => {
+  describe.skip('onscreen desktop (@webdriver)', async () => {
     before(async () => {
       ;[browser, destroyBrowser] = await spec.build({browser: 'chrome', headless: false})
     })
