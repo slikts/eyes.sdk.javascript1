@@ -1,10 +1,13 @@
 # Changelog
 
 ## Unreleased
+
+
+## 1.0.10 - 2021/8/4
+
 - updated to @applitools/types@1.0.6 (from 1.0.5)
 - updated to @applitools/utils@1.2.1 (from 1.2.0)
 - updated to @applitools/logger@1.0.2 (from 1.0.1)
-
 
 ## 1.0.9 - 2021/7/19
 
