@@ -430,7 +430,6 @@ describe('driver mobile', () => {
     })
 
     it('returns device name', () => {
-      console.log(driver)
       assert.strictEqual(driver.deviceName, 'MobilePhone')
     })
 
