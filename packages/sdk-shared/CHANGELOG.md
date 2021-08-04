@@ -3,6 +3,7 @@
 ## Unreleased
 
 - add script for linking
+- updated to @applitools/test-utils@1.0.5 (from 1.0.3)
 
 ## 0.9.3 - 2021/5/25
 
