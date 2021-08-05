@@ -143,6 +143,8 @@ async function eyesStorybook({
       pagePool,
     });
 
+    logger.log('finished creating functions');
+
     const configs = config.fakeIE ? splitConfigsByBrowser(config) : [config];
     const [error, results] = await presult(
       executeRenders({
