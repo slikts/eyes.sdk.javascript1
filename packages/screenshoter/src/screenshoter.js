@@ -1,109 +1,101 @@
 const utils = require('@applitools/utils')
-const snippets = require('@applitools/snippets')
 const makeScroller = require('./scroller')
-const takeStitchedScreenshot = require('./takeStitchedScreenshot')
-const takeViewportScreenshot = require('./takeViewportScreenshot')
-const scrollIntoViewport = require('./scrollIntoViewport')
+const scrollIntoViewport = require('./scroll-into-viewport')
+const calculateScreenshotRegions = require('./calculate-screenshot-regions')
+const takeStitchedScreenshot = require('./take-stitched-screenshot')
+const takeViewportScreenshot = require('./take-viewport-screenshot')
 
 async function screenshoter({
-  logger,
   driver,
   frames = [],
-  target,
+  region,
   fully,
+  scrollingMode,
   hideScrollbars,
   hideCaret,
-  scrollingMode,
   overlap,
   framed,
   wait,
-  dom,
-  lazyRestorePageState,
   stabilization,
+  calculateRegions,
+  hooks,
   debug,
-  takeDomCapture,
+  logger,
 }) {
-  const originalContext = driver.currentContext
+  // screenshot of a window/app was requested (fully or viewport)
+  const window = !region && (!frames || frames.length === 0)
+  // framed screenshots could be taken only when screenshot of window/app fully was requested
+  framed = framed && fully && window
 
-  const targetContext =
+  const activeContext = driver.currentContext
+  const context =
     frames.length > 0
-      ? await originalContext.context(frames.reduce((parent, frame) => ({...frame, parent}), null))
-      : originalContext
+      ? await activeContext.context(frames.reduce((parent, frame) => ({...frame, parent}), null))
+      : activeContext
 
-  for (const nextContext of targetContext.path) {
+  // traverse from main context to target context to hide scrollbars and preserve context state (scroll/translate position)
+  for (const nextContext of context.path) {
     const scrollingElement = await nextContext.getScrollingElement()
+    // unlike web apps, native apps do not always have scrolling element
     if (scrollingElement) {
       if (driver.isWeb && hideScrollbars) await scrollingElement.hideScrollbars()
       await scrollingElement.preserveState()
     }
   }
 
-  const activeElement = hideCaret && !driver.isNative ? await targetContext.blurElement() : null
+  // blur active element in target context
+  const activeElement = driver.isWeb && hideCaret ? await context.blurElement() : null
 
-  const window = !target && (!frames || frames.length === 0)
-  const {context, scroller, region} = await getTargetArea({
-    logger,
-    context: targetContext,
-    window,
-    target,
-    fully,
-    scrollingMode,
-  })
+  const target = await getTarget({window, context, region, fully, scrollingMode, logger})
 
   // IMHO problem with scrollbars should be solved by extracting client size of the content (without scrollbars),
   // here we use a historical solution
-  if (driver.isWeb && (hideScrollbars || fully)) await scroller.element.hideScrollbars()
-  const scrollerState = await scroller.preserveState()
-
-  if (!window) await scrollIntoViewport({logger, context, scroller, region})
+  if (driver.isWeb && (hideScrollbars || fully)) await target.scroller.hideScrollbars()
+  await target.scroller.preserveState()
 
   try {
+    if (!window) await scrollIntoViewport({...target, logger})
+
     const screenshot = fully
-      ? await takeStitchedScreenshot({
-          logger,
-          context,
-          scroller,
-          region,
-          overlap,
-          framed: framed && !region,
-          wait,
-          stabilization,
-          debug,
-        })
-      : await takeViewportScreenshot({logger, context, region, wait, stabilization, debug})
+      ? await takeStitchedScreenshot({...target, overlap, framed, wait, stabilization, debug, logger})
+      : await takeViewportScreenshot({...target, wait, stabilization, debug, logger})
 
-    if (dom) {
-      // temporary solution
-      if (fully) {
-        await context.execute(snippets.setElementAttributes, [
-          scroller.element,
-          {'data-applitools-scroll': true},
-        ])
-      }
-
-      const scrollingElement = await context.main.getScrollingElement()
-      await scroller.moveTo({x: 0, y: 0}, scrollingElement)
-
-      screenshot.dom = await takeDomCapture()
+    if (calculateRegions && calculateRegions.length > 0) {
+      screenshot.regions = await calculateScreenshotRegions({
+        context: target.context,
+        screenshotRegion: screenshot.region,
+        regions: calculateRegions,
+        logger,
+      })
     }
 
-    if (lazyRestorePageState) {
-      screenshot.restorePageState = restorePageState
-    }
+    if (hooks && hooks.afterScreenshot) hooks.afterScreenshot({driver})
+
+    // if (dom) {
+    //   // temporary solution
+    //   if (fully) {
+    //     await context.execute(snippets.setElementAttributes, [
+    //       scroller.element,
+    //       {'data-applitools-scroll': true},
+    //     ])
+    //   }
+
+    //   const scrollingElement = await context.main.getScrollingElement()
+    //   await scroller.moveTo({x: 0, y: 0}, scrollingElement)
+
+    //   screenshot.dom = await takeDomCapture()
+    // }
 
     return screenshot
   } finally {
-    if (!lazyRestorePageState) await restorePageState()
-  }
-  async function restorePageState() {
-    if (scroller.element) {
-      await scroller.element.restoreScrollbars()
-      await scroller.restoreState(scrollerState)
-    }
+    await target.scroller.restoreScrollbars()
+    await target.scroller.restoreState()
 
-    if (hideCaret && activeElement) await targetContext.focusElement(activeElement)
+    // if there was active element and we have blurred it, then restore focus
+    if (activeElement) await context.focusElement(activeElement)
 
-    for (const prevContext of targetContext.path.reverse()) {
+    // traverse from target context to the main context to restore scrollbars and context states
+    for (const prevContext of context.path.reverse()) {
       const scrollingElement = await prevContext.getScrollingElement()
       if (scrollingElement) {
         if (driver.isWeb && hideScrollbars) await scrollingElement.restoreScrollbars()
@@ -111,66 +103,70 @@ async function screenshoter({
       }
     }
 
-    await originalContext.focus()
+    // restore focus on original active context
+    await activeContext.focus()
   }
 }
 
-async function getTargetArea({logger, context, target, window, fully, scrollingMode}) {
+async function getTarget({window, context, region, fully, scrollingMode, logger}) {
   if (window) {
+    // window/app
     const scrollingElement = await context.main.getScrollingElement()
     return {
       context: context.main,
-      scroller: makeScroller({logger, element: scrollingElement, scrollingMode}),
+      scroller: makeScroller({element: scrollingElement, scrollingMode, logger}),
     }
-  } else if (target) {
-    if (utils.types.has(target, ['x', 'y', 'width', 'height'])) {
+  } else if (region) {
+    if (utils.types.has(region, ['x', 'y', 'width', 'height'])) {
+      // region by coordinates
       const scrollingElement = await context.getScrollingElement()
       return {
         context,
-        region: target,
-        scroller: makeScroller({logger, element: scrollingElement, scrollingMode}),
+        region,
+        scroller: makeScroller({element: scrollingElement, scrollingMode, logger}),
       }
     } else {
-      const element = await context.element(target)
+      // region by element or selector
+      const element = await context.element(region)
       if (!element) throw new Error('Element not found!')
 
       if (fully) {
         const isScrollable = await element.isScrollable()
+        // if element is scrollable, then take screenshot of the full element content, otherwise take screenshot of full element
+        const region = isScrollable ? null : await element.getRegion()
         const scrollingElement = isScrollable ? element : await context.getScrollingElement()
+        // css stitching could be applied only to root element of its context
+        scrollingMode = scrollingMode === 'css' && !(await scrollingElement.isRoot()) ? 'mixed' : scrollingMode
         return {
           context,
-          region: isScrollable ? null : await element.getRegion(),
-          scroller: makeScroller({
-            logger,
-            element: scrollingElement,
-            scrollingMode:
-              scrollingMode === 'css' && !(await scrollingElement.isRoot())
-                ? 'mixed'
-                : scrollingMode,
-          }),
+          region,
+          scroller: makeScroller({element: scrollingElement, scrollingMode, logger}),
         }
       } else {
         const scrollingElement = await context.getScrollingElement()
         return {
           context,
           region: await element.getRegion(),
-          scroller: makeScroller({logger, element: scrollingElement, scrollingMode}),
+          scroller: makeScroller({element: scrollingElement, scrollingMode, logger}),
         }
       }
     }
-  } else if (!context.isMain && !fully) {
-    const scrollingElement = await context.parent.getScrollingElement()
-    const element = await context.getContextElement()
-    return {
-      context: context.parent,
-      region: await element.getRegion(), // IMHO we should use CLIENT (without borders) region here
-      scroller: makeScroller({logger, element: scrollingElement, scrollingMode}),
-    }
-  } else {
-    const scrollingElement = await context.getScrollingElement()
-    return {
-      context,
-      scroller: makeScroller({logger, element: scrollingElement, scrollingMode}),
+  } else if (!context.isMain) {
+    // context
+    if (fully) {
+      const scrollingElement = await context.getScrollingElement()
+      return {
+        context,
+        scroller: makeScroller({logger, element: scrollingElement, scrollingMode}),
+      }
+    } else {
+      const scrollingElement = await context.parent.getScrollingElement()
+      const element = await context.getContextElement()
+      return {
+        context: context.parent,
+        region: await element.getRegion(), // IMHO we should use CLIENT (without borders) region here
+        scroller: makeScroller({logger, element: scrollingElement, scrollingMode}),
+      }
     }
   }
 }

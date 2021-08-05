@@ -24,6 +24,18 @@ export function isEmpty(sizeOrRegion: RectangleSize | Region): boolean {
   return sizeOrRegion.width === 0 && sizeOrRegion.height === 0
 }
 
+export function rotate(region: Region, degree: number): Region
+export function rotate(size: RectangleSize, degree: number): RectangleSize
+export function rotate(target: Region | RectangleSize, degree: number): typeof target {
+  const result = {...target}
+  const rotate = Boolean(Math.floor(degree / 90) % 2)
+  if (rotate) {
+    result.width = target.height
+    result.height = target.width
+  }
+  return result
+}
+
 export function scale(region: Region, scaleRatio: number): Region
 export function scale(size: RectangleSize, scaleRatio: number): RectangleSize
 export function scale(location: Location, scaleRatio: number): Location
@@ -166,7 +178,7 @@ export function divide(region: Region, size: RectangleSize, padding: {top?: numb
     // first region
     if (currentY === region.y) nextY += padding.top
     // last region
-    else if (nextY + padding.bottom >= maxY) nextY += padding.bottom
+    else if (nextY < maxY && nextY + padding.top >= maxY) nextY = maxY
 
     const currentHeight = nextY - currentY
 

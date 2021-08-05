@@ -53,19 +53,21 @@ describe('screenshoter', () => {
       await destroyDriver()
     })
 
-    it('take full element screenshot', () => {
+    it.only('take full element screenshot', () => {
       return fullElement()
     })
   })
 
   async function viewport(options) {
     const screenshot = await screenshoter({logger, driver, ...options})
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/android/app.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/android/app.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'viewport_failed'})
+      throw err
+    }
   }
   async function fullAppScrollView(options) {
     const button = await driver.element({type: 'id', selector: 'btn_scroll_view_footer_header'})
@@ -80,12 +82,14 @@ describe('screenshoter', () => {
       wait: 1500,
       ...options,
     })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/android/app-fully.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/android/app-fully.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'full_app_scroll_failed'})
+      throw err
+    }
   }
   async function fullAppRecyclerView(options) {
     const button = await driver.element({type: 'id', selector: 'btn_recycler_view'})
@@ -100,12 +104,14 @@ describe('screenshoter', () => {
       wait: 1500,
       ...options,
     })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/android/app-fully-recycler.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/android/app-fully-recycler.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'full_app_recycler_failed'})
+      throw err
+    }
   }
   async function region(options) {
     const screenshot = await screenshoter({
@@ -115,12 +121,14 @@ describe('screenshoter', () => {
       scrollingMode: 'scroll',
       ...options,
     })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/android/region.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/android/region.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'region_failed'})
+      throw err
+    }
   }
   async function fullRegion(options) {
     const screenshot = await screenshoter({
@@ -131,12 +139,14 @@ describe('screenshoter', () => {
       scrollingMode: 'scroll',
       ...options,
     })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/android/region-fully.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/android/region-fully.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'full_region_failed'})
+      throw err
+    }
   }
   async function element(options) {
     const screenshot = await screenshoter({
@@ -146,12 +156,14 @@ describe('screenshoter', () => {
       scrollingMode: 'scroll',
       ...options,
     })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/android/element.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/android/element.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'element_failed'})
+      throw err
+    }
   }
   async function fullElement(options) {
     const button = await driver.element({
@@ -167,13 +179,16 @@ describe('screenshoter', () => {
       fully: true,
       scrollingMode: 'scroll',
       wait: 1500,
+      debug: {path: './'},
       ...options,
     })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/android/element-fully.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/android/element-fully.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'full_element_failed'})
+      throw err
+    }
   }
 })

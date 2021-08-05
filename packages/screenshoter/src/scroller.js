@@ -17,6 +17,8 @@ function makeScroller({logger, element, scrollingMode = 'mixed'}) {
     shiftTo,
     preserveState,
     restoreState,
+    hideScrollbars,
+    restoreScrollbars,
   }
 
   async function moveTo(offset, element = defaultElement) {
@@ -128,6 +130,23 @@ function makeScroller({logger, element, scrollingMode = 'mixed'}) {
   async function restoreState(state, element = defaultElement) {
     try {
       await element.restoreState(state)
+    } catch (err) {
+      logger.verbose(`Failed to restore state!.`, err)
+    }
+  }
+
+  async function hideScrollbars(element = defaultElement) {
+    try {
+      return element.hideScrollbars()
+    } catch (err) {
+      logger.verbose(`Failed to get current transforms!.`, err)
+      return {}
+    }
+  }
+
+  async function restoreScrollbars(state, element = defaultElement) {
+    try {
+      await element.restoreScrollbars(state)
     } catch (err) {
       logger.verbose(`Failed to restore state!.`, err)
     }

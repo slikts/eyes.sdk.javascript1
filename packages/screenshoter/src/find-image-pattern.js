@@ -1,4 +1,4 @@
-function findPattern(image, pattern) {
+function findImagePattern(image, pattern) {
   for (let pixel = 0; pixel < image.width * image.height; ++pixel) {
     if (isPattern(image, pixel, pattern)) {
       return {
@@ -57,4 +57,4 @@ function pixelColorAt(image, index, threshold = 0) {
   else return -1
 }
 
-module.exports = findPattern
+module.exports = findImagePattern

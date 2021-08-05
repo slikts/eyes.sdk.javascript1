@@ -1,6 +1,6 @@
 const utils = require('@applitools/utils')
 
-async function scrollIntoViewport({logger, context, scroller, region}) {
+async function scrollIntoViewport({context, scroller, region, logger}) {
   if (context.driver.isNative) {
     logger.verbose(`NATIVE context identified, skipping 'ensure element visible'`)
     return

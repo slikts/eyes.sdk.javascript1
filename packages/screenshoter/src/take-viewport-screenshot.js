@@ -1,5 +1,5 @@
 const utils = require('@applitools/utils')
-const makeTakeScreenshot = require('./takeScreenshot')
+const makeTakeScreenshot = require('./take-screenshot')
 
 async function takeViewportScreenshot({logger, context, region, wait, stabilization, debug = {}}) {
   logger.verbose('Taking image of...')

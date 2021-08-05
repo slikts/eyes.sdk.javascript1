@@ -236,6 +236,7 @@ const BROWSERS = {
     },
   },
   chrome: {
+    url: 'https://exec-wus.applitools.com/int-rel-tok-coverage-tests-js',
     capabilities: {
       browserName: 'chrome',
     },

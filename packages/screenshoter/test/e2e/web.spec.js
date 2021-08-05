@@ -118,40 +118,36 @@ describe('screenshoter web', () => {
 
   async function viewport(options) {
     const screenshot = await screenshoter({logger, driver, ...options})
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/web/page.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/web/page.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'viewport_failed'})
+      throw err
+    }
   }
   async function fullPage(options) {
-    const screenshot = await screenshoter({
-      logger,
-      driver,
-      fully: true,
-      ...options,
-    })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/web/page-fully.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    const screenshot = await screenshoter({logger, driver, fully: true, ...options})
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/web/page-fully.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'full_page_failed'})
+      throw err
+    }
   }
   async function frame(options) {
-    const screenshot = await screenshoter({
-      logger,
-      driver,
-      frames: [{reference: 'iframe[name="frame1"]'}],
-      ...options,
-    })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/web/frame.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    const screenshot = await screenshoter({logger, driver, frames: [{reference: 'iframe[name="frame1"]'}], ...options})
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/web/frame.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'frame_failed'})
+      throw err
+    }
   }
   async function fullFrame(options) {
     const screenshot = await screenshoter({
@@ -161,132 +157,130 @@ describe('screenshoter web', () => {
       fully: true,
       ...options,
     })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/web/frame-fully.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/web/frame-fully.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'full_frame_failed'})
+      throw err
+    }
   }
   async function region(options) {
-    const screenshot = await screenshoter({
-      logger,
-      driver,
-      target: {x: 30, y: 500, height: 100, width: 200},
-      ...options,
-    })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/web/region.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    const region = {x: 30, y: 500, height: 100, width: 200}
+    const screenshot = await screenshoter({logger, driver, region, ...options})
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/web/region.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'region_failed'})
+      throw err
+    }
   }
   async function fullRegion(options) {
-    const screenshot = await screenshoter({
-      logger,
-      driver,
-      target: {x: 30, y: 500, height: 700, width: 200},
-      fully: true,
-      ...options,
-    })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/web/region-fully.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    const region = {x: 30, y: 500, height: 700, width: 200}
+    const screenshot = await screenshoter({logger, driver, region, fully: true, ...options})
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/web/region-fully.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'full_region_failed'})
+      throw err
+    }
   }
   async function element(options) {
-    const screenshot = await screenshoter({
-      logger,
-      driver,
-      target: '#overflowing-div-image',
-      ...options,
-    })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/web/element.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    const screenshot = await screenshoter({logger, driver, region: '#overflowing-div-image', ...options})
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/web/element.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'element_failed'})
+      throw err
+    }
   }
   async function fullElement(options) {
-    const screenshot = await screenshoter({
-      logger,
-      driver,
-      target: '#overflowing-div-image',
-      fully: true,
-      ...options,
-    })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/web/element-fully.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    const screenshot = await screenshoter({logger, driver, region: '#overflowing-div-image', fully: true, ...options})
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/web/element-fully.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'full_element_failed'})
+      throw err
+    }
   }
   async function regionInFrame(options) {
     const screenshot = await screenshoter({
       logger,
       driver,
       frames: [{reference: 'iframe[name="frame1"]'}],
-      target: {x: 10, y: 20, width: 110, height: 120},
+      region: {x: 10, y: 20, width: 110, height: 120},
       ...options,
     })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/web/inner-region.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/web/inner-region.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'region_in_frame_failed'})
+      throw err
+    }
   }
   async function fullRegionInFrame(options) {
     const screenshot = await screenshoter({
       logger,
       driver,
       frames: [{reference: 'iframe[name="frame1"]'}],
-      target: {x: 10, y: 100, width: 1000, height: 120},
+      region: {x: 10, y: 100, width: 1000, height: 120},
       fully: true,
       ...options,
     })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/web/inner-region-fully.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/web/inner-region-fully.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'full_region_in_frame_failed'})
+      throw err
+    }
   }
   async function elementInFrame(options) {
     const screenshot = await screenshoter({
       logger,
       driver,
       frames: [{reference: 'iframe[name="frame1"]'}],
-      target: '#inner-frame-div',
+      region: '#inner-frame-div',
       ...options,
     })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/web/inner-element.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/web/inner-element.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'element_in_frame_failed'})
+      throw err
+    }
   }
   async function fullElementInFrame(options) {
     const screenshot = await screenshoter({
       logger,
       driver,
       frames: [{reference: 'iframe[name="frame1"]'}],
-      target: '#inner-frame-div',
+      region: '#inner-frame-div',
       fully: true,
       ...options,
     })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/web/inner-element-fully.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/web/inner-element-fully.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'full_element_in_frame_failed'})
+      throw err
+    }
   }
   async function frameInFrame(options) {
     const screenshot = await screenshoter({
@@ -295,12 +289,14 @@ describe('screenshoter web', () => {
       frames: [{reference: 'iframe[name="frame1"]'}, {reference: 'iframe[name="frame1-1"]'}],
       ...options,
     })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/web/inner-frame.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/web/inner-frame.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'frame_in_frame_failed'})
+      throw err
+    }
   }
   async function fullFrameInFrame(options) {
     const screenshot = await screenshoter({
@@ -310,11 +306,13 @@ describe('screenshoter web', () => {
       fully: true,
       ...options,
     })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/web/inner-frame-fully.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/web/inner-frame-fully.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'full_frame_in_frame_failed'})
+      throw err
+    }
   }
 })
