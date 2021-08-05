@@ -23,6 +23,7 @@ export type ContextPlain<TDriver, TContext, TElement, TSelector> =
 export type ContextState = {
   region?: types.Region
   clientRegion?: types.Region
+  scrollingRegion?: types.Region
   innerOffset?: types.Location
 }
 
@@ -197,8 +198,8 @@ export class Context<TDriver, TContext, TElement, TSelector> {
 
     await this.parent.preserveInnerOffset()
 
-    if (this.parent.isMain) await this.parent.preserveRegions()
-    await this.preserveRegions()
+    if (this.parent.isMain) await this.parent.preserveContextRegions()
+    await this.preserveContextRegions()
 
     this._target = await this._spec.childContext(this.parent.target, this._element.target)
 
@@ -391,6 +392,14 @@ export class Context<TDriver, TContext, TElement, TSelector> {
     return this._state.clientRegion
   }
 
+  async getScrollingRegion(): Promise<types.Region> {
+    if (this.isCurrent) {
+      const scrollingElement = await this.getScrollingElement()
+      this._state.scrollingRegion = await scrollingElement.getClientRegion()
+    }
+    return this._state.scrollingRegion
+  }
+
   async getContentSize(): Promise<types.Size> {
     return this.execute(snippets.getDocumentSize)
   }
@@ -412,10 +421,9 @@ export class Context<TDriver, TContext, TElement, TSelector> {
   }
 
   async getLocationInViewport(): Promise<types.Location> {
-    let location = {x: 0, y: 0}
-    if (this.isMain) {
-      return utils.geometry.offsetNegative(location, await this.getInnerOffset())
-    }
+    let location = utils.geometry.offsetNegative({x: 0, y: 0}, await this.getInnerOffset())
+
+    if (this.isMain) return location
 
     let currentContext = this as Context<TDriver, TContext, TElement, TSelector>
     while (currentContext) {
@@ -439,9 +447,11 @@ export class Context<TDriver, TContext, TElement, TSelector> {
 
     while (currentContext) {
       const contextRegion = await currentContext.getClientRegion()
+      // const contextScrollingRegion = await currentContext.getScrollingRegion()
       const parentContextInnerOffset = (await currentContext.parent?.getInnerOffset()) ?? {x: 0, y: 0}
 
       region = utils.geometry.intersect(contextRegion, utils.geometry.offset(region, contextRegion))
+      // region = utils.geometry.intersect(contextScrollingRegion, region)
       region = utils.geometry.offsetNegative(region, parentContextInnerOffset)
 
       currentContext = currentContext.parent
@@ -453,8 +463,12 @@ export class Context<TDriver, TContext, TElement, TSelector> {
     this._state.innerOffset = await this.getInnerOffset()
   }
 
-  private async preserveRegions() {
+  private async preserveContextRegions() {
     this._state.region = await this.getRegion()
     this._state.clientRegion = await this.getClientRegion()
+  }
+
+  private async preserveScrollingRegion() {
+    this._state.scrollingRegion = await this.getScrollingRegion()
   }
 }

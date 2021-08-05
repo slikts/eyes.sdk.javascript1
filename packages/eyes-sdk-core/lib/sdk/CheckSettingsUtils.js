@@ -193,10 +193,10 @@ async function toScreenshotCheckSettings({checkSettings, context, screenshot}) {
         regions.push(region)
       } else {
         const elements = await context.elements(region)
+        const contextLocationInViewport = await context.getLocationInViewport()
 
         for (const element of elements) {
-          // TODO should be optimized
-          const region = await element.context.getRegionInViewport(await element.getRegion())
+          const region = utils.geometry.offset(await element.getRegion(), contextLocationInViewport)
           referenceRegions.push({
             x: Math.max(0, region.x - screenshot.region.x),
             y: Math.max(0, region.y - screenshot.region.y),

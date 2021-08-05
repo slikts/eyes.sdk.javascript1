@@ -59,6 +59,10 @@ async function screenshoter({
       : await takeViewportScreenshot({...target, wait, stabilization, debug, logger})
 
     if (hooks && hooks.afterScreenshot) {
+      // imitate image-like state for the hook
+      if (fully && window) {
+        await target.scroller.moveTo({x: 0, y: 0}, await driver.mainContext.getScrollingElement())
+      }
       await hooks.afterScreenshot({driver, scroller: target.scroller, screenshot})
     }
 

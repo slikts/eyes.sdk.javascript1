@@ -120,24 +120,18 @@ class EyesClassic extends EyesCore {
       driver: this._driver,
       hooks: {
         afterScreenshot: async ({driver, scroller, screenshot}) => {
+          if (driver.isWeb && (this._checkSettings.sendDom || this._configuration.getSendDom())) {
+            this._logger.verbose('Getting window DOM...')
+            if (screenshotSettings.fully) {
+              await scroller.element.setAttribute('data-applitools-scroll', true)
+            }
+            dom = await takeDomCapture(this._logger, driver.mainContext).catch(() => null)
+          }
           this._checkSettings = await CheckSettingsUtils.toScreenshotCheckSettings({
             context: driver.currentContext,
             checkSettings: this._checkSettings,
             screenshot,
           })
-          if (driver.isWeb && (this._checkSettings.sendDom || this._configuration.getSendDom())) {
-            this._logger.verbose('Getting window DOM...')
-            if (screenshotSettings.fully) {
-              await scroller.element.setAttribute('data-applitools-scroll', true)
-              if (
-                !screenshotSettings.region &&
-                (!screenshotSettings.frames || screenshotSettings.frames.length === 0)
-              ) {
-                await scroller.moveTo({x: 0, y: 0}, await driver.mainContext.getScrollingElement())
-              }
-            }
-            dom = await takeDomCapture(this._logger, driver.mainContext).catch(() => null)
-          }
         },
       },
       debug: this.getDebugScreenshots(),
