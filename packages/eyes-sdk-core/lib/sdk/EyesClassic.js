@@ -1,6 +1,6 @@
 const utils = require('@applitools/utils')
-const {Driver} = require('@applitools/driver')
 const screenshoter = require('@applitools/screenshoter')
+const {Driver} = require('@applitools/driver')
 const TypeUtils = require('../utils/TypeUtils')
 const ArgumentGuard = require('../utils/ArgumentGuard')
 const Location = require('../geometry/Location')
@@ -8,7 +8,7 @@ const FailureReports = require('../FailureReports')
 const ClassicRunner = require('../runner/ClassicRunner')
 const takeDomCapture = require('../utils/takeDomCapture')
 const EyesCore = require('./EyesCore')
-const CheckSettingsUtils = require('../fluent/CheckSettingsUtils')
+const CheckSettingsUtils = require('./CheckSettingsUtils')
 
 class EyesClassic extends EyesCore {
   static specialize({agentId, spec}) {
@@ -78,74 +78,80 @@ class EyesClassic extends EyesCore {
 
     this._checkSettings = checkSettings
 
-    this._screenshotSettings = {
-      driver: this._driver,
-      frames:
-        checkSettings.frames &&
-        checkSettings.frames.map(frame => ({
-          reference: utils.types.has(frame, 'frame') ? frame.frame : frame,
-          scrollingElement: frame.scrollRootElement,
-        })),
-      target: checkSettings.region,
-      fully: checkSettings.fully || this._configuration.getForceFullPageScreenshot(),
-      hideScrollbars: this._configuration.getHideScrollbars(),
-      hideCaret: this._configuration.getHideCaret(),
-      scrollingMode: this._configuration.getStitchMode().toLocaleLowerCase(),
-      overlap: this._configuration.getStitchOverlap(),
-      wait: this._configuration.getWaitBeforeScreenshots(),
-      dom: checkSettings.sendDom || this._configuration.getSendDom(),
-      stabilization: {
-        crop: this.getCut(),
-        scale: this.getScaleRatio(),
-        rotation: this.getRotation(),
-      },
-      debug: this.getDebugScreenshots(),
-      logger: this._logger,
-      lazyRestorePageState: true,
-      takeDomCapture: () => takeDomCapture(this._logger, this._context).catch(() => null),
-    }
-
-    try {
-      return await this.checkWindowBase({
-        name: checkSettings.name,
-        url: await this._driver.getUrl(),
-        renderId: checkSettings.renderId,
-        variationGroupId: checkSettings.variationGroupId,
-        sendDom: checkSettings.sendDom,
-        retryTimeout: checkSettings.timeout,
-        closeAfterMatch,
-        throwEx,
-      })
-    } finally {
-      if (this._restorePageState) {
-        await this._restorePageState()
-        this._restorePageState = null
-      }
-    }
+    return await this.checkWindowBase({
+      name: checkSettings.name,
+      url: await this._driver.getUrl(),
+      renderId: checkSettings.renderId,
+      variationGroupId: checkSettings.variationGroupId,
+      sendDom: checkSettings.sendDom,
+      retryTimeout: checkSettings.timeout,
+      closeAfterMatch,
+      throwEx,
+    })
   }
 
   async getScreenshot() {
     this._logger.verbose('getScreenshot()')
 
-    if (this._restorePageState) {
-      await this._restorePageState()
+    const screenshotSettings = {
+      frames:
+        this._checkSettings.frames &&
+        this._checkSettings.frames.map(frame => ({
+          reference: utils.types.has(frame, 'frame') ? frame.frame : frame,
+          scrollingElement: frame.scrollRootElement,
+        })),
+      region: this._checkSettings.region,
+      fully: this._checkSettings.fully || this._configuration.getForceFullPageScreenshot(),
+      hideScrollbars: this._configuration.getHideScrollbars(),
+      hideCaret: this._configuration.getHideCaret(),
+      scrollingMode: this._configuration.getStitchMode().toLocaleLowerCase(),
+      overlap: this._configuration.getStitchOverlap(),
+      wait: this._configuration.getWaitBeforeScreenshots(),
+      stabilization: {
+        crop: this.getCut(),
+        scale: this.getScaleRatio(),
+        rotation: this.getRotation(),
+      },
     }
 
-    const screenshot = await screenshoter(this._screenshotSettings)
-
-    this._restorePageState = screenshot.restorePageState
-
-    this._imageLocation = new Location(Math.round(screenshot.region.x), Math.round(screenshot.region.y))
-    this._dom = screenshot.dom
-
-    this._matchSettings = await CheckSettingsUtils.toMatchSettings({
-      context: this._context,
-      checkSettings: this._checkSettings,
-      configuration: this._configuration,
-      targetRegion: screenshot.region,
+    let dom
+    const screenshot = await screenshoter({
+      ...screenshotSettings,
+      driver: this._driver,
+      hooks: {
+        afterScreenshot: async ({driver, scroller, screenshot}) => {
+          this._checkSettings = await CheckSettingsUtils.toScreenshotCheckSettings({
+            context: driver.currentContext,
+            checkSettings: this._checkSettings,
+            screenshot,
+          })
+          if (driver.isWeb && (this._checkSettings.sendDom || this._configuration.getSendDom())) {
+            this._logger.verbose('Getting window DOM...')
+            if (screenshotSettings.fully) {
+              await scroller.element.setAttribute('data-applitools-scroll', true)
+              if (
+                !screenshotSettings.region &&
+                (!screenshotSettings.frames || screenshotSettings.frames.length === 0)
+              ) {
+                await scroller.moveTo({x: 0, y: 0}, await driver.mainContext.getScrollingElement())
+              }
+            }
+            dom = await takeDomCapture(this._logger, driver.mainContext).catch(() => null)
+          }
+        },
+      },
+      debug: this.getDebugScreenshots(),
+      logger: this._logger,
     })
 
-    return screenshot
+    this._imageLocation = new Location(Math.round(screenshot.region.x), Math.round(screenshot.region.y))
+
+    this._matchSettings = await CheckSettingsUtils.toMatchSettings({
+      checkSettings: this._checkSettings,
+      configuration: this._configuration,
+    })
+
+    return {...screenshot, dom}
   }
 
   async close(throwEx = true) {
@@ -168,30 +174,6 @@ class EyesClassic extends EyesCore {
       })
 
     return this._closePromise
-  }
-
-  async tryCaptureDom() {
-    // this._logger.verbose('Getting window DOM...')
-    // const positionProvider = this._positionProviderHandler.get()
-    // let originalPosition
-    // try {
-    //   if (
-    //     !this._driver.isNative &&
-    //     !this._shouldCheckFullRegion &&
-    //     (this._configuration.getForceFullPageScreenshot() || this._stitchContent)
-    //   ) {
-    //     originalPosition = await positionProvider.getState()
-    //     await positionProvider.setPosition(Location.ZERO)
-    //   }
-    //   return await takeDomCapture(this._logger, this._driver.mainContext)
-    // } catch (ignored) {
-    //   return ''
-    // } finally {
-    //   if (originalPosition) {
-    //     await positionProvider.setPosition(originalPosition)
-    //   }
-    // }
-    return this._dom
   }
 
   async getAppEnvironment() {

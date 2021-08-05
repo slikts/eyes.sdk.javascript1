@@ -1,7 +1,6 @@
 const utils = require('@applitools/utils')
 const makeScroller = require('./scroller')
 const scrollIntoViewport = require('./scroll-into-viewport')
-const calculateScreenshotRegions = require('./calculate-screenshot-regions')
 const takeStitchedScreenshot = require('./take-stitched-screenshot')
 const takeViewportScreenshot = require('./take-viewport-screenshot')
 
@@ -17,7 +16,6 @@ async function screenshoter({
   framed,
   wait,
   stabilization,
-  calculateRegions,
   hooks,
   debug,
   logger,
@@ -60,31 +58,9 @@ async function screenshoter({
       ? await takeStitchedScreenshot({...target, overlap, framed, wait, stabilization, debug, logger})
       : await takeViewportScreenshot({...target, wait, stabilization, debug, logger})
 
-    if (calculateRegions && calculateRegions.length > 0) {
-      screenshot.regions = await calculateScreenshotRegions({
-        context: target.context,
-        screenshotRegion: screenshot.region,
-        regions: calculateRegions,
-        logger,
-      })
+    if (hooks && hooks.afterScreenshot) {
+      await hooks.afterScreenshot({driver, scroller: target.scroller, screenshot})
     }
-
-    if (hooks && hooks.afterScreenshot) hooks.afterScreenshot({driver})
-
-    // if (dom) {
-    //   // temporary solution
-    //   if (fully) {
-    //     await context.execute(snippets.setElementAttributes, [
-    //       scroller.element,
-    //       {'data-applitools-scroll': true},
-    //     ])
-    //   }
-
-    //   const scrollingElement = await context.main.getScrollingElement()
-    //   await scroller.moveTo({x: 0, y: 0}, scrollingElement)
-
-    //   screenshot.dom = await takeDomCapture()
-    // }
 
     return screenshot
   } finally {

@@ -2,6 +2,7 @@ import type * as types from '@applitools/types'
 import type {Driver} from './driver'
 import * as utils from '@applitools/utils'
 import {Element} from './element'
+
 const snippets = require('@applitools/snippets')
 
 export type ContextReference<TDriver, TContext, TElement, TSelector> =
@@ -54,8 +55,12 @@ export class Context<TDriver, TContext, TElement, TSelector> {
 
     if (options.logger) this._logger = options.logger
 
-    if (this._spec.isContext?.(options.context) ?? this._spec.isDriver(options.context)) {
-      this._target = options.context
+    if (options.context) {
+      if (this._spec.isContext?.(options.context) ?? this._spec.isDriver(options.context)) {
+        this._target = options.context
+      } else {
+        throw new TypeError('Context constructor called with argument of unknown type of context!')
+      }
     }
 
     if (this.isReference(options.reference)) {

@@ -1,6 +1,7 @@
 import type * as types from '@applitools/types'
 import type {Context} from './context'
 import * as utils from '@applitools/utils'
+
 const snippets = require('@applitools/snippets')
 
 export type ElementState = {
@@ -268,6 +269,12 @@ export class Element<TDriver, TContext, TElement, TSelector> {
     })
   }
 
+  async setAttribute(name: string, value: string | number | boolean): Promise<void> {
+    if (this.driver.isWeb) {
+      await this.context.execute(snippets.setElementAttributes, [this, {[name]: value}])
+    }
+  }
+
   async scrollTo(offset: types.Location): Promise<types.Location> {
     return this.withRefresh(async () => {
       offset = {x: Math.round(offset.x), y: Math.round(offset.y)}
@@ -386,6 +393,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
 
   async preserveState(): Promise<ElementState> {
     if (this.driver.isNative) return
+    if (this._state) return
     // TODO create one js snippet
     const scrollOffset = await this.getScrollOffset()
     const transforms = await this.context.execute(snippets.getElementStyleProperties, [

@@ -1329,14 +1329,6 @@ class EyesBase {
    * @protected
    * @return {Promise<?string>}
    */
-  async tryCaptureDom() {
-    return undefined
-  }
-
-  /**
-   * @protected
-   * @return {Promise<?string>}
-   */
   async getOrigin() {
     return undefined
   }
@@ -1873,7 +1865,7 @@ class EyesBase {
     const screenshot = await this.getScreenshot()
     this._logger.verbose('Done getting screenshot!')
 
-    let screenshotUrl
+    let screenshotUrl, domUrl
     if (screenshot) {
       const targetBuffer = await screenshot.image.toPng()
       let screenshotBuffer = targetBuffer
@@ -1898,26 +1890,26 @@ class EyesBase {
 
       await this._renderingInfoPromise
       screenshotUrl = await this._serverConnector.uploadScreenshot(GeneralUtils.guid(), screenshotBuffer)
-      this._logger.verbose('Done uploading screenshotUrl!')
+      this._logger.verbose('Done uploading screenshot!')
+
+      if (screenshot.dom) {
+        domUrl = await this._serverConnector.postDomSnapshot(GeneralUtils.guid(), screenshot.dom)
+        this._logger.verbose('Done uploading dom!')
+      }
     } else {
       this._logger.verbose('getting screenshot url...')
       screenshotUrl = await this.getScreenshotUrl()
       this._logger.verbose('Done getting screenshotUrl!')
+      this._logger.verbose('Getting dom url...')
+      domUrl = await this.getDomUrl()
+      this._logger.verbose('Done getting domUrl!')
     }
 
-    this._logger.verbose('Getting title, domUrl, imageLocation...')
-    const title = await this.getTitle()
-    let domUrl = await this.getDomUrl()
-    const imageLocation = await this.getImageLocation()
-    this._logger.verbose('Done getting title, domUrl, imageLocation!')
-
-    if (!domUrl && TypeUtils.getOrDefault(sendDom, await this.getSendDom())) {
-      const domJson = await this.tryCaptureDom()
-      if (domJson) {
-        domUrl = await this._serverConnector.postDomSnapshot(GeneralUtils.guid(), domJson)
-      }
-    }
+    this._logger.verbose(`screenshotUrl: ${screenshotUrl}`)
     this._logger.verbose(`domUrl: ${domUrl}`)
+
+    const title = await this.getTitle()
+    const imageLocation = await this.getImageLocation()
 
     const appOutput = new AppOutput({
       title,

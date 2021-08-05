@@ -3,6 +3,7 @@ import * as utils from '@applitools/utils'
 import {Context, ContextReference} from './context'
 import {Element} from './element'
 import {parseUserAgent} from './user-agent'
+
 const snippets = require('@applitools/snippets')
 
 // eslint-disable-next-line
@@ -306,14 +307,7 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     context: Context<TDriver, TContext, TElement, TSelector>,
     region: types.Region,
   ): Promise<types.Region> {
-    region = {
-      x: Math.round(region.x),
-      y: Math.round(region.y),
-      width: region.width,
-      height: region.height,
-    }
     await context.focus()
-
     return context.getRegionInViewport(region)
   }
 

@@ -132,7 +132,7 @@ function toCheckWindowConfiguration({checkSettings, configuration}) {
   return config
 }
 
-async function toMatchSettings({context, checkSettings = {}, configuration, targetRegion}) {
+function toMatchSettings({checkSettings = {}, configuration}) {
   const matchSettings = {
     matchLevel: checkSettings.matchLevel || configuration.getDefaultMatchSettings().getMatchLevel(),
     ignoreCaret: checkSettings.ignoreCaret || configuration.getDefaultMatchSettings().getIgnoreCaret(),
@@ -142,42 +142,70 @@ async function toMatchSettings({context, checkSettings = {}, configuration, targ
       checkSettings.ignoreDisplacements || configuration.getDefaultMatchSettings().getIgnoreDisplacements(),
     accessibilitySettings: configuration.getDefaultMatchSettings().getAccessibilitySettings(),
     exact: null,
-    ignore: await referencesToRegions(checkSettings.ignoreRegions),
-    layout: await referencesToRegions(checkSettings.layoutRegions),
-    strict: await referencesToRegions(checkSettings.strictRegions),
-    content: await referencesToRegions(checkSettings.contentRegions),
-    floating: await referencesToRegions(checkSettings.floatingRegions),
-    accessibility: await referencesToRegions(checkSettings.accessibilityRegions),
+    ignore: transformRegions(checkSettings.ignoreRegions),
+    layout: transformRegions(checkSettings.layoutRegions),
+    strict: transformRegions(checkSettings.strictRegions),
+    content: transformRegions(checkSettings.contentRegions),
+    floating: transformRegions(checkSettings.floatingRegions),
+    accessibility: transformRegions(checkSettings.accessibilityRegions),
   }
 
   return new ImageMatchSettings(matchSettings)
 
-  async function referencesToRegions(references) {
-    if (!references) return references
-    const regions = []
-    for (const reference of references) {
-      const {region, ...options} = reference.region ? reference : {region: reference}
-      if (utils.types.has(region, ['width', 'height'])) {
-        regions.push({
+  function transformRegions(regions) {
+    if (!regions || regions.length === 0) return regions
+    return regions.map(target => {
+      const {region, ...options} = target.region ? target : {region: target}
+      if (utils.types.has(region, ['x', 'y', 'width', 'height'])) {
+        return {
           left: Math.round(region.x),
           top: Math.round(region.y),
           width: Math.round(region.width),
           height: Math.round(region.height),
           ...options,
-        })
+        }
+      }
+      return region
+    })
+  }
+}
+
+async function toScreenshotCheckSettings({checkSettings, context, screenshot}) {
+  const screenshotCheckSettings = {
+    ...checkSettings,
+    ignoreRegions: await referencesToRegions(checkSettings.ignoreRegions),
+    floatingRegions: await referencesToRegions(checkSettings.floatingRegions),
+    strictRegions: await referencesToRegions(checkSettings.strictRegions),
+    layoutRegions: await referencesToRegions(checkSettings.layoutRegions),
+    contentRegions: await referencesToRegions(checkSettings.contentRegions),
+    accessibilityRegions: await referencesToRegions(checkSettings.accessibilityRegions),
+  }
+
+  return screenshotCheckSettings
+
+  async function referencesToRegions(references) {
+    if (!references) return references
+    const regions = []
+    for (const reference of references) {
+      const referenceRegions = []
+      const {region, ...options} = reference.region ? reference : {region: reference}
+      if (utils.types.has(region, ['x', 'y', 'width', 'height'])) {
+        regions.push(region)
       } else {
         const elements = await context.elements(region)
+
         for (const element of elements) {
-          const region = await element.getRegion()
-          regions.push({
-            left: Math.max(0, Math.round(region.x - targetRegion.x)),
-            top: Math.max(0, Math.round(region.y - targetRegion.y)),
-            width: Math.round(region.width),
-            height: Math.round(region.height),
-            ...options,
+          // TODO should be optimized
+          const region = await element.context.getRegionInViewport(await element.getRegion())
+          referenceRegions.push({
+            x: Math.max(0, region.x - screenshot.region.x),
+            y: Math.max(0, region.y - screenshot.region.y),
+            width: region.width,
+            height: region.height,
           })
         }
       }
+      regions.push(...referenceRegions.map(region => (reference.region ? {region, ...options} : region)))
     }
     return regions
   }
@@ -186,5 +214,6 @@ async function toMatchSettings({context, checkSettings = {}, configuration, targ
 module.exports = {
   toPersistedCheckSettings,
   toCheckWindowConfiguration,
+  toScreenshotCheckSettings,
   toMatchSettings,
 }

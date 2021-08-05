@@ -124,8 +124,6 @@ async function takeStitchedScreenshot({
 
   await composition.debug({...debug, name: 'stitched'})
 
-  const locationInMainContext = await context.getLocationInMainContext()
-
   if (framed) {
     await composition.combine(firstImage, lastImage, cropRegion)
     await composition.debug({...debug, name: 'framed'})
@@ -137,7 +135,7 @@ async function takeStitchedScreenshot({
   } else {
     return {
       image: composition,
-      region: utils.geometry.region(utils.geometry.offset(locationInMainContext, targetRegion), composition.size),
+      region: utils.geometry.region(cropRegion, composition.size),
     }
   }
 }

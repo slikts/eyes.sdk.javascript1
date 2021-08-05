@@ -11,7 +11,7 @@ const CorsIframeHandles = require('../capture/CorsIframeHandles')
 const VisualGridRunner = require('../runner/VisualGridRunner')
 const takeDomSnapshots = require('../utils/takeDomSnapshots')
 const EyesCore = require('./EyesCore')
-const CheckSettingsUtils = require('../fluent/CheckSettingsUtils')
+const CheckSettingsUtils = require('./CheckSettingsUtils')
 
 class EyesVisualGrid extends EyesCore {
   static specialize({agentId, spec, VisualGridClient}) {
