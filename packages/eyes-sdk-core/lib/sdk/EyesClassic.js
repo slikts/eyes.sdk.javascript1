@@ -120,7 +120,7 @@ class EyesClassic extends EyesCore {
       driver: this._driver,
       hooks: {
         afterScreenshot: async ({driver, scroller, screenshot}) => {
-          if (driver.isWeb && (this._checkSettings.sendDom || this._configuration.getSendDom())) {
+          if (driver.isWeb && TypeUtils.getOrDefault(this._checkSettings.sendDom, this._configuration.getSendDom())) {
             this._logger.verbose('Getting window DOM...')
             if (screenshotSettings.fully) {
               await scroller.element.setAttribute('data-applitools-scroll', true)

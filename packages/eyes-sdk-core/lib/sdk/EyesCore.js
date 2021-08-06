@@ -73,10 +73,11 @@ class EyesCore extends EyesBase {
     for (const userRegion of regions) {
       const region = {...userRegion}
 
+      let dom
       const screenshot = await screenshoter({
         logger: this._logger,
         driver: this._driver,
-        target: Region.isRegionCompatible(region.target)
+        region: Region.isRegionCompatible(region.target)
           ? {
               x: region.target.left,
               y: region.target.top,
@@ -85,8 +86,7 @@ class EyesCore extends EyesBase {
             }
           : region.target,
         fully: true,
-        dom: true,
-        hideScrollbars: false, // because otherwise DOM will not be aligned with image // this._configuration.getHideScrollbars(),
+        hideScrollbars: this._configuration.getHideScrollbars(),
         hideCaret: this._configuration.getHideCaret(),
         scrollingMode: this._configuration.getStitchMode().toLocaleLowerCase(),
         overlap: this._configuration.getStitchOverlap(),
@@ -97,7 +97,15 @@ class EyesCore extends EyesBase {
           rotation: this.getRotation(),
         },
         debug: this.getDebugScreenshots(),
-        takeDomCapture: () => takeDomCapture(this._logger, this._context),
+        hooks: {
+          afterScreenshot: async ({driver, scroller}) => {
+            if (driver.isWeb) {
+              this._logger.verbose('Getting window DOM...')
+              await scroller.element.setAttribute('data-applitools-scroll', true)
+              dom = await takeDomCapture(this._logger, driver.mainContext).catch(() => null)
+            }
+          },
+        },
       })
 
       if (region.hint === undefined && !Region.isRegionCompatible(region.target)) {
@@ -115,7 +123,7 @@ class EyesCore extends EyesBase {
       await this.getAndSaveRenderingInfo()
       const [screenshotUrl, domUrl] = await Promise.all([
         this._serverConnector.uploadScreenshot(GeneralUtils.guid(), await screenshot.image.toPng()),
-        this._serverConnector.postDomSnapshot(GeneralUtils.guid(), screenshot.dom),
+        this._serverConnector.postDomSnapshot(GeneralUtils.guid(), dom),
       ])
       extractTextInputs.push({
         domUrl,
@@ -143,11 +151,11 @@ class EyesCore extends EyesBase {
 
     await this._driver.refreshContexts()
 
+    let dom
     const screenshot = await screenshoter({
       logger: this._logger,
       driver: this._driver,
-      dom: true,
-      hideScrollbars: false,
+      hideScrollbars: this._configuration.getHideScrollbars(),
       hideCaret: this._configuration.getHideCaret(),
       scrollingMode: this._configuration.getStitchMode().toLocaleLowerCase(),
       overlap: this._configuration.getStitchOverlap(),
@@ -158,13 +166,20 @@ class EyesCore extends EyesBase {
         rotation: this.getRotation(),
       },
       debug: this.getDebugScreenshots(),
-      takeDomCapture: () => takeDomCapture(this._logger, this._context),
+      hooks: {
+        afterScreenshot: async ({driver}) => {
+          if (driver.isWeb) {
+            this._logger.verbose('Getting window DOM...')
+            dom = await takeDomCapture(this._logger, driver.mainContext).catch(() => null)
+          }
+        },
+      },
     })
 
     await this.getAndSaveRenderingInfo()
     const [screenshotUrl, domUrl] = await Promise.all([
       this._serverConnector.uploadScreenshot(GeneralUtils.guid(), await screenshot.image.toPng()),
-      this._serverConnector.postDomSnapshot(GeneralUtils.guid(), screenshot.dom),
+      this._serverConnector.postDomSnapshot(GeneralUtils.guid(), dom),
     ])
 
     return this._serverConnector.extractTextRegions({
