@@ -24,6 +24,22 @@ export function isEmpty(sizeOrRegion: RectangleSize | Region): boolean {
   return sizeOrRegion.width === 0 && sizeOrRegion.height === 0
 }
 
+export function round(region: Region): Region
+export function round(region: RectangleSize): RectangleSize
+export function round(region: Location): Location
+export function round(target: Region | RectangleSize | Location): typeof target {
+  const result = {...target} as any
+  if (types.has(target, ['x', 'y'])) {
+    result.x = Math.round(target.x)
+    result.y = Math.round(target.y)
+  }
+  if (types.has(target, ['width', 'height'])) {
+    result.width = Math.round(target.width)
+    result.height = Math.round(target.height)
+  }
+  return result
+}
+
 export function rotate(region: Region, degree: number): Region
 export function rotate(size: RectangleSize, degree: number): RectangleSize
 export function rotate(target: Region | RectangleSize, degree: number): typeof target {

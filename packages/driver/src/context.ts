@@ -203,8 +203,8 @@ export class Context<TDriver, TContext, TElement, TSelector> {
 
     this._target = await this._spec.childContext(this.parent.target, this._element.target)
 
-    // TODO replace
-    await this.driver.updateCurrentContext(this)
+    this.driver.updateCurrentContext(this)
+
     return this
   }
 

@@ -1,6 +1,8 @@
 
 # Change Log
 
+- change image processing order and improve general algorithm
+
 ## Unreleased
 
 

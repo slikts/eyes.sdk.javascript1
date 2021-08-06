@@ -15,8 +15,7 @@ async function takeStitchedScreenshot({
 }) {
   logger.verbose('Taking full image of...')
 
-  const scrollerRegion = utils.geometry.region({x: 0, y: 0}, await scroller.getContentSize())
-  logger.verbose(`Scroller size: ${scrollerRegion}`)
+  await scroller.preserveState()
 
   const driver = context.driver
   const takeScreenshot = makeTakeScreenshot({logger, driver, stabilization, debug})
@@ -31,7 +30,12 @@ async function takeStitchedScreenshot({
   let image = await takeScreenshot({name: 'initial'})
   const firstImage = framed ? makeImage(image) : null
 
-  const targetRegion = region || (await scroller.getClientRegion())
+  const targetRegion = region
+    ? utils.geometry.intersect(
+        utils.geometry.region(await scroller.getInnerOffset(), await scroller.getClientRegion()),
+        region,
+      )
+    : await scroller.getClientRegion()
 
   // TODO the solution should not check driver specifics,
   // in this case target region coordinate should be already related to the scrolling element of the context
@@ -41,15 +45,13 @@ async function takeStitchedScreenshot({
   image.crop(cropRegion)
   await image.debug({...debug, name: 'initial', suffix: 'region'})
 
-  if (region) region = utils.geometry.intersect(region, scrollerRegion)
-  else region = scrollerRegion
+  const contentRegion = utils.geometry.region({x: 0, y: 0}, await scroller.getContentSize())
+  logger.verbose(`Scroller size: ${contentRegion}`)
 
-  region = {
-    x: Math.round(region.x),
-    y: Math.round(region.y),
-    width: Math.round(region.width),
-    height: Math.round(region.height),
-  }
+  if (region) region = utils.geometry.intersect(region, contentRegion)
+  else region = contentRegion
+
+  region = utils.geometry.round(region)
 
   // TODO padding should be provided from args instead of overlap
   const padding = {top: overlap, bottom: overlap}
@@ -108,6 +110,8 @@ async function takeStitchedScreenshot({
 
     stitchedSize = {width: partOffset.x + image.width, height: partOffset.y + image.height}
   }
+
+  await scroller.restoreState()
 
   logger.verbose(`Extracted entire size: ${region}`)
   logger.verbose(`Actual stitched size: ${stitchedSize}`)

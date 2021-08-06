@@ -46,10 +46,7 @@ async function screenshoter({
 
   const target = await getTarget({window, context, region, fully, scrollingMode, logger})
 
-  // IMHO problem with scrollbars should be solved by extracting client size of the content (without scrollbars),
-  // here we use a historical solution
-  if (driver.isWeb && (hideScrollbars || fully)) await target.scroller.hideScrollbars()
-  await target.scroller.preserveState()
+  if (driver.isWeb && hideScrollbars) await target.scroller.hideScrollbars()
 
   try {
     if (!window) await scrollIntoViewport({...target, logger})
@@ -60,7 +57,7 @@ async function screenshoter({
 
     if (hooks && hooks.afterScreenshot) {
       // imitate image-like state for the hook
-      if (fully && window) {
+      if (window && fully) {
         await target.scroller.moveTo({x: 0, y: 0}, await driver.mainContext.getScrollingElement())
       }
       await hooks.afterScreenshot({driver, scroller: target.scroller, screenshot})
@@ -69,7 +66,6 @@ async function screenshoter({
     return screenshot
   } finally {
     await target.scroller.restoreScrollbars()
-    await target.scroller.restoreState()
 
     // if there was active element and we have blurred it, then restore focus
     if (activeElement) await context.focusElement(activeElement)

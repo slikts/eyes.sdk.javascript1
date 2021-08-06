@@ -53,8 +53,12 @@ describe('screenshoter', () => {
       await destroyDriver()
     })
 
-    it.only('take full element screenshot', () => {
-      return fullElement()
+    it('take full app screenshot (recycler view)', () => {
+      return fullAppRecyclerViewX()
+    })
+
+    it('take full element screenshot', () => {
+      return fullElementX()
     })
   })
 
@@ -113,11 +117,33 @@ describe('screenshoter', () => {
       throw err
     }
   }
+  async function fullAppRecyclerViewX(options) {
+    const button = await driver.element({type: 'id', selector: 'btn_recycler_view_activity'})
+    await button.click()
+
+    const screenshot = await screenshoter({
+      logger,
+      driver,
+      fully: true,
+      framed: true,
+      scrollingMode: 'scroll',
+      wait: 1500,
+      ...options,
+    })
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/android/app-fully-recycler-x.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'full_app_recycler_x_failed'})
+      throw err
+    }
+  }
   async function region(options) {
     const screenshot = await screenshoter({
       logger,
       driver,
-      target: {x: 30, y: 500, height: 100, width: 200},
+      region: {x: 30, y: 500, height: 100, width: 200},
       scrollingMode: 'scroll',
       ...options,
     })
@@ -134,7 +160,7 @@ describe('screenshoter', () => {
     const screenshot = await screenshoter({
       logger,
       driver,
-      target: {x: 30, y: 10, height: 700, width: 200},
+      region: {x: 30, y: 10, height: 700, width: 200},
       fully: true,
       scrollingMode: 'scroll',
       ...options,
@@ -152,7 +178,7 @@ describe('screenshoter', () => {
     const screenshot = await screenshoter({
       logger,
       driver,
-      target: {type: 'id', selector: 'btn_recycler_view'},
+      region: {type: 'id', selector: 'btn_recycler_view'},
       scrollingMode: 'scroll',
       ...options,
     })
@@ -165,7 +191,7 @@ describe('screenshoter', () => {
       throw err
     }
   }
-  async function fullElement(options) {
+  async function fullElementX(options) {
     const button = await driver.element({
       type: 'id',
       selector: 'btn_recycler_view_in_scroll_view_activity',
@@ -175,19 +201,18 @@ describe('screenshoter', () => {
     const screenshot = await screenshoter({
       logger,
       driver,
-      target: {type: 'id', selector: 'recyclerView'},
+      region: {type: 'id', selector: 'recyclerView'},
       fully: true,
       scrollingMode: 'scroll',
       wait: 1500,
-      debug: {path: './'},
       ...options,
     })
     try {
       const actual = await screenshot.image.toObject()
-      const expected = await makeImage('./test/fixtures/android/element-fully.png').toObject()
+      const expected = await makeImage('./test/fixtures/android/element-fully-x.png').toObject()
       assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
     } catch (err) {
-      await screenshot.image.debug({path: './logs', name: 'full_element_failed'})
+      await screenshot.image.debug({path: './logs', name: 'full_element_x_failed'})
       throw err
     }
   }

@@ -63,7 +63,7 @@ function makeImage(data) {
       region = utils.geometry.rotate(region, transforms.rotate)
       transforms.crop = transforms.crop ? utils.geometry.intersect(transforms.crop, region) : region
 
-      size = utils.geometry.size(transforms.crop)
+      size = utils.geometry.round(utils.geometry.size(transforms.crop))
 
       return this
     },
@@ -197,8 +197,13 @@ async function extract(image, region) {
   const srcY = Math.max(0, Math.round(region.y))
   const dstWidth = Math.round(Math.min(image.width - srcX, region.width))
   const dstHeight = Math.round(Math.min(image.height - srcY, region.height))
+  const dstSize = {width: dstWidth, height: dstHeight}
 
-  const extracted = new png.Image({width: dstWidth, height: dstHeight})
+  if (utils.geometry.isEmpty(dstSize)) {
+    throw new Error(`Cannot extract empty region (${srcX};${srcY})${dstWidth}x${dstHeight} from image`)
+  }
+
+  const extracted = new png.Image(dstSize)
 
   if (srcX === 0 && dstWidth === image.width) {
     const srcOffset = srcY * image.width * 4

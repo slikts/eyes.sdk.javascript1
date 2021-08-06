@@ -51,12 +51,14 @@ describe('screenshoter ios', () => {
 
   async function viewport(options) {
     const screenshot = await screenshoter({logger, driver, ...options})
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/ios/app.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/ios/app.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'viewport_failed'})
+      throw err
+    }
   }
   async function fullAppScrollView(options) {
     const button = await driver.element({type: 'accessibility id', selector: 'Scroll view'})
@@ -71,12 +73,14 @@ describe('screenshoter ios', () => {
       wait: 1500,
       ...options,
     })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/ios/app-fully.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/ios/app-fully.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'full_app_failed'})
+      throw err
+    }
   }
   async function fullAppTableView(options) {
     const button = await driver.element({type: 'accessibility id', selector: 'Table view'})
@@ -91,12 +95,14 @@ describe('screenshoter ios', () => {
       wait: 1500,
       ...options,
     })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/ios/app-fully-table.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/ios/app-fully-table.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'full_app_table_failed'})
+      throw err
+    }
   }
   async function fullAppCollectionView(options) {
     const button = await driver.element({type: 'accessibility id', selector: 'Collection view'})
@@ -111,59 +117,67 @@ describe('screenshoter ios', () => {
       wait: 1500,
       ...options,
     })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/ios/app-fully-collection.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/ios/app-fully-collection.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'full_app_collection_failed'})
+      throw err
+    }
   }
   async function region(options) {
     const screenshot = await screenshoter({
       logger,
       driver,
-      target: {x: 30, y: 500, height: 100, width: 200},
+      region: {x: 30, y: 500, height: 100, width: 200},
       scrollingMode: 'scroll',
       wait: 1500,
       ...options,
     })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/ios/region.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/ios/region.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'region_failed'})
+      throw err
+    }
   }
   async function fullRegion(options) {
     const screenshot = await screenshoter({
       logger,
       driver,
-      target: {x: 30, y: 10, height: 700, width: 200},
+      region: {x: 30, y: 10, height: 700, width: 200},
       fully: true,
       scrollingMode: 'scroll',
       ...options,
     })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/ios/region-fully.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/ios/region-fully.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'full_region_failed'})
+      throw err
+    }
   }
   async function element(options) {
     const screenshot = await screenshoter({
       logger,
       driver,
-      target: {type: 'accessibility id', selector: 'Table view'},
+      region: {type: 'accessibility id', selector: 'Table view'},
       scrollingMode: 'scroll',
       ...options,
     })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/ios/element.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/ios/element.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'element_failed'})
+      throw err
+    }
   }
   async function fullElement(options) {
     const button = await driver.element({
@@ -175,17 +189,19 @@ describe('screenshoter ios', () => {
     const screenshot = await screenshoter({
       logger,
       driver,
-      target: {type: 'xpath', selector: '//XCUIElementTypeTable[1]'},
+      region: {type: 'xpath', selector: '//XCUIElementTypeTable[1]'},
       fully: true,
       scrollingMode: 'scroll',
       wait: 1500,
       ...options,
     })
-    const actual = await screenshot.image.toObject()
-    const expected = await makeImage('./test/fixtures/ios/element-fully.png').toObject()
-    assert.strictEqual(
-      pixelmatch(actual.data, expected.data, null, expected.width, expected.height),
-      0,
-    )
+    try {
+      const actual = await screenshot.image.toObject()
+      const expected = await makeImage('./test/fixtures/ios/element-fully.png').toObject()
+      assert.strictEqual(pixelmatch(actual.data, expected.data, null, expected.width, expected.height), 0)
+    } catch (err) {
+      await screenshot.image.debug({path: './logs', name: 'full_element_failed'})
+      throw err
+    }
   }
 })

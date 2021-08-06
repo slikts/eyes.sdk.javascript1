@@ -18,6 +18,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
   private _index: number
   private _state: ElementState = {}
   private _originalOverflow: any
+  private _touchPadding: number
   private _logger: any
 
   protected readonly _spec: types.SpecDriver<TDriver, TContext, TElement, TSelector>
@@ -135,16 +136,15 @@ export class Element<TDriver, TContext, TElement, TSelector> {
       } else {
         this._logger.log('Extracting content size of native element with selector', this.selector)
         try {
-          let size
           if (this.driver.isAndroid) {
-            const className = await this._spec.getElementAttribute(this.driver.target, this.target, 'className')
+            const className = await this.getAttribute('className')
             if (
               [
-                'android.support.v7.widget.RecyclerView',
-                'androidx.recyclerview.widget.RecyclerView',
-                'androidx.viewpager2.widget.ViewPager2',
                 'android.widget.ListView',
                 'android.widget.GridView',
+                'android.support.v7.widget.RecyclerView',
+                // 'androidx.recyclerview.widget.RecyclerView',
+                'androidx.viewpager2.widget.ViewPager2',
               ].includes(className)
             ) {
               this._logger.log('Trying to extract content size using android helper library')
@@ -156,7 +156,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
                 const elementRegion = await this._spec.getElementRegion(this.driver.target, this.target)
                 await helperElement.click()
                 const info = await this._spec.getElementText(this.driver.target, helperElement.target)
-                size = utils.geometry.scale(
+                this._state.contentSize = utils.geometry.scale(
                   {width: elementRegion.width, height: Number(info)},
                   1 / this.driver.pixelRatio,
                 )
@@ -165,7 +165,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
               }
             }
           } else if (this.driver.isIOS) {
-            const type = await this._spec.getElementAttribute(this.driver.target, this.target, 'type')
+            const type = await this.getAttribute('type')
             if (type === 'XCUIElementTypeScrollView') {
               const elementRegion = await this._spec.getElementRegion(this.driver.target, this.target)
               const [childElement] = await this.driver.elements({
@@ -173,7 +173,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
                 selector: '//XCUIElementTypeScrollView[1]/*', // We cannot be sure that our element is the first one
               })
               const childElementRegion = await this._spec.getElementRegion(this.driver.target, childElement.target)
-              size = {
+              this._state.contentSize = {
                 width: elementRegion.width,
                 height: childElementRegion.y + childElementRegion.height - elementRegion.y,
               }
@@ -194,7 +194,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
                 const info = await this._spec.getElementText(this.driver.target, infoElement.target)
                 if (info) {
                   const [_, width, height] = info.match(/\{(\d+),\s?(\d+)\}/)
-                  size = {width: Number(width), height: Number(height)}
+                  this._state.contentSize = {width: Number(width), height: Number(height)}
                 }
               } else {
                 this._logger.log('Helper library for ios was not detected')
@@ -202,20 +202,17 @@ export class Element<TDriver, TContext, TElement, TSelector> {
             }
           }
 
-          if (!size) {
-            const data = JSON.parse(
-              await this._spec.getElementAttribute(this.driver.target, this.target, 'contentSize'),
-            )
+          if (!this._state.contentSize) {
+            const data = JSON.parse(await this.getAttribute('contentSize'))
             this._logger.log('Extracted native content size attribute', data)
-            size = this.driver.isIOS
+            this._state.contentSize = this.driver.isIOS
               ? {width: data.width, height: data.scrollableOffset}
               : utils.geometry.scale(
                   {width: data.width, height: data.height + data.scrollableOffset},
                   1 / this.driver.pixelRatio,
                 )
+            this._touchPadding = data.touchPadding ?? this._touchPadding
           }
-
-          this._state.contentSize = size
 
           if (this.driver.isAndroid) {
             this._logger.log('Stabilizing android scroll offset')
@@ -229,6 +226,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
 
           return this._state.contentSize
         } catch (err) {
+          console.log(err)
           this._logger.warn('Failed to extract content size, extracting client size instead')
           this._logger.error(err)
           return utils.geometry.size(await this.getClientRegion())
@@ -246,10 +244,10 @@ export class Element<TDriver, TContext, TElement, TSelector> {
       if (this.driver.isWeb) {
         return this.context.execute(snippets.isElementScrollable, [this])
       } else if (this.driver.isAndroid) {
-        const data = JSON.parse(await this._spec.getElementAttribute(this.driver.target, this.target, 'scrollable'))
+        const data = JSON.parse(await this.getAttribute('scrollable'))
         return Boolean(data) || false
       } else if (this.driver.isIOS) {
-        const type = await this._spec.getElementAttribute(this.driver.target, this.target, 'type')
+        const type = await this.getAttribute('type')
         return ['XCUIElementTypeScrollView', 'XCUIElementTypeTable', 'XCUIElementTypeCollectionView'].includes(type)
       }
     })
@@ -269,7 +267,28 @@ export class Element<TDriver, TContext, TElement, TSelector> {
     })
   }
 
-  async setAttribute(name: string, value: string | number | boolean): Promise<void> {
+  async getTouchPadding(): Promise<number> {
+    if (this._touchPadding == null) {
+      if (this.driver.isWeb) this._touchPadding = 0
+      else if (this.driver.isIOS) this._touchPadding = 14
+      else if (this.driver.isAndroid) {
+        const {touchPadding} = JSON.parse(await this.getAttribute('contentSize'))
+        this._touchPadding = touchPadding ?? 0
+      }
+    }
+    return this._touchPadding
+  }
+
+  async getAttribute(name: string): Promise<string> {
+    if (this.driver.isWeb) {
+      const properties = await this.context.execute(snippets.getElementProperties, [this, [name]])
+      return properties[name]
+    } else {
+      return this._spec.getElementAttribute(this.driver.target, this.target, name)
+    }
+  }
+
+  async setAttribute(name: string, value: string): Promise<void> {
     if (this.driver.isWeb) {
       await this.context.execute(snippets.setElementAttributes, [this, {[name]: value}])
     }
@@ -330,7 +349,7 @@ export class Element<TDriver, TContext, TElement, TSelector> {
         const xCenter = Math.floor(scrollableRegion.x + scrollableRegion.width / 2) // 0
         const yTop = scrollableRegion.y + yPadding
         const yDirection = remainingOffset.y > 0 ? 'down' : 'up'
-        let yRemaining = Math.abs(remainingOffset.y) + (this.driver.isIOS ? 28 : 48) // ???
+        let yRemaining = Math.abs(remainingOffset.y) + (await this.getTouchPadding()) * 2
         while (yRemaining > 0) {
           const yBottom = scrollableRegion.y + Math.min(yRemaining + yPadding, scrollableRegion.height - yPadding)
           const [yStart, yEnd] = yDirection === 'down' ? [yBottom, yTop] : [yTop, yBottom]
