@@ -15,10 +15,9 @@ async function takeStitchedScreenshot({
 }) {
   logger.verbose('Taking full image of...')
 
-  await scroller.preserveState()
-
   const driver = context.driver
   const takeScreenshot = makeTakeScreenshot({logger, driver, stabilization, debug})
+  const scrollerState = await scroller.preserveState()
 
   const initialOffset = region ? utils.geometry.location(region) : {x: 0, y: 0}
   const actualOffset = await scroller.moveTo(initialOffset)
@@ -111,7 +110,7 @@ async function takeStitchedScreenshot({
     stitchedSize = {width: partOffset.x + image.width, height: partOffset.y + image.height}
   }
 
-  await scroller.restoreState()
+  await scroller.restoreState(scrollerState)
 
   logger.verbose(`Extracted entire size: ${region}`)
   logger.verbose(`Actual stitched size: ${stitchedSize}`)

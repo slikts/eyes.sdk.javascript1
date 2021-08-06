@@ -190,7 +190,7 @@ async function toScreenshotCheckSettings({checkSettings, context, screenshot}) {
       const referenceRegions = []
       const {region, ...options} = reference.region ? reference : {region: reference}
       if (utils.types.has(region, ['x', 'y', 'width', 'height'])) {
-        regions.push(region)
+        referenceRegions.push(region)
       } else {
         const elements = await context.elements(region)
         const contextLocationInViewport = await context.getLocationInViewport()

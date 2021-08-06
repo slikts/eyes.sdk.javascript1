@@ -412,22 +412,27 @@ export class Element<TDriver, TContext, TElement, TSelector> {
 
   async preserveState(): Promise<ElementState> {
     if (this.driver.isNative) return
-    if (this._state) return
-    // TODO create one js snippet
+    // TODO create single js snippet
     const scrollOffset = await this.getScrollOffset()
     const transforms = await this.context.execute(snippets.getElementStyleProperties, [
       this,
       ['transform', '-webkit-transform'],
     ])
-    this._state = {scrollOffset, transforms}
-    return this._state
+    if (!utils.types.has(this._state, ['scrollOffset', 'transforms'])) {
+      this._state.scrollOffset = scrollOffset
+      this._state.transforms = transforms
+    }
+    return {scrollOffset, transforms}
   }
 
   async restoreState(state: ElementState = this._state): Promise<void> {
     if (this.driver.isNative) return
-    if (!state) return
     if (state.scrollOffset) await this.scrollTo(state.scrollOffset)
     if (state.transforms) await this.context.execute(snippets.setElementStyleProperties, [this, state.transforms])
+    if (state === this._state) {
+      this._state.scrollOffset = null
+      this._state.transforms = null
+    }
   }
 
   async hideScrollbars(): Promise<void> {
