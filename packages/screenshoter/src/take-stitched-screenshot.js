@@ -72,8 +72,7 @@ async function takeStitchedScreenshot({
     logger.verbose(`Processing part ${partName}`)
 
     const compensateOffset = {x: 0, y: initialRegion.y !== partRegion.y ? padding.top : 0}
-    const partOffset = utils.geometry.location(partRegion)
-    const requiredOffset = utils.geometry.offsetNegative(partOffset, compensateOffset)
+    const requiredOffset = utils.geometry.offsetNegative(utils.geometry.location(partRegion), compensateOffset)
 
     logger.verbose(`Move to ${requiredOffset}`)
     const actualOffset = await scroller.moveTo(requiredOffset)
@@ -104,9 +103,10 @@ async function takeStitchedScreenshot({
     image.crop(cropPartRegion)
     await image.debug({...debug, name: partName, suffix: 'region'})
 
-    await stitchedImage.copy(image, utils.geometry.offsetNegative(partOffset, initialOffset))
+    const pasteOffset = utils.geometry.offsetNegative(utils.geometry.location(partRegion), initialOffset)
+    await stitchedImage.copy(image, pasteOffset)
 
-    stitchedSize = {width: partOffset.x + image.width, height: partOffset.y + image.height}
+    stitchedSize = {width: pasteOffset.x + image.width, height: pasteOffset.y + image.height}
   }
 
   await scroller.restoreState(scrollerState)
