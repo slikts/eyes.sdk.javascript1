@@ -2,7 +2,11 @@
 
 ## Unreleased
 
+
+## 1.1.1 - 2021/8/7
+
 - improve context and element location calculations
+- updated to @applitools/utils@1.2.2 (from 1.2.1)
 
 ## 1.1.0 - 2021/8/4
 
