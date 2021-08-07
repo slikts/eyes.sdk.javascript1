@@ -6,7 +6,7 @@ const assert = require('assert')
 const MockDriver = require('../../utils/MockDriver')
 const spec = require('../../utils/FakeSpecDriver')
 const {Configuration} = require('../../../index')
-const CheckSettingsUtils = require('../../../lib/fluent/CheckSettingsUtils')
+const CheckSettingsUtils = require('../../../lib/sdk/CheckSettingsUtils')
 const {getResourceAsText} = require('../../testUtils')
 
 const logger = {log: () => {}, warn: () => {}, error: () => {}, verbose: () => {}}
@@ -344,7 +344,7 @@ describe('CheckSettingsUtils', () => {
       driver,
       region1 = {x: 1, y: 2, width: 3, height: 4},
       region2 = {x: 5, y: 6, width: 7, height: 8},
-      targetRegion = {x: 1, y: 1, width: 1000, height: 1000}
+      screenshot = {region: {x: 1, y: 1, width: 1000, height: 1000}}
 
     before(async () => {
       mockDriver = new MockDriver()
@@ -358,7 +358,7 @@ describe('CheckSettingsUtils', () => {
       const matchSettings = await CheckSettingsUtils.toMatchSettings({
         checkSettings,
         configuration: new Configuration(),
-        targetRegion,
+        screenshot,
         context: driver,
         logger,
       })
@@ -376,7 +376,7 @@ describe('CheckSettingsUtils', () => {
       const matchSettings = await CheckSettingsUtils.toMatchSettings({
         checkSettings,
         configuration: new Configuration(),
-        targetRegion,
+        screenshot,
         context: driver,
         logger,
       })
@@ -389,12 +389,16 @@ describe('CheckSettingsUtils', () => {
 
     it('handle region by selector', async () => {
       const checkSettings = {ignoreRegions: ['custom selector']}
-      const matchSettings = await CheckSettingsUtils.toMatchSettings({
+
+      const screenshotCheckSettings = await CheckSettingsUtils.toScreenshotCheckSettings({
         checkSettings,
+        context: driver.currentContext,
+        screenshot,
+      })
+
+      const matchSettings = await CheckSettingsUtils.toMatchSettings({
+        checkSettings: screenshotCheckSettings,
         configuration: new Configuration(),
-        targetRegion,
-        context: driver,
-        logger,
       })
 
       assert.deepStrictEqual(
@@ -408,12 +412,16 @@ describe('CheckSettingsUtils', () => {
 
     it('handle region by selector with options', async () => {
       const checkSettings = {accessibilityRegions: [{region: 'custom selector', type: 'RegularText'}]}
-      const matchSettings = await CheckSettingsUtils.toMatchSettings({
+
+      const screenshotCheckSettings = await CheckSettingsUtils.toScreenshotCheckSettings({
         checkSettings,
+        context: driver.currentContext,
+        screenshot,
+      })
+
+      const matchSettings = await CheckSettingsUtils.toMatchSettings({
+        checkSettings: screenshotCheckSettings,
         configuration: new Configuration(),
-        targetRegion,
-        context: driver,
-        logger,
       })
 
       assert.deepStrictEqual(
@@ -427,12 +435,16 @@ describe('CheckSettingsUtils', () => {
 
     it('handle region by element', async () => {
       const checkSettings = {ignoreRegions: [await mockDriver.findElement('custom selector')]}
-      const matchSettings = await CheckSettingsUtils.toMatchSettings({
+
+      const screenshotCheckSettings = await CheckSettingsUtils.toScreenshotCheckSettings({
         checkSettings,
+        context: driver.currentContext,
+        screenshot,
+      })
+
+      const matchSettings = await CheckSettingsUtils.toMatchSettings({
+        checkSettings: screenshotCheckSettings,
         configuration: new Configuration(),
-        targetRegion,
-        context: driver,
-        logger,
       })
       assert.deepStrictEqual(
         matchSettings.getIgnoreRegions().map(region => region.toJSON()),

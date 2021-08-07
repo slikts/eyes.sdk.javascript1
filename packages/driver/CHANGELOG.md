@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- improve context and element location calculations
 
 ## 1.1.0 - 2021/8/4
 

@@ -1,10 +1,9 @@
 
 # Change Log
 
-- change image processing order and improve general algorithm
-
 ## Unreleased
 
+- change image processing order and improve general algorithm
 
 ## 3.1.0 - 2021/8/4
 
