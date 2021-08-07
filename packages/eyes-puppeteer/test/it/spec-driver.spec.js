@@ -2,7 +2,7 @@ const assert = require('assert')
 const spec = require('../../dist/spec-driver')
 
 function isEqualElements(frame, element1, element2) {
-  return spec.executeScript(frame, (element1, element2) => element1 === element2, element1, element2)
+  return frame.evaluate((element1, element2) => element1 === element2, element1, element2).catch(() => false)
 }
 
 describe('spec driver', async () => {
