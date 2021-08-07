@@ -2,14 +2,14 @@
 # yarn lockfile v1
 
 
-"@applitools/driver@1.1.0":
-  version "1.1.0"
-  resolved "https://registry.yarnpkg.com/@applitools/driver/-/driver-1.1.0.tgz#dc7ebaa0baa5aed9d4c3f8123149cb8f2d05daa0"
-  integrity sha512-x22n7mzWcnRqKINNLUdUlpr3HltN4vT6lqJqttInuwomNu21YRMXIj2bMy/jTKE4pSOPNAJKT79BDzxL7fp7bw==
+"@applitools/driver@1.1.1":
+  version "1.1.1"
+  resolved "https://registry.yarnpkg.com/@applitools/driver/-/driver-1.1.1.tgz#8945634d9a3a10a4cad6a0cbf9332fd13d16101e"
+  integrity sha512-k6mQAYPkpDbiF+zRi+jKp7cpxUJznjtEjE9YkETV+bkS1cZBiIyhBWady6e3fMb/sHBHj9DuZiY8eY5v93xX7Q==
   dependencies:
     "@applitools/snippets" "2.1.4"
     "@applitools/types" "1.0.6"
-    "@applitools/utils" "1.2.1"
+    "@applitools/utils" "1.2.2"
 
 "@applitools/functional-commons@1.6.0":
   version "1.6.0"
@@ -76,11 +76,6 @@
   version "1.0.6"
   resolved "https://registry.yarnpkg.com/@applitools/types/-/types-1.0.6.tgz#f17390e9bd5679b70ffd03cb9538a08208d83d47"
   integrity sha512-g0dC0+l8lPVsdblloVSX26rFTt6t3RAZnf5G0hZtjPDjT89oICtPytGRNmSqG7Sm1+DhywmEwtL+07ZzWE9uXw==
-
-"@applitools/utils@1.2.1":
-  version "1.2.1"
-  resolved "https://registry.yarnpkg.com/@applitools/utils/-/utils-1.2.1.tgz#ae4fb3c5ee9769f5885a63e204160b9b7eff21f8"
-  integrity sha512-lIHYqgirhkyL+xAc9+FwidAvcI7apB/6Y7uyVimHdTRjjIwAqoazymwYiFZiia+q81F/smPLvMw2RUwU6wi13w==
 
 "@applitools/utils@1.2.2":
   version "1.2.2"
