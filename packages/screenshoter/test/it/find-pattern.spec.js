@@ -1,6 +1,6 @@
 const assert = require('assert')
 const makeImage = require('../../src/image')
-const findPattern = require('../../src/findPattern')
+const findPattern = require('../../src/find-image-pattern')
 
 describe('pattern', () => {
   const fixtures = [

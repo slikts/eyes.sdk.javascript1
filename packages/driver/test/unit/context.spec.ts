@@ -123,7 +123,7 @@ describe('context', () => {
     await context.setScrollingElement('element-scroll')
     const childContext1 = await context.context('frame1')
     const childContext11 = await childContext1.context('frame1-1')
-    await childContext11.init()
+    await childContext11.focus()
 
     const locationContext11 = await childContext11.getLocationInViewport()
     assert.deepStrictEqual(locationContext11, {x: -20, y: -20})

@@ -83,11 +83,9 @@ describe('image', () => {
     const image = await makeImage('./test/fixtures/image/house.png')
     const replace = await makeImage({width: 200, height: 200}).toObject()
     replace.data.fill(Buffer.from([0xff, 0, 0, 0xff]))
-    await image.replace(replace, {x: 200, y: 200, width: 100, height: 100})
+    await replace.combine(image, image, {x: 200, y: 200, width: 100, height: 100})
     const actual = await image.toObject()
-    const expected = await makeImage(
-      './test/fixtures/image/house.replaced-higher-wider.png',
-    ).toObject()
+    const expected = await makeImage('./test/fixtures/image/house.replaced-higher-wider.png').toObject()
     assert.ok(pixelmatch(actual.data, expected.data, null, expected.width, expected.height) === 0)
   })
 
@@ -95,7 +93,7 @@ describe('image', () => {
     const image = await makeImage('./test/fixtures/image/house.png')
     const replace = await makeImage({width: 200, height: 200}).toObject()
     replace.data.fill(Buffer.from([0, 0xff, 0, 0xff]))
-    await image.replace(replace, {x: 200, y: 200, width: 200, height: 100})
+    await replace.combine(image, image, {x: 200, y: 200, width: 200, height: 100})
     const actual = await image.toObject()
     const expected = await makeImage('./test/fixtures/image/house.replaced-higher.png').toObject()
     assert.ok(pixelmatch(actual.data, expected.data, null, expected.width, expected.height) === 0)
@@ -105,7 +103,7 @@ describe('image', () => {
     const image = await makeImage('./test/fixtures/image/house.png')
     const replace = await makeImage({width: 200, height: 200}).toObject()
     replace.data.fill(Buffer.from([0, 0, 0xff, 0xff]))
-    await image.replace(replace, {x: 200, y: 200, width: 100, height: 200})
+    await replace.combine(image, image, {x: 200, y: 200, width: 100, height: 200})
     const actual = await image.toObject()
     const expected = await makeImage('./test/fixtures/image/house.replaced-wider.png').toObject()
     assert.ok(pixelmatch(actual.data, expected.data, null, expected.width, expected.height) === 0)
