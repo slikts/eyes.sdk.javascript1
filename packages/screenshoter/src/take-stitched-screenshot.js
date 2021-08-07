@@ -94,8 +94,7 @@ async function takeStitchedScreenshot({
 
     await utils.general.sleep(wait)
 
-    // TODO maybe remove
-    if (utils.geometry.isEmpty(cropPartRegion)) continue
+    if (utils.geometry.isEmpty(cropPartRegion) || !utils.geometry.isIntersected(cropRegion, cropPartRegion)) continue
 
     logger.verbose('Getting image...')
     image = await takeScreenshot({name: partName})
