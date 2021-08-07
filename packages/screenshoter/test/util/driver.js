@@ -47,9 +47,7 @@ async function isEqualElements(browser, element1, element2) {
   // NOTE: wdio wraps puppeteer and generate ids by itself just incrementing a counter
   // NOTE: appium for ios could return different ids for same element
   if (browser.isDevTools || browser.isIOS) {
-    return browser
-      .execute((element1, element2) => element1 === element2, element1, element2)
-      .catch(() => false)
+    return browser.execute((element1, element2) => element1 === element2, element1, element2).catch(() => false)
   }
   if (!element1 || !element2) return false
   const elementId1 = extractElementId(element1)
@@ -259,8 +257,7 @@ async function makeDriver({type = 'web'} = {}) {
         platformVersion: '13.4',
         appiumVersion: '1.19.2',
         automationName: 'XCUITest',
-        app:
-          'https://applitools.jfrog.io/artifactory/Examples/IOSTestApp/1.5/app/IOSTestApp-1.5.zip',
+        app: 'https://applitools.jfrog.io/artifactory/Examples/IOSTestApp/1.5/app/IOSTestApp-1.5.zip',
         username: process.env.SAUCE_USERNAME,
         accessKey: process.env.SAUCE_ACCESS_KEY,
       },
