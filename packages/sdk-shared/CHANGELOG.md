@@ -1,8 +1,11 @@
 # Changelog
 
 ## Unreleased
-- updated to @applitools/test-server@1.0.4 (from 1.0.3)
 
+
+## 0.9.5 - 2021/8/8
+
+- updated to @applitools/test-server@1.0.4 (from 1.0.3)
 
 ## 0.9.4 - 2021/8/4
 
