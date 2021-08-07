@@ -4,6 +4,7 @@
 ## Unreleased
 
 - change image processing order and improve general algorithm
+- updated to @applitools/utils@1.2.2 (from 1.2.1)
 
 ## 3.1.0 - 2021/8/4
 

@@ -49,7 +49,7 @@
   },
   "dependencies": {
     "@applitools/snippets": "2.1.4",
-    "@applitools/utils": "1.2.1",
+    "@applitools/utils": "1.2.2",
     "png-async": "0.9.4"
   },
   "devDependencies": {
