@@ -29,6 +29,11 @@ function makeImage(data) {
   } else {
     throw new Error('Unable to create an image abstraction from unknown data')
   }
+
+  if (!transforms.crop) {
+    transforms.crop = utils.geometry.region({x: 0, y: 0}, size)
+  }
+
   return {
     get isImage() {
       return true
@@ -61,7 +66,7 @@ function makeImage(data) {
         region = utils.geometry.scale(region, 1 / transforms.scale)
       }
       region = utils.geometry.rotate(region, transforms.rotate)
-      transforms.crop = transforms.crop ? utils.geometry.intersect(transforms.crop, region) : region
+      transforms.crop = utils.geometry.intersect(transforms.crop, region)
 
       size = utils.geometry.round(utils.geometry.size(transforms.crop))
 
@@ -97,7 +102,7 @@ function makeImage(data) {
     },
     async toObject() {
       image = await transform(await image, transforms)
-      transforms = {rotate: 0, scale: 1, crop: null}
+      transforms = {rotate: 0, scale: 1, crop: utils.geometry.region({x: 0, y: 0}, size)}
       return image
     },
     async debug(debug) {

@@ -58,10 +58,10 @@ async function takeStitchedScreenshot({
   logger.verbose('Part regions', partRegions)
 
   logger.verbose('Creating stitched image composition container')
-  const composition = makeImage({width: region.width, height: region.height})
+  const stitchedImage = makeImage({width: region.width, height: region.height})
 
   logger.verbose('Adding initial image...')
-  await composition.copy(image, {x: 0, y: 0})
+  await stitchedImage.copy(image, {x: 0, y: 0})
 
   logger.verbose('Getting the rest of the image parts...')
 
@@ -105,7 +105,7 @@ async function takeStitchedScreenshot({
     image.crop(cropPartRegion)
     await image.debug({...debug, name: partName, suffix: 'region'})
 
-    await composition.copy(image, utils.geometry.offsetNegative(partOffset, initialOffset))
+    await stitchedImage.copy(image, utils.geometry.offsetNegative(partOffset, initialOffset))
 
     stitchedSize = {width: partOffset.x + image.width, height: partOffset.y + image.height}
   }
@@ -115,30 +115,25 @@ async function takeStitchedScreenshot({
   logger.verbose(`Extracted entire size: ${region}`)
   logger.verbose(`Actual stitched size: ${stitchedSize}`)
 
-  if (stitchedSize.width < composition.width || stitchedSize.height < composition.height) {
+  if (stitchedSize.width < stitchedImage.width || stitchedSize.height < stitchedImage.height) {
     logger.verbose('Trimming unnecessary margins...')
-    composition.crop({
-      x: 0,
-      y: 0,
-      width: Math.min(stitchedSize.width, composition.width),
-      height: Math.min(stitchedSize.height, composition.height),
-    })
+    stitchedImage.crop(utils.geometry.region({x: 0, y: 0}, stitchedSize))
   }
 
-  await composition.debug({...debug, name: 'stitched'})
+  await stitchedImage.debug({...debug, name: 'stitched'})
 
   if (framed) {
-    await composition.combine(firstImage, lastImage, cropRegion)
-    await composition.debug({...debug, name: 'framed'})
+    await stitchedImage.combine(firstImage, lastImage, cropRegion)
+    await stitchedImage.debug({...debug, name: 'framed'})
 
     return {
-      image: composition,
-      region: utils.geometry.region({x: 0, y: 0}, composition.size),
+      image: stitchedImage,
+      region: utils.geometry.region({x: 0, y: 0}, stitchedImage.size),
     }
   } else {
     return {
-      image: composition,
-      region: utils.geometry.region(cropRegion, composition.size),
+      image: stitchedImage,
+      region: utils.geometry.region(cropRegion, stitchedImage.size),
     }
   }
 }
