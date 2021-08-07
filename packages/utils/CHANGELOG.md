@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+
+## 1.2.2 - 2021/8/7
+
 - add `geometry.rotate` to rotate region and sizes to on certain number of degrees
 
 ## 1.2.1 - 2021/8/3
