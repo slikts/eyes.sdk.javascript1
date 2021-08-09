@@ -76,7 +76,7 @@ jobs:
       - name: Save testing artifacts
         uses: actions/upload-artifact@v2
         with:
-          name: coverage-tests-report-  ${{matrix.name}}
+          name: coverage-tests-report-${{matrix.name}}
           retention-days: 2
           path: |
             packages/${{matrix.package}}/coverage-tests-metadata.json
