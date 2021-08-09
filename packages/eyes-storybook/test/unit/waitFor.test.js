@@ -31,7 +31,7 @@ describe('waitFor', () => {
   });
   it('should work with selector', async () => {
     await waitFor(page, '.selector');
-    expect(selector).to.equal('.selector')
+    expect(selector).to.equal('.selector');
   });
   it('should work with xpath', async () => {
     await waitFor(page, '//div');
