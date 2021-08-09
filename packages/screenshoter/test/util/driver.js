@@ -130,12 +130,13 @@ async function getDriverInfo(browser) {
   }
 
   if (driverInfo.isNative) {
-    const {pixelRatio, viewportRect} =
+    const {pixelRatio, viewportRect, statBarHeight} =
       browser.capabilities.viewportRect && browser.capabilities.pixelRatio
         ? browser.capabilities
         : await browser.getSession()
 
     driverInfo.pixelRatio = pixelRatio
+    driverInfo.statusBarHeight = statBarHeight
     if (viewportRect) {
       driverInfo.viewportRegion = {
         x: viewportRect.left,

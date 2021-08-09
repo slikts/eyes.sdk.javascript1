@@ -134,9 +134,14 @@ function makeTakeMarkedScreenshot({driver, stabilization = {}, debug, logger}) {
 }
 
 function makeTakeNativeScreenshot({driver, stabilization = {}, debug, logger}) {
-  return async function takeScreenshot({name} = {}) {
+  return async function takeScreenshot({name, withStatusBar} = {}) {
     logger.verbose('Taking native driver screenshot...')
-    const image = makeImage(stabilization.crop ? await driver.takeScreenshot() : await takeViewportScreenshot())
+    const base64 =
+      stabilization.crop || withStatusBar
+        ? await driver.takeScreenshot()
+        : await driver.execute('mobile:viewportScreenshot')
+    // trimming line breaks since 3rd party grid providers can return them
+    const image = makeImage(base64.replace(/[\r\n]+/g, ''))
     await image.debug({...debug, name, suffix: 'original'})
 
     if (stabilization.scale) image.scale(stabilization.scale)
@@ -145,14 +150,13 @@ function makeTakeNativeScreenshot({driver, stabilization = {}, debug, logger}) {
     if (stabilization.rotate) image.rotate(stabilization.rotate)
 
     if (stabilization.crop) image.crop(stabilization.crop)
+    else if (withStatusBar) {
+      const viewportSize = await driver.getViewportSize()
+      image.crop({x: 0, y: 0, width: viewportSize.width, height: viewportSize.height + driver.statusBarHeight})
+      await image.debug({...debug, name, suffix: 'statusbar'})
+    }
 
     return image
-  }
-
-  async function takeViewportScreenshot() {
-    const base64 = await driver.execute('mobile:viewportScreenshot')
-    // trimming line breaks since 3rd party grid providers can return them
-    return base64.replace(/\r\n/g, '')
   }
 }
 

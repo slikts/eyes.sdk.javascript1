@@ -3,6 +3,7 @@
 
 ## Unreleased
 
+- add `withStatusBar` capability property to take app and full app screenshots with status bar
 
 ## 3.2.1 - 2021/8/8
 

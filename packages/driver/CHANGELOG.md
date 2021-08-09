@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- add `statusBarHeight` getter to the driver
 
 ## 1.1.2 - 2021/8/8
 

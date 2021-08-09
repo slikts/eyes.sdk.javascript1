@@ -73,6 +73,9 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   get pixelRatio() {
     return this._driverInfo.pixelRatio ?? 1
   }
+  get statusBarHeight() {
+    return this._driverInfo.statusBarHeight ?? (this.isNative ? 0 : undefined)
+  }
   get isNative(): boolean {
     return this._driverInfo?.isNative ?? false
   }
@@ -116,6 +119,8 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
         userAgent,
         pixelRatio,
       }
+    } else if (this.isAndroid) {
+      this._driverInfo.statusBarHeight = this._driverInfo.statusBarHeight / this.pixelRatio
     }
 
     this._logger.log('Driver initialized', this._driverInfo)

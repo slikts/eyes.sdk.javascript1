@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- add optional property `statusBarHeight` to the `DriverInfo` type
 
 ## 1.0.6 - 2021/8/3
 
