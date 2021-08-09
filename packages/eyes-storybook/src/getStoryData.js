@@ -37,7 +37,7 @@ function makeGetStoryData({logger, takeDomSnapshots, waitBeforeScreenshot, reloa
     }
     if (wait) {
       logger.log(`waiting before screenshot of ${title} ${wait}`);
-      await page.waitFor(wait);
+      await page.waitForTimeout(wait);
     }
 
     if (eyesParameters && eyesParameters.runBefore) {
