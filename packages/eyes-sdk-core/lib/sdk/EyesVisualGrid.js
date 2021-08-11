@@ -11,11 +11,7 @@ const CorsIframeHandles = require('../capture/CorsIframeHandles')
 const VisualGridRunner = require('../runner/VisualGridRunner')
 const takeDomSnapshots = require('../utils/takeDomSnapshots')
 const EyesCore = require('./EyesCore')
-const EyesUtils = require('./EyesUtils')
-const {
-  resolveAllRegionElements,
-  toCheckWindowConfiguration,
-} = require('../fluent/CheckSettingsUtils')
+const CheckSettingsUtils = require('../sdk/CheckSettingsUtils')
 
 class EyesVisualGrid extends EyesCore {
   static specialize({agentId, spec, VisualGridClient}) {
@@ -155,7 +151,7 @@ class EyesVisualGrid extends EyesCore {
           this._configuration.getDisableBrowserFetching(),
         )
         const showLogs = this._configuration.getShowLogs()
-        const snapshots = await takeDomSnapshots({
+        const {snapshots, cookies} = await takeDomSnapshots({
           browsers,
           breakpoints,
           disableBrowserFetching,

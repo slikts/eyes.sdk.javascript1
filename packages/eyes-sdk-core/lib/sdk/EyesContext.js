@@ -142,9 +142,7 @@ class EyesContext {
   async equals(context) {
     if (context === this || (this.isMain && context === null)) return true
     if (!this._element) return false
-    return this._element.equals(
-      context instanceof EyesContext ? await context.getFrameElement() : context,
-    )
+    return this._element.equals(context instanceof EyesContext ? await context.getFrameElement() : context)
   }
 
   async init() {
@@ -163,9 +161,7 @@ class EyesContext {
         }
         this._element = elements[this._reference]
       } else if (TypeUtils.isString(this._reference) || this.spec.isSelector(this._reference)) {
-        const referenceStr = TypeUtils.isString(this._reference)
-          ? this._reference
-          : JSON.stringify(this._reference)
+        const referenceStr = TypeUtils.isString(this._reference) ? this._reference : JSON.stringify(this._reference)
         this._logger.verbose('Getting frames by name or id or selector...')
         if (TypeUtils.isString(this._reference)) {
           this._logger.verbose('Context init from string -', referenceStr)
@@ -265,9 +261,7 @@ class EyesContext {
   async getScrollRootElement() {
     if (!(this._scrollRootElement instanceof EyesElement)) {
       await this.focus()
-      this._scrollRootElement = await this.element(
-        this._scrollRootElement || {type: 'css', selector: 'html'},
-      )
+      this._scrollRootElement = await this.element(this._scrollRootElement || {type: 'css', selector: 'html'})
     }
     return this._scrollRootElement
   }

@@ -1851,7 +1851,7 @@ class EyesBase {
    * @param {CheckSettings} checkSettings - The check settings object of the current test.
    * @return {Promise<AppOutputWithScreenshot>} - The updated app output and screenshot.
    */
-  async _getAppOutputWithScreenshot({lastScreenshot, sendDom}) {
+  async _getAppOutputWithScreenshot({lastScreenshot}) {
     this._logger.verbose('getting screenshot...')
 
     // Getting the screenshot (abstract function implemented by each SDK).
