@@ -47,6 +47,7 @@ describe('spec driver', async () => {
         expected: {width: 501, height: 502},
       }),
     )
+    it('getCookies()', getCookies())
   })
 
   function isDriver({input, expected}) {
