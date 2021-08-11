@@ -138,7 +138,7 @@ describe('spec driver', async () => {
         },
       })
     })
-    it.only('getCookies()', async () => {
+    it('getCookies()', async () => {
       await getCookies()
     })
   })
@@ -178,7 +178,7 @@ describe('spec driver', async () => {
         },
       })
     })
-    it.only('getCookies()', async () => {
+    it('getCookies()', async () => {
       await getCookies(true)
     })
   })
@@ -379,7 +379,7 @@ describe('spec driver', async () => {
         },
       })
     })
-    it.only('getCookies()', async () => {
+    it('getCookies()', async () => {
       await getCookies()
     })
   })
@@ -554,20 +554,23 @@ describe('spec driver', async () => {
         await browser.sendCommand(...cdpCommand)
       }
 
-      assert.deepStrictEqual(await spec.getCookies(browser), [
-        {
-          domain: 'what',
-          expiry: -1,
-          httpOnly: false,
-          name: 'hello',
-          path: '/',
-          sameSite: undefined,
-          secure: false,
-          value: 'goodbye',
-          name: 'hello',
-          value: 'world',
-        },
-      ])
+      assert.deepStrictEqual(await spec.getCookies(browser), {
+        all: true,
+        cookies: [
+          {
+            domain: 'what',
+            expiry: -1,
+            httpOnly: false,
+            name: 'hello',
+            path: '/',
+            sameSite: undefined,
+            secure: false,
+            value: 'goodbye',
+            name: 'hello',
+            value: 'world',
+          },
+        ],
+      })
     } else {
       // TODO: implement IE test
       // await browser.addCookie({name: 'hello', value: 'world'})
