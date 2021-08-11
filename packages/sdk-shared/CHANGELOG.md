@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- support cookies
 
 ## 0.9.5 - 2021/8/8
 
