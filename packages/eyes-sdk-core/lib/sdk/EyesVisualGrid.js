@@ -173,12 +173,19 @@ class EyesVisualGrid extends EyesCore {
           configuration: this._configuration,
         })
 
+        const cookies = await extractCookies({
+          driver: this._driver,
+          logger: this._logger,
+          snapshots,
+        })
+
         return await this._checkWindowCommand({
           ...config,
           closeAfterMatch,
           throwEx,
           snapshot: snapshots,
           url,
+          cookies,
         })
       } finally {
         await cleanupPersistance()
