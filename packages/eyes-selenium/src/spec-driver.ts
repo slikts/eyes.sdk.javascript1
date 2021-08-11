@@ -52,6 +52,14 @@ export function transformDriver(driver: Driver): Driver {
   driver.getExecutor().defineCommand('performTouch', 'POST', '/session/:sessionId/touch/perform')
   if (process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3') {
     driver.getExecutor().defineCommand('switchToParentFrame', 'POST', '/session/:sessionId/frame/parent')
+    const cmd = require('selenium-webdriver/lib/command')
+    cmd.Name.SWITCH_TO_PARENT_FRAME = 'switchToParentFrame'
+    driver.getExecutor().defineCommand(cmd.Name.SWITCH_TO_PARENT_FRAME, 'POST', '/session/:sessionId/frame/parent')
+
+    cmd.Name.EXECUTE_CDP = 'executeCdp'
+    driver
+      .getExecutor()
+      .defineCommand(cmd.Name.EXECUTE_CDP, 'POST', 'session/:sessionId/chromium/send_command_and_get_result')
   }
 
   return driver
@@ -224,19 +232,18 @@ export async function waitUntilDisplayed(driver: Driver, selector: Selector, tim
 
 export async function getCookies(driver: Driver): Promise<types.CookiesObject> {
   const {browserName, isMobile} = await getDriverInfo(driver)
+  const seleniumVersion3 = process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3'
+  console.log(seleniumVersion3)
   let allCookies
   if (!isMobile && browserName.search(/chrome/i) !== -1) {
     const cmd = require('selenium-webdriver/lib/command')
-    if (process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3') {
-      const command = new cmd.Command(cmd.Name.EXECUTE_CDP)
-        .setParameter('cmd', 'Network.getAllCookies')
-        .setParameter('params', {})
+    const command = new cmd.Command(seleniumVersion3 ? cmd.Name.EXECUTE_CDP : 'sendAndGetDevToolsCommand')
+      .setParameter('cmd', 'Network.getAllCookies')
+      .setParameter('params', {})
+    if (seleniumVersion3) {
       const {cookies} = await (driver as any).schedule(command)
       allCookies = {cookies, all: true}
     } else {
-      const command = new cmd.Command('sendAndGetDevToolsCommand')
-        .setParameter('cmd', 'Network.getAllCookies')
-        .setParameter('params', {})
       const {cookies} = await (driver as any).execute(command)
       allCookies = {cookies, all: true}
     }

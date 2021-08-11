@@ -107,6 +107,23 @@ describe('spec driver', async () => {
         expected: {width: 551, height: 552},
       })
     })
+    it('getCookies()', async () => {
+      await getCookies({
+        all: true,
+        cookies: [
+          {
+            domain: 'applitools.github.io',
+            expiry: 16741494013,
+            sameSite: undefined,
+            httpOnly: false,
+            path: '/',
+            secure: true,
+            name: 'hello',
+            value: 'world',
+          },
+        ],
+      })
+    });
   })
 
   describe('headless desktop (@angular)', async () => {
@@ -319,5 +336,9 @@ describe('spec driver', async () => {
       Object.keys(expected).reduce((obj, key) => ({...obj, [key]: info[key]}), {}),
       expected,
     )
+  }
+  async function getCookies(expected) {
+    await driver.manage().addCookie({name: 'hello', value: 'world', expiry: 16741494013})
+    assert.deepStrictEqual(await spec.getCookies(driver), expected)
   }
 })

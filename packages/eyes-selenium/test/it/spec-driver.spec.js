@@ -8,7 +8,7 @@ describe('spec driver', async () => {
 
   describe('headless desktop', async () => {
     before(async () => {
-      ;[driver, destroyDriver] = await spec.build({browser: 'chrome'})
+      ;[driver, destroyDriver] = await spec.build({browser: 'chrome', attach: true})
       driver = spec.transformDriver(driver)
       await driver.get(url)
     })
@@ -96,6 +96,35 @@ describe('spec driver', async () => {
         },
       })
     })
+    it('getCookies()', async () => {
+      const expected = {
+        all: true,
+        cookies: [
+          {
+            domain: 'applitools.github.io',
+            path: '/',
+            expiry: 16741494013,
+            sameSite: undefined,
+            secure: true,
+            httpOnly: false,
+            name: 'hello',
+            value: 'world',
+          },
+        ],
+      }
+      await getCookies(expected)
+    })
+  })
+
+  describe('onscreen desktop (@webdriver)', async () => {
+    before(async () => {
+      ;[driver, destroyDriver] = await spec.build({browser: 'chrome', headless: false})
+    })
+
+    after(async () => {
+      await destroyDriver()
+    })
+
     it('getWindowSize()', async () => {
       await getWindowSize()
     })
