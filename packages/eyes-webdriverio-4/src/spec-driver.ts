@@ -196,7 +196,7 @@ export async function waitUntilDisplayed(browser: Driver, selector: Selector, ti
 }
 
 export async function getCookies(browser: Driver): Promise<types.CookiesObject> {
-  const {isMobile, browserName} = await getDriverInfo(browser);
+  const {isMobile, browserName} = await getDriverInfo(browser)
   let allCookies
   if (!isMobile && browserName.search(/chrome/i) !== -1) {
     const {cookies} = await (browser as any).sendCommandAndGetResult('Network.getAllCookies', {})
