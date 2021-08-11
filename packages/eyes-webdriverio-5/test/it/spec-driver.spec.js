@@ -6,7 +6,7 @@ describe('spec driver', async () => {
   let browser, destroyBrowser
   const url = 'https://applitools.github.io/demo/TestPages/FramesTestPage/'
 
-  describe.only('headless desktop (@webdriver)', async () => {
+  describe('headless desktop (@webdriver)', async () => {
     before(function () {
       if (process.env.APPLITOOLS_WEBDRIVERIO_PROTOCOL === 'cdp') this.skip()
     })
@@ -144,11 +144,16 @@ describe('spec driver', async () => {
         cookies: [
           {
             domain: 'applitools.github.io',
-            expiry: -1,
-            sameSite: undefined,
+            expires: -1,
+            priority: 'Medium',
+            sameParty: false,
             httpOnly: false,
             path: '/',
             secure: true,
+            session: true,
+            size: 10,
+            sourcePort: 443,
+            sourceScheme: 'Secure',
             name: 'hello',
             value: 'world',
           },
@@ -198,9 +203,8 @@ describe('spec driver', async () => {
         all: false,
         cookies: [
           {
-            domain: undefined,
-            expiry: undefined,
-            sameSite: undefined,
+            class: 'org.openqa.selenium.Cookie',
+            hCode: 99162322,
             httpOnly: false,
             path: '/',
             secure: true,
@@ -251,8 +255,6 @@ describe('spec driver', async () => {
         cookies: [
           {
             domain: 'applitools.github.io',
-            expiry: undefined,
-            sameSite: undefined,
             httpOnly: false,
             path: '/',
             secure: true,
@@ -427,7 +429,26 @@ describe('spec driver', async () => {
       })
     })
     it('getCookies()', async () => {
-      await getCookies()
+      await getCookies({
+        all: true,
+        cookies: [
+          {
+            domain: 'applitools.github.io',
+            expires: -1,
+            priority: 'Medium',
+            sameParty: false,
+            httpOnly: false,
+            path: '/',
+            secure: true,
+            session: true,
+            size: 10,
+            sourcePort: 443,
+            sourceScheme: 'Secure',
+            name: 'hello',
+            value: 'world',
+          },
+        ],
+      })
     })
   })
 
