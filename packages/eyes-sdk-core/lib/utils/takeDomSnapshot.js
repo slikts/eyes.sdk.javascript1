@@ -28,7 +28,7 @@ async function takeDomSnapshot(logger, driver, options = {}) {
     skipResources,
     removeReverseProxyURLPrefixes = !!process.env.APPLITOOLS_SCRIPT_REMOVE_REVERSE_PROXY_URL_PREFIXES,
     uniqueUrl = generateUniqueUrl,
-    getContextCookies,
+    onSnapshotContext,
   } = options
   const isLegacyBrowser = driver.isIE || driver.isEdgeLegacy
   const arg = {
@@ -63,7 +63,7 @@ async function takeDomSnapshot(logger, driver, options = {}) {
       `taking dom snapshot. ${context._reference ? `context referece: ${JSON.stringify(context._reference)}` : ''}`,
     )
 
-    await getContextCookies(context)
+    await onSnapshotContext(context)
     const snapshot = await EyesUtils.executePollScript(logger, context, scripts, {
       executionTimeout,
       pollTimeout,
