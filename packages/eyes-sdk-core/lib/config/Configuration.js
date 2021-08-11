@@ -1236,9 +1236,8 @@ class Configuration {
     }
     ArgumentGuard.isArray(value, 'properties')
 
-    for (const data of value) {
-      if (!this._browsersInfo.includes(data)) this._browsersInfo.push(data)
-    }
+    this._browsersInfo = value
+
     return this
   }
 
