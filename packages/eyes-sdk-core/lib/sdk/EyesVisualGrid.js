@@ -11,7 +11,11 @@ const CorsIframeHandles = require('../capture/CorsIframeHandles')
 const VisualGridRunner = require('../runner/VisualGridRunner')
 const takeDomSnapshots = require('../utils/takeDomSnapshots')
 const EyesCore = require('./EyesCore')
-const CheckSettingsUtils = require('./CheckSettingsUtils')
+const EyesUtils = require('./EyesUtils')
+const {
+  resolveAllRegionElements,
+  toCheckWindowConfiguration,
+} = require('../fluent/CheckSettingsUtils')
 
 class EyesVisualGrid extends EyesCore {
   static specialize({agentId, spec, VisualGridClient}) {
@@ -173,11 +177,8 @@ class EyesVisualGrid extends EyesCore {
           configuration: this._configuration,
         })
 
-        const cookies = await extractCookies({
-          driver: this._driver,
-          logger: this._logger,
-          snapshots,
-        })
+        const cookies = await this._driver.getCookies()
+        // this._logger(``)
 
         return await this._checkWindowCommand({
           ...config,
