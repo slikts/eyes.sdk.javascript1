@@ -6,7 +6,7 @@ describe('spec driver', async () => {
   let browser, destroyBrowser
   const url = 'https://applitools.github.io/demo/TestPages/FramesTestPage/'
 
-  describe('headless desktop (@webdriver)', async () => {
+  describe.only('headless desktop (@webdriver)', async () => {
     before(function () {
       if (process.env.APPLITOOLS_WEBDRIVERIO_PROTOCOL === 'cdp') this.skip()
     })

@@ -296,10 +296,12 @@ export async function getElementRegion(
       region.height = size.height
     }
     return region
+  }
+}
 
-export async function getCookies(browser: Driver): Promise<types.CookieObject> {
-  const capabilities = browser.capabilities as any
-  const {isDevTools, isMobile} = browser
+export async function getCookies(browser: Driver): Promise<types.CookiesObject> {
+  const {browserName} = browser.capabilities as any
+  const {isMobile} = browser
   let allCookies
   if (browser.isDevTools) {
     const puppeteer = await browser.getPuppeteer()
