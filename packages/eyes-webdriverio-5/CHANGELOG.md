@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+<<<<<<< HEAD
 
 ## 5.32.2 - 2021/8/13
 
@@ -29,6 +30,9 @@
 - updated to @applitools/eyes-sdk-core@12.21.3 (from 12.21.1)
 - updated to @applitools/visual-grid-client@15.8.12 (from 15.8.11)
 
+=======
+- support cookies
+>>>>>>> 539a524b6 (chore: changelog)
 ## 5.31.8 - 2021/6/15
 
 - added full typescript support
