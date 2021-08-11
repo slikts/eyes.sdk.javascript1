@@ -301,12 +301,12 @@ export async function getCookies(browser: Driver): Promise<types.CookieObject> {
   const capabilities = browser.capabilities as any
   const {isDevTools, isMobile} = browser
   let allCookies
-  if (isDevTools) {
+  if (browser.isDevTools) {
     const puppeteer = await browser.getPuppeteer()
     const [page] = await puppeteer.pages()
     const {cookies} = await (page as any)._client.send('Network.getAllCookies')
     allCookies = {cookies, all: true}
-  } else if (!isMobile && capabilities.browserName.search(/chrome/i) !== -1) {
+  } else if (!isMobile && browserName.search(/chrome/i) !== -1) {
     const {cookies} = await browser.sendCommandAndGetResult('Network.getAllCookies', {})
     allCookies = {cookies, all: true}
   } else {
