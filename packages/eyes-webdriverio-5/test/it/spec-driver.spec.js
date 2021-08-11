@@ -178,8 +178,23 @@ describe('spec driver', async () => {
         },
       })
     })
-    it.skip('getCookies()', async () => {
-      await getCookies(true)
+    it('getCookies()', async () => {
+      await spec.visit(browser, url)
+      await getCookies(true, {
+        all: false,
+        cookies: [
+          {
+            domain: undefined,
+            expiry: undefined,
+            sameSite: undefined,
+            httpOnly: false,
+            path: '/',
+            secure: true,
+            name: 'hello',
+            value: 'world',
+          },
+        ],
+      })
     })
   })
 
@@ -215,8 +230,23 @@ describe('spec driver', async () => {
         },
       })
     })
-    it.skip('getCookies()', async () => {
-      await getCookies(true)
+    it('getCookies()', async () => {
+      await spec.visit(browser, url)
+      await getCookies(true, {
+        all: false,
+        cookies: [
+          {
+            domain: 'applitools.github.io',
+            expiry: undefined,
+            sameSite: undefined,
+            httpOnly: false,
+            path: '/',
+            secure: true,
+            name: 'hello',
+            value: 'world',
+          },
+        ],
+      })
     })
   })
 
@@ -531,7 +561,7 @@ describe('spec driver', async () => {
       expected,
     )
   }
-  async function getCookies(legacy = false) {
+  async function getCookies(legacy = false, expected) {
     if (!legacy) {
       const cdpCommand = [
         'Network.setCookie',
@@ -574,12 +604,8 @@ describe('spec driver', async () => {
         ],
       })
     } else {
-      // TODO: implement IE test
-
-      await browser.addCookie({name: 'hello', value: 'world'})
-      assert.deepStrictEqual(await spec.getCookies(browser), [
-        {name: 'hello', value: 'world', domain: 'applitools.github.io'},
-      ])
+      await browser.addCookie({name: 'hello', value: 'world', secure: true})
+      assert.deepStrictEqual(await spec.getCookies(browser), expected)
     }
   }
 })
