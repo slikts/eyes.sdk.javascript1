@@ -224,7 +224,7 @@ export async function getCookies(browser: Driver): Promise<types.CookiesObject> 
 // #region MOBILE COMMANDS
 
 export async function getOrientation(browser: Driver): Promise<'portrait' | 'landscape'> {
-  const orientation = ((await browser.getOrientation()) as unknown) as string
+  const orientation = (await browser.getOrientation()) as unknown as string
   return orientation.toLowerCase() as 'portrait' | 'landscape'
 }
 export async function getElementRegion(
