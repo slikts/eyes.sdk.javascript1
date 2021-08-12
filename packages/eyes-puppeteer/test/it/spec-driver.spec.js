@@ -54,9 +54,14 @@ describe('spec driver', async () => {
         cookies: [
           {
             domain: 'applitools.github.io',
-            expiry: -1,
-            sameSite: undefined,
+            expires: -1,
+            sameParty: false,
             httpOnly: false,
+            session: true,
+            size: 10,
+            sourcePort: 443,
+            sourceScheme: 'Secure',
+            priority: 'Medium',
             path: '/',
             secure: true,
             name: 'hello',
