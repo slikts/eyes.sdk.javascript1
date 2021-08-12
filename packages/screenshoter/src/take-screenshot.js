@@ -126,7 +126,7 @@ function makeTakeMarkedScreenshot({driver, stabilization = {}, debug, logger}) {
 
       const viewportSize = await driver.getViewportSize()
 
-      return utils.geometry.region(markerLocation, viewportSize)
+      return utils.geometry.region(utils.geometry.scale(markerLocation, 1 / driver.pixelRatio), viewportSize)
     } finally {
       await driver.mainContext.execute(snippets.cleanupPageMarker)
     }
@@ -136,10 +136,7 @@ function makeTakeMarkedScreenshot({driver, stabilization = {}, debug, logger}) {
 function makeTakeNativeScreenshot({driver, stabilization = {}, debug, logger}) {
   return async function takeScreenshot({name, withStatusBar} = {}) {
     logger.verbose('Taking native driver screenshot...')
-    const base64 =
-      stabilization.crop || withStatusBar
-        ? await driver.takeScreenshot()
-        : await driver.execute('mobile:viewportScreenshot')
+    const base64 = await driver.takeScreenshot()
     // trimming line breaks since 3rd party grid providers can return them
     const image = makeImage(base64.replace(/[\r\n]+/g, ''))
     await image.debug({...debug, name, suffix: 'original'})
@@ -150,10 +147,13 @@ function makeTakeNativeScreenshot({driver, stabilization = {}, debug, logger}) {
     if (stabilization.rotate) image.rotate(stabilization.rotate)
 
     if (stabilization.crop) image.crop(stabilization.crop)
-    else if (withStatusBar) {
+    else {
       const viewportSize = await driver.getViewportSize()
-      image.crop({x: 0, y: 0, width: viewportSize.width, height: viewportSize.height + driver.statusBarHeight})
-      await image.debug({...debug, name, suffix: 'statusbar'})
+      const cropRegion = withStatusBar
+        ? {x: 0, y: 0, width: viewportSize.width, height: viewportSize.height + driver.statusBarHeight}
+        : {x: 0, y: driver.statusBarHeight, width: viewportSize.width, height: viewportSize.height}
+      image.crop(cropRegion)
+      await image.debug({...debug, name, suffix: `viewport${withStatusBar ? '-with-statusbar' : ''}`})
     }
 
     return image

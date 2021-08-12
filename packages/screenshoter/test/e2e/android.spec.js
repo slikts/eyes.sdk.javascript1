@@ -1,12 +1,13 @@
 const assert = require('assert')
 const pixelmatch = require('pixelmatch')
-const makeDriver = require('../util/driver')
-const screenshoter = require('../../index')
+const {Driver} = require('@applitools/driver')
+const spec = require('../util/spec-driver')
 const makeImage = require('../../src/image')
+const screenshoter = require('../../index')
 
 describe('screenshoter', () => {
-  const logger = {log: () => null, verbose: () => null}
-  let driver, destroyDriver
+  const logger = {log: () => {}, warn: () => {}, error: () => {}, verbose: () => {}}
+  let driver, browser, destroyBrowser
 
   async function sanitizeStatusBar(image) {
     const patchImage = makeImage({
@@ -18,20 +19,25 @@ describe('screenshoter', () => {
   }
 
   describe('android app', () => {
-    beforeEach(async () => {
-      ;[driver, destroyDriver] = await makeDriver({type: 'android'})
-      await driver.init()
+    before(async () => {
+      ;[browser, destroyBrowser] = await spec.build({type: 'android'})
     })
 
-    afterEach(async () => {
-      await destroyDriver()
+    after(async () => {
+      await destroyBrowser()
+    })
+
+    beforeEach(async () => {
+      await browser.closeApp()
+      await browser.launchApp()
+      driver = await new Driver({driver: browser, spec, logger}).init()
     })
 
     it('take viewport screenshot', () => {
       return app()
     })
 
-    it.only('take viewport screenshot with status bar', () => {
+    it('take viewport screenshot with status bar', () => {
       return app({withStatusBar: true})
     })
 
@@ -39,7 +45,7 @@ describe('screenshoter', () => {
       return fullApp({type: 'scroll'})
     })
 
-    it.only('take full app screenshot with status bar (scroll view)', () => {
+    it('take full app screenshot with status bar (scroll view)', () => {
       return fullApp({type: 'scroll', withStatusBar: true})
     })
 
@@ -61,13 +67,18 @@ describe('screenshoter', () => {
   })
 
   describe('androidx app', () => {
-    beforeEach(async () => {
-      ;[driver, destroyDriver] = await makeDriver({type: 'androidx'})
-      await driver.init()
+    before(async () => {
+      ;[browser, destroyBrowser] = await spec.build({type: 'androidx'})
     })
 
-    afterEach(async () => {
-      await destroyDriver()
+    after(async () => {
+      await destroyBrowser()
+    })
+
+    beforeEach(async () => {
+      await browser.closeApp()
+      await browser.launchApp()
+      driver = await new Driver({driver: browser, spec, logger}).init()
     })
 
     it('take full app screenshot (recycler view)', () => {
@@ -82,7 +93,7 @@ describe('screenshoter', () => {
   async function app(options = {}) {
     const expectedPath = `./test/fixtures/android/app${options.withStatusBar ? '-statusbar' : ''}.png`
 
-    const screenshot = await screenshoter({logger, driver, ...options})
+    const screenshot = await screenshoter({logger, driver, wait: 1500, ...options})
     try {
       if (options.withStatusBar) await sanitizeStatusBar(screenshot.image)
       const actual = await screenshot.image.toObject()

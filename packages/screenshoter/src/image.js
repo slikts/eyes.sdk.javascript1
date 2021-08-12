@@ -67,7 +67,7 @@ function makeImage(data) {
         region = utils.geometry.scale(region, 1 / transforms.scale)
       }
       region = utils.geometry.rotate(region, transforms.rotate)
-      transforms.crop = utils.geometry.intersect(transforms.crop, region)
+      transforms.crop = utils.geometry.intersect(transforms.crop, utils.geometry.offset(region, transforms.crop))
 
       size = utils.geometry.round(utils.geometry.size(transforms.crop))
 

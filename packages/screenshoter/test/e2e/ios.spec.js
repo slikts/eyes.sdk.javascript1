@@ -1,12 +1,13 @@
 const assert = require('assert')
 const pixelmatch = require('pixelmatch')
-const makeDriver = require('../util/driver')
-const screenshoter = require('../../index')
+const {Driver} = require('@applitools/driver')
+const spec = require('../util/spec-driver')
 const makeImage = require('../../src/image')
+const screenshoter = require('../../index')
 
 describe('screenshoter ios', () => {
-  const logger = {log: () => null, verbose: () => null}
-  let driver, destroyDriver
+  const logger = {log: () => {}, warn: () => {}, error: () => {}, verbose: () => {}}
+  let driver, browser, destroyBrowser
 
   async function sanitizeStatusBar(image) {
     const leftPatchImage = makeImage({
@@ -23,13 +24,18 @@ describe('screenshoter ios', () => {
     await image.copy(rightPatchImage, {x: 290, y: 15})
   }
 
-  beforeEach(async () => {
-    ;[driver, destroyDriver] = await makeDriver({type: 'ios'})
-    await driver.init()
+  before(async () => {
+    ;[browser, destroyBrowser] = await spec.build({type: 'ios'})
   })
 
-  afterEach(async () => {
-    await destroyDriver()
+  after(async () => {
+    await destroyBrowser()
+  })
+
+  beforeEach(async () => {
+    await browser.closeApp()
+    await browser.launchApp()
+    driver = await new Driver({driver: browser, spec, logger}).init()
   })
 
   it('take viewport screenshot', () => {
@@ -88,10 +94,10 @@ describe('screenshoter ios', () => {
   }
   async function fullApp({type, ...options} = {}) {
     let buttonSelector, expectedPath
-    if (type === 'table') {
+    if (type === 'collection') {
       buttonSelector = {type: 'accessibility id', selector: 'Collection view'}
       expectedPath = `./test/fixtures/ios/app-fully-collection${options.withStatusBar ? '-statusbar' : ''}.png`
-    } else if (type === 'collection') {
+    } else if (type === 'table') {
       buttonSelector = {type: 'accessibility id', selector: 'Table view'}
       expectedPath = `./test/fixtures/ios/app-fully-table${options.withStatusBar ? '-statusbar' : ''}.png`
     } else {
