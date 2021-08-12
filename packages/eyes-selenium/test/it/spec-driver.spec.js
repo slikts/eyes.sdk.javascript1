@@ -92,7 +92,7 @@ describe('spec driver', async () => {
           browserName: 'chrome',
           isMobile: false,
           isNative: false,
-          platformName: 'linux',
+          platformName: 'Linux',
         },
       })
     })
@@ -102,11 +102,16 @@ describe('spec driver', async () => {
         cookies: [
           {
             domain: 'applitools.github.io',
-            path: '/',
-            expiry: 16741494013,
-            sameSite: undefined,
-            secure: true,
+            expires: 16741494013,
+            priority: 'Medium',
+            sameParty: false,
             httpOnly: false,
+            path: '/',
+            secure: true,
+            session: false,
+            size: 10,
+            sourcePort: 443,
+            sourceScheme: 'Secure',
             name: 'hello',
             value: 'world',
           },
@@ -204,7 +209,6 @@ describe('spec driver', async () => {
             domain: 'applitools.github.io',
             path: '/',
             expiry: 16741494013,
-            sameSite: undefined,
             secure: true,
             httpOnly: false,
             name: 'hello',
