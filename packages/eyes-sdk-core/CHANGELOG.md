@@ -2,6 +2,18 @@
 
 ## Unreleased
 
+
+## 12.22.5 - 2021/8/13
+
+- add error throwing to `close` and `closeAllEyes`
+- return array of tests results from `close` and `abort`
+- updated to @applitools/dom-snapshot@4.5.7 (from 4.5.6)
+- updated to @applitools/types@1.0.7 (from 1.0.6)
+
+## 12.22.4 - 2021/8/9
+
+- fix ignoreMismatch issue
+
 ## 12.22.3 - 2021/8/8
 
 - updated to @applitools/driver@1.1.2 (from 1.1.1)

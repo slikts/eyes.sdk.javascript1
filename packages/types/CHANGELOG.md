@@ -4,6 +4,11 @@
 
 - add optional property `statusBarHeight` to the `DriverInfo` type
 
+## 1.0.7 - 2021/8/13
+
+- add support for `throwErr` argument to `close` and `closeAllEyes`
+- return array of tests results from `close` and `abort`
+
 ## 1.0.6 - 2021/8/3
 
 - add element selector to `isStaleElementError`

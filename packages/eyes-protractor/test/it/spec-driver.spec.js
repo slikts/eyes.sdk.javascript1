@@ -98,6 +98,15 @@ describe('spec driver', async () => {
         },
       })
     })
+    it('getWindowSize()', async () => {
+      await getWindowSize()
+    })
+    it('setWindowSize({width, height})', async () => {
+      await setWindowSize({
+        input: {width: 551, height: 552},
+        expected: {width: 551, height: 552},
+      })
+    })
   })
 
   describe('headless desktop (@angular)', async () => {
@@ -117,26 +126,6 @@ describe('spec driver', async () => {
     })
     it('findElements(by-ng)', async () => {
       await findElements({input: () => driver.by.model('name')})
-    })
-  })
-
-  describe('onscreen desktop (@webdriver)', async () => {
-    before(async () => {
-      ;[driver, destroyDriver] = await spec.build({browser: 'chrome', headless: false})
-    })
-
-    after(async () => {
-      await destroyDriver()
-    })
-
-    it('getWindowSize()', async () => {
-      await getWindowSize()
-    })
-    it('setWindowSize({width, height})', async () => {
-      await setWindowSize({
-        input: {width: 551, height: 552},
-        expected: {width: 551, height: 552},
-      })
     })
   })
 
@@ -171,9 +160,10 @@ describe('spec driver', async () => {
     })
   })
 
-  describe('mobile driver (@mobile)', async () => {
+  describe('mobile driver (@mobile @android)', async () => {
     before(async () => {
       ;[driver, destroyDriver] = await spec.build({browser: 'chrome', device: 'Pixel 3a XL'})
+      driver = spec.transformDriver(driver)
     })
 
     after(async () => {

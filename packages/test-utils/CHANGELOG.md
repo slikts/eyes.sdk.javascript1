@@ -3,6 +3,14 @@
 ## Unreleased
 
 
+## 1.0.7 - 2021/8/9
+
+- fix `parseEnv`
+- fix `parseEnv`
+## 1.0.6 - 2021/8/9
+
+- add empty `browserName` if `app` is passed to `parseEnv`
+
 ## 1.0.5 - 2021/8/3
 
 - add iPhone XS appium version
