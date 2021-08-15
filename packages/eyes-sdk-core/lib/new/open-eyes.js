@@ -2,6 +2,7 @@ const SessionEventHandler = require('../events/SessionEventHandler')
 const RemoteSessionEventHandler = require('../events/RemoteSessionEventHandler')
 
 const makeCheck = require('./check')
+const makeCheckAndClose = require('./check-and-close')
 const makeLocate = require('./locate')
 const makeExtractText = require('./extract-text')
 const makeExtractTextRegions = require('./extract-text-regions')
@@ -48,6 +49,7 @@ function makeOpenEyes({sdk, runner}) {
 
     return {
       check: makeCheck({eyes}),
+      checkAndClose: makeCheckAndClose({eyes}),
       locate: makeLocate({eyes}),
       extractText: makeExtractText({eyes}),
       extractTextRegions: makeExtractTextRegions({eyes}),

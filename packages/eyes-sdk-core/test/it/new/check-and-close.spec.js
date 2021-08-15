@@ -6,7 +6,7 @@ const MockDriver = require('../../utils/MockDriver')
 const spec = require('../../utils/FakeSpecDriver')
 const makeSDK = require('../../../lib/new/sdk')
 
-describe('close', async () => {
+describe('checkAndClose', async () => {
   let server, serverUrl, driver, manager
 
   before(async () => {
@@ -31,20 +31,15 @@ describe('close', async () => {
   it('should not throw on close', async () => {
     const eyes = await manager.openEyes({
       driver,
-      config: {appName: 'App', testName: 'Test', serverUrl, matchTimeout: 0},
+      config: {appName: 'App', testName: 'Test', serverUrl, matchTimeout: 0, logs: {type: 'console'}},
     })
-    await eyes.check()
-    const testResults = await eyes.close({throwErr: false})
-
+    const testResults = await eyes.checkAndClose({throwErr: false})
+    console.log(testResults)
     assert.ok(Array.isArray(testResults))
   })
 
   it('should throw on close', async () => {
-    const eyes = await manager.openEyes({
-      driver,
-      config: {appName: 'App', testName: 'Test', serverUrl, matchTimeout: 0},
-    })
-    await eyes.check()
-    await assertRejects(eyes.close({throwErr: true}))
+    const eyes = await manager.openEyes({driver, config: {appName: 'App', testName: 'Test', serverUrl}})
+    await assertRejects(eyes.checkAndClose({throwErr: true}))
   })
 })
