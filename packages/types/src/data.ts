@@ -283,3 +283,8 @@ export type Cookie = {
   httpOnly?: boolean
   secure?: boolean
 }
+
+export type CookieObject = {
+  cookies: Cookie[]
+  all: boolean
+}

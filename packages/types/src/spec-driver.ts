@@ -1,4 +1,4 @@
-import {Size, DriverInfo, Region} from './data'
+import {Size, DriverInfo, Region, CookieObject} from './data'
 
 export type SpecSelector<TSelector> = TSelector | string | {type: string; selector: string}
 
@@ -29,14 +29,10 @@ export interface SpecDriver<TDriver, TContext, TElement, TSelector> {
   getUrl(driver: TDriver): Promise<string>
   takeScreenshot(driver: TDriver): Promise<Buffer | string>
   visit?(driver: TDriver, url: string): Promise<void>
-<<<<<<< HEAD
-
   getOrientation?(driver: TDriver): Promise<'portrait' | 'landscape'>
   getElementRegion?(driver: TDriver, element: TElement): Promise<Region>
   getElementAttribute?(driver: TDriver, element: TElement, attr: string): Promise<string>
   getElementText?(driver: TDriver, element: TElement): Promise<string>
   performAction?(driver: TDriver, steps: any[]): Promise<void>
-=======
-  getCookies?(driver: TDriver): Promise<Cookie[]>
->>>>>>> f324b2a6b (wip: cookies)
+  getCookies?(driver: TDriver): Promise<CookieObject>
 }

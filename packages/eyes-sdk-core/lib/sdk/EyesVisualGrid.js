@@ -167,6 +167,7 @@ class EyesVisualGrid extends EyesCore {
           getIosDevicesSizes: this._getIosDevicesSizes,
           showLogs,
         })
+
         const [{url}] = snapshots
         if (this.getCorsIframeHandle() === CorsIframeHandles.BLANK) {
           snapshots.forEach(CorsIframeHandler.blankCorsIframeSrcOfCdt)
@@ -176,9 +177,6 @@ class EyesVisualGrid extends EyesCore {
           checkSettings: persistedCheckSettings,
           configuration: this._configuration,
         })
-
-        const cookies = await this._driver.getCookies()
-        // this._logger(``)
 
         return await this._checkWindowCommand({
           ...config,

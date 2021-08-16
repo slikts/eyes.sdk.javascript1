@@ -36,16 +36,20 @@
     pako "1.0.11"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 "@applitools/driver@1.1.3":
   version "1.1.3"
   resolved "https://registry.yarnpkg.com/@applitools/driver/-/driver-1.1.3.tgz#02b19ce5deeb5c5d2328388f6c44810c45889adf"
   integrity sha512-mHCQRtr9gKSu7wk5CSjUwVzbNN1LuHpSzubwvfpzE+LJp7re242iMuFTWVNlYSmZF90DWZ3KhmssvgFfy4KEyw==
 =======
 <<<<<<< HEAD
+=======
+>>>>>>> 1490f1277 (chore: merge conflicts)
 "@applitools/driver@1.1.2":
   version "1.1.2"
   resolved "https://registry.yarnpkg.com/@applitools/driver/-/driver-1.1.2.tgz#6841f705d9245dd045b17c4329895911e254691b"
   integrity sha512-kcFro7Cx9A+4mbAliYMxCnnNV8uFcMdeCcjKJxVcOxLXtTmxbP1DVk0VNSqRyM4pw0zDtYxbbXy+oS15LPi+kw==
+<<<<<<< HEAD
 =======
 "@applitools/driver@1.0.7":
   version "1.0.7"
@@ -53,17 +57,22 @@
   integrity sha512-cQL7Z/LAISnd8IXA7rJCr4EgURZ4Ypg3c4lCfMObPGz8fHjQnbAgdinTk7ceplkgoVBCrh4EPk23umOEbq6Ugw==
 >>>>>>> f324b2a6b (wip: cookies)
 >>>>>>> ca59de876 (chore: merge conflicts)
+=======
+>>>>>>> 1490f1277 (chore: merge conflicts)
   dependencies:
     "@applitools/snippets" "2.1.4"
     "@applitools/types" "1.0.8"
     "@applitools/utils" "1.2.2"
 
 <<<<<<< HEAD
+<<<<<<< HEAD
 "@applitools/eyes-api@1.0.12":
   version "1.0.12"
   resolved "https://registry.yarnpkg.com/@applitools/eyes-api/-/eyes-api-1.0.12.tgz#c6f5e5f554feb0c0000de76eb64b1ce888beeca6"
   integrity sha512-NjB7IeF1wEoQFGngywH8DXNsqFcPN2jEeblAY2VYnmv4P76u3ks5Uvras5PVpM3OhJX0Y+teoQ0HlwmU59O6gw==
 =======
+=======
+>>>>>>> 1490f1277 (chore: merge conflicts)
 <<<<<<< HEAD
 "@applitools/eyes-api@1.0.11":
   version "1.0.11"
@@ -71,6 +80,9 @@
   integrity sha512-GKcx332uJaG2G2LVlemUXNuGLtcvoaqN/bqqfgMp4YUOhXJ/CGeCDRtnH3NeCech8I2fI4kT7pcuVvOsx9j2Fg==
 =======
 "@applitools/eyes-api@^1.0.5":
+=======
+"@applitools/eyes-api@1.0.5":
+>>>>>>> 1eae2738b (chore: context cookies)
   version "1.0.5"
   resolved "https://registry.npmjs.org/@applitools/eyes-api/-/eyes-api-1.0.5.tgz#0c5f51b7ada07eae7976ab45abcb2e36e998c125"
   integrity sha512-iOyolrAwG9567r/PNaLHYNqhPbx1J0/djq1iv2yhppfkwivAktSEtW/UBG4IF2pnI4Y4eYFxCk6FUigY6/Spqg==
@@ -1063,7 +1075,7 @@
 
 "@wdio/sync@5.18.6":
   version "5.18.6"
-  resolved "https://registry.yarnpkg.com/@wdio/sync/-/sync-5.18.6.tgz#d50eb147287a5d4f8dba231e1c9661599aed3dd3"
+  resolved "https://registry.npmjs.org/@wdio/sync/-/sync-5.18.6.tgz#d50eb147287a5d4f8dba231e1c9661599aed3dd3"
   integrity sha512-9N6s4Im1RHCfKNlh+YTVEDo5Fx8LkstuoDZEPQLi0+60MvlMpVLZL/jHx//PFQIQysQHWDNG9lTt6rexBKLTSw==
   dependencies:
     "@wdio/logger" "5.16.10"
@@ -2733,14 +2745,14 @@ fecha@^4.2.0:
 
 fibers@^4.0.1:
   version "4.0.3"
-  resolved "https://registry.yarnpkg.com/fibers/-/fibers-4.0.3.tgz#dda5918280a48507f5d8a96dd9a525e8f4a532e2"
+  resolved "https://registry.npmjs.org/fibers/-/fibers-4.0.3.tgz#dda5918280a48507f5d8a96dd9a525e8f4a532e2"
   integrity sha512-MW5VrDtTOLpKK7lzw4qD7Z9tXaAhdOmOED5RHzg3+HjUk+ibkjVW0Py2ERtdqgTXaerLkVkBy2AEmJiT6RMyzg==
   dependencies:
     detect-libc "^1.0.3"
 
 fibers_node_v8@^3.1.2:
   version "3.1.5"
-  resolved "https://registry.yarnpkg.com/fibers_node_v8/-/fibers_node_v8-3.1.5.tgz#354b481239e58a1c70eb4bde96c6e459a1e49554"
+  resolved "https://registry.npmjs.org/fibers_node_v8/-/fibers_node_v8-3.1.5.tgz#354b481239e58a1c70eb4bde96c6e459a1e49554"
   integrity sha512-jcut+gL68TclewWH/9si73yDhFOzu8LhmWg6SZRBw13rk4+7DCtqOMdsBhAyXaWRjI7c1XqcRp4AgebLJnvfCQ==
   dependencies:
     detect-libc "^1.0.3"
