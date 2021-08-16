@@ -2,6 +2,7 @@
 /* eslint-disable max-len */
 
 exports.makeSDK = require('./lib/new/sdk')
+exports.checkSpecDriver = require('./lib/new/debug/check-spec-driver')
 
 // config
 exports.AccessibilityLevel = require('./lib/config/AccessibilityLevel')
@@ -26,13 +27,9 @@ exports.IosVersion = require('./lib/config/IosVersion')
 
 // errors
 exports.EyesError = require('./lib/errors/EyesError')
-exports.CoordinatesTypeConversionError = require('./lib/errors/CoordinatesTypeConversionError')
 exports.DiffsFoundError = require('./lib/errors/DiffsFoundError')
 exports.NewTestError = require('./lib/errors/NewTestError')
-exports.OutOfBoundsError = require('./lib/errors/OutOfBoundsError')
 exports.TestFailedError = require('./lib/errors/TestFailedError')
-exports.EyesDriverOperationError = require('./lib/errors/EyesDriverOperationError')
-exports.ElementNotFoundError = require('./lib/errors/ElementNotFoundError')
 
 // geometry
 exports.CoordinatesType = require('./lib/geometry/CoordinatesType')
@@ -139,7 +136,5 @@ exports.EyesRunner = require('./lib/runner/EyesRunner')
 exports.ClassicRunner = require('./lib/runner/ClassicRunner')
 exports.VisualGridRunner = require('./lib/runner/VisualGridRunner')
 exports.RunnerOptions = require('./lib/runner/RunnerOptions')
-exports.TestResultContainer = require('./lib/runner/TestResultContainer')
-exports.TestResultsSummary = require('./lib/runner/TestResultsSummary')
 exports.LogEvent = require('./lib/logging/LogEvent')
 exports.RunnerStartedEvent = require('./lib/logging/RunnerStartedEvent')

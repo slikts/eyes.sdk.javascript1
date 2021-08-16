@@ -3,6 +3,7 @@ const {startFakeEyesServer, getSession} = require('@applitools/sdk-fake-eyes-ser
 const MockDriver = require('../utils/MockDriver')
 const {EyesVisualGrid} = require('../utils/FakeSDK')
 const {MatchLevel, ConsoleLogHandler, Logger, ServerConnector} = require('../../index')
+const TestResults = require('../../lib/TestResults')
 
 describe('EyesVisualGrid', async () => {
   let server, serverUrl, driver, eyes
@@ -31,7 +32,7 @@ describe('EyesVisualGrid', async () => {
   it('should use default match level', async () => {
     await eyes.open(driver, 'FakeApp', 'FakeTest')
     await eyes.check()
-    const results = await eyes.close()
+    const [results] = await eyes.close()
     const {matchLevel} = await extractMatchSettings(results)
     expect(matchLevel).to.be.eql('Strict')
   })
@@ -39,7 +40,7 @@ describe('EyesVisualGrid', async () => {
   it('should use specified match level', async () => {
     await eyes.open(driver, 'FakeApp', 'FakeTest')
     await eyes.check({matchLevel: MatchLevel.Layout})
-    const results = await eyes.close()
+    const [results] = await eyes.close()
     const {matchLevel} = await extractMatchSettings(results)
     expect(matchLevel).to.be.eql('Layout')
   })
@@ -50,8 +51,8 @@ describe('EyesVisualGrid', async () => {
     eyes.setConfiguration(config)
     await eyes.open(driver, 'FakeApp', 'FakeTest')
     await eyes.check({matchLevel: MatchLevel.Layout})
-    const results = await eyes.close()
-    const {startInfo} = await getSession(results, serverUrl)
+    const [results] = await eyes.close()
+    const {startInfo} = await getSession(new TestResults(results), serverUrl)
     const {
       environment: {originalRenderRequest},
     } = startInfo
@@ -100,8 +101,8 @@ describe('EyesVisualGrid', async () => {
   it('should populate agentRunId', async () => {
     await eyes.open(driver, 'FakeApp', 'FakeTest')
     await eyes.check()
-    const results = await eyes.close()
-    const session = await getSession(results, serverUrl)
+    const [results] = await eyes.close()
+    const session = await getSession(new TestResults(results), serverUrl)
     const agentRunId = session.startInfo.agentRunId
     const [testName, random] = agentRunId.split('--')
     expect(testName).to.equal('FakeTest')
@@ -109,7 +110,7 @@ describe('EyesVisualGrid', async () => {
   })
 
   async function extractMatchSettings(results) {
-    const session = await getSession(results, serverUrl)
+    const session = await getSession(new TestResults(results), serverUrl)
     const imageMatchSettings = session.steps[0].matchWindowData.options.imageMatchSettings
     return imageMatchSettings
   }

@@ -3,6 +3,17 @@
 ## Unreleased
 
 
+## 3.22.10 - 2021/8/13
+
+- updated to @applitools/dom-snapshot@4.5.7 (from 4.5.6)
+
+## 3.22.9 - 2021/8/12
+
+- upgrade to latest puppeteer
+- updated to @applitools/eyes-puppeteer@1.8.1 (from 1.8.0)
+- updated to @applitools/eyes-sdk-core@12.22.4 (from 12.22.3)
+- updated to @applitools/visual-grid-client@15.8.18 (from 15.8.17)
+
 ## 3.22.8 - 2021/8/8
 
 - updated to @applitools/driver@1.1.2 (from 1.1.0)

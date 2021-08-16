@@ -2,6 +2,7 @@ const {expect} = require('chai')
 const {startFakeEyesServer, getSession} = require('@applitools/sdk-fake-eyes-server')
 const MockDriver = require('../utils/MockDriver')
 const {EyesClassic} = require('../utils/FakeSDK')
+const TestResults = require('../../lib/TestResults')
 
 describe('codedRegions', async () => {
   let server, serverUrl, driver, eyes
@@ -41,7 +42,7 @@ describe('codedRegions', async () => {
       contentRegions: [content],
       layoutRegions: [layout],
     })
-    const results = await eyes.close()
+    const [results] = await eyes.close()
     const regions = await extractRegions(results)
     expect(regions.ignore).to.be.deep.equal([ignoreRegion(ignore)])
     expect(regions.floating).to.be.deep.equal([floatingRegion(floating.rect, 4, 3, 2, 1)])
@@ -73,7 +74,7 @@ describe('codedRegions', async () => {
       contentRegions: [content],
       layoutRegions: [layout],
     })
-    const results = await eyes.close()
+    const [results] = await eyes.close()
     const regions = await extractRegions(results)
     expect(regions.ignore).to.be.deep.equal([ignoreRegion(ignore)])
     expect(regions.floating).to.be.deep.equal([relatedRegion(floatingRegion(floating.rect, 4, 3, 2, 1), region.rect)])
@@ -91,7 +92,7 @@ describe('codedRegions', async () => {
   })
 
   async function extractRegions(results) {
-    const session = await getSession(results, serverUrl)
+    const session = await getSession(new TestResults(results), serverUrl)
     const imageMatchSettings = session.steps[0].matchWindowData.options.imageMatchSettings
     return {
       ignore: imageMatchSettings.ignore.map(ignoreRegion),

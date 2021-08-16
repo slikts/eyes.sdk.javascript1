@@ -3,6 +3,27 @@
 ## Unreleased
 
 
+## 12.23.0 - 2021/8/15
+
+- add `checkSpecDriver` API
+
+## 12.22.7 - 2021/8/13
+
+- updated to @applitools/screenshoter@3.2.3 (from 3.2.2)
+
+## 12.22.6 - 2021/8/13
+
+- updated to @applitools/driver@1.1.3 (from 1.1.2)
+- updated to @applitools/screenshoter@3.2.2 (from 3.2.1)
+- updated to @applitools/types@1.0.8 (from 1.0.7)
+
+## 12.22.5 - 2021/8/13
+
+- add error throwing to `close` and `closeAllEyes`
+- return array of tests results from `close` and `abort`
+- updated to @applitools/dom-snapshot@4.5.7 (from 4.5.6)
+- updated to @applitools/types@1.0.7 (from 1.0.6)
+
 ## 12.22.4 - 2021/8/9
 
 - fix ignoreMismatch issue
