@@ -435,4 +435,19 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
   async visit(url: string): Promise<void> {
     await this._spec.visit(this.target, url)
   }
+
+  async getCookies() {
+    const {cookies, all} = await this._spec.getCookies(this.target)
+    if (!all) return null
+    return cookies.map((cookie: any) => ({
+      name: cookie.name,
+      value: cookie.value,
+      domain: cookie.domain,
+      path: cookie.path,
+      expiry: cookie.expires,
+      sameSite: cookie.sameSite,
+      httpOnly: cookie.httpOnly,
+      secure: cookie.secure,
+    }))
+  }
 }
