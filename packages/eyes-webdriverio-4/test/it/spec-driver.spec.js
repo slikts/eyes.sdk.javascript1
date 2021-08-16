@@ -112,6 +112,34 @@ describe('spec driver', async () => {
         },
       })
     })
+    it.only('getCookies()', async () => {
+      await getCookies({
+        all: true,
+        cookies: [
+          {
+            domain: 'applitools.github.io',
+            expiry: -1,
+            sameSite: undefined,
+            httpOnly: false,
+            path: '/',
+            secure: true,
+            name: 'hello',
+            value: 'world',
+          },
+        ],
+      })
+    })
+  })
+
+  describe('onscreen desktop (@webdriver)', async () => {
+    before(async () => {
+      ;[browser, destroyBrowser] = await spec.build({browser: 'chrome', headless: false})
+    })
+
+    after(async () => {
+      await destroyBrowser()
+    })
+
     it('getWindowSize()', async () => {
       await getWindowSize()
     })
@@ -348,5 +376,9 @@ describe('spec driver', async () => {
       Object.keys(expected).reduce((obj, key) => ({...obj, [key]: info[key]}), {}),
       expected,
     )
+  }
+  async function getCookies(expected) {
+    await browser.setCookie({name: 'hello', value: 'world', secure: true})
+    assert.deepStrictEqual(await spec.getCookies(browser), expected)
   }
 })
