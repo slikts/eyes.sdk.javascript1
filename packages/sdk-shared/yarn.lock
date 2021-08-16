@@ -71,10 +71,10 @@
     morgan "1.10.0"
     yargs "17.0.1"
 
-"@applitools/test-utils@1.0.5":
-  version "1.0.5"
-  resolved "https://registry.yarnpkg.com/@applitools/test-utils/-/test-utils-1.0.5.tgz#a1246ba050d1bc55bb1c6c603aea86b5adb03486"
-  integrity sha512-qHOHbVc/TRbKs8WSokO6LPfrCe1nOz2IhZhcxlba1FEiFfTZmrZCygzci4vsec9jVxhT+se0Vjsz/+FpzVM81Q==
+"@applitools/test-utils@1.0.7":
+  version "1.0.7"
+  resolved "https://registry.npmjs.org/@applitools/test-utils/-/test-utils-1.0.7.tgz#e1c3dc246ec61b74528ae02838006adb486aa816"
+  integrity sha512-NNoptScJAEmtF8UBuBDPlVb1yduENtFagpC2J8QV6oqkbDNcZCPASucQdOU1vnDE81iMBjqSqxWCFDFc4XLJ1g==
   dependencies:
     chalk "4.1.1"
     node-fetch "2.6.1"
