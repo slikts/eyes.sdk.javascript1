@@ -94,7 +94,7 @@ describe('spec driver', async () => {
           browserName: 'chrome',
           isMobile: false,
           isNative: false,
-          platformName: 'linux',
+          platformName: 'Linux',
         },
       })
     })
@@ -113,8 +113,13 @@ describe('spec driver', async () => {
         cookies: [
           {
             domain: 'applitools.github.io',
-            expiry: 16741494013,
-            sameSite: undefined,
+            expires: 16741494013,
+            sameParty: false,
+            priority: 'Medium',
+            session: false,
+            size: 10,
+            sourcePort: 443,
+            sourceScheme: 'Secure',
             httpOnly: false,
             path: '/',
             secure: true,
@@ -123,7 +128,7 @@ describe('spec driver', async () => {
           },
         ],
       })
-    });
+    })
   })
 
   describe('headless desktop (@angular)', async () => {

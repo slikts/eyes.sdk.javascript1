@@ -443,7 +443,6 @@ describe('spec driver', async () => {
             session: true,
             size: 10,
             sourcePort: 443,
-            sourceScheme: 'Secure',
             name: 'hello',
             value: 'world',
           },
