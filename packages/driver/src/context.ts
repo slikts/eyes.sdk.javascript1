@@ -459,6 +459,31 @@ export class Context<TDriver, TContext, TElement, TSelector> {
     return region
   }
 
+  async switchToFrame(frame: string) {
+    this._target = await this._spec.childContext(this.target, await this._spec.findElement(this.target, frame))
+    await this._driver.updateCurrentContext(this)
+  }
+
+  async switchToDefaultContext() {
+    await this._driver.switchToMainContext()
+  }
+
+  async getRegionWithInShadowElement(shadowElement: TElement, targetSelector: string) {
+    // I need to implement this method for all spec drivers
+    const elements = [await this._spec.getRegionWithinShaow(shadowElement, targetSelector)]
+
+    return elements.map((element, index) => {
+      return new Element({
+        spec: this._spec,
+        context: this,
+        element,
+        selector: targetSelector,
+        index,
+        logger: this._logger,
+      })
+    })
+  }
+
   private async preserveInnerOffset() {
     this._state.innerOffset = await this.getInnerOffset()
   }

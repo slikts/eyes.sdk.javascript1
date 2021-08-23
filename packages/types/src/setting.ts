@@ -59,6 +59,7 @@ export type MatchSettings<TRegion> = {
 export type ScreenshotSettings<TElement, TSelector> = {
   region?: RegionReference<TElement, TSelector>
   frames?: (ContextReference<TElement, TSelector> | FrameReference<TElement, TSelector>)[]
+  shadow?: ElementReference<TElement, TSelector>
   scrollRootElement?: ElementReference<TElement, TSelector>
   fully?: boolean
 }

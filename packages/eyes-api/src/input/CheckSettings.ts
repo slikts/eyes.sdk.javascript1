@@ -1,6 +1,7 @@
 import * as utils from '@applitools/utils'
 import {AccessibilityRegionType, AccessibilityRegionTypeEnum} from '../enums/AccessibilityRegionType'
 import {MatchLevel, MatchLevelEnum} from '../enums/MatchLevel'
+import {EyesError} from '../errors/EyesError'
 import {Region} from './Region'
 
 type RegionReference<TElement, TSelector> = Region | ElementReference<TElement, TSelector>
@@ -36,6 +37,7 @@ export type CheckSettings<TElement, TSelector> = {
   name?: string
   region?: RegionReference<TElement, TSelector>
   frames?: (ContextReference<TElement, TSelector> | FrameReference<TElement, TSelector>)[]
+  shadow?: ElementReference<TElement, TSelector>
   scrollRootElement?: ElementReference<TElement, TSelector>
   fully?: boolean
   matchLevel?: MatchLevel
@@ -67,6 +69,7 @@ export type Target<TElement, TSelector> = {
     frame: FrameReference<TElement, TSelector>,
     scrollRootElement?: ElementReference<TElement, TSelector>,
   ): CheckSettingsFluent<TElement, TSelector>
+  shadow(shadow: ElementReference<TElement, TSelector>): CheckSettingsFluent<TElement, TSelector>
 }
 
 export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
@@ -82,7 +85,10 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
   static frame(contextOrFrame: unknown, scrollRootElement?: unknown): CheckSettingsFluent {
     return new this().frame(contextOrFrame, scrollRootElement)
   }
-
+  /** @internal */
+  static shadow(shadow: unknown): CheckSettingsFluent {
+    return new this().shadow(shadow)
+  }
   protected static readonly _spec: CheckSettingsSpec
   protected get _spec(): CheckSettingsSpec<TElement, TSelector> {
     return (this.constructor as typeof CheckSettingsFluent)._spec as CheckSettingsSpec<TElement, TSelector>
@@ -110,6 +116,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     if (!settings) return this
     if (settings.name) this.name(settings.name)
     if (settings.region) this.region(settings.region)
+    if (settings.shadow) this.shadow(settings.shadow)
     if (settings.frames) {
       settings.frames.forEach(reference => {
         if (utils.types.isNull(reference)) return
@@ -180,6 +187,12 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     return this
   }
 
+  shadow(shadow: ElementReference<TElement, TSelector>): this {
+    utils.guard.custom(shadow, value => this._isRegionReference(value), {name: 'shadow'})
+    this._settings.shadow = shadow
+    return this
+  }
+
   frame(context: ContextReference<TElement, TSelector>): this
   frame(frame: FrameReference<TElement, TSelector>, scrollRootElement?: ElementReference<TElement, TSelector>): this
   frame(
@@ -189,6 +202,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     const context = utils.types.has(contextOrFrame, 'frame')
       ? contextOrFrame
       : {frame: contextOrFrame, scrollRootElement}
+    if (this._settings.shadow != undefined) throw new EyesError('frame cannot follow shadow')
     if (!this._settings.frames) this._settings.frames = []
     utils.guard.custom(context.frame, value => this._isFrameReference(value), {name: 'frame'})
     utils.guard.custom(context.scrollRootElement, value => this._isElementReference(value), {

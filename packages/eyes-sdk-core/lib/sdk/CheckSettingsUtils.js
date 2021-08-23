@@ -5,9 +5,14 @@ const ImageMatchSettings = require('../config/ImageMatchSettings')
 
 async function toPersistedCheckSettings({checkSettings, context, logger}) {
   const elementsById = {}
+  const elementsByType = []
+  let shadowElement = undefined
+  let isFrameOrShadow = checkSettings.frame || checkSettings.shadow ? true : false
 
   const persistedCheckSettings = {
     ...checkSettings,
+    frame: await referencesToPersistedRegions(checkSettings.frame, 'frame'),
+    shadow: await referencesToPersistedRegions(checkSettings.shadow, 'shadow'),
     region: (await referencesToPersistedRegions(checkSettings.region && [checkSettings.region]))[0],
     ignoreRegions: await referencesToPersistedRegions(checkSettings.ignoreRegions),
     floatingRegions: await referencesToPersistedRegions(checkSettings.floatingRegions),
@@ -17,21 +22,27 @@ async function toPersistedCheckSettings({checkSettings, context, logger}) {
     accessibilityRegions: await referencesToPersistedRegions(checkSettings.accessibilityRegions),
   }
 
-  await makePersistance()
+  if (!isFrameOrShadow) await makePersistance()
 
   return {persistedCheckSettings, cleanupPersistance}
 
-  async function referencesToPersistedRegions(references = []) {
+  async function referencesToPersistedRegions(references = [], elementType = undefined) {
     const persistedRegions = []
+    let currElement = {}
     for (const reference of references) {
       const {region, ...options} = reference.region ? reference : {region: reference}
       let referenceRegions
       if (utils.types.has(region, ['width', 'height'])) {
         referenceRegions = [region]
       } else {
-        const elements = await context.elements(region)
+        let elements
+        if (!shadowElement) elements = await context.elements(region)
+        else if (elementType != 'shadow')
+          elements = await context.getRegionWithInShadowElement(shadowElement, reference)
+        if (elements) elementsByType.push(elementType)
         referenceRegions = elements.map(element => {
           const elementId = utils.general.guid()
+          currElement = {ele: element, id: elementId}
           elementsById[elementId] = element
           return {
             type: 'css',
@@ -41,18 +52,35 @@ async function toPersistedCheckSettings({checkSettings, context, logger}) {
       }
 
       persistedRegions.push(...referenceRegions.map(region => (reference.region ? {region, ...options} : region)))
+      if (elementType === 'shadow') shadowElement = await context.execute(snippets.getShadowContext, currElement.ele)
+      // I assume that if we are dealling with frames or shadow dom, then there is only one region / frame per selector
+      // this can be worked around for all types other than frames and shadow dom if nessaserty
+      if (isFrameOrShadow) await makePersistance([[currElement.ele], [currElement.id]])
+      if (elementType === 'frame') await context.switchToFrame(reference)
     }
     return persistedRegions
   }
 
-  async function makePersistance() {
-    await context.execute(snippets.setElementMarkers, [Object.values(elementsById), Object.keys(elementsById)])
-    logger.verbose(`elements marked: ${Object.keys(elementsById)}`)
+  async function makePersistance(elements = undefined) {
+    const params = elements ? elements : [Object.values(elementsById), Object.keys(elementsById)]
+    await context.execute(snippets.setElementMarkers, params)
+    logger.verbose(`elements marked: ${params[1]}`)
   }
 
   async function cleanupPersistance() {
-    await context.execute(snippets.cleanupElementMarkers, [Object.values(elementsById)])
-    logger.verbose(`elements cleaned up: ${Object.keys(elementsById)}`)
+    if (!isFrameOrShadow) {
+      await context.execute(snippets.cleanupElementMarkers, [Object.values(elementsById)])
+      logger.verbose(`elements cleaned up: ${Object.keys(elementsById)}`)
+    } else {
+      if (checkSettings.frame) await context.switchToDefaultContext()
+      let elements = Object.values(elementsById)
+      let ids = Object.keys(elementsById)
+      for (let i = 0; i < elements.length; i++) {
+        await context.execute(snippets.cleanupElementMarkers, [[elements[i]]])
+        if (elementsByType[i] === 'frame') await context.switchToFrame(elements[i].selector)
+        logger.verbose(`elements cleaned up: ${ids[i]}`)
+      }
+    }
   }
 }
 
@@ -125,7 +153,7 @@ function toCheckWindowConfiguration({checkSettings, configuration}) {
           }
         : checkSettings.region
     } else {
-      config.selector = checkSettings.region
+      config.selector = checkSettings.frame.concat(checkSettings.shadow).concat(checkSettings.region)
     }
   }
 

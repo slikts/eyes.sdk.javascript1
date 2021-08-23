@@ -2181,7 +2181,7 @@ Received: 'firefox-1'.`,
     expect(JSON.parse(r).visualGridOptions).to.eql({aaa: true})
   })
 
-  it.only('handles selector as array in checkWindow', async () => {
+  it('handles selector as array in checkWindow', async () => {
     openEyes = makeRenderingGridClient({
       apiKey,
       renderWrapper: wrapper,

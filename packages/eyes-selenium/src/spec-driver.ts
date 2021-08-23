@@ -90,6 +90,11 @@ export async function childContext(driver: Driver, element: Element): Promise<Dr
   await driver.switchTo().frame(element)
   return driver
 }
+
+export async function getRegionWithinShaow(shadowRegion: Element, targetSelector: string) {
+  return await shadowRegion.findElement({css: targetSelector})
+}
+
 export async function findElement(driver: Driver, selector: Selector): Promise<Element> {
   try {
     return await driver.findElement(transformSelector(selector))
