@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- remove STDOUT_LEVEL, and fix color in tests
 
 ## 3.24.0 - 2021/8/23
 
