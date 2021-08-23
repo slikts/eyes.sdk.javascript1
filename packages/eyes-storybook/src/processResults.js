@@ -1,6 +1,6 @@
 'use strict';
 const flatten = require('lodash.flatten');
-const chalk = require('./chalkify');
+const chalk = require('chalk');
 const {TestResultsError, TestResultsFormatter} = require('@applitools/eyes-sdk-core');
 const uniq = require('./uniq');
 const concurrencyMsg = require('./concurrencyMsg');
