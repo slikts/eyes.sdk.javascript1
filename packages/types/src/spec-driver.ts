@@ -35,5 +35,5 @@ export interface SpecDriver<TDriver, TContext, TElement, TSelector> {
   getElementAttribute?(driver: TDriver, element: TElement, attr: string): Promise<string>
   getElementText?(driver: TDriver, element: TElement): Promise<string>
   performAction?(driver: TDriver, steps: any[]): Promise<void>
-  getRegionWithinShaow(shadowRegion: TElement, targetSelector: string): TElement
+  getRegionWithinShaow(shadowRegion: TElement, targetSelector: string): TElement[]
 }

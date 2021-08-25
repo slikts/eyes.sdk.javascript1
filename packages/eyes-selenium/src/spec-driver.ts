@@ -92,7 +92,7 @@ export async function childContext(driver: Driver, element: Element): Promise<Dr
 }
 
 export async function getRegionWithinShaow(shadowRegion: Element, targetSelector: string) {
-  return await shadowRegion.findElement({css: targetSelector})
+  return await shadowRegion.findElements({css: targetSelector})
 }
 
 export async function findElement(driver: Driver, selector: Selector): Promise<Element> {
