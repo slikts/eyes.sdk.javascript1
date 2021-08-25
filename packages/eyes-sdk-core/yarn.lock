@@ -174,9 +174,8 @@
     "ncp" "2.0.0"
     "node-fetch" "2.6.1"
 
-"@applitools/snippets@2.1.4":
-  "integrity" "sha512-Jmp+DM9Kj24+ByMaqoKxhMNsefsSshN5+MLyMyrFurb1FGRGoSMmAT5bZCI7zKFG02pxZmjBmenMhpNQbzZR/A=="
-  "resolved" "https://registry.npmjs.org/@applitools/snippets/-/snippets-2.1.4.tgz"
+"@applitools/snippets@2.1.4", "@applitools/snippets@file:../snippets":
+  "resolved" "file:../snippets"
   "version" "2.1.4"
 
 "@applitools/types@1.0.8":

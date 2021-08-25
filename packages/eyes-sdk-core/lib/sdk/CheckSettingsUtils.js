@@ -28,8 +28,8 @@ async function toPersistedCheckSettings({checkSettings, context, logger}) {
 
   async function referencesToPersistedRegions(references = [], elementType = undefined) {
     const persistedRegions = []
-    let currElement = {}
     for (const reference of references) {
+      let currElements = {}
       const {region, ...options} = reference.region ? reference : {region: reference}
       let referenceRegions
       if (utils.types.has(region, ['width', 'height'])) {
@@ -42,8 +42,9 @@ async function toPersistedCheckSettings({checkSettings, context, logger}) {
         if (elements) elementsByType.push(elementType)
         referenceRegions = elements.map(element => {
           const elementId = utils.general.guid()
-          currElement = {ele: element, id: elementId}
           elementsById[elementId] = element
+          // this is used when testing a region within shadow or frame as we need to call markPersistance in this method and not at the end
+          currElements[elementId] = element
           return {
             type: 'css',
             selector: `[data-applitools-marker~="${elementId}"]`,
@@ -52,10 +53,9 @@ async function toPersistedCheckSettings({checkSettings, context, logger}) {
       }
 
       persistedRegions.push(...referenceRegions.map(region => (reference.region ? {region, ...options} : region)))
-      if (elementType === 'shadow') shadowElement = await context.execute(snippets.getShadowContext, currElement.ele)
-      // I assume that if we are dealling with frames or shadow dom, then there is only one region / frame per selector
-      // this can be worked around for all types other than frames and shadow dom if nessaserty
-      if (isFrameOrShadow) await makePersistance([[currElement.ele], [currElement.id]])
+      if (elementType === 'shadow')
+        shadowElement = await context.execute(snippets.getShadowContext, Object.values(currElements)[0])
+      if (isFrameOrShadow) await makePersistance([Object.values(currElements), Object.keys(currElements)])
       if (elementType === 'frame') await context.switchToFrame(reference)
     }
     return persistedRegions
