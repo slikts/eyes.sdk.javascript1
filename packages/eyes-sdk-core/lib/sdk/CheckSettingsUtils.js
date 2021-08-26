@@ -37,8 +37,7 @@ async function toPersistedCheckSettings({checkSettings, context, logger}) {
       } else {
         let elements
         if (!shadowElement) elements = await context.elements(region)
-        else if (elementType != 'shadow')
-          elements = await context.getRegionWithInShadowElement(shadowElement, reference)
+        else elements = await context.getRegionWithInShadowElement(shadowElement, reference)
         if (elements) elementsByType.push(elementType)
         referenceRegions = elements.map(element => {
           const elementId = utils.general.guid()
