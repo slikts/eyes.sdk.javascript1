@@ -131,6 +131,8 @@ const DeviceNames = Enum('DeviceName', {
   Pixel_4: 'Pixel 4',
   /** @type {'Pixel 4 XL'} */
   Pixel_4_XL: 'Pixel 4 XL',
+  /** @type {'Pixel 5'} */
+  Pixel_5: 'Pixel 5',
 })
 
 module.exports = DeviceNames

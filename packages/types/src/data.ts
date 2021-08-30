@@ -172,6 +172,7 @@ export type ChromeEmulationDevice =
   | 'Pixel 3 XL'
   | 'Pixel 4'
   | 'Pixel 4 XL'
+  | 'Pixel 5'
 
 export type ChromeEmulationDeviceRenderer = {
   chromeEmulationInfo: {
