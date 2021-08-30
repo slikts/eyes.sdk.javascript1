@@ -2,6 +2,7 @@
 
 ## Unreleased
  - make sure that we are not adding the same browser environment more than once when marging configs
+ - add Pixel 5 to DeviceName
 
 ## 12.23.0 - 2021/8/15
 

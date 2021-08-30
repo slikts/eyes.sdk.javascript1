@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
-
+- add Pixel 5 to DeviceName 
 
 ## 1.0.12 - 2021/8/13
 

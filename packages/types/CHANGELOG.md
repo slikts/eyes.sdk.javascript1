@@ -1,7 +1,7 @@
 # Changelog
 
 ## Unreleased
-
+- add Pixel 5 to data
 
 ## 1.0.8 - 2021/8/13
 
