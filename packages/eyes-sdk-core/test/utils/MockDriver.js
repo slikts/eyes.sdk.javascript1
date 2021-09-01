@@ -157,6 +157,16 @@ class MockDriver {
       return element.rect || {x: 0, y: 0, width: 100, height: 100}
     })
     this.mockScript('dom-snapshot', () => FakeDomSnapshot.generateDomSnapshot(this))
+    this.mockScript(snippets.getShadowContext, element => {
+      const shadowRoot = this._elements.get(element.children.filter(ele => ele.shadow)[0].selector)[0]
+      const shadow = this._contexts.get(shadowRoot.contextId)
+      if (shadow && this._contextId === shadowRoot.parentContextId) {
+        this._contextId = shadowRoot.contextId
+        return shadowRoot
+      } else {
+        throw new Error('Shaow Dom not found')
+      }
+    })
   }
   mockScript(scriptMatcher, resultGenerator) {
     this._scripts.set(String(scriptMatcher), resultGenerator)
@@ -177,7 +187,7 @@ class MockDriver {
       this._elements.set(selector, elements)
     }
     elements.push(element)
-    if (element.frame) {
+    if (element.frame || element.shadow) {
       const contextId = Symbol('contextId' + (element.name || Math.floor(Math.random() * 100)))
       this._contexts.set(contextId, {
         id: contextId,
@@ -204,10 +214,17 @@ class MockDriver {
       const element = this.mockElement(node.selector, {...node, parentId, parentContextId})
       if (node.children) {
         this.mockElements(node.children, {
-          parentId: element.frame ? null : element.id,
-          parentContextId: element.frame ? this._contexts.get(element.contextId).id : parentContextId,
+          parentId: element.frame || element.shadow ? null : element.id,
+          parentContextId: element.frame || element.shadow ? this._contexts.get(element.contextId).id : parentContextId,
         })
       }
+      // if (node.shadowRoot) {
+      //   this.mockElements(node.shadowRoot, {
+      //     parentId: element.shadow ? null : element.id,
+      //     // parentContextId: element.shadow ? this._contexts.get(element.contextId).id : parentContextId,
+      //     parentContextId: parentContextId,
+      //   })
+      // }
     }
   }
   wrapMethod(name, wrapper) {

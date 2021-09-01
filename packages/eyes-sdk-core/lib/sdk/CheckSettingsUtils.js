@@ -11,8 +11,8 @@ async function toPersistedCheckSettings({checkSettings, context, logger}) {
 
   const persistedCheckSettings = {
     ...checkSettings,
-    frame: await referencesToPersistedRegions(checkSettings.frame, 'frame'),
-    shadow: await referencesToPersistedRegions(checkSettings.shadow, 'shadow'),
+    frame: await referencesToPersistedRegions(checkSettings.frame, 'iframe'),
+    shadow: await referencesToPersistedRegions(checkSettings.shadow, 'shadow-root'),
     region: (await referencesToPersistedRegions(checkSettings.region && [checkSettings.region]))[0],
     ignoreRegions: await referencesToPersistedRegions(checkSettings.ignoreRegions),
     floatingRegions: await referencesToPersistedRegions(checkSettings.floatingRegions),
@@ -47,15 +47,16 @@ async function toPersistedCheckSettings({checkSettings, context, logger}) {
           return {
             type: 'css',
             selector: `[data-applitools-marker~="${elementId}"]`,
+            nodeType: elementType ? elementType : 'element',
           }
         })
       }
 
       persistedRegions.push(...referenceRegions.map(region => (reference.region ? {region, ...options} : region)))
-      if (elementType === 'shadow')
+      if (elementType === 'shadow-root')
         shadowElement = await context.execute(snippets.getShadowContext, Object.values(currElements)[0])
       if (isFrameOrShadow) await makePersistance([Object.values(currElements), Object.keys(currElements)])
-      if (elementType === 'frame') await context.switchToFrame(reference)
+      if (elementType === 'iframe') await context.switchToFrame(reference)
     }
     return persistedRegions
   }
@@ -76,7 +77,7 @@ async function toPersistedCheckSettings({checkSettings, context, logger}) {
       let ids = Object.keys(elementsById)
       for (let i = 0; i < elements.length; i++) {
         await context.execute(snippets.cleanupElementMarkers, [[elements[i]]])
-        if (elementsByType[i] === 'frame') await context.switchToFrame(elements[i].selector)
+        if (elementsByType[i] === 'iframe') await context.switchToFrame(elements[i].selector)
         logger.verbose(`elements cleaned up: ${ids[i]}`)
       }
     }

@@ -469,10 +469,9 @@ export class Context<TDriver, TContext, TElement, TSelector> {
   }
 
   async getRegionWithInShadowElement(shadowElement: TElement, targetSelector: string) {
-    // I need to implement this method for all spec drivers
-    const elements = await this._spec.getRegionWithinShaow(shadowElement, targetSelector)
+    const elements = await this._spec.findElements(this.target, targetSelector, shadowElement)
 
-    return elements.map((element, index) => {
+    return elements.map((element: TElement, index) => {
       return new Element({
         spec: this._spec,
         context: this,

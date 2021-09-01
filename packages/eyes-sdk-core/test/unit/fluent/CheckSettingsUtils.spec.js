@@ -78,26 +78,37 @@ describe('CheckSettingsUtils', () => {
     )
   })
   // this test is currently not passing, I might need to add some functionalty to MockDriver
-  it('toCheckWindowConfiguration handles shaow, frames with target region', async () => {
+  it('toCheckWindowConfiguration handles shadow, frames with target region', async () => {
     const mockDriver = new MockDriver()
     mockDriver.mockElements([
-      {selector: 'shadow1'},
-      {selector: 'shadow2'},
-      {selector: 'frame1'},
-      {selector: 'frame2'},
-      {selector: 'region'},
+      {
+        selector: 'frame1',
+        frame: true,
+        children: [
+          {
+            selector: 'shadow1',
+            children: [
+              {
+                selector: 'shadowDoc',
+                shadow: true,
+                children: [{selector: 'r1'}],
+              },
+            ],
+          },
+        ],
+      },
     ])
     const driver = new Driver({logger, spec, driver: mockDriver})
     const checkSettings = {
-      shadow: [await mockDriver.findElement('shadow1'), await mockDriver.findElement('shadow2')],
-      frame: [await mockDriver.findElement('frame1'), await mockDriver.findElement('frame2')],
+      frame: ['frame1'],
+      shadow: ['shadow1'],
+      region: 'r1',
       target: 'region',
-      region: await mockDriver.findElement('region'),
     }
 
     const {persistedCheckSettings} = await CheckSettingsUtils.toPersistedCheckSettings({
       checkSettings,
-      context: driver,
+      context: driver.currentContext,
       logger,
     })
 

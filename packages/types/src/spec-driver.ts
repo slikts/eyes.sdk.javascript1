@@ -18,7 +18,7 @@ export interface SpecDriver<TDriver, TContext, TElement, TSelector> {
   childContext(context: TContext, element: TElement): Promise<TContext>
   executeScript(context: TContext, script: ((arg?: any) => any) | string, arg?: any): Promise<any>
   findElement(context: TContext, selector: SpecSelector<TSelector>): Promise<TElement | null>
-  findElements(context: TContext, selector: SpecSelector<TSelector>): Promise<TElement[]>
+  findElements(context: TContext, selector: SpecSelector<TSelector>, element?: Element): Promise<TElement[]>
   click?(context: TContext, element: TElement | SpecSelector<TSelector>): Promise<void>
   setWindowSize?(driver: TDriver, size: Size): Promise<void>
   getWindowSize?(driver: TDriver): Promise<Size>
@@ -35,5 +35,4 @@ export interface SpecDriver<TDriver, TContext, TElement, TSelector> {
   getElementAttribute?(driver: TDriver, element: TElement, attr: string): Promise<string>
   getElementText?(driver: TDriver, element: TElement): Promise<string>
   performAction?(driver: TDriver, steps: any[]): Promise<void>
-  getRegionWithinShaow(shadowRegion: TElement, targetSelector: string): TElement[]
 }
