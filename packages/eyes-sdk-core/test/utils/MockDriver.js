@@ -218,13 +218,6 @@ class MockDriver {
           parentContextId: element.frame || element.shadow ? this._contexts.get(element.contextId).id : parentContextId,
         })
       }
-      // if (node.shadowRoot) {
-      //   this.mockElements(node.shadowRoot, {
-      //     parentId: element.shadow ? null : element.id,
-      //     // parentContextId: element.shadow ? this._contexts.get(element.contextId).id : parentContextId,
-      //     parentContextId: parentContextId,
-      //   })
-      // }
     }
   }
   wrapMethod(name, wrapper) {
