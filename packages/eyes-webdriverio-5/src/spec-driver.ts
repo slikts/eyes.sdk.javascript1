@@ -156,8 +156,16 @@ export async function findElement(browser: Driver, selector: Selector): Promise<
   const element = await browser.$(transformSelector(selector))
   return !utils.types.has(element, 'error') ? element : null
 }
-export async function findElements(browser: Driver, selector: Selector): Promise<Applitools.WebdriverIO.Element[]> {
-  const elements = await browser.$$(transformSelector(selector))
+export async function findElements(browser: Driver, selector: Selector, element?: Element): Promise<Applitools.WebdriverIO.Element[]> {
+  let elements
+  if(element){
+    // the return element from getShadowDomContext snippet is of form element-6066-11e4-a52e-4f735466cecf, 
+    //therefore I need to first retrive the wdio element to take advantage of shadow method.
+     let shadowDoc = await browser.$(element as any)
+     elements = await shadowDoc.shadow$$(selector.toString())
+  } 
+  else 
+    elements = await browser.$$(transformSelector(selector))
   return Array.from(elements)
 }
 export async function getWindowSize(browser: Driver): Promise<{width: number; height: number}> {
