@@ -1,12 +1,11 @@
 import * as utils from '@applitools/utils'
-import {SpecSelector} from '../../../types/types'
 import {AccessibilityRegionType, AccessibilityRegionTypeEnum} from '../enums/AccessibilityRegionType'
 import {MatchLevel, MatchLevelEnum} from '../enums/MatchLevel'
 import {Region} from './Region'
 
 type RegionReference<TElement, TSelector> = Region | ElementReference<TElement, TSelector>
 
-type ElementReference<TElement, TSelector> = TElement | SpecSelector<TSelector>
+type ElementReference<TElement, TSelector> = TElement | TSelector
 
 type FrameReference<TElement, TSelector> = ElementReference<TElement, TSelector> | string | number
 
@@ -68,7 +67,7 @@ export type Target<TElement, TSelector> = {
     frame: FrameReference<TElement, TSelector>,
     scrollRootElement?: ElementReference<TElement, TSelector>,
   ): CheckSettingsFluent<TElement, TSelector>
-  shadow(shadow: TSelector): CheckSettingsFluent<TSelector>
+  shadow(selector: TSelector): CheckSettingsFluent<TSelector>
 }
 
 export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
@@ -85,8 +84,8 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     return new this().frame(contextOrFrame, scrollRootElement)
   }
   /** @internal */
-  static shadow(shadow: unknown): CheckSettingsFluent {
-    return new this().shadow(shadow)
+  static shadow(selector: unknown): CheckSettingsFluent {
+    return new this().shadow(selector)
   }
   protected static readonly _spec: CheckSettingsSpec
   protected get _spec(): CheckSettingsSpec<TElement, TSelector> {
@@ -94,6 +93,8 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
   }
 
   private _settings: CheckSettings<TElement, TSelector> = {}
+  private _shadowSelector: TSelector
+  private _isRegionSet = false
 
   private _isFrameReference(value: any): value is FrameReference<TSelector, TElement> {
     return utils.types.isNumber(value) || utils.types.isString(value) || this._isElementReference(value)
@@ -181,23 +182,41 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
 
   region(region: RegionReference<TElement, TSelector>): this {
     utils.guard.custom(region, value => this._isRegionReference(value), {name: 'region'})
-    // if region is not undefined, it means we encountered shadow before
-    if (this._settings.region && this._spec.isSelector(this._settings.region)) {
-      const parent = this._settings.region
-      if (this._spec.isSelector(parent) && this._spec.isSelector(region))
-        this._settings.region = {selector: region, shadow: parent}
-    } else this._settings.region = region
+
+    if (
+      this._spec.isSelector(region) &&
+      this._spec.isSelector(this._settings.region) &&
+      utils.types.has(this._settings.region, 'selector')
+    ) {
+      let lastSelector: any = this._settings.region
+      while (lastSelector.shadow) lastSelector = lastSelector.shadow
+      lastSelector.shadow = region
+    } else {
+      this._settings.region = region
+    }
+
     return this
   }
 
-  shadow(elementWithShadowRoot: TSelector): this {
-    utils.guard.custom(elementWithShadowRoot, value => this._spec.isSelector(value), {name: 'shadow'})
-    if (!this._settings.region) this._settings.region = {selector: elementWithShadowRoot}
-    else {
-      const parent = this._settings.region
-      if (this._spec.isSelector(this._settings.region) && this._spec.isSelector(parent))
-        this._settings.region = {selector: elementWithShadowRoot, shadow: parent}
+  shadow(selector: TSelector): this {
+    // this method feels a bit clunky, because we are building a selector, but type-wise we don't have a clue about its format
+    utils.guard.custom(selector, value => this._spec.isSelector(value), {name: 'selector'})
+
+    selector = utils.types.has(selector, 'selector') ? selector : ({selector} as any)
+
+    if (!this._settings.region) {
+      this._settings.region = selector
+    } else if (this._spec.isSelector(this._settings.region)) {
+      let lastSelector: any
+      if (utils.types.has(this._settings.region, 'selector')) {
+        lastSelector = this._settings.region
+        while (lastSelector.shadow) lastSelector = lastSelector.shadow
+      } else {
+        lastSelector = {selector: this._settings.region}
+      }
+      lastSelector.shadow = selector
     }
+
     return this
   }
 
