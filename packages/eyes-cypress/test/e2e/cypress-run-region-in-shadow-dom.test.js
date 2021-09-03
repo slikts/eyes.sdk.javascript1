@@ -1,5 +1,5 @@
 'use strict';
-// const {describe, it, before, after} = require('mocha');
+const {describe, it, before, after} = require('mocha');
 const {exec} = require('child_process');
 const {promisify: p} = require('util');
 const path = require('path');
