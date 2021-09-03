@@ -100,6 +100,9 @@ export function isSelector(selector: any): selector is Selector {
     utils.types.isString(selector) ||
     utils.types.isFunction(selector) ||
     utils.types.has(selector, ['type', 'selector']) ||
+    (utils.types.has(selector, ['selector']) &&
+      isSelector(selector.selector) &&
+      selector.constructor.name === 'Object') ||
     selector instanceof legacy.By
   )
 }
