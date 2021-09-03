@@ -152,20 +152,32 @@ export async function childContext(browser: Driver, element: Element): Promise<D
   await browser.switchToFrame(element)
   return browser
 }
-export async function findElement(browser: Driver, selector: Selector): Promise<Applitools.WebdriverIO.Element> {
-  const element = await browser.$(transformSelector(selector))
+export async function findElement(
+  browser: Driver,
+  selector: Selector,
+  parent?: Element,
+): Promise<Applitools.WebdriverIO.Element> {
+  let element
+  if (parent) {
+    // the return element from getShadowDomContext snippet is of form element-6066-11e4-a52e-4f735466cecf,
+    //therefore I need to first retrive the wdio element to take advantage of shadow method.
+    const shadowDoc = await browser.$(parent as any)
+    element = await shadowDoc.$(transformSelector(selector))
+  } else element = await browser.$(transformSelector(selector))
   return !utils.types.has(element, 'error') ? element : null
 }
-export async function findElements(browser: Driver, selector: Selector, element?: Element): Promise<Applitools.WebdriverIO.Element[]> {
+export async function findElements(
+  browser: Driver,
+  selector: Selector,
+  parent?: Element,
+): Promise<Applitools.WebdriverIO.Element[]> {
   let elements
-  if(element){
-    // the return element from getShadowDomContext snippet is of form element-6066-11e4-a52e-4f735466cecf, 
+  if (parent) {
+    // the return element from getShadowDomContext snippet is of form element-6066-11e4-a52e-4f735466cecf,
     //therefore I need to first retrive the wdio element to take advantage of shadow method.
-     let shadowDoc = await browser.$(element as any)
-     elements = await shadowDoc.shadow$$(selector.toString())
-  } 
-  else 
-    elements = await browser.$$(transformSelector(selector))
+    const shadowDoc = await browser.$(parent as any)
+    elements = await shadowDoc.$$(transformSelector(selector))
+  } else elements = await browser.$$(transformSelector(selector))
   return Array.from(elements)
 }
 export async function getWindowSize(browser: Driver): Promise<{width: number; height: number}> {

@@ -1,12 +1,12 @@
 import * as utils from '@applitools/utils'
+import {SpecSelector} from '../../../types/types'
 import {AccessibilityRegionType, AccessibilityRegionTypeEnum} from '../enums/AccessibilityRegionType'
 import {MatchLevel, MatchLevelEnum} from '../enums/MatchLevel'
-import {EyesError} from '../errors/EyesError'
 import {Region} from './Region'
 
 type RegionReference<TElement, TSelector> = Region | ElementReference<TElement, TSelector>
 
-type ElementReference<TElement, TSelector> = TElement | TSelector
+type ElementReference<TElement, TSelector> = TElement | SpecSelector<TSelector>
 
 type FrameReference<TElement, TSelector> = ElementReference<TElement, TSelector> | string | number
 
@@ -37,7 +37,7 @@ export type CheckSettings<TElement, TSelector> = {
   name?: string
   region?: RegionReference<TElement, TSelector>
   frames?: (ContextReference<TElement, TSelector> | FrameReference<TElement, TSelector>)[]
-  shadow?: ElementReference<TElement, TSelector>
+  // shadow?: SpecSelector<TSelector>
   scrollRootElement?: ElementReference<TElement, TSelector>
   fully?: boolean
   matchLevel?: MatchLevel
@@ -69,7 +69,7 @@ export type Target<TElement, TSelector> = {
     frame: FrameReference<TElement, TSelector>,
     scrollRootElement?: ElementReference<TElement, TSelector>,
   ): CheckSettingsFluent<TElement, TSelector>
-  shadow(shadow: ElementReference<TElement, TSelector>): CheckSettingsFluent<TElement, TSelector>
+  shadow(shadow: TSelector): CheckSettingsFluent<TSelector>
 }
 
 export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
@@ -116,7 +116,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     if (!settings) return this
     if (settings.name) this.name(settings.name)
     if (settings.region) this.region(settings.region)
-    if (settings.shadow) this.shadow(settings.shadow)
+    // if (settings.shadow) this.shadow
     if (settings.frames) {
       settings.frames.forEach(reference => {
         if (utils.types.isNull(reference)) return
@@ -183,13 +183,23 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
 
   region(region: RegionReference<TElement, TSelector>): this {
     utils.guard.custom(region, value => this._isRegionReference(value), {name: 'region'})
-    this._settings.region = region
+    // if region is not undefined, it means we encountered shadow before
+    if (this._settings.region && this._spec.isSelector(this._settings.region)) {
+      const parent = this._settings.region
+      if (this._spec.isSelector(parent) && this._spec.isSelector(region))
+        this._settings.region = {selector: region, shadow: parent}
+    } else this._settings.region = region
     return this
   }
 
-  shadow(shadow: ElementReference<TElement, TSelector>): this {
-    utils.guard.custom(shadow, value => this._isRegionReference(value), {name: 'shadow'})
-    this._settings.shadow = shadow
+  shadow(elementWithShadowRoot: TSelector): this {
+    utils.guard.custom(elementWithShadowRoot, value => this._spec.isSelector(value), {name: 'shadow'})
+    if (!this._settings.region) this._settings.region = {selector: elementWithShadowRoot}
+    else {
+      const parent = this._settings.region
+      if (this._spec.isSelector(this._settings.region) && this._spec.isSelector(parent))
+        this._settings.region = {selector: elementWithShadowRoot, shadow: parent}
+    }
     return this
   }
 
@@ -202,7 +212,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     const context = utils.types.has(contextOrFrame, 'frame')
       ? contextOrFrame
       : {frame: contextOrFrame, scrollRootElement}
-    if (this._settings.shadow != undefined) throw new EyesError('frame cannot follow shadow')
+    // if (this._settings.shadow != undefined) throw new Error('frame cannot follow shadow')
     if (!this._settings.frames) this._settings.frames = []
     utils.guard.custom(context.frame, value => this._isFrameReference(value), {name: 'frame'})
     utils.guard.custom(context.scrollRootElement, value => this._isElementReference(value), {

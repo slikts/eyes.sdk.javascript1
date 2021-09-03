@@ -238,16 +238,25 @@ export class Context<TDriver, TContext, TElement, TSelector> {
       })
     }
   }
-
+  // add a logic to handle a rich element (with child and shadow)
+  // check for child - call element in elements.ts
+  // shadow, use the shadow snippet to get the shadow root.
   async element(
     selectorOrElement: types.SpecSelector<TSelector> | TElement,
+    childSelectorOrElement?: types.SpecSelector<TSelector> | TElement,
   ): Promise<Element<TDriver, TContext, TElement, TSelector>> {
+    let element
     if (this._spec.isSelector(selectorOrElement)) {
       if (this.isRef) {
         return new Element({spec: this._spec, context: this, selector: selectorOrElement, logger: this._logger})
       }
       await this.focus()
-      const element = await this._spec.findElement(this.target, selectorOrElement)
+      // if we have a nested shadow structure, we need to return the last shadow element in the nested structure
+      if (Object(selectorOrElement).shadow) {
+        const ElementWithShadowRoot = this.element(Object(selectorOrElement).shadow, selectorOrElement)
+        const docFreg = await this.execute(snippets.getShadowRoot, ElementWithShadowRoot)
+        element = await this._spec.findElement(this.target, Object(childSelectorOrElement).selector, docFreg)
+      } else element = await this._spec.findElement(this.target, selectorOrElement)
       return element
         ? new Element({spec: this._spec, context: this, element, selector: selectorOrElement, logger: this._logger})
         : null
@@ -459,29 +468,20 @@ export class Context<TDriver, TContext, TElement, TSelector> {
     return region
   }
 
-  async switchToFrame(frame: string) {
-    this._target = await this._spec.childContext(this.target, await this._spec.findElement(this.target, frame))
-    await this._driver.updateCurrentContext(this)
-  }
+  // async getRegionWithInShadowElement(shadowElement: TElement, targetSelector: string) {
+  //   const elements = await this._spec.findElements(this.target, targetSelector, shadowElement)
 
-  async switchToDefaultContext() {
-    await this._driver.switchToMainContext()
-  }
-
-  async getRegionWithInShadowElement(shadowElement: TElement, targetSelector: string) {
-    const elements = await this._spec.findElements(this.target, targetSelector, shadowElement)
-
-    return elements.map((element: TElement, index) => {
-      return new Element({
-        spec: this._spec,
-        context: this,
-        element,
-        selector: targetSelector,
-        index,
-        logger: this._logger,
-      })
-    })
-  }
+  //   return elements.map((element: TElement, index) => {
+  //     return new Element({
+  //       spec: this._spec,
+  //       context: this,
+  //       element,
+  //       selector: targetSelector,
+  //       index,
+  //       logger: this._logger,
+  //     })
+  //   })
+  // }
 
   private async preserveInnerOffset() {
     this._state.innerOffset = await this.getInnerOffset()
