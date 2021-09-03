@@ -20,8 +20,8 @@ export interface SpecDriver<TDriver, TContext, TElement, TSelector> {
   parentContext?(context: TContext): Promise<TContext>
   childContext(context: TContext, element: TElement): Promise<TContext>
   executeScript(context: TContext, script: ((arg?: any) => any) | string, arg?: any): Promise<any>
-  findElement(context: TContext, selector: SpecSelector<TSelector>, parent?: Element): Promise<TElement | null>
-  findElements(context: TContext, selector: SpecSelector<TSelector>, parent?: Element): Promise<TElement[]>
+  findElement(context: TContext, selector: SpecSelector<TSelector>, parent?: TElement): Promise<TElement | null>
+  findElements(context: TContext, selector: SpecSelector<TSelector>, parent?: TElement): Promise<TElement[]>
   click?(context: TContext, element: TElement | SpecSelector<TSelector>): Promise<void>
   setWindowSize?(driver: TDriver, size: Size): Promise<void>
   getWindowSize?(driver: TDriver): Promise<Size>
