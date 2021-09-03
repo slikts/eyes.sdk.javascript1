@@ -32,6 +32,18 @@ describe('context', () => {
             frame: true,
             children: [{selector: 'frame2--element1'}],
           },
+          {
+            selector: 'shadow1',
+            shadow: true,
+            children: [
+              {selector: 'shadow1--element1'},
+              {
+                selector: 'shadow1-1',
+                shadow: true,
+                children: [{selector: 'shadow1-1--element1'}],
+              },
+            ],
+          },
         ],
       },
     ])
@@ -76,6 +88,15 @@ describe('context', () => {
     const element = await childContext11.element('frame1-1--element1')
 
     assert.strictEqual(element.selector, 'frame1-1--element1')
+  })
+
+  it('element(shadow-selector)', async () => {
+    const selector = {
+      selector: 'shadow1',
+      shadow: {selector: 'shadow1-1', shadow: {selector: 'shadow1-1--element1'}},
+    }
+    const element = await context.element(selector)
+    assert.deepStrictEqual(element.selector, selector)
   })
 
   it('getContextElement()', async () => {

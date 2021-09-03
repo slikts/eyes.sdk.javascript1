@@ -241,20 +241,24 @@ export class Context<TDriver, TContext, TElement, TSelector> {
 
   async element(
     selectorOrElement: types.SpecSelector<TSelector> | TElement,
-    childSelectorOrElement?: types.SpecSelector<TSelector> | TElement,
   ): Promise<Element<TDriver, TContext, TElement, TSelector>> {
-    let element
     if (this._spec.isSelector(selectorOrElement)) {
       if (this.isRef) {
         return new Element({spec: this._spec, context: this, selector: selectorOrElement, logger: this._logger})
       }
       await this.focus()
-      // if we have a nested shadow structure, we need to return the last shadow element in the nested structure
-      if (Object(selectorOrElement).shadow) {
-        const ElementWithShadowRoot = this.element(Object(selectorOrElement).shadow, selectorOrElement)
-        const docFreg = await this.execute(snippets.getShadowRoot, ElementWithShadowRoot)
-        element = await this._spec.findElement(this.target, Object(childSelectorOrElement).selector, docFreg)
-      } else element = await this._spec.findElement(this.target, selectorOrElement)
+
+      let rootElement = null
+      let selector = selectorOrElement
+      while (utils.types.has(selector, ['selector', 'shadow']) && this._spec.isSelector(selector.shadow)) {
+        const element: TElement = await this._spec.findElement(this.target, selector, rootElement)
+        if (!element) return null
+        rootElement = await this.execute(snippets.getShadowRoot, element)
+        if (!rootElement) return null
+        selector = selector.shadow
+      }
+
+      const element = await this._spec.findElement(this.target, selector, rootElement)
       return element
         ? new Element({spec: this._spec, context: this, element, selector: selectorOrElement, logger: this._logger})
         : null
@@ -273,7 +277,18 @@ export class Context<TDriver, TContext, TElement, TSelector> {
         return [new Element({spec: this._spec, context: this, selector: selectorOrElement, logger: this._logger})]
       }
       await this.focus()
-      const elements = await this._spec.findElements(this.target, selectorOrElement)
+
+      let rootElement = null
+      let selector = selectorOrElement
+      while (utils.types.has(selector, ['selector', 'shadow']) && this._spec.isSelector(selector.shadow)) {
+        const element: TElement = await this._spec.findElement(this.target, selector, rootElement)
+        if (!element) return null
+        rootElement = await this.execute(snippets.getShadowRoot, element)
+        if (!rootElement) return null
+        selector = selector.shadow
+      }
+
+      const elements = await this._spec.findElements(this.target, selector, rootElement)
       return elements.map((element, index) => {
         return new Element({
           spec: this._spec,
@@ -465,7 +480,6 @@ export class Context<TDriver, TContext, TElement, TSelector> {
     }
     return region
   }
-
 
   private async preserveInnerOffset() {
     this._state.innerOffset = await this.getInnerOffset()

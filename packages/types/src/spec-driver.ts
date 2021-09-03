@@ -3,7 +3,7 @@ import {Size, DriverInfo, Region} from './data'
 export type SpecSelector<TSelector> =
   | TSelector
   | string
-  | {selector: TSelector | string; type?: string; child?: SpecSelector<TSelector>; shadow?: SpecSelector<TSelector>}
+  | {selector: TSelector | string; type?: string; shadow?: SpecSelector<TSelector>}
 
 export interface SpecDriver<TDriver, TContext, TElement, TSelector> {
   isDriver(driver: any): driver is TDriver
