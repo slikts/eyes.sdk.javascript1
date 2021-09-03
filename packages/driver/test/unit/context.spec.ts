@@ -39,14 +39,6 @@ describe('context', () => {
     context = driver.currentContext
   })
 
-  // it('test', async () => {
-  //   mock.mockElements([
-  //     {
-  //       selector: 'region',      
-  //     },
-  //   ])
-  // })
-
   it('constructor(logger, context, {driver})', async () => {
     assert.ok(context.isMain)
     assert.ok(context.target)

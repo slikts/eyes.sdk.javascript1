@@ -37,7 +37,6 @@ export type CheckSettings<TElement, TSelector> = {
   name?: string
   region?: RegionReference<TElement, TSelector>
   frames?: (ContextReference<TElement, TSelector> | FrameReference<TElement, TSelector>)[]
-  // shadow?: SpecSelector<TSelector>
   scrollRootElement?: ElementReference<TElement, TSelector>
   fully?: boolean
   matchLevel?: MatchLevel
@@ -116,7 +115,6 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     if (!settings) return this
     if (settings.name) this.name(settings.name)
     if (settings.region) this.region(settings.region)
-    // if (settings.shadow) this.shadow
     if (settings.frames) {
       settings.frames.forEach(reference => {
         if (utils.types.isNull(reference)) return
@@ -212,7 +210,6 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     const context = utils.types.has(contextOrFrame, 'frame')
       ? contextOrFrame
       : {frame: contextOrFrame, scrollRootElement}
-    // if (this._settings.shadow != undefined) throw new Error('frame cannot follow shadow')
     if (!this._settings.frames) this._settings.frames = []
     utils.guard.custom(context.frame, value => this._isFrameReference(value), {name: 'frame'})
     utils.guard.custom(context.scrollRootElement, value => this._isElementReference(value), {

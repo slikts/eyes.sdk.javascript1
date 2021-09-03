@@ -238,9 +238,7 @@ export class Context<TDriver, TContext, TElement, TSelector> {
       })
     }
   }
-  // add a logic to handle a rich element (with child and shadow)
-  // check for child - call element in elements.ts
-  // shadow, use the shadow snippet to get the shadow root.
+
   async element(
     selectorOrElement: types.SpecSelector<TSelector> | TElement,
     childSelectorOrElement?: types.SpecSelector<TSelector> | TElement,
@@ -468,20 +466,6 @@ export class Context<TDriver, TContext, TElement, TSelector> {
     return region
   }
 
-  // async getRegionWithInShadowElement(shadowElement: TElement, targetSelector: string) {
-  //   const elements = await this._spec.findElements(this.target, targetSelector, shadowElement)
-
-  //   return elements.map((element: TElement, index) => {
-  //     return new Element({
-  //       spec: this._spec,
-  //       context: this,
-  //       element,
-  //       selector: targetSelector,
-  //       index,
-  //       logger: this._logger,
-  //     })
-  //   })
-  // }
 
   private async preserveInnerOffset() {
     this._state.innerOffset = await this.getInnerOffset()
