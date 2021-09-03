@@ -4,12 +4,12 @@ const snippets = require('@applitools/snippets')
 const ImageMatchSettings = require('../config/ImageMatchSettings')
 
 async function toPersistedCheckSettings({checkSettings, context, logger}) {
-  const elementsById = {}
-  let isShadow = checkSettings.shadow ? true : false
+  const elementMapping = {}
+  const resolverMapping = {}
 
   const persistedCheckSettings = {
     ...checkSettings,
-    region: (await referencesToPersistedRegions(checkSettings.region && [checkSettings.region]))[0],
+    region: await referencesToPersistedRegions([checkSettings.region]),
     ignoreRegions: await referencesToPersistedRegions(checkSettings.ignoreRegions),
     floatingRegions: await referencesToPersistedRegions(checkSettings.floatingRegions),
     strictRegions: await referencesToPersistedRegions(checkSettings.strictRegions),
@@ -18,68 +18,54 @@ async function toPersistedCheckSettings({checkSettings, context, logger}) {
     accessibilityRegions: await referencesToPersistedRegions(checkSettings.accessibilityRegions),
   }
 
-  const shadowSelectors = await makePersistance()
-  await setShadowSelectorsToCheckSettings(shadowSelectors)
+  await makePersistance()
+
+  persistedCheckSettings.region = persistedCheckSettings.region[0]
 
   return {persistedCheckSettings, cleanupPersistance}
-
-  async function setShadowSelectorsToCheckSettings(shadowSelectors = []) {
-    let shadowArr = []
-    for (const shadowId in shadowSelectors) {
-      shadowArr.push({
-        type: 'css',
-        selector: `[data-applitools-marker~="${shadowId}"]`,
-        nodeType: 'shadow-root',
-      })
-    }
-
-    shadowArr.push(persistedCheckSettings.region)
-    persistedCheckSettings.region = shadowArr
-  }
 
   async function referencesToPersistedRegions(references = []) {
     const persistedRegions = []
     for (const reference of references) {
-      const {region, ...options} = reference.region ? reference : {region: reference}
-      let referenceRegions
-      if (utils.types.has(region, ['width', 'height'])) {
-        referenceRegions = [region]
-      } else {
-        const elements = await context.elements(region)
-        referenceRegions = elements.map(element => {
+      const referenceRegion = reference.region ? reference.region : reference
+      if (utils.types.has(referenceRegion, ['width', 'height'])) {
+        persistedRegions.push(persistReference(reference, referenceRegion))
+      } else if (referenceRegion) {
+        const elements = await context.elements(referenceRegion)
+        elements.forEach(element => {
           const elementId = utils.general.guid()
-          elementsById[elementId] = element
-          return {
-            type: 'css',
-            selector: `[data-applitools-marker~="${elementId}"]`,
-            nodeType: 'element',
-          }
+          elementMapping[elementId] = element
+          resolverMapping[elementId] = selector => persistedRegions.push(persistReference(reference, selector))
         })
       }
-
-      persistedRegions.push(...referenceRegions.map(region => (reference.region ? {region, ...options} : region)))
     }
     return persistedRegions
+
+    function persistReference(reference, persistedRegion) {
+      return reference.region ? {...reference, region: persistedRegion} : persistedRegion
+    }
   }
 
-  async function makePersistance(elements = undefined) {
-    const params = elements ? elements : [Object.values(elementsById), Object.keys(elementsById)]
-    await context.execute(snippets.setElementMarkers, params)
-    logger.verbose(`elements marked: ${params[1]}`)
+  async function makePersistance() {
+    const selectorMapping = await context.execute(snippets.addElementIds, [
+      Object.values(elementMapping),
+      Object.keys(elementMapping),
+    ])
+    Object.entries(selectorMapping).forEach(([elementId, selectors]) => {
+      const resolver = resolverMapping[elementId]
+      const persistedSelector = selectors.map((selector, index) => ({
+        type: 'css',
+        selector,
+        nodeType: index < selectors.length - 1 ? 'shadow-root' : 'element',
+      }))
+      resolver(persistedSelector.length === 1 ? persistedSelector[0] : persistedSelector)
+    })
+    logger.verbose(`elements marked: ${Object.keys(elementMapping)}`)
   }
 
   async function cleanupPersistance() {
-    if (!isShadow) {
-      await context.execute(snippets.cleanupElementMarkers, [Object.values(elementsById)])
-      logger.verbose(`elements cleaned up: ${Object.keys(elementsById)}`)
-    } else {
-      let elements = Object.values(elementsById)
-      let ids = Object.keys(elementsById)
-      for (let i = 0; i < elements.length; i++) {
-        await context.execute(snippets.cleanupElementMarkers, [[elements[i]]])
-        logger.verbose(`elements cleaned up: ${ids[i]}`)
-      }
-    }
+    await context.execute(snippets.cleanupElementIds, [Object.values(elementMapping)])
+    logger.verbose(`elements cleaned up: ${Object.keys(elementMapping)}`)
   }
 }
 
@@ -152,7 +138,7 @@ function toCheckWindowConfiguration({checkSettings, configuration}) {
           }
         : checkSettings.region
     } else {
-      config.selector = checkSettings.concat(checkSettings.region)
+      config.selector = checkSettings.region
     }
   }
 
