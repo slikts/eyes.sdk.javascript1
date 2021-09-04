@@ -27,6 +27,7 @@ async function toPersistedCheckSettings({checkSettings, context, logger}) {
   async function referencesToPersistedRegions(references = []) {
     const persistedRegions = []
     for (const reference of references) {
+      if (!reference) continue
       const referenceRegion = reference.region ? reference.region : reference
       if (utils.types.has(referenceRegion, ['width', 'height'])) {
         persistedRegions.push(persistReference(reference, referenceRegion))
