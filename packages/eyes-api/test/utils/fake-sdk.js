@@ -29,6 +29,7 @@ function makeSDK(settings = {}) {
     return (
       utils.types.isString(selector) ||
       utils.types.has(selector, ['type', 'selector']) ||
+      (utils.types.has(selector, ['selector']) && isSelector(selector.selector)) ||
       utils.types.has(selector, 'fakeSelector')
     )
   }
