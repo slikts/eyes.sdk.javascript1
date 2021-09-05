@@ -28,16 +28,16 @@ async function toPersistedCheckSettings({checkSettings, context, logger}) {
     const persistedRegions = []
     for (const reference of references) {
       if (!reference) continue
-      const referenceRegion = reference.region ? reference.region : reference
+      const referenceRegion = reference.region || reference
       if (utils.types.has(referenceRegion, ['width', 'height'])) {
         persistedRegions.push(persistReference(reference, referenceRegion))
       } else if (referenceRegion) {
         const elements = await context.elements(referenceRegion)
-        elements.forEach(element => {
+        for (const element of elements) {
           const elementId = utils.general.guid()
           elementMapping[elementId] = element
           resolverMapping[elementId] = selector => persistedRegions.push(persistReference(reference, selector))
-        })
+        }
       }
     }
     return persistedRegions

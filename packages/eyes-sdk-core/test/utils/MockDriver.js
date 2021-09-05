@@ -134,16 +134,20 @@ class MockDriver {
     this.mockScript(snippets.blurElement, () => {
       return null
     })
-    this.mockScript(snippets.setElementMarkers, ([elements, ids]) => {
+    this.mockScript(snippets.addElementIds, ([elements, ids]) => {
       for (const [index, el] of elements.entries()) {
         el.attributes = el.attributes || []
-        el.attributes.push({name: 'data-applitools-marker', value: ids[index]})
+        el.attributes.push({name: 'data-applitools-selector', value: ids[index]})
       }
+      return ids.reduce((selectors, id) => {
+        selectors[id] = [`[data-applitools-selector~="${id}"]`]
+        return selectors
+      }, {})
     })
-    this.mockScript(snippets.cleanupElementMarkers, ([elements]) => {
+    this.mockScript(snippets.cleanupElementIds, ([elements]) => {
       for (const el of elements) {
         el.attributes.splice(
-          el.attributes.findIndex(({name}) => name === 'data-applitools-marker'),
+          el.attributes.findIndex(({name}) => name === 'data-applitools-selector'),
           1,
         )
       }
@@ -157,16 +161,6 @@ class MockDriver {
       return element.rect || {x: 0, y: 0, width: 100, height: 100}
     })
     this.mockScript('dom-snapshot', () => FakeDomSnapshot.generateDomSnapshot(this))
-    this.mockScript(snippets.getShadowContext, element => {
-      const shadowRoot = this._elements.get(element.children.filter(ele => ele.shadow)[0].selector)[0]
-      const shadow = this._contexts.get(shadowRoot.contextId)
-      if (shadow && this._contextId === shadowRoot.parentContextId) {
-        this._contextId = shadowRoot.contextId
-        return shadowRoot
-      } else {
-        throw new Error('Shaow Dom not found')
-      }
-    })
   }
   mockScript(scriptMatcher, resultGenerator) {
     this._scripts.set(String(scriptMatcher), resultGenerator)
