@@ -93,8 +93,6 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
   }
 
   private _settings: CheckSettings<TElement, TSelector> = {}
-  private _shadowSelector: TSelector
-  private _isRegionSet = false
 
   private _isFrameReference(value: any): value is FrameReference<TSelector, TElement> {
     return utils.types.isNumber(value) || utils.types.isString(value) || this._isElementReference(value)
