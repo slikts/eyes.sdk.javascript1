@@ -143,6 +143,10 @@ class MockDriver {
         el.attributes = el.attributes || []
         el.attributes.push({name: 'data-applitools-marker', value: ids[index]})
       }
+      return ids.reduce((selectors, id) => {
+        selectors[id] = [`[data-applitools-selector~="${id}"]`]
+        return selectors
+      }, {})
     })
     this.mockScript(snippets.cleanupElementIds, ([elements]) => {
       for (const el of elements) {
