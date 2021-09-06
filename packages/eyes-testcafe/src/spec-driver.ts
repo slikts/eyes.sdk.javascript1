@@ -35,7 +35,7 @@ function XPathSelector(selector: string, options?: TestCafe.SelectorOptions): Te
   return testcafe.Selector(getElementsByXPath(selector), options)
 }
 function transformSelector(selector: Selector): TestCafe.Selector {
-  if (utils.types.has(selector, ['type', 'selector'])) {
+  if (utils.types.has(selector, 'selector')) {
     if (selector.type === 'xpath') return XPathSelector(selector.selector)
     return testcafe.Selector(selector.selector)
   }
