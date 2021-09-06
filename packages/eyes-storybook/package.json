@@ -1,6 +1,6 @@
 {
   "name": "@applitools/eyes-storybook",
-  "version": "3.22.10",
+  "version": "3.24.0",
   "description": "",
   "engines": {
     "node": ">=8.6.0"
@@ -14,11 +14,11 @@
     "eyes-storybook": "./bin/eyes-storybook.js"
   },
   "scripts": {
-    "test": "STDOUT_LEVEL=1 yarn build && yarn test:mocha && yarn lint",
+    "test": "yarn build && yarn test:mocha && yarn lint",
     "test:mocha": "mocha --no-timeouts --trace-warnings 'test/unit/*.test.js' 'test/it/*.test.js' 'test/e2e/*.test.js'",
     "test:unit": "mocha --no-timeouts --trace-warnings 'test/unit/*.test.js'",
     "test:it": "mocha --no-timeouts --trace-warnings 'test/it/*.test.js'",
-    "test:e2e": "STDOUT_LEVEL=1 mocha --no-timeouts --trace-warnings 'test/e2e/*.test.js'",
+    "test:e2e": "mocha --no-timeouts --trace-warnings 'test/e2e/*.test.js'",
     "build": "rollup -c rollup.config.js",
     "build:heavy": "node scripts/bitmap.js",
     "lint": "eslint '**/*.js'",
@@ -55,14 +55,13 @@
     "url": "git://github.com/applitools/eyes.sdk.javascript1.git"
   },
   "dependencies": {
-    "@applitools/dom-snapshot": "4.5.7",
-    "@applitools/driver": "1.1.2",
-    "@applitools/eyes-puppeteer": "1.8.1",
-    "@applitools/eyes-sdk-core": "12.22.4",
+    "@applitools/driver": "1.1.3",
+    "@applitools/eyes-puppeteer": "1.8.2",
+    "@applitools/eyes-sdk-core": "12.23.0",
     "@applitools/functional-commons": "1.6.0",
     "@applitools/monitoring-commons": "1.0.19",
     "@applitools/test-server": "1.0.4",
-    "@applitools/visual-grid-client": "15.8.18",
+    "@applitools/visual-grid-client": "15.8.21",
     "boxen": "4.2.0",
     "chalk": "3.0.0",
     "detect-port": "1.3.0",

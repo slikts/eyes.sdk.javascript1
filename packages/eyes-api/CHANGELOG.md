@@ -4,6 +4,12 @@
 
 - add `CheckSettingsFluent#shadow` method to allow specifying region selectors for elements in shadow dom
 
+## 1.0.13 - 2021/8/31
+
+- allow string literals to be set in data classes and fluent api
+- updated to @applitools/types@1.0.9 (from 1.0.7)
+- updated to @applitools/types@1.0.10 (from 1.0.9)
+
 ## 1.0.12 - 2021/8/13
 
 - use core implementation for error throwing in `Eyes#close` and `EyesRunner#getAllTestResults`

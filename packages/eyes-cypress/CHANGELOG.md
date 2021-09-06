@@ -4,6 +4,12 @@
 
 - Update README to include an example about region within shadow DOM
 
+## 3.22.3 - 2021/8/16
+
+- fix hanging tests when calling open before visit
+- updated to @applitools/dom-snapshot@4.5.7 (from 4.5.6)
+- updated to @applitools/visual-grid-client@15.8.21 (from 15.8.13)
+
 ## 3.22.2 - 2021/8/3
 
 - update dom-snapshot to version 4.5.6

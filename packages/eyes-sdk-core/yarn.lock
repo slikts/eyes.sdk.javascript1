@@ -178,6 +178,11 @@
   "resolved" "file:../snippets"
   "version" "2.1.4"
 
+"@applitools/types@1.0.10":
+  version "1.0.10"
+  resolved "https://registry.yarnpkg.com/@applitools/types/-/types-1.0.10.tgz#80141f49f0cde99b7f8d859dac06015ae445cdb8"
+  integrity sha512-BqaHI7mw5SeH+fL+LpU2VYhBpye6SYciObU5qbKDZT2v8x+H7pveUKYf3FpwXZKCXbwcpjQ/WkOQ9kD8aHZBdA==
+
 "@applitools/types@1.0.8":
   "integrity" "sha512-JypIIWukLRHe0lg5gB1anW1OHNOeZFVDujvHfETvgbXw4HZC4Q1DcStH9yBzJtJiNPY9s15nPuhZ3CmTEUddsA=="
   "resolved" "https://registry.npmjs.org/@applitools/types/-/types-1.0.8.tgz"

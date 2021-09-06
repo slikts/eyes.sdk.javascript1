@@ -3,6 +3,18 @@
 ## Unreleased
 
 
+## 1.0.11 - 2021/9/1
+
+- update universal `close` and `closeAllEyes` methods
+
+## 1.0.10 - 2021/8/31
+
+- add 'Pixel 5', 'Samsung Galaxy 20' and 'iPhone 12' to supported device names
+
+## 1.0.9 - 2021/8/31
+
+- add types for newest spec driver methods for universal interface
+
 ## 1.0.8 - 2021/8/13
 
 - add optional property `statusBarHeight` to the `DriverInfo` type

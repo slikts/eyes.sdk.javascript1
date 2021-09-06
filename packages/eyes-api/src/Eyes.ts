@@ -1,8 +1,8 @@
 import type * as types from '@applitools/types'
 import * as utils from '@applitools/utils'
-import {SessionTypeEnum} from './enums/SessionType'
-import {StitchModeEnum} from './enums/StitchMode'
-import {MatchLevelEnum} from './enums/MatchLevel'
+import {SessionType, SessionTypeEnum} from './enums/SessionType'
+import {StitchMode, StitchModeEnum} from './enums/StitchMode'
+import {MatchLevel, MatchLevelEnum} from './enums/MatchLevel'
 import {EyesError} from './errors/EyesError'
 import {NewTestError} from './errors/NewTestError'
 import {DiffsFoundError} from './errors/DiffsFoundError'
@@ -162,14 +162,14 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     appName?: string,
     testName?: string,
     viewportSize?: RectangleSize,
-    sessionType?: SessionTypeEnum,
+    sessionType?: SessionType,
   ): Promise<TDriver>
   async open(
     driver: TDriver,
     configOrAppName?: Configuration | string,
     testName?: string,
     viewportSize?: RectangleSize,
-    sessionType?: SessionTypeEnum,
+    sessionType?: SessionType,
   ): Promise<TDriver> {
     this._driver = driver
 
@@ -562,7 +562,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   getMatchLevel(): MatchLevelEnum {
     return this._config.getMatchLevel()
   }
-  setMatchLevel(matchLevel: MatchLevelEnum) {
+  setMatchLevel(matchLevel: MatchLevel) {
     this._config.setMatchLevel(matchLevel)
   }
 
@@ -655,7 +655,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   getStitchMode(): StitchModeEnum {
     return this._config.getStitchMode()
   }
-  setStitchMode(stitchMode: StitchModeEnum) {
+  setStitchMode(stitchMode: StitchMode) {
     this._config.setStitchMode(stitchMode)
   }
 
