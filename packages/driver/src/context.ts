@@ -282,9 +282,9 @@ export class Context<TDriver, TContext, TElement, TSelector> {
       let selector = selectorOrElement
       while (utils.types.has(selector, ['selector', 'shadow']) && this._spec.isSelector(selector.shadow)) {
         const element: TElement = await this._spec.findElement(this.target, selector, rootElement)
-        if (!element) return null
+        if (!element) return []
         rootElement = await this.execute(snippets.getShadowRoot, element)
-        if (!rootElement) return null
+        if (!rootElement) return []
         selector = selector.shadow
       }
 
