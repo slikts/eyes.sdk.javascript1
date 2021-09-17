@@ -4,7 +4,7 @@
 - introduced @applitools/eyes-api package with new api
 
 ## Unreleased
-
+ - update layout breakpoints and visual locators in the README  
 
 ## 2.32.0 - 2021/9/9
 
