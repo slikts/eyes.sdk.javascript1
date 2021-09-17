@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+ - update layout breakpoints and visual locators in the README  
 
 ## 5.32.4 - 2021/9/9
 
