@@ -830,7 +830,7 @@ Configure the SDK to capture multiple DOM images for multiple viewport sizes.
  await eyes.check("Home Page", Target.window().fully().setLayoutBreakpoints(true))
 ```
 
- - Capture the DOM for specific viewports, send an array of widths:
+ - Capture the DOM for specific viewports, send an array of different width:
 
  ```js
   await eyes.check("Home Page", Target.window().fully().setLayoutBreakpoints([800, 1000, 1200]))
@@ -844,7 +844,7 @@ Configure the SDK to capture multiple DOM images for multiple viewport sizes.
 configuration.setLayoutBreakpoints(true)
 ```
 
- - Capture DOM for specific viewports, send an array of widths:
+ - Capture DOM for specific viewports, send an array of different width:
 
  ```js
  configuration.setLayoutBreakpoints([800, 1000, 1200])
@@ -856,7 +856,7 @@ In some types of application, using DOM locators to generate keyboard or mouse e
 
 
 ```js
- await eyes.locate({locatorNames: ['applitools_title']}
+ let regionsMap = await eyes.locate({locatorNames: ['applitools_title']})
 ```
 
 [Read more in our documentation](https://applitools.com/docs/features/visual-locators.html?Highlight=visual%20locator)
