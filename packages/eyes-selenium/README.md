@@ -53,7 +53,9 @@
   * [Test properties](#test-properties)
   * [Test results](#test-results)
   * [Logging](#logging)
-  * [Configuring browsers for the Ultrafast grid](#configuring-browsers-for-the-ultra-fast-grid)
+  * [Configuring browsers for the Ultrafast grid](#configuring-browsers-for-the-ultrafast-grid)
+  * [Layout Breakpoints](#layout-breakpoints)
+  * [Visual locators](#visual-locators)
 
 
 ## Installation
@@ -804,7 +806,7 @@ eyes.setLogHandler(new FileLogHandler(false, path.resolve('logs', 'eyes.log')))
 eyes.setLogHandler(new FileLogHandler(true, path.resolve('logs', `eyes-${Date.now()}.log`), false))
 ```
 
-### Configuring browsers for the Ultrafast grid
+#### Configuring browsers for the Ultrafast grid
 
 When it comes to multiple browsers and mobile devices, the Ultrafast grid shines.
 It's now possible to run one functional test, and in the background have multiple screenshots rendered for different browsers, viewport sizes, and mobile devices.
@@ -815,6 +817,49 @@ The API methods are:
 - `configuration.addBrowsers(browser1, browser2, ...)` for adding single or multiple browser configurations.
 
 Here are examples for how to execute visual tests on different browsers and platforms:
+
+#### Layout breakpoints
+Configure the SDK to capture multiple DOM images for multiple viewport sizes.
+[Read more in the documentation](https://applitools.com/docs/topics/sdk/viewport-dependent-js.html?Highlight=layout%20breakpoints)
+
+##### checkpoint level:
+
+ - Capture the DOM for each viewport in the `configuration`:
+
+```js
+ await eyes.check("Home Page", Target.window().fully().setLayoutBreakpoints(true))
+```
+
+ - Capture the DOM for specific viewports, send an array of widths:
+
+ ```js
+  await eyes.check("Home Page", Target.window().fully().setLayoutBreakpoints([800, 1000, 1200]))
+ ```
+
+##### global level:
+
+ - Capture DOM for each viewport in the `configuration`:
+
+```js
+configuration.setLayoutBreakpoints(true)
+```
+
+ - Capture DOM for specific viewports, send an array of widths:
+
+ ```js
+ configuration.setLayoutBreakpoints([800, 1000, 1200])
+ ```
+
+#### Visual locators
+
+In some types of application, using DOM locators to generate keyboard or mouse events is inconvenient or even impossible. Eyes provides visual locators that allow you to use Eyes technology to analyze an application page and discover the coordinates of predefined graphic entities. You can then use these coordinates to simulate mouse and keyboard events using the standard browser device handler methods.
+
+
+```js
+ await eyes.locate({locatorNames: ['applitools_title']}
+```
+
+[Read more in our documentation](https://applitools.com/docs/features/visual-locators.html?Highlight=visual%20locator)
 
 #### Desktop browsers
 
