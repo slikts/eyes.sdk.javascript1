@@ -52,7 +52,9 @@
   * [Test properties](#test-properties)
   * [Test results](#test-results)
   * [Logging](#logging)
-  * [Configuring browsers for the Ultrafast grid](#configuring-browsers-for-the-ultra-fast-grid)
+  * [Configuring browsers for the Ultrafast grid](#configuring-browsers-for-the-ultrafast-grid)
+  * [Layout Breakpoints](#layout-breakpoints)
+  * [Visual locators](#visual-locators)
 
 
 ## Installation
@@ -874,3 +876,46 @@ Possible values for `iosVersion` are:
 - `IosVersion.LATEST` - the latest iOS version that's supported by the UFG
 - `IosVersion.LATEST_ONE_VERSION_BACK'` - one version prior to the latest version
 - `undefined` - the UFG's default
+
+#### Layout breakpoints
+Configure the SDK to capture multiple DOM images for multiple viewport sizes.
+[Read more in the documentation](https://applitools.com/docs/topics/sdk/viewport-dependent-js.html?Highlight=layout%20breakpoints)
+
+##### checkpoint level:
+
+ - Capture the DOM for each viewport in the `configuration`:
+
+```js
+ await eyes.check("Home Page", Target.window().fully().setLayoutBreakpoints(true))
+```
+
+ - Capture the DOM for specific viewports, send an array of different width:
+
+ ```js
+  await eyes.check("Home Page", Target.window().fully().setLayoutBreakpoints([800, 1000, 1200]))
+ ```
+
+##### global level:
+
+ - Capture DOM for each viewport in the `configuration`:
+
+```js
+configuration.setLayoutBreakpoints(true)
+```
+
+ - Capture DOM for specific viewports, send an array of different width:
+
+ ```js
+ configuration.setLayoutBreakpoints([800, 1000, 1200])
+ ```
+
+#### Visual locators
+
+In some types of application, using DOM locators to generate keyboard or mouse events is inconvenient or even impossible. Eyes provides visual locators that allow you to use Eyes technology to analyze an application page and discover the coordinates of predefined graphic entities. You can then use these coordinates to simulate mouse and keyboard events using the standard browser device handler methods.
+
+
+```js
+ let regionsMap = await eyes.locate({locatorNames: ['applitools_title']})
+```
+
+[Read more in our documentation](https://applitools.com/docs/features/visual-locators.html?Highlight=visual%20locator)

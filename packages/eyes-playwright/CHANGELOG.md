@@ -1,7 +1,7 @@
 # Change Log
 
 ## Unreleased
-
+ - add layout breakpoints and visual locators to the README
 
 ## 1.9.1 - 2021/8/13
 
