@@ -53,6 +53,7 @@
   * [Test results](#test-results)
   * [Logging](#logging)
   * [Configuring browsers for the Ultrafast grid](#configuring-browsers-for-the-ultra-fast-grid)
+  * [Layout Breakpoints](#layout-breakpoints)
 
 
 ## Installation
@@ -970,3 +971,45 @@ Possible values for `iosVersion` are:
 - `IosVersion.LATEST` - the latest iOS version that's supported by the UFG
 - `IosVersion.LATEST_ONE_VERSION_BACK'` - one version prior to the latest version
 - `undefined` - the UFG's default
+
+#### Layout breakpoints
+Configure the SDK to capture multiple DOM images for multiple viewport sizes.
+[Read more in the documentation](https://applitools.com/docs/topics/sdk/viewport-dependent-js.html?Highlight=layout%20breakpoints)
+
+##### checkpoint level:
+
+ - Capture the DOM for each viewport in the `configuration`:
+
+```js
+ .eyesCheck(Target.window().fully().withName('Login Window').layoutBreakpoints(true))
+```
+
+ - Capture the DOM for specific viewports, send an array of different width:
+
+ ```js
+ .eyesCheck(Target.window().fully().withName('Login Window').layoutBreakpoints([800, 1000, 1200]))
+ ```
+
+##### global level:
+
+ - Capture DOM for each viewport in the `configuration`:
+
+applitools.conf.js file:
+
+```
+module.exports = {
+  ...
+  layoutBreakpoints: true
+  ...
+}
+```
+
+ - Capture DOM for specific viewports, send an array of different width:
+
+```
+module.exports = {
+  ...
+  layoutBreakpoints: [800, 1000, 1200]
+  ...
+}
+```

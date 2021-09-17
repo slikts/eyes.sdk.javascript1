@@ -1,7 +1,7 @@
 # Change Log
 
 ## Unreleased
-
+- add layout breakpoints to the README
 
 ## 1.8.3 - 2021/6/27
 
