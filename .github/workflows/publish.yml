@@ -279,6 +279,27 @@ jobs:
           package: ${{fromJSON(needs.setup.outputs.packages).vgc.package}}
           version: ${{fromJSON(needs.setup.outputs.packages).vgc.releaseVersion}}
 
+  selenium-spec:
+    needs: [setup, utils, test-utils]
+    if: ${{fromJSON(needs.setup.outputs.packages).selenium-spec && !failure() && !cancelled()}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).selenium-spec.package}}
+      - name: Publish to NPM
+        uses: ./.github/actions/publish
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).selenium-spec.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).selenium-spec.releaseVersion}}
+
   universal:
     needs: [setup, types, utils, logger, core, vgc]
     if: ${{fromJSON(needs.setup.outputs.packages).universal && !failure() && !cancelled()}}

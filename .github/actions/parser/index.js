@@ -13,6 +13,7 @@ const PACKAGES = [
   {name: 'api', dirname: 'eyes-api', aliases: ['@applitools/eyes-api']},
   {name: 'core', dirname: 'eyes-sdk-core', aliases: ['@applitools/eyes-sdk-core']},
   {name: 'vgc', dirname: 'visual-grid-client', aliases: ['@applitools/visual-grid-client']},
+  {name: 'selenium-spec', dirname: 'selenium-spec'},
 
   {name: 'universal', dirname: 'eyes-universal', sdk: true, aliases: ['usdk', '@applitools/eyes-universal']},
   {name: 'playwright-universal', dirname: 'eyes-playwright-universal', framework: 'playwright', sdk: true, aliases: ['playwright/u', '@applitools/eyes-playwright']},

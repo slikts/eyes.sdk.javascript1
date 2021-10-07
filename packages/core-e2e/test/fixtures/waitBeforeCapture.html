@@ -1,0 +1,23 @@
+<html>
+	<body>
+		<p>Testing layoutbreakpoints with waitBeforeCapture </p>
+		<script>
+			function attachElement(){
+				if(!window.matchMedia('(max-width: 999px)').matches){
+				setTimeout(() => {
+				// adding the image only once
+				if(document.getElementById('my_image'))
+					return
+				const newImage = document.createElement('img');
+				newImage.setAttribute("id", "my_image");
+				newImage.src = './smurfs.jpg'
+				document.querySelector('body').appendChild(newImage);
+				}, 1000)
+			}
+		}
+			
+			window.addEventListener('resize', attachElement)
+
+		</script>	
+	</body>
+</html>

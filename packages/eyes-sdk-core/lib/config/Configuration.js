@@ -65,6 +65,7 @@ const DEFAULT_VALUES = {
   // visual-grid
   concurrentSessions: 1,
   isThrowExceptionOn: false,
+  waitBeforeCapture: 100, //ms
 }
 
 /**
@@ -113,11 +114,11 @@ const DEFAULT_VALUES = {
 /**
  * @typedef PlainConfigurationClassic
  * @prop {boolean} forceFullPageScreenshot
- * @prop {number} waitBeforeScreenshots
- * @prop {StitchMode} stitchMode
+ * @prop {number} WaitBeforeScreenshots * @prop {StitchMode} stitchMode
  * @prop {number} stitchOverlap
  * @prop {boolean} hideScrollbars
  * @prop {boolean} hideCaret
+ * @prop {number} waitBeforeCapture
  */
 
 /**
@@ -213,7 +214,7 @@ class Configuration {
     /** @type {boolean} */
     this._forceFullPageScreenshot = undefined
     /** @type {number} */
-    this._waitBeforeScreenshots = undefined
+    this._WaitBeforeScreenshots = undefined
     /** @type {StitchMode} */
     this._stitchMode = undefined
     /** @type {boolean} */
@@ -222,6 +223,8 @@ class Configuration {
     this._hideCaret = undefined
     /** @type {number} */
     this._stitchOverlap = undefined
+    /** @type {number} */
+    this._waitBeforeCapture = undefined
 
     // visual grid
     /** @type {number} */
@@ -1058,6 +1061,13 @@ class Configuration {
   }
 
   /**
+   * @return {number} - The time to wait before each DOM capture and before the first screenshot in classic
+   */
+  getWaitBeforeCapture() {
+    return TypeUtils.getOrDefault(this._waitBeforeCapture, DEFAULT_VALUES.waitBeforeCapture)
+  }
+
+  /**
    * Sets the time to wait just before taking a screenshot (e.g., to allow positioning to stabilize when performing a
    * full page stitching).
    *
@@ -1067,9 +1077,25 @@ class Configuration {
    */
   setWaitBeforeScreenshots(value) {
     if (value <= 0) {
-      this._waitBeforeScreenshots = undefined
+      this._WaitBeforeScreenshots = undefined
     } else {
-      this._waitBeforeScreenshots = value
+      this._WaitBeforeScreenshots = value
+    }
+    return this
+  }
+
+  /**
+   * Sets the time to wait just before each DOM capture and before the first screenshot captured in classic
+   *
+   * @param {number} value - The time to wait (Milliseconds). Values smaller or equal to 0, will cause the
+   *   default value to be used.
+   * @return {this}
+   */
+  setWaitBeforeCapture(value) {
+    if (value <= 0) {
+      this._waitBeforeCapture = undefined
+    } else {
+      this._waitBeforeCapture = value
     }
     return this
   }
