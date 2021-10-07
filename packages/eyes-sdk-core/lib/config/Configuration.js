@@ -114,7 +114,8 @@ const DEFAULT_VALUES = {
 /**
  * @typedef PlainConfigurationClassic
  * @prop {boolean} forceFullPageScreenshot
- * @prop {number} WaitBeforeScreenshots * @prop {StitchMode} stitchMode
+ * @prop {number} WaitBeforeScreenshots
+ * @prop {StitchMode} stitchMode
  * @prop {number} stitchOverlap
  * @prop {boolean} hideScrollbars
  * @prop {boolean} hideCaret
@@ -214,7 +215,7 @@ class Configuration {
     /** @type {boolean} */
     this._forceFullPageScreenshot = undefined
     /** @type {number} */
-    this._WaitBeforeScreenshots = undefined
+    this._waitBeforeScreenshots = undefined
     /** @type {StitchMode} */
     this._stitchMode = undefined
     /** @type {boolean} */
@@ -1077,9 +1078,9 @@ class Configuration {
    */
   setWaitBeforeScreenshots(value) {
     if (value <= 0) {
-      this._WaitBeforeScreenshots = undefined
+      this._waitBeforeScreenshots = undefined
     } else {
-      this._WaitBeforeScreenshots = value
+      this._waitBeforeScreenshots = value
     }
     return this
   }
