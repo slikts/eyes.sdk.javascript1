@@ -3,6 +3,10 @@
 ## Unreleased
 
 
+## 1.1.3 - 2021/10/7
+
+- rename `testId` to `id` in `TestResults`
+
 ## 1.1.2 - 2021/9/24
 
 - add `LegacyRegion` type to support regions with `left` and `top` instead of `x` and `y`

@@ -13,7 +13,7 @@ describe('spec driver', async () => {
   describe('onscreen desktop (@chrome)', async () => {
     before(async () => {
       const userDataPath = fs.mkdtempSync(path.join(os.tmpdir(), 'chrome-user-data-dir'))
-      const extensionPath = path.resolve(process.cwd(), './build')
+      const extensionPath = path.resolve(process.cwd(), './dist')
       const context = await playwright.chromium.launchPersistentContext(userDataPath, {
         headless: false,
         args: [`--load-extension=${extensionPath}`, `--disable-extensions-except=${extensionPath}`],
@@ -45,8 +45,8 @@ describe('spec driver', async () => {
     it('isElement(wrong)', async () => {
       await isElement({input: {}, expected: false})
     })
-    it('isSelector(string)', async () => {
-      await isSelector({input: 'div', expected: true})
+    it('isSelector({type, selector}})', async () => {
+      await isSelector({input: {type: 'css', selector: 'div'}, expected: true})
     })
     it('isSelector(wrong)', async () => {
       await isSelector({input: {}, expected: false})
@@ -64,16 +64,16 @@ describe('spec driver', async () => {
       await childContext()
     })
     it('findElement(string)', async () => {
-      findElement({input: 'h1'})
+      findElement({input: {type: 'css', selector: 'h1'}})
     })
     it('findElement(non-existent)', async () => {
-      findElement({input: 'non-existent', expected: null})
+      findElement({input: {type: 'css', selector: 'non-existent'}, expected: null})
     })
     it('findElements(string)', async () => {
-      await findElements({input: 'div'})
+      await findElements({input: {type: 'css', selector: 'div'}})
     })
     it('findElements(non-existent)', async () => {
-      await findElements({input: 'non-existent', expected: []})
+      await findElements({input: {type: 'css', selector: 'non-existent'}, expected: []})
     })
     it('getTitle()', async () => {
       await getTitle()
@@ -161,7 +161,7 @@ describe('spec driver', async () => {
       [driver, input],
     )
     if (element === expected) return
-    const elementKey = await contentPage.$eval(input, element => (element.dataset.key = 'element-key'))
+    const elementKey = await contentPage.$eval(input.selector, element => (element.dataset.key = 'element-key'))
     const isCorrectElement = await backgroundPage.evaluate(
       async ([context, element, elementKey]) => {
         const [isCorrectElement] = await browser.tabs.executeScript(context.tabId, {
@@ -179,7 +179,7 @@ describe('spec driver', async () => {
       ([driver, selector]) => spec.findElements(driver, selector),
       [driver, input],
     )
-    const elementKeys = await contentPage.$$eval(input, elements =>
+    const elementKeys = await contentPage.$$eval(input.selector, elements =>
       elements.map((element, index) => (element.dataset.key = `element-key-${index}`)),
     )
     assert.strictEqual(elements.length, elementKeys.length)
