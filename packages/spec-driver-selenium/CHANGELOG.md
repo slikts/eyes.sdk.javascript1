@@ -1,5 +1,8 @@
+
+## 1.0.1 - 2021/10/12
+
+- spec driver implementation for selenium framework
 # Change Log
 
 ## Unreleased
 
-- spec driver implementation for selenium framework
