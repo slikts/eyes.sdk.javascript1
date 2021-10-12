@@ -14,10 +14,10 @@ const PACKAGES = [
   {name: 'core', dirname: 'eyes-sdk-core', aliases: ['@applitools/eyes-sdk-core']},
   {name: 'vgc', dirname: 'visual-grid-client', aliases: ['@applitools/visual-grid-client']},
 
-  {name: 'spec-playwright', dirname: 'spec-driver-playwright', framework: 'playwright', alias: ['@applitools/spec-driver-playwright']},
-  {name: 'spec-puppeteer', dirname: 'spec-driver-puppeteer', framework: 'puppeteer', alias: ['spec-pptr', '@applitools/spec-driver-puppeteer']},
-  {name: 'spec-webdriverio', dirname: 'spec-driver-webdriverio', framework: 'webdriverio', alias: ['spec-wdio', '@applitools/spec-driver-webdriverio']},
-  {name: 'spec-selenium', dirname: 'spec-driver-selenium', framework: 'selenium-webdriver', alias: ['@applitools/spec-driver-selenium']},
+  {name: 'spec-playwright', dirname: 'spec-driver-playwright', framework: 'playwright', aliases: ['@applitools/spec-driver-playwright']},
+  {name: 'spec-puppeteer', dirname: 'spec-driver-puppeteer', framework: 'puppeteer', aliases: ['spec-pptr', '@applitools/spec-driver-puppeteer']},
+  {name: 'spec-webdriverio', dirname: 'spec-driver-webdriverio', framework: 'webdriverio', aliases: ['spec-wdio', '@applitools/spec-driver-webdriverio']},
+  {name: 'spec-selenium', dirname: 'spec-driver-selenium', framework: 'selenium-webdriver', aliases: ['@applitools/spec-driver-selenium']},
 
   {name: 'universal', dirname: 'eyes-universal', sdk: true, aliases: ['usdk', '@applitools/eyes-universal']},
   {name: 'playwright-universal', dirname: 'eyes-playwright-universal', framework: 'playwright', sdk: true, aliases: ['playwright/u', '@applitools/eyes-playwright']},
