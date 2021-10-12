@@ -46,7 +46,7 @@
     "build": "yarn build:dist && yarn build:types",
     "build:dist": "tsc",
     "build:types": "api-extractor ./src/index.ts --out ./types/index.d.ts --external-modules selenium-webdriver",
-    "generate:tests": "SPEC_DRIVER_PATH='@applitools/selenium-spec' coverage-tests generate https://raw.githubusercontent.com/applitools/sdk.coverage.tests/master/js/config.js --name 'eyes-selenium'",
+    "generate:tests": "SPEC_DRIVER='@applitools/spec-driver-selenium' coverage-tests generate https://raw.githubusercontent.com/applitools/sdk.coverage.tests/master/js/config.js --name 'eyes-selenium'",
     "test": "yarn test:coverage",
     "test:coverage": "yarn generate:tests && APPLITOOLS_BATCH_NAME='JS Coverage Tests: eyes-selenium' APPLITOOLS_BATCH_ID=$(uuidgen) XUNIT_FILE=coverage-test-report.xml mocha --config .mocharc.cvg.js",
     "report": "coverage-tests report https://raw.githubusercontent.com/applitools/sdk.coverage.tests/master/js/config.js --name 'eyes-selenium'",
