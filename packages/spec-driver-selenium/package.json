@@ -34,7 +34,7 @@
     "lint": "eslint '**/*.ts'",
     "build": "yarn build:dist",
     "build:dist": "tsc",
-    "test": "mocha --no-timeouts -r ts-node/register ./test/**/*.spec.ts",
+    "test": "mocha ./test/**/*.spec.ts --no-timeouts -r ts-node/register -r @applitools/test-utils/mocha-hooks/docker",
     "setup": "yarn docker:setup",
     "docker:setup": "node ../scripts/scripts/generate-docker-compose-config.js && docker-compose up -d",
     "docker:teardown": "docker-compose down",
