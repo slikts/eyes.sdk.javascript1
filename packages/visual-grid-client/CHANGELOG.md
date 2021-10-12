@@ -4,6 +4,59 @@
 
 - support cookies
 
+## 15.8.34 - 2021/10/12
+
+- updated to @applitools/eyes-sdk-core@12.23.15 (from 12.23.14)
+
+## 15.8.33 - 2021/10/7
+
+- updated to @applitools/eyes-sdk-core@12.23.14 (from 12.23.13)
+
+## 15.8.32 - 2021/10/5
+
+- updated to @applitools/eyes-sdk-core@12.23.13 (from 12.23.12)
+- updated to @applitools/http-commons@2.4.5 (from 2.4.3)
+
+## 15.8.31 - 2021/9/24
+
+- updated to @applitools/eyes-sdk-core@12.23.12 (from 12.23.11)
+
+## 15.8.30 - 2021/9/24
+
+- updated to @applitools/eyes-sdk-core@12.23.11 (from 12.23.10)
+
+## 15.8.29 - 2021/9/24
+
+- updated to @applitools/eyes-sdk-core@12.23.10 (from 12.23.9)
+
+## 15.8.28 - 2021/9/24
+
+- updated to @applitools/eyes-sdk-core@12.23.9 (from 12.23.7)
+
+## 15.8.27 - 2021/9/15
+
+- updated to @applitools/eyes-sdk-core@12.23.7 (from 12.23.6)
+
+## 15.8.26 - 2021/9/13
+
+- updated to @applitools/eyes-sdk-core@12.23.6 (from 12.23.5)
+
+## 15.8.25 - 2021/9/9
+
+- updated to @applitools/eyes-sdk-core@12.23.5 (from 12.23.3)
+
+## 15.8.24 - 2021/9/6
+
+- updated to @applitools/eyes-sdk-core@12.23.3 (from 12.23.2)
+
+## 15.8.23 - 2021/9/6
+
+- updated to @applitools/eyes-sdk-core@12.23.2 (from 12.23.1)
+
+## 15.8.22 - 2021/8/31
+
+- updated to @applitools/eyes-sdk-core@12.23.1 (from 12.22.7)
+
 ## 15.8.21 - 2021/8/13
 
 - updated to @applitools/eyes-sdk-core@12.22.7 (from 12.22.6)

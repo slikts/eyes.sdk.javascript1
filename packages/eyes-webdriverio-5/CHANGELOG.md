@@ -4,6 +4,49 @@
 
 - support cookies
 
+## 5.32.9 - 2021/10/12
+
+- updated to @applitools/eyes-api@1.1.4 (from 1.1.3)
+- updated to @applitools/eyes-sdk-core@12.23.15 (from 12.23.14)
+- updated to @applitools/visual-grid-client@15.8.34 (from 15.8.33)
+
+## 5.32.8 - 2021/10/7
+
+- updated to @applitools/eyes-api@1.1.3 (from 1.1.2)
+- updated to @applitools/eyes-sdk-core@12.23.14 (from 12.23.12)
+- updated to @applitools/visual-grid-client@15.8.33 (from 15.8.31)
+
+## 5.32.7 - 2021/9/24
+
+- updated to @applitools/eyes-sdk-core@12.23.12 (from 12.23.11)
+- updated to @applitools/visual-grid-client@15.8.31 (from 15.8.30)
+
+## 5.32.6 - 2021/9/24
+
+- updated to @applitools/eyes-sdk-core@12.23.11 (from 12.23.10)
+- updated to @applitools/visual-grid-client@15.8.30 (from 15.8.29)
+
+## 5.32.5 - 2021/9/24
+
+- updated to @applitools/dom-snapshot@4.5.8 (from 4.5.7)
+- updated to @applitools/eyes-api@1.1.2 (from 1.1.1)
+- updated to @applitools/eyes-sdk-core@12.23.10 (from 12.23.5)
+- updated to @applitools/visual-grid-client@15.8.29 (from 15.8.25)
+
+## 5.32.4 - 2021/9/9
+
+- updated to @applitools/eyes-api@1.1.1 (from 1.1.0)
+- updated to @applitools/eyes-sdk-core@12.23.5 (from 12.23.3)
+- updated to @applitools/utils@1.2.3 (from 1.2.2)
+- updated to @applitools/visual-grid-client@15.8.25 (from 15.8.24)
+
+## 5.32.3 - 2021/9/6
+
+- add functionality to find element within another element to the spec driver
+- updated to @applitools/eyes-api@1.1.0 (from 1.0.12)
+- updated to @applitools/eyes-sdk-core@12.23.3 (from 12.22.6)
+- updated to @applitools/visual-grid-client@15.8.24 (from 15.8.20)
+
 ## 5.32.2 - 2021/8/13
 
 - updated to @applitools/dom-snapshot@4.5.7 (from 4.5.6)

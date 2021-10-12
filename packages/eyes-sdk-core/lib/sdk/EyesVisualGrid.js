@@ -150,6 +150,10 @@ class EyesVisualGrid extends EyesCore {
           checkSettings.disableBrowserFetching,
           this._configuration.getDisableBrowserFetching(),
         )
+        const waitBeforeCapture = TypeUtils.getOrDefault(
+          checkSettings.waitBeforeCapture,
+          this._configuration.getWaitBeforeCapture(),
+        )
         const showLogs = this._configuration.getShowLogs()
         const {snapshots, cookies} = await takeDomSnapshots({
           browsers,
@@ -162,6 +166,7 @@ class EyesVisualGrid extends EyesCore {
           getEmulatedDevicesSizes: this._getEmulatedDevicesSizes,
           getIosDevicesSizes: this._getIosDevicesSizes,
           showLogs,
+          waitBeforeCapture: waitBeforeCapture,
         })
 
         const [{url}] = snapshots

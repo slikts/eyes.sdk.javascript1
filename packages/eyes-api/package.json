@@ -1,6 +1,6 @@
 {
   "name": "@applitools/eyes-api",
-  "version": "1.0.12",
+  "version": "1.1.4",
   "keywords": [
     "applitools",
     "eyes",
@@ -34,23 +34,24 @@
     "types"
   ],
   "scripts": {
-    "lint": "eslint '**/*.ts' '**/*.js'",
+    "lint": "eslint '**/*.ts'",
     "build": "tsc",
-    "test": "yarn build && yarn test:unit",
-    "test:unit": "mocha --no-timeouts './test/unit/*.spec.js'",
+    "test": "yarn test:unit",
+    "test:unit": "mocha --no-timeouts -r ts-node/register './test/unit/*.spec.ts'",
     "deps": "bongo deps",
     "preversion": "bongo preversion && yarn build",
     "version": "bongo version",
     "postversion": "bongo postversion --skip-release-notification"
   },
   "dependencies": {
-    "@applitools/logger": "1.0.3",
-    "@applitools/types": "1.0.7",
-    "@applitools/utils": "1.2.2"
+    "@applitools/logger": "1.0.4",
+    "@applitools/types": "1.0.15",
+    "@applitools/utils": "1.2.3"
   },
   "devDependencies": {
-    "@applitools/sdk-release-kit": "0.13.0",
-    "@types/node": "^14.14.41",
+    "@applitools/sdk-release-kit": "0.13.3",
+    "@types/mocha": "^9.0.0",
+    "@types/node": "^16.7.8",
     "@typescript-eslint/eslint-plugin": "^4.7.0",
     "@typescript-eslint/parser": "^4.7.0",
     "eslint": "^7.25.0",
@@ -59,7 +60,9 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.1.4",
     "mocha": "^8.3.2",
+    "node-fetch": "^2.6.1",
     "prettier": "^2.1.2",
+    "ts-node": "^10.2.1",
     "typescript": "^4.0.5"
   },
   "engines": {

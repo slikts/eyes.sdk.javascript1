@@ -4,6 +4,47 @@
 
 - support cookies
 
+## 1.2.6 - 2021/10/7
+
+- fix issue with fractional viewport size on mobile devices
+
+## 1.2.5 - 2021/10/5
+
+- fix issue with wrong user agent overrides valid driver info
+
+## 1.2.4 - 2021/9/24
+
+- fix issue with switching to the duplicated context
+
+## 1.2.3 - 2021/9/24
+
+- updated to @applitools/types@1.0.14 (from 1.0.13)
+
+## 1.2.2 - 2021/9/10
+
+- no changes
+
+## 1.2.1 - 2021/9/10
+
+- fix mocked scripts in MockDriver
+
+## 1.2.0 - 2021/9/9
+
+- add support for deep selectors
+- updated to @applitools/snippets@2.1.7 (from 2.1.6)
+- updated to @applitools/types@1.0.13 (from 1.0.12)
+- updated to @applitools/utils@1.2.3 (from 1.2.2)
+
+## 1.1.5 - 2021/9/6
+
+- updated to @applitools/snippets@2.1.6 (from 2.1.5)
+
+## 1.1.4 - 2021/9/6
+
+- add support of reach spec selectors with shadow properties
+- updated to @applitools/snippets@2.1.5 (from 2.1.4)
+- updated to @applitools/types@1.0.12 (from 1.0.8)
+
 ## 1.1.3 - 2021/8/13
 
 - add `statusBarHeight` getter to the driver

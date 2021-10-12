@@ -1,11 +1,14 @@
+import type * as types from '@applitools/types'
 import * as utils from '@applitools/utils'
 import {AccessibilityRegionType, AccessibilityRegionTypeEnum} from '../enums/AccessibilityRegionType'
 import {MatchLevel, MatchLevelEnum} from '../enums/MatchLevel'
-import {Region} from './Region'
+import {Region, LegacyRegion} from './Region'
 
 type RegionReference<TElement, TSelector> = Region | ElementReference<TElement, TSelector>
 
-type ElementReference<TElement, TSelector> = TElement | TSelector
+type ElementReference<TElement, TSelector> = TElement | SelectorReference<TSelector>
+
+type SelectorReference<TSelector> = types.Selector<TSelector>
 
 type FrameReference<TElement, TSelector> = ElementReference<TElement, TSelector> | string | number
 
@@ -57,16 +60,18 @@ export type CheckSettings<TElement, TSelector> = {
   renderId?: string
   variationGroupId?: string
   timeout?: number
+  waitBeforeCapture?: number
 }
 
 export type Target<TElement, TSelector> = {
   window(): CheckSettingsFluent<TElement, TSelector>
-  region(region: RegionReference<TElement, TSelector>): CheckSettingsFluent<TElement, TSelector>
+  region(region: RegionReference<TElement, TSelector> | LegacyRegion): CheckSettingsFluent<TElement, TSelector>
   frame(context: ContextReference<TElement, TSelector>): CheckSettingsFluent<TElement, TSelector>
   frame(
     frame: FrameReference<TElement, TSelector>,
     scrollRootElement?: ElementReference<TElement, TSelector>,
   ): CheckSettingsFluent<TElement, TSelector>
+  shadow(selector: SelectorReference<TSelector>): CheckSettingsFluent<TSelector>
 }
 
 export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
@@ -82,6 +87,10 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
   static frame(contextOrFrame: unknown, scrollRootElement?: unknown): CheckSettingsFluent {
     return new this().frame(contextOrFrame, scrollRootElement)
   }
+  /** @internal */
+  static shadow(selector: unknown): CheckSettingsFluent {
+    return new this().shadow(selector)
+  }
 
   protected static readonly _spec: CheckSettingsSpec
   protected get _spec(): CheckSettingsSpec<TElement, TSelector> {
@@ -95,15 +104,21 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
   }
 
   private _isRegionReference(value: any): value is RegionReference<TSelector, TElement> {
-    return (
-      utils.types.has(value, ['x', 'y', 'width', 'height']) ||
-      utils.types.has(value, ['left', 'top', 'width', 'height']) ||
-      this._isElementReference(value)
-    )
+    return utils.types.has(value, ['x', 'y', 'width', 'height']) || this._isElementReference(value)
   }
 
   private _isElementReference(value: any): value is ElementReference<TSelector, TElement> {
-    return this._spec.isElement(value) || this._spec.isSelector(value)
+    return this._spec.isElement(value) || this._isSelectorReference(value)
+  }
+
+  private _isSelectorReference(selector: any): selector is SelectorReference<TSelector> {
+    return (
+      this._spec.isSelector(selector) ||
+      utils.types.isString(selector) ||
+      (utils.types.isPlainObject(selector) &&
+        utils.types.has(selector, 'selector') &&
+        (utils.types.isString(selector.selector) || this._spec.isSelector(selector.selector)))
+    )
   }
 
   constructor(settings?: CheckSettings<TElement, TSelector>) {
@@ -162,6 +177,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     if (settings.renderId) this.renderId(settings.renderId)
     if (settings.variationGroupId) this.variationGroupId(settings.variationGroupId)
     if (!utils.types.isNull(settings.timeout)) this.timeout(settings.timeout)
+    if (!utils.types.isNull(settings.waitBeforeCapture)) this.waitBeforeCapture(settings.waitBeforeCapture)
   }
 
   /** @undocumented */
@@ -174,9 +190,45 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     return this.name(name)
   }
 
-  region(region: RegionReference<TElement, TSelector>): this {
+  region(region: RegionReference<TElement, TSelector> | LegacyRegion): this {
+    if (utils.types.has(region, ['left', 'top', 'width', 'height'])) {
+      region = {x: region.left, y: region.top, width: region.width, height: region.height}
+    }
     utils.guard.custom(region, value => this._isRegionReference(value), {name: 'region'})
-    this._settings.region = region
+
+    if (
+      this._isSelectorReference(region) &&
+      this._isSelectorReference(this._settings.region) &&
+      utils.types.has(this._settings.region, 'selector')
+    ) {
+      let lastSelector: any = this._settings.region
+      while (lastSelector.shadow) lastSelector = lastSelector.shadow
+      lastSelector.shadow = region
+    } else {
+      this._settings.region = region
+    }
+
+    return this
+  }
+
+  shadow(selector: SelectorReference<TSelector>): this {
+    utils.guard.custom(selector, value => this._isSelectorReference(value), {name: 'selector'})
+
+    selector = utils.types.has(selector, 'selector') ? selector : {selector}
+
+    if (!this._settings.region) {
+      this._settings.region = selector
+    } else if (this._isSelectorReference(this._settings.region)) {
+      let lastSelector: any
+      if (utils.types.has(this._settings.region, 'selector')) {
+        lastSelector = this._settings.region
+        while (lastSelector.shadow) lastSelector = lastSelector.shadow
+      } else {
+        lastSelector = {selector: this._settings.region}
+      }
+      lastSelector.shadow = selector
+    }
+
     return this
   }
 
@@ -199,69 +251,84 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     return this
   }
 
-  ignoreRegion(ignoreRegion: RegionReference<TElement, TSelector>): this {
+  ignoreRegion(region: RegionReference<TElement, TSelector> | LegacyRegion): this {
     if (!this._settings.ignoreRegions) this._settings.ignoreRegions = []
-    this._settings.ignoreRegions.push(ignoreRegion)
+    if (utils.types.has(region, ['left', 'top', 'width', 'height'])) {
+      region = {x: region.left, y: region.top, width: region.width, height: region.height}
+    }
+    this._settings.ignoreRegions.push(region)
     return this
   }
-  ignoreRegions(...ignoreRegions: RegionReference<TElement, TSelector>[]): this {
-    ignoreRegions.forEach(ignoreRegion => this.ignoreRegion(ignoreRegion))
+  ignoreRegions(...regions: (RegionReference<TElement, TSelector> | LegacyRegion)[]): this {
+    regions.forEach(region => this.ignoreRegion(region))
     return this
   }
   /** @deprecated */
-  ignore(ignoreRegion: RegionReference<TElement, TSelector>) {
-    return this.ignoreRegion(ignoreRegion)
+  ignore(region: RegionReference<TElement, TSelector> | LegacyRegion) {
+    return this.ignoreRegion(region)
   }
   /** @deprecated */
-  ignores(...ignoreRegions: RegionReference<TElement, TSelector>[]): this {
-    return this.ignoreRegions(...ignoreRegions)
+  ignores(...regions: (RegionReference<TElement, TSelector> | LegacyRegion)[]): this {
+    return this.ignoreRegions(...regions)
   }
 
-  layoutRegion(layoutRegion: RegionReference<TElement, TSelector>): this {
+  layoutRegion(region: RegionReference<TElement, TSelector> | LegacyRegion): this {
     if (!this._settings.layoutRegions) this._settings.layoutRegions = []
-    this._settings.layoutRegions.push(layoutRegion)
+    if (utils.types.has(region, ['left', 'top', 'width', 'height'])) {
+      region = {x: region.left, y: region.top, width: region.width, height: region.height}
+    }
+    this._settings.layoutRegions.push(region)
     return this
   }
-  layoutRegions(...layoutRegions: RegionReference<TElement, TSelector>[]): this {
-    layoutRegions.forEach(layoutRegion => this.layoutRegion(layoutRegion))
+  layoutRegions(...regions: (RegionReference<TElement, TSelector> | LegacyRegion)[]): this {
+    regions.forEach(region => this.layoutRegion(region))
     return this
   }
 
-  strictRegion(strictRegion: RegionReference<TElement, TSelector>): this {
+  strictRegion(region: RegionReference<TElement, TSelector> | LegacyRegion): this {
     if (!this._settings.strictRegions) this._settings.strictRegions = []
-    this._settings.strictRegions.push(strictRegion)
+    if (utils.types.has(region, ['left', 'top', 'width', 'height'])) {
+      region = {x: region.left, y: region.top, width: region.width, height: region.height}
+    }
+    this._settings.strictRegions.push(region)
     return this
   }
-  strictRegions(...regions: RegionReference<TElement, TSelector>[]): this {
+  strictRegions(...regions: (RegionReference<TElement, TSelector> | LegacyRegion)[]): this {
     regions.forEach(region => this.strictRegion(region))
     return this
   }
 
-  contentRegion(region: RegionReference<TElement, TSelector>): this {
+  contentRegion(region: RegionReference<TElement, TSelector> | LegacyRegion): this {
     if (!this._settings.contentRegions) this._settings.contentRegions = []
+    if (utils.types.has(region, ['left', 'top', 'width', 'height'])) {
+      region = {x: region.left, y: region.top, width: region.width, height: region.height}
+    }
     this._settings.contentRegions.push(region)
     return this
   }
-  contentRegions(...regions: RegionReference<TElement, TSelector>[]): this {
+  contentRegions(...regions: (RegionReference<TElement, TSelector> | LegacyRegion)[]): this {
     regions.forEach(region => this.contentRegion(region))
     return this
   }
 
   floatingRegion(region: FloatingRegionReference<TElement, TSelector>): this
   floatingRegion(
-    region: RegionReference<TElement, TSelector>,
+    region: RegionReference<TElement, TSelector> | LegacyRegion,
     maxUpOffset?: number,
     maxDownOffset?: number,
     maxLeftOffset?: number,
     maxRightOffset?: number,
   ): this
   floatingRegion(
-    region: FloatingRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector>,
+    region: FloatingRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector> | LegacyRegion,
     maxUpOffset?: number,
     maxDownOffset?: number,
     maxLeftOffset?: number,
     maxRightOffset?: number,
   ): this {
+    if (utils.types.has(region, ['left', 'top', 'width', 'height'])) {
+      region = {x: region.left, y: region.top, width: region.width, height: region.height}
+    }
     const floatingRegion = utils.types.has(region, 'region')
       ? region
       : {region, maxUpOffset, maxDownOffset, maxLeftOffset, maxRightOffset}
@@ -277,68 +344,69 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     return this
   }
   floatingRegions(
-    ...regions: (FloatingRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector>)[]
+    ...regions: (FloatingRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector> | LegacyRegion)[]
   ): this
-  floatingRegions(maxOffset: number, ...regions: RegionReference<TElement, TSelector>[]): this
+  floatingRegions(maxOffset: number, ...regions: (RegionReference<TElement, TSelector> | LegacyRegion)[]): this
   floatingRegions(
-    regionOrMaxOffset: FloatingRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector> | number,
-    ...regions: (FloatingRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector>)[]
+    regionOrMaxOffset:
+      | FloatingRegionReference<TElement, TSelector>
+      | RegionReference<TElement, TSelector>
+      | LegacyRegion
+      | number,
+    ...regions: (FloatingRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector> | LegacyRegion)[]
   ): this {
+    let maxOffset: number
     if (utils.types.isNumber(regionOrMaxOffset)) {
-      const maxOffset = regionOrMaxOffset
-      regions.forEach((region: RegionReference<TElement, TSelector>) =>
-        this.floatingRegion({
-          region,
-          maxUpOffset: maxOffset,
-          maxDownOffset: maxOffset,
-          maxLeftOffset: maxOffset,
-          maxRightOffset: maxOffset,
-        }),
-      )
+      maxOffset = regionOrMaxOffset
     } else {
       this.floatingRegion(regionOrMaxOffset as FloatingRegionReference<TElement, TSelector>)
-      regions.forEach((floatingRegion: FloatingRegionReference<TElement, TSelector>) =>
-        this.floatingRegion(floatingRegion),
-      )
     }
+    regions.forEach(region => {
+      if (utils.types.has(region, 'region')) this.floatingRegion(region)
+      else this.floatingRegion(region, maxOffset, maxOffset, maxOffset, maxOffset)
+    })
     return this
   }
   /** @deprecated */
   floating(region: FloatingRegionReference<TElement, TSelector>): this
   /** @deprecated */
-  floating(region: RegionReference<TElement, TSelector>): this
+  floating(region: RegionReference<TElement, TSelector> | LegacyRegion): this
   floating(
-    region: FloatingRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector>,
+    region: FloatingRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector> | LegacyRegion,
     maxUpOffset?: number,
     maxDownOffset?: number,
     maxLeftOffset?: number,
     maxRightOffset?: number,
   ): this {
-    return this.floatingRegion(
-      region as RegionReference<TElement, TSelector>,
-      maxUpOffset,
-      maxDownOffset,
-      maxLeftOffset,
-      maxRightOffset,
-    )
+    if (utils.types.has(region, 'region')) return this.floatingRegion(region)
+    else return this.floatingRegion(region, maxUpOffset, maxDownOffset, maxLeftOffset, maxRightOffset)
   }
   /** @deprecated */
-  floatings(...regions: (FloatingRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector>)[]): this
-  /** @deprecated */
-  floatings(maxOffset: number, ...regions: RegionReference<TElement, TSelector>[]): this
   floatings(
-    regionOrMaxOffset: FloatingRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector> | number,
-    ...regions: (FloatingRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector>)[]
+    ...regions: (FloatingRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector> | LegacyRegion)[]
+  ): this
+  /** @deprecated */
+  floatings(maxOffset: number, ...regions: (RegionReference<TElement, TSelector> | LegacyRegion)[]): this
+  floatings(
+    regionOrMaxOffset:
+      | FloatingRegionReference<TElement, TSelector>
+      | RegionReference<TElement, TSelector>
+      | LegacyRegion
+      | number,
+    ...regions: (FloatingRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector> | LegacyRegion)[]
   ): this {
     return this.floatingRegions(regionOrMaxOffset as number, ...(regions as RegionReference<TElement, TSelector>[]))
   }
 
   accessibilityRegion(region: AccessibilityRegionReference<TElement, TSelector>): this
-  accessibilityRegion(region: RegionReference<TElement, TSelector>, type?: AccessibilityRegionTypeEnum): this
+  accessibilityRegion(region: RegionReference<TElement, TSelector> | LegacyRegion, type?: AccessibilityRegionType): this
   accessibilityRegion(
-    region: AccessibilityRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector>,
-    type?: AccessibilityRegionTypeEnum,
+    region: AccessibilityRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector> | LegacyRegion,
+    type?: AccessibilityRegionType,
   ): this {
+    if (utils.types.has(region, ['left', 'top', 'width', 'height'])) {
+      region = {x: region.left, y: region.top, width: region.width, height: region.height}
+    }
     const accessibilityRegion = utils.types.has(region, 'region') ? region : {region, type}
     utils.guard.custom(accessibilityRegion.region, value => this._isRegionReference(value), {
       name: 'region',
@@ -352,25 +420,38 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     return this
   }
   accessibilityRegions(
-    ...regions: (AccessibilityRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector>)[]
+    ...regions: (
+      | AccessibilityRegionReference<TElement, TSelector>
+      | RegionReference<TElement, TSelector>
+      | LegacyRegion
+    )[]
   ): this
-  accessibilityRegions(type: AccessibilityRegionTypeEnum, ...regions: RegionReference<TElement, TSelector>[]): this
+  accessibilityRegions(
+    type: AccessibilityRegionType,
+    ...regions: (RegionReference<TElement, TSelector> | LegacyRegion)[]
+  ): this
   accessibilityRegions(
     regionOrType:
       | AccessibilityRegionReference<TElement, TSelector>
       | RegionReference<TElement, TSelector>
-      | AccessibilityRegionTypeEnum,
-    ...regions: (AccessibilityRegionReference<TElement, TSelector> | RegionReference<TElement, TSelector>)[]
+      | LegacyRegion
+      | AccessibilityRegionType,
+    ...regions: (
+      | AccessibilityRegionReference<TElement, TSelector>
+      | RegionReference<TElement, TSelector>
+      | LegacyRegion
+    )[]
   ): this {
+    let type: AccessibilityRegionType
     if (utils.types.isEnumValue(regionOrType, AccessibilityRegionTypeEnum)) {
-      const type = regionOrType
-      regions.forEach((region: RegionReference<TElement, TSelector>) => this.accessibilityRegion({region, type}))
+      type = regionOrType
     } else {
       this.accessibilityRegion(regionOrType as AccessibilityRegionReference<TElement, TSelector>)
-      regions.forEach((floatingRegion: AccessibilityRegionReference<TElement, TSelector>) =>
-        this.accessibilityRegion(floatingRegion),
-      )
     }
+    regions.forEach(region => {
+      if (utils.types.has(region, 'region')) this.accessibilityRegion(region)
+      else this.accessibilityRegion(region, type)
+    })
     return this
   }
 
@@ -397,7 +478,7 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
     return this.fully(stitchContent)
   }
 
-  matchLevel(matchLevel: MatchLevelEnum): this {
+  matchLevel(matchLevel: MatchLevel): this {
     utils.guard.isEnumValue(matchLevel, MatchLevelEnum, {name: 'matchLevel'})
     this._settings.matchLevel = matchLevel
     return this
@@ -506,6 +587,12 @@ export class CheckSettingsFluent<TElement = unknown, TSelector = unknown> {
   timeout(timeout: number): this {
     utils.guard.isNumber(timeout, {name: 'timeout'})
     this._settings.timeout = timeout
+    return this
+  }
+
+  waitBeforeCapture(waitBeforeCapture: number): this {
+    utils.guard.isNumber(waitBeforeCapture, {name: 'waitBeforeCapture'})
+    this._settings.waitBeforeCapture = waitBeforeCapture
     return this
   }
 

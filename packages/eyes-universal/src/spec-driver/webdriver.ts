@@ -4,24 +4,46 @@ import * as utils from '@applitools/utils'
 import WebDriver from 'webdriver'
 
 export type Driver = WD.Client
-export type Element = {'element-6066-11e4-a52e-4f735466cecf': string}
-export type Selector = types.SpecSelector<{using: string; value: string}>
+export type Element = {'element-6066-11e4-a52e-4f735466cecf': string} | {ELEMENT: string}
+export type Selector = {using: string; value: string}
+
+type StaticDriver = {sessionId: string; serverUrl: string; capabilities: Record<string, any>}
+type StaticElement = {elementId: string}
+type CommonSelector = string | {selector: Selector | string; type?: string}
 
 // #region HELPERS
 
+const LEGACY_ELEMENT_ID = 'ELEMENT'
+const ELEMENT_ID = 'element-6066-11e4-a52e-4f735466cecf'
+
+const W3C_CAPABILITIES = ['platformName', 'platformVersion']
+const W3C_SAFARI_CAPABILITIES = ['browserVersion', 'setWindowRect']
+const APPIUM_CAPABILITIES = ['appiumVersion', 'deviceType', 'deviceOrientation', 'deviceName', 'automationName']
+const LEGACY_APPIUM_CAPABILITIES = ['appium-version', 'device-type', 'device-orientation']
+const CHROME_CAPABILITIES = ['chrome', 'goog:chromeOptions']
+const MOBILE_BROWSER_NAMES = ['ipad', 'iphone', 'android']
+
 function extractElementId(element: Element): string {
-  return (element as any).elementId ?? element['element-6066-11e4-a52e-4f735466cecf']
+  return (element as any).elementId ?? (element as any)[ELEMENT_ID] ?? (element as any)[LEGACY_ELEMENT_ID]
 }
 
-function transformSelector(selector: Selector): [string, string] {
-  if (utils.types.isString(selector)) {
-    return ['css selector', selector]
-  } else if (utils.types.has(selector, ['type', 'selector'])) {
-    if (selector.type === 'css') return ['css selector', selector.selector]
-    else if (selector.type === 'xpath') return ['xpath', selector.selector]
-    else return [selector.type, selector.selector]
-  } else {
-    return [selector.using, selector.value]
+function extractEnvironment(capabilities: Record<string, any>) {
+  const isAppium = APPIUM_CAPABILITIES.some(capability => capabilities.hasOwnProperty(capability))
+  const isChrome = CHROME_CAPABILITIES.some(capability => capabilities.hasOwnProperty(capability))
+  const isW3C =
+    isAppium ||
+    W3C_CAPABILITIES.every(capability => capabilities.hasOwnProperty(capability)) ||
+    W3C_SAFARI_CAPABILITIES.every(capability => capabilities.hasOwnProperty(capability))
+  const isMobile =
+    capabilities.browserName === '' ||
+    isAppium ||
+    LEGACY_APPIUM_CAPABILITIES.some(capability => capabilities.hasOwnProperty(capability)) ||
+    MOBILE_BROWSER_NAMES.includes(capabilities.browserName?.toLowerCase())
+
+  return {
+    isW3C,
+    isMobile,
+    isChrome,
   }
 }
 
@@ -30,26 +52,21 @@ function transformSelector(selector: Selector): [string, string] {
 // #region UTILITY
 
 export function isDriver(driver: any): driver is Driver {
-  return utils.types.instanceOf(driver, 'Browser')
+  if (!driver) return false
+  return utils.types.has(driver, ['sessionId', 'serverUrl']) || utils.types.instanceOf<WD.Client>(driver, 'Browser')
 }
 export function isElement(element: any): element is Element {
-
-  return Boolean(element && extractElementId(element))
+  if (!element) return false
+  return Boolean(extractElementId(element))
 }
 export function isSelector(selector: any): selector is Selector {
   if (!selector) return false
-  return (
-    utils.types.isString(selector) ||
-    utils.types.has(selector, ['type', 'selector']) ||
-    utils.types.has(selector, ['using', 'value'])
-  )
+  return utils.types.has(selector, ['using', 'value'])
 }
-export function transformDriver(driver: {
-  sessionId: string
-  serverUrl: string
-  capabilities: Record<string, any>
-}): Driver {
+export function transformDriver(driver: Driver | StaticDriver): Driver {
+  if (!utils.types.has(driver, ['sessionId', 'serverUrl'])) return driver
   const url = new URL(driver.serverUrl)
+
   const options: WD.AttachOptions = {
     sessionId: driver.sessionId,
     protocol: url.protocol ? url.protocol.replace(/:$/, '') : undefined,
@@ -58,6 +75,7 @@ export function transformDriver(driver: {
     path: url.pathname,
     capabilities: driver.capabilities,
     logLevel: 'silent',
+    ...extractEnvironment(driver.capabilities),
   }
   if (!options.port) {
     if (options.protocol === 'http') options.port = 80
@@ -65,11 +83,21 @@ export function transformDriver(driver: {
   }
   return WebDriver.attachToSession(options)
 }
-export function transformElement(element: {elementId: string} | Element): Element {
-  if (utils.types.has(element, 'elementId')) {
-    return {'element-6066-11e4-a52e-4f735466cecf': element.elementId}
+export function transformElement(element: Element | StaticElement): Element {
+  if (!utils.types.has(element, 'elementId')) return element
+  return {'element-6066-11e4-a52e-4f735466cecf': element.elementId}
+}
+export function transformSelector(selector: Selector | CommonSelector): Selector {
+  if (utils.types.isString(selector)) {
+    return {using: 'css selector', value: selector}
+  } else if (utils.types.has(selector, 'selector')) {
+    if (!utils.types.isString(selector.selector)) return selector.selector
+    if (!utils.types.has(selector, 'type')) return {using: 'css selector', value: selector.selector}
+    if (selector.type === 'css') return {using: 'css selector', value: selector.selector}
+    else return {using: selector.type, value: selector.selector}
+  } else {
+    return selector
   }
-  return element
 }
 export function isStaleElementError(error: any): boolean {
   if (!error) return false
@@ -106,18 +134,12 @@ export async function childContext(driver: Driver, element: Element): Promise<Dr
   return driver
 }
 export async function findElement(driver: Driver, selector: Selector): Promise<Element | null> {
-  const element = await driver.findElement(...transformSelector(selector))
-  return !utils.types.has(element, 'error') ? element : null
+  const element = await driver.findElement(selector.using, selector.value)
+  return isElement(element) ? element : null
 }
 export async function findElements(driver: Driver, selector: Selector): Promise<Element[]> {
-  return driver.findElements(...transformSelector(selector))
+  return driver.findElements(selector.using, selector.value)
 }
-// export async function getElementRect(
-//   driver: Driver,
-//   element: Element,
-// ): Promise<{x: number; y: number; width: number; height: number}> {
-//   return driver.getElementRect(extractElementId(element))
-// }
 export async function getWindowSize(driver: Driver): Promise<{width: number; height: number}> {
   if (utils.types.isFunction(driver.getWindowRect)) {
     const rect = await driver.getWindowRect()
@@ -134,24 +156,38 @@ export async function setWindowSize(driver: Driver, size: {width: number; height
     await driver._setWindowSize(size.width, size.height)
   }
 }
-export async function getOrientation(_driver: Driver): Promise<'portrait' | 'landscape'> {
-  // const capabilities = await driver.getCapabilities()
-  // const orientation = capabilities.get('orientation') || capabilities.get('deviceOrientation')
-  // return orientation.toLowerCase()
-  return 'portrait'
-}
 export async function getDriverInfo(driver: Driver): Promise<any> {
   const capabilities = driver.capabilities as any
-  return {
+  const info: any = {
     sessionId: driver.sessionId,
     isMobile: driver.isMobile,
     isNative: driver.isMobile && !capabilities.browserName,
-    deviceName: capabilities.desired ? capabilities.desired.deviceName : capabilities.deviceName,
-    platformName: capabilities.platformName ?? capabilities.platform,
+    deviceName: capabilities.desired?.deviceName ?? capabilities.deviceName,
+    platformName: capabilities.platformName ?? capabilities.platform ?? capabilities.desired?.platformName,
     platformVersion: capabilities.platformVersion,
-    browserName: capabilities.browserName ?? capabilities.desired.browserName,
+    browserName: capabilities.browserName ?? capabilities.desired?.browserName,
     browserVersion: capabilities.browserVersion ?? capabilities.version,
+    pixelRatio: capabilities.pixelRatio,
   }
+
+  if (info.isNative) {
+    const capabilities = utils.types.has(driver.capabilities, ['pixelRatio', 'viewportRect', 'statBarHeight'])
+      ? driver.capabilities
+      : await driver.getSession()
+
+    info.pixelRatio = capabilities.pixelRatio
+
+    try {
+      const {statusBar, navigationBar} = (await driver.getSystemBars()) as any
+      info.statusBarHeight = statusBar.visible ? statusBar.height : 0
+      info.navigationBarHeight = navigationBar.visible ? navigationBar.height : 0
+    } catch (err) {
+      info.statusBarHeight = capabilities.statBarHeight ?? capabilities.viewportRect?.top ?? 0
+      info.navigationBarHeight = 0
+    }
+  }
+
+  return info
 }
 export async function getTitle(driver: Driver): Promise<string> {
   return driver.getTitle()
@@ -164,6 +200,31 @@ export async function visit(driver: Driver, url: string): Promise<void> {
 }
 export async function takeScreenshot(driver: Driver): Promise<string> {
   return driver.takeScreenshot()
+}
+export async function click(driver: Driver, element: Element | Selector): Promise<void> {
+  if (isSelector(element)) element = await findElement(driver, element)
+  await driver.elementClick(extractElementId(element))
+}
+
+// #endregion
+
+// #region NATIVE COMMANDS
+
+export async function getOrientation(browser: Driver): Promise<'portrait' | 'landscape'> {
+  const orientation = await browser.getOrientation()
+  return orientation.toLowerCase() as 'portrait' | 'landscape'
+}
+export async function getElementRegion(driver: Driver, element: Element): Promise<types.Region> {
+  return driver.getElementRect(extractElementId(element))
+}
+export async function getElementAttribute(driver: Driver, element: Element, attr: string): Promise<string> {
+  return driver.getElementAttribute(extractElementId(element), attr)
+}
+export async function getElementText(driver: Driver, element: Element): Promise<string> {
+  return driver.getElementText(extractElementId(element))
+}
+export async function performAction(driver: Driver, steps: any[]): Promise<void> {
+  return driver.touchPerform(steps.map(({action, ...options}) => ({action, options})))
 }
 
 // #endregion

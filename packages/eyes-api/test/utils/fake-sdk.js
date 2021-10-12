@@ -26,7 +26,7 @@ function makeSDK(settings = {}) {
   }
 
   function isSelector(selector) {
-    return utils.types.isString(selector) || utils.types.has(selector, ['type', 'selector'])
+    return utils.types.isString(selector) || utils.types.has(selector, 'fakeSelector')
   }
 
   function makeManager(config) {

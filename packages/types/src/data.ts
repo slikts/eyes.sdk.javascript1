@@ -35,23 +35,6 @@ export type Batch = {
   properties?: CustomProperty[]
 }
 
-export type DriverInfo = {
-  sessionId?: string
-  isMobile?: boolean
-  isNative?: boolean
-  isCDP?: boolean
-  deviceName?: string
-  platformName?: string
-  platformVersion?: string
-  browserName?: string
-  browserVersion?: string
-  userAgent?: string
-  pixelRatio?: number
-  statusBarHeight?: number
-  navigationBarHeight?: number
-  viewportSize?: Size
-}
-
 export type Location = {
   x: number
   y: number
@@ -120,14 +103,15 @@ export type ChromeEmulationDevice =
   | 'Galaxy Note 4'
   | 'Galaxy Note 8'
   | 'Galaxy Note 9'
-  | 'Galaxy S10'
-  | 'Galaxy S10 Plus'
   | 'Galaxy S3'
   | 'Galaxy S5'
   | 'Galaxy S8'
   | 'Galaxy S8 Plus'
   | 'Galaxy S9'
   | 'Galaxy S9 Plus'
+  | 'Galaxy S10'
+  | 'Galaxy S10 Plus'
+  | 'Galaxy S20'
   | 'iPad'
   | 'iPad 6th Gen'
   | 'iPad 7th Gen'
@@ -172,6 +156,7 @@ export type ChromeEmulationDevice =
   | 'Pixel 3 XL'
   | 'Pixel 4'
   | 'Pixel 4 XL'
+  | 'Pixel 5'
 
 export type ChromeEmulationDeviceRenderer = {
   chromeEmulationInfo: {
@@ -181,6 +166,10 @@ export type ChromeEmulationDeviceRenderer = {
 }
 
 export type IOSDevice =
+  | 'iPhone 12 Pro Max'
+  | 'iPhone 12 Pro'
+  | 'iPhone 12'
+  | 'iPhone 12 mini'
   | 'iPhone 11 Pro'
   | 'iPhone 11 Pro Max'
   | 'iPhone 11'

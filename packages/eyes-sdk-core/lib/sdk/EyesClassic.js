@@ -71,6 +71,7 @@ class EyesClassic extends EyesCore {
     )
   }
 
+  // set waitBeofreCpature from checkSettings in configuration.
   async _check(checkSettings = {}, closeAfterMatch = false, throwEx = true) {
     this._context = await this._driver.refreshContexts()
     await this._context.main.setScrollingElement(this._scrollRootElement)
@@ -120,6 +121,11 @@ class EyesClassic extends EyesCore {
       driver: this._driver,
       hooks: {
         afterScreenshot: async ({driver, scroller, screenshot}) => {
+          this._checkSettings = await CheckSettingsUtils.toScreenshotCheckSettings({
+            context: driver.currentContext,
+            checkSettings: this._checkSettings,
+            screenshot,
+          })
           if (driver.isWeb && TypeUtils.getOrDefault(this._checkSettings.sendDom, this._configuration.getSendDom())) {
             this._logger.verbose('Getting window DOM...')
             if (screenshotSettings.fully) {
@@ -127,11 +133,6 @@ class EyesClassic extends EyesCore {
             }
             dom = await takeDomCapture(this._logger, driver.mainContext).catch(() => null)
           }
-          this._checkSettings = await CheckSettingsUtils.toScreenshotCheckSettings({
-            context: driver.currentContext,
-            checkSettings: this._checkSettings,
-            screenshot,
-          })
         },
       },
       debug: this.getDebugScreenshots(),

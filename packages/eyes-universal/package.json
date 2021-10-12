@@ -1,6 +1,6 @@
 {
   "name": "@applitools/eyes-universal",
-  "version": "0.1.0",
+  "version": "0.1.5",
   "description": "Applitools Eyes Universal SDK",
   "keywords": [
     "applitools",
@@ -38,27 +38,30 @@
   ],
   "scripts": {
     "lint": "eslint '**/*.ts'",
-    "build": "yarn build:dist && yarn build:bin",
+    "build": "yarn build:dist && yarn build:bin && yarn build:zip && yarn build:tgz",
     "build:dist": "tsc",
-    "build:bin": "pkg ./dist/cli.js --out-path ./bin --compress GZip --targets node14-linux-x64,node14-macos-x64,node14-win-x64",
+    "build:bin": "pkg ./dist/cli.js --out-path ./bin --compress GZip --targets node14-linux-x64,node14-macos-x64,node14-win-x64 && mv ./bin/cli-macos ./bin/eyes-universal-macos && mv ./bin/cli-linux ./bin/eyes-universal-linux && mv ./bin/cli-win.exe ./bin/eyes-universal-win.exe",
+    "build:zip": "zip -j ./bin/eyes-universal.zip ./bin/eyes-universal-linux ./bin/eyes-universal-macos ./bin/eyes-universal-win.exe",
+    "build:tgz": "tar -czf ./bin/eyes-universal.tar.gz -C ./bin ./eyes-universal-linux ./eyes-universal-macos ./eyes-universal-win.exe",
     "deps": "bongo deps",
     "preversion": "bongo preversion && yarn build",
     "version": "bongo version",
     "postversion": "bongo postversion"
   },
   "dependencies": {
-    "@applitools/eyes-sdk-core": "12.21.1",
-    "@applitools/utils": "1.2.0",
-    "@applitools/visual-grid-client": "15.8.11",
+    "@applitools/eyes-sdk-core": "12.23.12",
+    "@applitools/logger": "1.0.4",
+    "@applitools/utils": "1.2.3",
+    "@applitools/visual-grid-client": "15.8.31",
     "webdriver": "7.7.3",
     "ws": "7.4.6",
     "yargs": "16.1.0"
   },
   "devDependencies": {
-    "@applitools/sdk-coverage-tests": "^2.3.5",
-    "@applitools/sdk-release-kit": "^0.13.0",
-    "@applitools/test-utils": "^1.0.4",
-    "@applitools/types": "1.0.3",
+    "@applitools/sdk-coverage-tests": "^2.3.15",
+    "@applitools/sdk-release-kit": "^0.13.3",
+    "@applitools/test-utils": "^1.0.7",
+    "@applitools/types": "1.0.14",
     "@types/ws": "^7.4.4",
     "@types/yargs": "^17.0.0",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
@@ -69,7 +72,7 @@
     "eslint-plugin-node": "^11.1.0",
     "eslint-plugin-prettier": "^3.3.1",
     "mocha": "^9.0.0",
-    "pkg": "^5.0.0",
+    "pkg": "^5.3.2",
     "prettier": "^2.1.2",
     "ts-node": "^10.0.0",
     "typescript": "^4.3.2"

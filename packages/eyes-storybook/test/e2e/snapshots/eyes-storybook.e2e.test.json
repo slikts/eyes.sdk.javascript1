@@ -2,7 +2,6 @@
   "stdout": [
     "Using @applitools/eyes-storybook version <version>.",
     "",
-    "<story-book path>",
     "\u001b[31m\u001b[39m",
     "\u001b[31mIgnoring parameters for story: \"with some emoji Button\" since they are not serilizable. Error: \"Converting circular structure to JSON\u001b[39m",
     "\u001b[31m    --> starting at object with constructor 'Object'\u001b[39m",
@@ -49,11 +48,11 @@
   ],
   "stderr": [
     "- Starting storybook server",
-    "✔ Storybook was started",
+    "\u001b[32m✔\u001b[39m Storybook was started",
     "- Reading stories",
-    "✔ Reading stories",
+    "\u001b[32m✔\u001b[39m Reading stories",
     "- Done 0 stories out of 20 ",
-    "✔ Done 20 stories out of 20 ",
+    "\u001b[32m✔\u001b[39m Done 20 stories out of 20 ",
     ""
   ],
   "undetermined version stdout": [
@@ -64,7 +63,7 @@
   ],
   "undetermined version stderr": [
     "- Reading stories",
-    "✖ Error when reading stories: could not determine storybook version in order to extract stories",
+    "\u001b[31m✖\u001b[39m Error when reading stories: could not determine storybook version in order to extract stories",
     ""
   ],
   "navigation timeout stdout": [
@@ -75,7 +74,7 @@
   ],
   "navigation timeout stderr": [
     "- Reading stories",
-    "✖ Error when loading storybook. Navigation timeout of 10 ms exceeded",
+    "\u001b[31m✖\u001b[39m Error when loading storybook. Navigation timeout of 10 ms exceeded",
     ""
   ],
   "too slowly stdout": [
@@ -86,13 +85,12 @@
   ],
   "too slowly stderr": [
     "- Reading stories",
-    "✖ Error when reading stories: storybook is loading for too long",
+    "\u001b[31m✖\u001b[39m Error when reading stories: storybook is loading for too long",
     ""
   ],
   "multi browser stdout": [
     "Using @applitools/eyes-storybook version <version>.",
     "",
-    "<story-book path>",
     "",
     "See details at <some_url>",
     "",
@@ -118,11 +116,11 @@
   ],
   "multi browser stderr": [
     "- Starting storybook server",
-    "✔ Storybook was started",
+    "\u001b[32m✔\u001b[39m Storybook was started",
     "- Reading stories",
-    "✔ Reading stories",
+    "\u001b[32m✔\u001b[39m Reading stories",
     "- Done 0 stories out of 1 ",
-    "✔ Done 1 stories out of 1 ",
+    "\u001b[32m✔\u001b[39m Done 1 stories out of 1 ",
     ""
   ]
 }

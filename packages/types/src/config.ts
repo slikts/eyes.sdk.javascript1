@@ -1,5 +1,6 @@
 import {LogHandler, DebugScreenshotHandler} from './debug'
 import {MatchSettings} from './setting'
+import {Selector} from './driver'
 import {
   SessionType,
   StitchMode,
@@ -80,10 +81,11 @@ export type EyesClassicConfig<TElement = unknown, TSelector = unknown> = {
   hideScrollbars?: boolean
   hideCaret?: boolean
   stitchOverlap?: number
-  scrollRootElement?: TElement | TSelector
+  scrollRootElement?: TElement | Selector<TSelector>
   cut?: ImageCropRect | ImageCropRegion
   rotation?: ImageRotation
   scaleRatio?: number
+  waitBeforeCapture?: number
 }
 
 export type EyesUFGConfig = {

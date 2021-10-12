@@ -22,14 +22,25 @@ const DEVICES = {
     type: 'sauce',
     url: SAUCE_SERVER_URL,
     capabilities: {
-      deviceName: 'Google Pixel 3a XL GoogleAPI Emulator',
-      platformName: 'Android',
-      platformVersion: '10.0',
-      deviceOrientation: 'portrait',
+      w3c: {
+        platformName: 'Android',
+        'appium:platformVersion': '10.0',
+        'appium:deviceName': 'Google Pixel 3a XL GoogleAPI Emulator',
+      },
+      legacy: {
+        deviceName: 'Google Pixel 3a XL GoogleAPI Emulator',
+        platformName: 'Android',
+        platformVersion: '10.0',
+      },
+    },
+    options: {
+      appiumVersion: '1.20.2',
       ...SAUCE_CREDENTIALS,
     },
   },
   'Pixel 3 XL': {
+    type: 'sauce',
+    url: SAUCE_SERVER_URL,
     capabilities: {
       deviceName: 'Google Pixel 3 XL GoogleAPI Emulator',
       platformName: 'Android',
@@ -37,8 +48,6 @@ const DEVICES = {
       deviceOrientation: 'portrait',
       ...SAUCE_CREDENTIALS,
     },
-    url: SAUCE_SERVER_URL,
-    sauce: true,
   },
   'Samsung Galaxy S8': {
     type: 'sauce',
@@ -121,6 +130,7 @@ const DEVICES = {
     },
   },
   'Android 8.0 Chrome Emulator': {
+    type: 'local',
     capabilities: {
       browserName: 'chrome',
       'goog:chromeOptions': {
@@ -230,13 +240,14 @@ const BROWSERS = {
     },
   },
   firefox: {
+    type: 'local',
     url: 'http://localhost:4445/wd/hub',
     capabilities: {
       browserName: 'firefox',
     },
   },
   chrome: {
-    // url: 'https://exec-wus.applitools.com/int-rel-tok-coverage-tests-js',
+    type: 'local',
     capabilities: {
       browserName: 'chrome',
     },
@@ -244,14 +255,14 @@ const BROWSERS = {
 }
 
 function parseEnv(
-  {browser, app, device, url, headless = !process.env.NO_HEADLESS, legacy, ...options} = {},
+  {browser, app, device, url, headless = !process.env.NO_HEADLESS, legacy, eg, ...options} = {},
   protocol = 'wd',
 ) {
   const env = {browser, device, headless, protocol, ...options}
   if (protocol === 'wd') {
     env.url = new URL(url || process.env.CVG_TESTS_WD_REMOTE || process.env.CVG_TESTS_REMOTE)
-    if (browser != null) env.capabilities = {...env.capabilities, browserName: browser}
-    else if (app) env.capabilities = {...env.capabilities, app, browserName: ''}
+    env.capabilities = {...env.capabilities}
+    env.capabilities.browserName = browser || env.capabilities.browserName || ''
     const preset = DEVICES[device] || BROWSERS[browser]
     if (preset) {
       env.url = preset.url ? new URL(preset.url) : env.url
@@ -259,10 +270,11 @@ function parseEnv(
         ...env.capabilities,
         ...((legacy ? preset.capabilities.legacy : preset.capabilities.w3c) || preset.capabilities),
       }
+      legacy = legacy || env.capabilities.deviceName || env.capabilities.platform || env.capabilities.version
       env.configurable = preset.type !== 'sauce'
       env.appium = Boolean(env.device)
       if (preset.type === 'sauce') {
-        if (legacy || env.device) {
+        if (legacy) {
           env.options = env.capabilities = {...env.capabilities, ...preset.options}
         } else {
           env.options = env.capabilities['sauce:options'] = {...preset.options}
@@ -270,7 +282,15 @@ function parseEnv(
       } else {
         env.options = preset.options || {}
       }
-      env.options.deviceOrientation = env.orientation
+      if (env.orientation) {
+        env.options.deviceOrientation = env.orientation
+      }
+    }
+    if (app) {
+      env.capabilities[legacy ? 'app' : 'appium:app'] = app
+    }
+    if (eg && (!preset || preset.type === 'local')) {
+      env.url = new URL(process.env.CVG_TESTS_EG_REMOTE)
     }
   } else if (protocol === 'cdp') {
     url = url || process.env.CVG_TESTS_CDP_REMOTE

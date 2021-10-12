@@ -2,7 +2,22 @@
 
 ## Unreleased
 
+ ## 3.22.5 - 2021/9/29
 
+ - fix layout-breakpoints should not hit cypress timeout
+- updated to @applitools/dom-snapshot@4.5.8 (from 4.5.7)
+- updated to @applitools/visual-grid-client@15.8.31 (from 15.8.24)
+
+## 3.22.4 - 2021/9/7
+
+- Update README to include an example about region within shadow DOM
+- updated to @applitools/visual-grid-client@15.8.24 (from 15.8.21)
+
+## 3.22.3 - 2021/8/16
+
+- fix hanging tests when calling open before visit
+- updated to @applitools/dom-snapshot@4.5.7 (from 4.5.6)
+- updated to @applitools/visual-grid-client@15.8.21 (from 15.8.13)
 
 ## 3.22.2 - 2021/8/3
 

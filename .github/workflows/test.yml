@@ -9,6 +9,10 @@ on:
       type:
         description: testing type (unit, it, e2e, coverage)
         required: false
+      remote:
+        description: remote type (local, eg)
+        default: local
+        required: false
       links:
         description: linked package names
         default: eyes-sdk-core
@@ -21,12 +25,6 @@ on:
         description: grep pattern
         required: false
 env:
-  CVG_TESTS_REMOTE: http://localhost:4444/wd/hub
-  APPLITOOLS_API_KEY_SDK: ${{secrets.APPLITOOLS_API_KEY_SDK}}
-  APPLITOOLS_API_KEY: ${{secrets.APPLITOOLS_API_KEY}}
-  APPLITOOLS_API_KEY_READ: ${{secrets.APPLITOOLS_API_KEY_READ}}
-  SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
-  SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
   NODE_AUTH_TOKEN: ${{secrets.NPM_TOKEN}}
   AZURE_STORAGE_CONNECTION_STRING: ${{secrets.AZURE_STORAGE_CONNECTION_STRING}}
   DISPLAY: ':99'
@@ -39,19 +37,23 @@ jobs:
       packages: ${{steps.setup.outputs.packages}}
     steps:
       - uses: actions/checkout@v2
-      - uses: ./.github/actions/parser
+      - name: Setup
+        uses: ./.github/actions/parser
         id: setup
         with:
           packages: ${{github.event.inputs.packages}}
           allow-variations: true
+      - name: Debug log
+        run: echo "${{toJSON(github.event.inputs)}}"
   test:
     needs: setup
     strategy:
       matrix: 
         include: ${{fromJSON(needs.setup.outputs.packages)}}
       fail-fast: false
-    name: ${{matrix.displayName}}
     runs-on: ubuntu-latest
+    name: ${{matrix.displayName}}
+    env: ${{matrix.env}}
     steps:
       - name: Check-out repository
         uses: actions/checkout@v2
@@ -68,11 +70,19 @@ jobs:
         with:
           package: ${{matrix.package}}
           type: ${{github.event.inputs.type}}
+          remote: ${{github.event.inputs.remote}}
           install: ${{matrix.install}}
           links: ${{github.event.inputs.links}}
           linking-depth: ${{github.event.inputs['linking-depth']}}
           grep: ${{github.event.inputs.grep}}
-        env: ${{matrix.env}}
+        env:
+          CVG_TESTS_REMOTE: http://localhost:4444/wd/hub
+          CVG_TESTS_EG_REMOTE: ${{secrets.CVG_TESTS_EG_REMOTE}}
+          APPLITOOLS_API_KEY: ${{secrets.APPLITOOLS_API_KEY}}
+          APPLITOOLS_API_KEY_SDK: ${{secrets.APPLITOOLS_API_KEY_SDK}}
+          APPLITOOLS_API_KEY_READ: ${{secrets.APPLITOOLS_API_KEY_READ}}
+          SAUCE_ACCESS_KEY: ${{secrets.SAUCE_ACCESS_KEY}}
+          SAUCE_USERNAME: ${{secrets.SAUCE_USERNAME}}
       - name: Save testing artifacts
         uses: actions/upload-artifact@v2
         with:

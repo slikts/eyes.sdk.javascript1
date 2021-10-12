@@ -3,6 +3,38 @@
 ## Unreleased
 
 
+## 1.1.4 - 2021/10/12
+
+- add `waitBeforeCapture` configuration property
+- updated to @applitools/types@1.0.15 (from 1.0.14)
+
+## 1.1.3 - 2021/10/7
+
+- rename `testId` to `id` in `TestResults`
+
+## 1.1.2 - 2021/9/24
+
+- add `LegacyRegion` type to support regions with `left` and `top` instead of `x` and `y`
+- updated to @applitools/types@1.0.14 (from 1.0.13)
+
+## 1.1.1 - 2021/9/9
+
+- add `EyesSelector` type and use it to wrap framework selector type all over api
+- updated to @applitools/logger@1.0.4 (from 1.0.3)
+- updated to @applitools/types@1.0.13 (from 1.0.12)
+- updated to @applitools/utils@1.2.3 (from 1.2.2)
+
+## 1.1.0 - 2021/9/6
+
+- add `CheckSettingsFluent#shadow` method to allow specifying region selectors for elements in shadow dom
+- updated to @applitools/types@1.0.12 (from 1.0.10)
+
+## 1.0.13 - 2021/8/31
+
+- allow string literals to be set in data classes and fluent api
+- updated to @applitools/types@1.0.9 (from 1.0.7)
+- updated to @applitools/types@1.0.10 (from 1.0.9)
+
 ## 1.0.12 - 2021/8/13
 
 - use core implementation for error throwing in `Eyes#close` and `EyesRunner#getAllTestResults`

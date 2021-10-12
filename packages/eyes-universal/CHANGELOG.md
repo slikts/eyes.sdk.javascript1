@@ -2,7 +2,38 @@
 
 ## Unreleased
 
+## 0.1.5 - 2021/9/27
+
+- updated to @applitools/eyes-sdk-core@12.23.12 (from 12.23.7)
+- updated to @applitools/visual-grid-client@15.8.31 (from 15.8.27)
+
+## 0.1.4 - 2021/9/15
+
+- replace `Session.init` with `Core.makeSDK`
+- improve command tracking in debug mode
+- update spec drivers to match latest requirements
+- updated to @applitools/eyes-sdk-core@12.23.5 (from 12.23.1)
+- updated to @applitools/utils@1.2.3 (from 1.2.2)
+- updated to @applitools/visual-grid-client@15.8.25 (from 15.8.22)
+- updated to @applitools/eyes-sdk-core@12.23.7 (from 12.23.5)
+- updated to @applitools/visual-grid-client@15.8.27 (from 15.8.25)
+
+## 0.1.3 - 2021/9/1
+
+- fix default webdriver spec driver implementation for `isDriver` to allow driver declarations with `sessionId` and `serverUrl`
+
+## 0.1.2 - 2021/9/1
+
+- fix default webdriver spec driver implementation for `isDriver` to allow driver declarations with `sessionId` and `serverUrl`
+## 0.1.1 - 2021/8/31
+
+- add support for native screenshots and newest spec driver methods
 - rename EyesManager.makeEyes to EyesManager.openEyes
+- updated to @applitools/eyes-sdk-core@12.23.0 (from 12.21.1)
+- updated to @applitools/utils@1.2.2 (from 1.2.0)
+- updated to @applitools/visual-grid-client@15.8.21 (from 15.8.11)
+- updated to @applitools/eyes-sdk-core@12.23.1 (from 12.23.0)
+- updated to @applitools/visual-grid-client@15.8.22 (from 15.8.21)
 
 ## 0.1.0 - 2021/6/15
 

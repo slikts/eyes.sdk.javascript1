@@ -1,14 +1,17 @@
 import type * as types from '@applitools/types'
 import type {Driver} from './driver'
+import type {SpecUtils} from './utils'
 import * as utils from '@applitools/utils'
+import {makeSpecUtils} from './utils'
 import {Element} from './element'
 
 const snippets = require('@applitools/snippets')
 
 export type ContextReference<TDriver, TContext, TElement, TSelector> =
   | Context<TDriver, TContext, TElement, TSelector>
+  | Element<TDriver, TContext, TElement, TSelector>
   | TElement
-  | TSelector
+  | types.Selector<TSelector>
   | string
   | number
 
@@ -37,6 +40,18 @@ export class Context<TDriver, TContext, TElement, TSelector> {
   private _scrollingElement: Element<TDriver, TContext, TElement, TSelector>
   private _state: ContextState = {}
   private _logger: any
+  private _utils: SpecUtils<TDriver, TContext, TElement, TSelector>
+
+  private _isReference(reference: any): reference is ContextReference<TDriver, TContext, TElement, TSelector> {
+    return (
+      reference instanceof Context ||
+      utils.types.isInteger(reference) ||
+      utils.types.isString(reference) ||
+      reference instanceof Element ||
+      this._spec.isElement(reference) ||
+      this._utils.isSelector(reference)
+    )
+  }
 
   protected readonly _spec: types.SpecDriver<TDriver, TContext, TElement, TSelector>
 
@@ -53,6 +68,7 @@ export class Context<TDriver, TContext, TElement, TSelector> {
     if (options.context instanceof Context) return options.context
 
     this._spec = options.spec
+    this._utils = makeSpecUtils(options.spec)
 
     if (options.logger) this._logger = options.logger
 
@@ -64,7 +80,7 @@ export class Context<TDriver, TContext, TElement, TSelector> {
       }
     }
 
-    if (this.isReference(options.reference)) {
+    if (this._isReference(options.reference)) {
       if (options.reference instanceof Context) return options.reference
       if (!options.parent) {
         throw new TypeError('Cannot construct child context without reference to the parent')
@@ -120,17 +136,6 @@ export class Context<TDriver, TContext, TElement, TSelector> {
     return !this._target
   }
 
-  isReference(reference: any): reference is ContextReference<TDriver, TContext, TElement, TSelector> {
-    return (
-      reference instanceof Context ||
-      utils.types.isInteger(reference) ||
-      utils.types.isString(reference) ||
-      reference instanceof Element ||
-      this._spec.isElement(reference) ||
-      this._spec.isSelector(reference)
-    )
-  }
-
   async init(): Promise<this> {
     if (this.isInitialized) return this
     if (!this._reference) throw new TypeError('Cannot initialize context without a reference to the context element')
@@ -146,14 +151,14 @@ export class Context<TDriver, TContext, TElement, TSelector> {
         throw new TypeError(`Context element with index ${this._reference} is not found`)
       }
       this._element = elements[this._reference]
-    } else if (utils.types.isString(this._reference) || this._spec.isSelector(this._reference)) {
+    } else if (utils.types.isString(this._reference) || this._utils.isSelector(this._reference)) {
       if (utils.types.isString(this._reference)) {
         this._logger.log('Getting context element by name or id', this._reference)
         this._element = await this.parent
           .element(`iframe[name="${this._reference}"], iframe#${this._reference}`)
           .catch(() => null)
       }
-      if (!this._element && this._spec.isSelector(this._reference)) {
+      if (!this._element && this._utils.isSelector(this._reference)) {
         this._logger.log('Getting context element by selector', this._reference)
         this._element = await this.parent.element(this._reference)
       }
@@ -220,11 +225,11 @@ export class Context<TDriver, TContext, TElement, TSelector> {
     reference: ContextPlain<TDriver, TContext, TElement, TSelector>,
   ): Promise<Context<TDriver, TContext, TElement, TSelector>> {
     if (reference instanceof Context) {
-      if (reference.parent !== this) {
+      if (reference.parent !== this && !(await this.equals(reference.parent))) {
         throw Error('Cannot attach a child context because it has a different parent')
       }
       return reference
-    } else if (this.isReference(reference)) {
+    } else if (this._isReference(reference)) {
       return new Context({spec: this._spec, parent: this, driver: this.driver, reference, logger: this._logger})
     } else if (utils.types.has(reference, 'reference')) {
       const parent = reference.parent ? await this.context(reference.parent) : this
@@ -240,45 +245,85 @@ export class Context<TDriver, TContext, TElement, TSelector> {
   }
 
   async element(
-    selectorOrElement: types.SpecSelector<TSelector> | TElement,
+    elementOrSelector: TElement | types.Selector<TSelector>,
   ): Promise<Element<TDriver, TContext, TElement, TSelector>> {
-    if (this._spec.isSelector(selectorOrElement)) {
+    if (this._spec.isElement(elementOrSelector)) {
+      return new Element({spec: this._spec, context: this, element: elementOrSelector, logger: this._logger})
+    } else if (this._utils.isSelector(elementOrSelector)) {
       if (this.isRef) {
-        return new Element({spec: this._spec, context: this, selector: selectorOrElement, logger: this._logger})
+        return new Element({spec: this._spec, context: this, selector: elementOrSelector, logger: this._logger})
       }
       await this.focus()
-      const element = await this._spec.findElement(this.target, selectorOrElement)
+
+      const selectors = this._utils.splitSelector(elementOrSelector)
+      const contextSelectors = selectors.slice(0, -1)
+      const elementSelector = selectors[selectors.length - 1]
+
+      let context = this as Context<TDriver, TContext, TElement, TSelector>
+      for (const contextSelector of contextSelectors) {
+        context = await context
+          .context(contextSelector)
+          .then(context => context.focus())
+          .catch(() => null)
+        if (!context) return null
+      }
+
+      const {root, selector} = this.driver.features?.shadowSelector
+        ? {root: null, selector: elementSelector}
+        : await this._utils.findRootElement(context.target, elementSelector)
+
+      if (!root && selector !== elementSelector) return null
+
+      const element = await this._spec.findElement(context.target, this._utils.transformSelector(selector), root)
       return element
-        ? new Element({spec: this._spec, context: this, element, selector: selectorOrElement, logger: this._logger})
+        ? new Element({spec: this._spec, context, element, selector: elementSelector, logger: this._logger})
         : null
-    } else if (this._spec.isElement(selectorOrElement)) {
-      return new Element({spec: this._spec, context: this, element: selectorOrElement, logger: this._logger})
     } else {
       throw new TypeError('Cannot find element using argument of unknown type!')
     }
   }
 
   async elements(
-    selectorOrElement: types.SpecSelector<TSelector> | TElement,
+    elementOrSelector: TElement | types.Selector<TSelector>,
   ): Promise<Element<TDriver, TContext, TElement, TSelector>[]> {
-    if (this._spec.isSelector(selectorOrElement)) {
+    if (this._spec.isElement(elementOrSelector)) {
+      return [new Element({spec: this._spec, context: this, element: elementOrSelector, logger: this._logger})]
+    } else if (this._utils.isSelector(elementOrSelector)) {
       if (this.isRef) {
-        return [new Element({spec: this._spec, context: this, selector: selectorOrElement, logger: this._logger})]
+        return [new Element({spec: this._spec, context: this, selector: elementOrSelector, logger: this._logger})]
       }
       await this.focus()
-      const elements = await this._spec.findElements(this.target, selectorOrElement)
+
+      const selectors = this._utils.splitSelector(elementOrSelector)
+      const contextSelectors = selectors.slice(0, -1)
+      const elementSelector = selectors[selectors.length - 1]
+
+      let context = this as Context<TDriver, TContext, TElement, TSelector>
+      for (const contextSelector of contextSelectors) {
+        context = await context
+          .context(contextSelector)
+          .then(context => context.focus())
+          .catch(() => null)
+        if (!context) return []
+      }
+
+      const {root, selector} = this.driver.features?.shadowSelector
+        ? {root: null, selector: elementSelector}
+        : await this._utils.findRootElement(context.target, elementSelector)
+
+      if (!root && selector !== elementSelector) return []
+
+      const elements = await this._spec.findElements(context.target, this._utils.transformSelector(selector), root)
       return elements.map((element, index) => {
         return new Element({
           spec: this._spec,
-          context: this,
+          context,
           element,
-          selector: selectorOrElement,
+          selector: elementSelector,
           index,
           logger: this._logger,
         })
       })
-    } else if (this._spec.isElement(selectorOrElement)) {
-      return [new Element({spec: this._spec, context: this, element: selectorOrElement, logger: this._logger})]
     } else {
       throw new TypeError('Cannot find elements using argument of unknown type!')
     }
@@ -330,7 +375,7 @@ export class Context<TDriver, TContext, TElement, TSelector> {
   }
 
   async setScrollingElement(
-    scrollingElement: Element<TDriver, TContext, TElement, TSelector> | TElement | types.SpecSelector<TSelector>,
+    scrollingElement: Element<TDriver, TContext, TElement, TSelector> | TElement | types.Selector<TSelector>,
   ): Promise<void> {
     if (scrollingElement === undefined) return
     else if (scrollingElement === null) this._scrollingElement = null

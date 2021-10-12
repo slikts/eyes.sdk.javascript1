@@ -4,6 +4,20 @@
 ## Unreleased
 
 
+## 3.2.6 - 2021/10/12
+
+- handle a case when scrolling element does not exist
+
+## 3.2.5 - 2021/10/5
+
+- fix issue with fractional image size after scaling
+
+## 3.2.4 - 2021/9/9
+
+- handle selectors that evaluate to elements from a different context
+- updated to @applitools/snippets@2.1.7 (from 2.1.4)
+- updated to @applitools/utils@1.2.3 (from 1.2.2)
+
 ## 3.2.3 - 2021/8/13
 
 - remove base64 sanitizing

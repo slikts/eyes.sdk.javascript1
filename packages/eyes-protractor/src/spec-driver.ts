@@ -1,10 +1,12 @@
-import * as utils from '@applitools/utils'
 import type * as Protractor from 'protractor'
 import type * as types from '@applitools/types'
+import * as utils from '@applitools/utils'
 
 export type Driver = Protractor.ProtractorBrowser
 export type Element = Protractor.WebElement | Protractor.ElementFinder
-export type Selector = Protractor.Locator | {using: string; value: string} | string | {type: string; selector: string}
+export type Selector = Protractor.Locator | {using: string; value: string}
+
+type CommonSelector = string | {selector: Selector | string; type?: string}
 
 // #region HELPERS
 
@@ -12,16 +14,6 @@ const byHash = ['className', 'css', 'id', 'js', 'linkText', 'name', 'partialLink
 
 function extractElementId(element: Element): Promise<string> {
   return element.getId() as Promise<string>
-}
-function transformSelector(selector: Selector): Protractor.Locator | {using: string; value: string} {
-  if (utils.types.isString(selector)) {
-    return {css: selector}
-  } else if (utils.types.has(selector, ['type', 'selector'])) {
-    if (selector.type === 'css') return {css: selector.selector}
-    else if (selector.type === 'xpath') return {xpath: selector.selector}
-    else return {using: selector.type, value: selector.selector}
-  }
-  return selector
 }
 
 // #endregion
@@ -40,8 +32,6 @@ export function isElement(element: any): element is Element {
 export function isSelector(selector: any): selector is Selector {
   if (!selector) return false
   return (
-    utils.types.isString(selector) ||
-    utils.types.has(selector, ['type', 'selector']) ||
     utils.types.has(selector, ['using', 'value']) ||
     Object.keys(selector).some(key => byHash.includes(key)) ||
     utils.types.isFunction(selector.findElementsOverride)
@@ -55,6 +45,17 @@ export function transformDriver(driver: Driver): Driver {
 export function transformElement(element: Element): Element {
   if (!utils.types.instanceOf<Protractor.ElementFinder>(element, 'ElementFinder')) return element
   return element.getWebElement()
+}
+export function transformSelector(selector: Selector | CommonSelector): Selector {
+  if (utils.types.isString(selector)) {
+    return {css: selector}
+  } else if (utils.types.has(selector, 'selector')) {
+    if (!utils.types.isString(selector.selector)) return selector.selector
+    if (!utils.types.has(selector, 'type')) return {css: selector.selector}
+    if (selector.type === 'css') return {css: selector.selector}
+    else return {using: selector.type, value: selector.selector}
+  }
+  return selector
 }
 export function isStaleElementError(error: any): boolean {
   if (!error) return false
@@ -88,16 +89,20 @@ export async function childContext(driver: Driver, element: Element): Promise<Dr
   await driver.switchTo().frame(element)
   return driver
 }
-export async function findElement(driver: Driver, selector: Selector): Promise<Element> {
+export async function findElement(driver: Driver, selector: Selector, parent?: Element): Promise<Element> {
   try {
-    return await driver.findElement(transformSelector(selector))
+    const {ElementFinder} = require('protractor')
+    if (parent) return await ElementFinder.fromWebElement_(driver, parent).element(selector).getWebElement()
+    else return await driver.element(selector).getWebElement()
   } catch (err) {
     if (err.name === 'NoSuchElementError') return null
     else throw err
   }
 }
-export async function findElements(driver: Driver, selector: Selector): Promise<Element[]> {
-  return driver.findElements(transformSelector(selector))
+export async function findElements(driver: Driver, selector: Selector, parent?: Element): Promise<Element[]> {
+  const {ElementFinder} = require('protractor')
+  if (parent) return ElementFinder.fromWebElement_(driver, parent).all(selector).getWebElements()
+  else return driver.element.all(selector).getWebElements()
 }
 export async function getWindowSize(driver: Driver): Promise<{width: number; height: number}> {
   const size = await driver.manage().window().getSize()
@@ -123,7 +128,7 @@ export async function getDriverInfo(driver: Driver): Promise<any> {
     deviceName: desiredCapabilities.deviceName ?? capabilities.get('deviceName'),
     platformName,
     platformVersion: capabilities.get('platformVersion'),
-    browserName: capabilities.get('browserName') ?? desiredCapabilities.browserName,
+    browserName: capabilities.get('browserName') ?? desiredCapabilities?.browserName,
     browserVersion: capabilities.get('browserVersion') ?? capabilities.get('version'),
   }
 }

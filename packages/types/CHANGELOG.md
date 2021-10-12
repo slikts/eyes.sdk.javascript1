@@ -4,6 +4,38 @@
 
 - add `Cookie` and `CookieObject` types
 
+## 1.0.15 - 2021/10/12
+
+- add `waitBeforeCapture` property
+
+## 1.0.14 - 2021/9/15
+
+- add `never` as default type argument value to  `Selector` type to use it as stand alone type
+- make `transformSelector` optional same as other transformers 
+
+## 1.0.13 - 2021/9/9
+
+- add `Selector` type to wrap framework selectors with additional functionality
+- remove `SpecSelector` type, so `SpecDriver` methods could now only accept framework selectors
+- add `transformSelector` method to `SpecDriver` type
+
+## 1.0.12 - 2021/9/6
+
+- add functionality to find element within an element to `SpecDriver`
+- extend `SpecSelector` to support nested structures
+
+## 1.0.11 - 2021/9/1
+
+- update universal `close` and `closeAllEyes` methods
+
+## 1.0.10 - 2021/8/31
+
+- add 'Pixel 5', 'Samsung Galaxy 20' and 'iPhone 12' to supported device names
+
+## 1.0.9 - 2021/8/31
+
+- add types for newest spec driver methods for universal interface
+
 ## 1.0.8 - 2021/8/13
 
 - add optional property `statusBarHeight` to the `DriverInfo` type

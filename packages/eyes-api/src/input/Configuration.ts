@@ -1,10 +1,11 @@
+import type * as types from '@applitools/types'
 import * as utils from '@applitools/utils'
 import {SessionType, SessionTypeEnum} from '../enums/SessionType'
 import {StitchMode, StitchModeEnum} from '../enums/StitchMode'
-import {MatchLevelEnum} from '../enums/MatchLevel'
-import {BrowserTypeEnum} from '../enums/BrowserType'
-import {DeviceNameEnum} from '../enums/DeviceName'
-import {ScreenOrientationEnum} from '../enums/ScreenOrientation'
+import {MatchLevel, MatchLevelEnum} from '../enums/MatchLevel'
+import {BrowserType, BrowserTypeEnum} from '../enums/BrowserType'
+import {DeviceName} from '../enums/DeviceName'
+import {ScreenOrientation, ScreenOrientationEnum} from '../enums/ScreenOrientation'
 import {AccessibilitySettings} from './AccessibilitySettings'
 import {DesktopBrowserInfo, ChromeEmulationInfo, IOSDeviceInfo, ChromeEmulationInfoLegacy} from './RenderInfo'
 import {CutProvider} from './CutProvider'
@@ -82,10 +83,11 @@ export type ClassicConfiguration<TElement = unknown, TSelector = unknown> = {
   hideScrollbars?: boolean
   hideCaret?: boolean
   stitchOverlap?: number
-  scrollRootElement?: TElement | TSelector
+  scrollRootElement?: TElement | types.Selector<TSelector>
   cut?: CutProvider
   rotation?: ImageRotation
   scaleRatio?: number
+  waitBeforeCapture?: number
 }
 
 export type VGConfiguration = {
@@ -95,6 +97,7 @@ export type VGConfiguration = {
   visualGridOptions?: Record<string, any>
   layoutBreakpoints?: boolean | number[]
   disableBrowserFetching?: boolean
+  waitBeforeCapture?: number
 }
 
 export type Configuration<TElement = unknown, TSelector = unknown> = GeneralConfiguration &
@@ -112,6 +115,16 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   }
 
   private _config: Configuration<TElement, TSelector> = {}
+
+  private _isSelector(selector: any): selector is types.Selector<TSelector> {
+    return (
+      this._spec.isSelector(selector) ||
+      utils.types.isString(selector) ||
+      (utils.types.isPlainObject(selector) &&
+        utils.types.has(selector, 'selector') &&
+        (utils.types.isString(selector.selector) || this._spec.isSelector(selector.selector)))
+    )
+  }
 
   constructor(config?: Configuration<TElement, TSelector>) {
     if (!config) return this
@@ -270,7 +283,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   getSessionType(): SessionTypeEnum {
     return this.sessionType as SessionTypeEnum
   }
-  setSessionType(sessionType: SessionTypeEnum): this {
+  setSessionType(sessionType: SessionType): this {
     this.sessionType = sessionType
     return this
   }
@@ -719,7 +732,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   getMatchLevel(): MatchLevelEnum {
     return this.defaultMatchSettings?.matchLevel as MatchLevelEnum
   }
-  setMatchLevel(matchLevel: MatchLevelEnum): this {
+  setMatchLevel(matchLevel: MatchLevel): this {
     if (!this.defaultMatchSettings) this.defaultMatchSettings = {}
     this.defaultMatchSettings.matchLevel = matchLevel
     return this
@@ -794,6 +807,24 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     return this
   }
 
+  get waitBeforeCapture(): number {
+    return this._config.waitBeforeCapture
+  }
+
+  set waitBeforeCapture(waitBeforeCapture: number) {
+    utils.guard.isInteger(waitBeforeCapture, {name: 'waitBeforeCapture', gt: 0})
+    this._config.waitBeforeCapture = waitBeforeCapture
+  }
+
+  getWaitBeforeCapture(): number {
+    return this.waitBeforeCapture
+  }
+
+  setWaitBeforeCapture(waitBeforeCapture: number): this {
+    this.waitBeforeCapture = waitBeforeCapture
+    return this
+  }
+
   get stitchMode(): StitchMode {
     return this._config.stitchMode
   }
@@ -804,7 +835,7 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
   getStitchMode(): StitchModeEnum {
     return this.stitchMode as StitchModeEnum
   }
-  setStitchMode(stitchMode: StitchModeEnum): this {
+  setStitchMode(stitchMode: StitchMode): this {
     this.stitchMode = stitchMode
     return this
   }
@@ -852,21 +883,21 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     return this
   }
 
-  get scrollRootElement(): TElement | TSelector {
+  get scrollRootElement(): TElement | types.Selector<TSelector> {
     return this._config.scrollRootElement
   }
-  set scrollRootElement(scrollRootElement: TElement | TSelector) {
-    utils.guard.custom(scrollRootElement, value => this._spec.isElement(value) || this._spec.isSelector(value), {
+  set scrollRootElement(scrollRootElement: TElement | types.Selector<TSelector>) {
+    utils.guard.custom(scrollRootElement, value => this._spec.isElement(value) || this._isSelector(value), {
       name: 'scrollRootElement',
       message: 'must be element or selector',
       strict: false,
     })
     this._config.scrollRootElement = scrollRootElement
   }
-  getScrollRootElement(): TElement | TSelector {
+  getScrollRootElement(): TElement | types.Selector<TSelector> {
     return this.scrollRootElement
   }
-  setScrollRootElement(scrollRootElement: TElement | TSelector): this {
+  setScrollRootElement(scrollRootElement: TElement | types.Selector<TSelector>): this {
     this.scrollRootElement = scrollRootElement
     return this
   }
@@ -961,12 +992,12 @@ export class ConfigurationData<TElement = unknown, TSelector = unknown>
     return this
   }
   addBrowser(browserInfo: RenderInfo): this
-  addBrowser(width: number, height: number, name?: BrowserTypeEnum): this
-  addBrowser(browserInfoOrWidth: RenderInfo | number, height?: number, name = BrowserTypeEnum.CHROME) {
+  addBrowser(width: number, height: number, name?: BrowserType): this
+  addBrowser(browserInfoOrWidth: RenderInfo | number, height?: number, name: BrowserType = BrowserTypeEnum.CHROME) {
     if (utils.types.isObject(browserInfoOrWidth)) return this.addBrowsers(browserInfoOrWidth)
     else return this.addBrowsers({width: browserInfoOrWidth, height, name})
   }
-  addDeviceEmulation(deviceName: DeviceNameEnum, screenOrientation = ScreenOrientationEnum.PORTRAIT) {
+  addDeviceEmulation(deviceName: DeviceName, screenOrientation: ScreenOrientation = ScreenOrientationEnum.PORTRAIT) {
     if (!this.browsersInfo) this.browsersInfo = []
     this.browsersInfo.push({chromeEmulationInfo: {deviceName, screenOrientation}})
     return this

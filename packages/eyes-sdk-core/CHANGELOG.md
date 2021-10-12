@@ -4,6 +4,82 @@
 
 - support cookies
 
+## 12.23.15 - 2021/10/12
+
+- updated to @applitools/screenshoter@3.2.6 (from 3.2.5)
+- updated to @applitools/types@1.0.15 (from 1.0.14)
+
+## 12.23.14 - 2021/10/7
+
+- updated to @applitools/driver@1.2.6 (from 1.2.5)
+
+## 12.23.13 - 2021/10/5
+
+- updated to @applitools/driver@1.2.5 (from 1.2.4)
+- updated to @applitools/screenshoter@3.2.5 (from 3.2.4)
+
+## 12.23.12 - 2021/9/24
+
+- extract region coordinates before taking dom capture
+
+## 12.23.11 - 2021/9/24
+
+- prevent context location extraction during coded region calculation if elements are not found
+
+## 12.23.10 - 2021/9/24
+
+- updated to @applitools/driver@1.2.4 (from 1.2.3)
+
+## 12.23.9 - 2021/9/24
+
+- updated to @applitools/dom-snapshot@4.5.8 (from 4.5.7)
+- updated to @applitools/driver@1.2.3 (from 1.2.2)
+
+ ## 12.23.8 - 2021/9/20
+
+ - prevent trimming CDT and increase body request size to the grid from 16MB to 30MB
+
+## 12.23.7 - 2021/9/15
+
+- updated to @applitools/types@1.0.14 (from 1.0.13)
+
+## 12.23.6 - 2021/9/13
+
+- fix issue with fractional metrics/coordinates in regions
+
+## 12.23.5 - 2021/9/9
+
+- handle selectors that evaluate to elements from a different context
+- updated to @applitools/driver@1.2.0 (from 1.1.5)
+- updated to @applitools/logger@1.0.4 (from 1.0.3)
+- updated to @applitools/screenshoter@3.2.4 (from 3.2.3)
+- updated to @applitools/snippets@2.1.7 (from 2.1.6)
+- updated to @applitools/types@1.0.13 (from 1.0.12)
+- updated to @applitools/utils@1.2.3 (from 1.2.2)
+- updated to @applitools/driver@1.2.2 (from 1.2.0)
+
+## 12.23.4 - 2021/9/9
+
+- update axios dependency to 0.21.4
+
+## 12.23.3 - 2021/9/6
+
+- updated to @applitools/driver@1.1.5 (from 1.1.4)
+- updated to @applitools/snippets@2.1.6 (from 2.1.5)
+
+## 12.23.2 - 2021/9/6
+
+- add support for shadow dom for ufg
+- updated to @applitools/driver@1.1.4 (from 1.1.3)
+- updated to @applitools/snippets@2.1.5 (from 2.1.4)
+- updated to @applitools/types@1.0.12 (from 1.0.10)
+
+## 12.23.1 - 2021/8/31
+
+- make sure that we are not adding the same browser environment more than once when merging configs
+- add types for `checkSpecDriver` API
+- updated to @applitools/types@1.0.10 (from 1.0.8)
+
 ## 12.23.0 - 2021/8/15
 
 - add `checkSpecDriver` API

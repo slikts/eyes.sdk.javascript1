@@ -3,6 +3,25 @@
 ## Unreleased
 
 
+## 3.24.0 - 2021/8/23
+
+- add `startStorybookServerTimeout` config param
+
+## 3.23.1 - 2021/8/23
+
+- add `visualGridOptions`, `useDom`, and `enablePatterns` config params
+
+## 3.23.0 - 2021/8/17
+
+- add `sendDom` config param
+
+## 3.22.11 - 2021/8/16
+
+- updated to @applitools/driver@1.1.3 (from 1.1.2)
+- updated to @applitools/eyes-puppeteer@1.8.2 (from 1.8.1)
+- updated to @applitools/eyes-sdk-core@12.23.0 (from 12.22.4)
+- updated to @applitools/visual-grid-client@15.8.21 (from 15.8.18)
+
 ## 3.22.10 - 2021/8/13
 
 - updated to @applitools/dom-snapshot@4.5.7 (from 4.5.6)

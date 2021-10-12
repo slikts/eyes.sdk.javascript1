@@ -1,3 +1,4 @@
+import {Selector} from './driver'
 import {
   MatchLevel,
   Region,
@@ -9,7 +10,7 @@ import {
 
 type RegionReference<TElement, TSelector> = Region | ElementReference<TElement, TSelector>
 
-type ElementReference<TElement, TSelector> = TElement | TSelector
+type ElementReference<TElement, TSelector> = TElement | Selector<TSelector>
 
 type FrameReference<TElement, TSelector> = ElementReference<TElement, TSelector> | string | number
 

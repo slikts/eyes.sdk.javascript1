@@ -4,6 +4,19 @@
 ## Unreleased
 
 
+## 2.1.7 - 2021/9/9
+
+- fix `getShadowRoot` to follow convention for arguments
+
+## 2.1.6 - 2021/9/6
+
+- return array instead of object from `addElementIds`
+
+## 2.1.5 - 2021/9/6
+
+- add `getShadowRoot` snippet
+- replace `setElementMarkers` with `addElementIds` snippet, which will return a selector mapping
+
 ## 2.1.4 - 2021/8/4
 
 - add `isEqualElements` snippet

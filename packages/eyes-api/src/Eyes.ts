@@ -1,8 +1,8 @@
 import type * as types from '@applitools/types'
 import * as utils from '@applitools/utils'
-import {SessionTypeEnum} from './enums/SessionType'
-import {StitchModeEnum} from './enums/StitchMode'
-import {MatchLevelEnum} from './enums/MatchLevel'
+import {SessionType, SessionTypeEnum} from './enums/SessionType'
+import {StitchMode, StitchModeEnum} from './enums/StitchMode'
+import {MatchLevel, MatchLevelEnum} from './enums/MatchLevel'
 import {EyesError} from './errors/EyesError'
 import {NewTestError} from './errors/NewTestError'
 import {DiffsFoundError} from './errors/DiffsFoundError'
@@ -162,14 +162,14 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     appName?: string,
     testName?: string,
     viewportSize?: RectangleSize,
-    sessionType?: SessionTypeEnum,
+    sessionType?: SessionType,
   ): Promise<TDriver>
   async open(
     driver: TDriver,
     configOrAppName?: Configuration | string,
     testName?: string,
     viewportSize?: RectangleSize,
-    sessionType?: SessionTypeEnum,
+    sessionType?: SessionType,
   ): Promise<TDriver> {
     this._driver = driver
 
@@ -210,7 +210,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     return this.check({name, timeout, fully})
   }
   /** @deprecated */
-  async checkFrame(element: TElement | TSelector | string | number, timeout?: number, name?: string) {
+  async checkFrame(element: TElement | types.Selector<TSelector> | string | number, timeout?: number, name?: string) {
     return this.check({name, frames: [element], timeout, fully: true})
   }
   /** @deprecated */
@@ -218,7 +218,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     return this.check({name, region: element, timeout, fully: true})
   }
   /** @deprecated */
-  async checkElementBy(selector: TSelector, timeout?: number, name?: string) {
+  async checkElementBy(selector: types.Selector<TSelector>, timeout?: number, name?: string) {
     return this.check({name, region: selector, timeout, fully: true})
   }
   /** @deprecated */
@@ -230,13 +230,13 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     return this.check({name, region: element, timeout})
   }
   /** @deprecated */
-  async checkRegionBy(selector: TSelector, name?: string, timeout?: number, fully = false) {
+  async checkRegionBy(selector: types.Selector<TSelector>, name?: string, timeout?: number, fully = false) {
     return this.check({name, region: selector, timeout, fully})
   }
   /** @deprecated */
   async checkRegionInFrame(
-    frame: TElement | TSelector | string | number,
-    selector: TSelector,
+    frame: TElement | types.Selector<TSelector> | string | number,
+    selector: types.Selector<TSelector>,
     timeout?: number,
     name?: string,
     fully = false,
@@ -374,10 +374,10 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
     }
   }
 
-  getScrollRootElement(): TElement | TSelector {
+  getScrollRootElement(): TElement | types.Selector<TSelector> {
     return this._config.getScrollRootElement()
   }
-  setScrollRootElement(scrollRootElement: TElement | TSelector) {
+  setScrollRootElement(scrollRootElement: TElement | types.Selector<TSelector>) {
     this._config.setScrollRootElement(scrollRootElement)
   }
 
@@ -562,7 +562,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   getMatchLevel(): MatchLevelEnum {
     return this._config.getMatchLevel()
   }
-  setMatchLevel(matchLevel: MatchLevelEnum) {
+  setMatchLevel(matchLevel: MatchLevel) {
     this._config.setMatchLevel(matchLevel)
   }
 
@@ -655,7 +655,7 @@ export class Eyes<TDriver = unknown, TElement = unknown, TSelector = unknown> {
   getStitchMode(): StitchModeEnum {
     return this._config.getStitchMode()
   }
-  setStitchMode(stitchMode: StitchModeEnum) {
+  setStitchMode(stitchMode: StitchMode) {
     this._config.setStitchMode(stitchMode)
   }
 

@@ -1,4 +1,5 @@
-import {Region, Size, TextRegion, DriverInfo, MatchResult, TestResult} from './data'
+import {Region, Size, TextRegion, MatchResult, TestResult} from './data'
+import {DriverInfo, Selector} from './driver'
 import {EyesConfig, EyesManagerConfig} from './config'
 import {
   CheckSettings,
@@ -39,7 +40,7 @@ export interface ClientSocket<TDriver, TContext, TElement, TSelector> {
 
   request(
     name: 'EyesManager.closeAllEyes',
-    options: {manager: Ref<EyesManager<TDriver, TElement, TSelector>>},
+    options: {manager: Ref<EyesManager<TDriver, TElement, TSelector>>; throwErr?: boolean},
   ): Promise<TestResult[]>
 
   request(
@@ -78,9 +79,12 @@ export interface ClientSocket<TDriver, TContext, TElement, TSelector> {
     },
   ): Promise<Record<TPattern, TextRegion[]>>
 
-  request(name: 'Eyes.close', options: {eyes: Ref<Eyes<TElement, TSelector>>}): Promise<TestResult>
+  request(
+    name: 'Eyes.close',
+    options: {eyes: Ref<Eyes<TElement, TSelector>>; throwErr?: boolean},
+  ): Promise<TestResult[]>
 
-  request(name: 'Eyes.abort', options: {eyes: Ref<Eyes<TElement, TSelector>>}): Promise<TestResult>
+  request(name: 'Eyes.abort', options: {eyes: Ref<Eyes<TElement, TSelector>>}): Promise<TestResult[]>
 
   command(
     name: 'Driver.isEqualElements',
@@ -103,17 +107,17 @@ export interface ClientSocket<TDriver, TContext, TElement, TSelector> {
 
   command(
     name: 'Driver.findElement',
-    handler: (options: {context: TContext; selector: TSelector}) => Promise<TElement | null>,
+    handler: (options: {context: TContext; selector: Selector<TSelector>}) => Promise<TElement | null>,
   ): () => void
 
   command(
     name: 'Driver.findElements',
-    handler: (options: {context: TContext; selector: TSelector}) => Promise<TElement[]>,
+    handler: (options: {context: TContext; selector: Selector<TSelector>}) => Promise<TElement[]>,
   ): () => void
 
   command(
-    name: 'Driver.getElementRect',
-    handler: (options: {driver: TDriver; element: TElement}) => Promise<Region>,
+    name: 'Driver.click',
+    handler: (options: {context: TContext; element: TElement | Selector<TSelector>}) => Promise<void>,
   ): () => void
 
   command(name: 'Driver.getWindowSize', handler: (options: {driver: TDriver}) => Promise<Size>): () => void
@@ -129,11 +133,6 @@ export interface ClientSocket<TDriver, TContext, TElement, TSelector> {
 
   command(name: 'Driver.getDriverInfo', handler: (options: {driver: TDriver}) => Promise<DriverInfo>): () => void
 
-  command(
-    name: 'Driver.getOrientation',
-    handler: (options: {driver: TDriver}) => Promise<'portrait' | 'landscape'>,
-  ): () => void
-
   command(name: 'Driver.getTitle', handler: (options: {driver: TDriver}) => Promise<string>): () => void
 
   command(name: 'Driver.getUrl', handler: (options: {driver: TDriver}) => Promise<string>): () => void
@@ -141,6 +140,31 @@ export interface ClientSocket<TDriver, TContext, TElement, TSelector> {
   command(name: 'Driver.takeScreenshot', handler: (options: {driver: TDriver}) => Promise<string>): () => void
 
   command(name: 'Driver.visit', handler: (options: {driver: TDriver; url: string}) => Promise<void>): () => void
+
+  command(
+    name: 'Driver.getOrientation',
+    handler: (options: {driver: TDriver}) => Promise<'portrait' | 'landscape'>,
+  ): () => void
+
+  command(
+    name: 'Driver.getElementRegion',
+    handler: (options: {driver: TDriver; element: TElement}) => Promise<Region>,
+  ): () => void
+
+  command(
+    name: 'Driver.getElementAttribute',
+    handler: (options: {driver: TDriver; element: TElement; attr: string}) => Promise<string>,
+  ): () => void
+
+  command(
+    name: 'Driver.getElementText',
+    handler: (options: {driver: TDriver; element: TElement}) => Promise<string>,
+  ): () => void
+
+  command(
+    name: 'Driver.performAction',
+    handler: (options: {driver: TDriver; steps: any[]}) => Promise<void>,
+  ): () => void
 }
 
 export interface ServerSocket<TDriver, TContext, TElement, TSelector> {
@@ -157,11 +181,14 @@ export interface ServerSocket<TDriver, TContext, TElement, TSelector> {
 
   request(name: 'Driver.executeScript', options: {context: TContext; script: string; arg: any}): Promise<any>
 
-  request(name: 'Driver.findElement', options: {context: TContext; selector: TSelector}): Promise<TElement | null>
+  request(
+    name: 'Driver.findElement',
+    options: {context: TContext; selector: Selector<TSelector>},
+  ): Promise<TElement | null>
 
-  request(name: 'Driver.findElements', options: {context: TContext; selector: TSelector}): Promise<TElement[]>
+  request(name: 'Driver.findElements', options: {context: TContext; selector: Selector<TSelector>}): Promise<TElement[]>
 
-  request(name: 'Driver.getElementRect', options: {driver: TDriver; element: TElement}): Promise<Region>
+  request(name: 'Driver.click', options: {context: TContext; element: TElement | Selector<TSelector>}): Promise<void>
 
   request(name: 'Driver.getWindowSize', options: {driver: TDriver}): Promise<Size>
 
@@ -173,8 +200,6 @@ export interface ServerSocket<TDriver, TContext, TElement, TSelector> {
 
   request(name: 'Driver.getDriverInfo', options: {driver: TDriver}): Promise<DriverInfo>
 
-  request(name: 'Driver.getOrientation', options: {driver: TDriver}): Promise<'portrait' | 'landscape'>
-
   request(name: 'Driver.getTitle', options: {driver: TDriver}): Promise<string>
 
   request(name: 'Driver.getUrl', options: {driver: TDriver}): Promise<string>
@@ -182,6 +207,19 @@ export interface ServerSocket<TDriver, TContext, TElement, TSelector> {
   request(name: 'Driver.takeScreenshot', options: {driver: TDriver}): Promise<string>
 
   request(name: 'Driver.visit', options: {driver: TDriver; url: string}): Promise<void>
+
+  request(name: 'Driver.getOrientation', options: {driver: TDriver}): Promise<'portrait' | 'landscape'>
+
+  request(name: 'Driver.getElementRegion', options: {driver: TDriver; element: TElement}): Promise<Region>
+
+  request(
+    name: 'Driver.getElementAttribute',
+    options: {driver: TDriver; element: TElement; attr: string},
+  ): Promise<string>
+
+  request(name: 'Driver.getElementText', options: {driver: TDriver; element: TElement}): Promise<string>
+
+  request(name: 'Driver.performAction', options: {driver: TDriver; steps: any[]}): Promise<void>
 
   command(
     name: 'Core.makeManager',
@@ -208,7 +246,10 @@ export interface ServerSocket<TDriver, TContext, TElement, TSelector> {
 
   command(
     name: 'EyesManager.closeAllEyes',
-    handler: (options: {manager: Ref<EyesManager<TDriver, TElement, TSelector>>}) => Promise<TestResult[]>,
+    handler: (options: {
+      manager: Ref<EyesManager<TDriver, TElement, TSelector>>
+      throwErr?: boolean
+    }) => Promise<TestResult[]>,
   ): () => void
 
   command(
@@ -249,11 +290,11 @@ export interface ServerSocket<TDriver, TContext, TElement, TSelector> {
 
   command(
     name: 'Eyes.close',
-    handler: (options: {eyes: Ref<Eyes<TElement, TSelector>>}) => Promise<TestResult>,
+    handler: (options: {eyes: Ref<Eyes<TElement, TSelector>>; throwErr?: boolean}) => Promise<TestResult[]>,
   ): () => void
 
   command(
     name: 'Eyes.abort',
-    handler: (options: {eyes: Ref<Eyes<TElement, TSelector>>}) => Promise<TestResult>,
+    handler: (options: {eyes: Ref<Eyes<TElement, TSelector>>}) => Promise<TestResult[]>,
   ): () => void
 }

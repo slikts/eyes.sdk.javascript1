@@ -4,11 +4,15 @@ const snippets = require('@applitools/snippets')
 const ImageMatchSettings = require('../config/ImageMatchSettings')
 
 async function toPersistedCheckSettings({checkSettings, context, logger}) {
-  const elementsById = {}
+  const mapping = {
+    ids: [],
+    elements: [],
+    resolvers: [],
+  }
 
   const persistedCheckSettings = {
     ...checkSettings,
-    region: (await referencesToPersistedRegions(checkSettings.region && [checkSettings.region]))[0],
+    region: await referencesToPersistedRegions([checkSettings.region]),
     ignoreRegions: await referencesToPersistedRegions(checkSettings.ignoreRegions),
     floatingRegions: await referencesToPersistedRegions(checkSettings.floatingRegions),
     strictRegions: await referencesToPersistedRegions(checkSettings.strictRegions),
@@ -19,88 +23,69 @@ async function toPersistedCheckSettings({checkSettings, context, logger}) {
 
   await makePersistance()
 
+  persistedCheckSettings.region = persistedCheckSettings.region[0]
+
   return {persistedCheckSettings, cleanupPersistance}
 
   async function referencesToPersistedRegions(references = []) {
     const persistedRegions = []
     for (const reference of references) {
-      const {region, ...options} = reference.region ? reference : {region: reference}
-      let referenceRegions
-      if (utils.types.has(region, ['width', 'height'])) {
-        referenceRegions = [region]
-      } else {
-        const elements = await context.elements(region)
-        referenceRegions = elements.map(element => {
-          const elementId = utils.general.guid()
-          elementsById[elementId] = element
-          return {
-            type: 'css',
-            selector: `[data-applitools-marker~="${elementId}"]`,
-          }
-        })
+      if (!reference) continue
+      const referenceRegion = reference.region || reference
+      if (utils.types.has(referenceRegion, ['width', 'height'])) {
+        const persistedRegion = utils.types.has(referenceRegion, ['x', 'y'])
+          ? persistReference(reference, referenceRegion)
+          : persistReference(reference, {
+              x: referenceRegion.left,
+              y: referenceRegion.top,
+              width: referenceRegion.width,
+              height: referenceRegion.height,
+            })
+        persistedRegions.push(persistedRegion)
+      } else if (referenceRegion) {
+        const elements = await context.elements(referenceRegion)
+        for (const element of elements) {
+          mapping.ids.push(utils.general.guid())
+          mapping.elements.push(element)
+          mapping.resolvers.push(selector => persistedRegions.push(persistReference(reference, selector)))
+        }
       }
-
-      persistedRegions.push(...referenceRegions.map(region => (reference.region ? {region, ...options} : region)))
     }
     return persistedRegions
+
+    function persistReference(reference, persistedRegion) {
+      return reference.region ? {...reference, region: persistedRegion} : persistedRegion
+    }
   }
 
   async function makePersistance() {
-    await context.execute(snippets.setElementMarkers, [Object.values(elementsById), Object.keys(elementsById)])
-    logger.verbose(`elements marked: ${Object.keys(elementsById)}`)
+    const selectors = await context.execute(snippets.addElementIds, [mapping.elements, mapping.ids])
+    selectors.forEach((selectors, index) => {
+      const resolver = mapping.resolvers[index]
+      const persistedSelector = selectors.map((selector, index) => ({
+        type: 'css',
+        selector,
+        nodeType: index < selectors.length - 1 ? 'shadow-root' : 'element',
+      }))
+      resolver(persistedSelector.length === 1 ? persistedSelector[0] : persistedSelector)
+    })
+    logger.verbose(`elements marked: ${mapping.ids}`)
   }
 
   async function cleanupPersistance() {
-    await context.execute(snippets.cleanupElementMarkers, [Object.values(elementsById)])
-    logger.verbose(`elements cleaned up: ${Object.keys(elementsById)}`)
+    await context.execute(snippets.cleanupElementIds, [mapping.elements])
+    logger.verbose(`elements cleaned up: ${mapping.ids}`)
   }
 }
 
 function toCheckWindowConfiguration({checkSettings, configuration}) {
   const config = {
-    ignore:
-      checkSettings.ignoreRegions &&
-      checkSettings.ignoreRegions.map(region => {
-        return utils.types.has(region, ['x', 'y'])
-          ? {left: region.x, top: region.y, width: region.width, height: region.height}
-          : region
-      }),
-    floating:
-      checkSettings.floatingRegions &&
-      checkSettings.floatingRegions.map(({region, ...offsets}) => {
-        return utils.types.has(region, ['x', 'y'])
-          ? {left: region.x, top: region.y, width: region.width, height: region.height, ...offsets}
-          : {...region, ...offsets}
-      }),
-    strict:
-      checkSettings.strictRegions &&
-      checkSettings.strictRegions.map(region => {
-        return utils.types.has(region, ['x', 'y'])
-          ? {left: region.x, top: region.y, width: region.width, height: region.height}
-          : region
-      }),
-    layout:
-      checkSettings.layoutRegions &&
-      checkSettings.layoutRegions.map(region => {
-        return utils.types.has(region, ['x', 'y'])
-          ? {left: region.x, top: region.y, width: region.width, height: region.height}
-          : region
-      }),
-    content:
-      checkSettings.contentRegions &&
-      checkSettings.contentRegions.map(region => {
-        return utils.types.has(region, ['x', 'y'])
-          ? {left: region.x, top: region.y, width: region.width, height: region.height}
-          : region
-      }),
-    accessibility:
-      checkSettings.accessibilityRegions &&
-      checkSettings.accessibilityRegions.map(({region, type}) => {
-        if (utils.types.has(region, ['x', 'y'])) {
-          region = {left: region.x, top: region.y, width: region.width, height: region.height}
-        }
-        return {...region, accessibilityType: type}
-      }),
+    ignore: transformRegions(checkSettings.ignoreRegions),
+    floating: transformRegions(checkSettings.floatingRegions),
+    strict: transformRegions(checkSettings.strictRegions),
+    layout: transformRegions(checkSettings.layoutRegions),
+    content: transformRegions(checkSettings.contentRegions),
+    accessibility: transformRegions(checkSettings.accessibilityRegions),
     target: checkSettings.region ? 'region' : 'window',
     fully: configuration.getForceFullPageScreenshot() || checkSettings.fully || false,
     tag: checkSettings.name,
@@ -130,6 +115,27 @@ function toCheckWindowConfiguration({checkSettings, configuration}) {
   }
 
   return config
+
+  function transformRegions(regions) {
+    if (!regions || regions.length === 0) return regions
+    return regions.map(target => {
+      const {region, ...options} = target.region ? target : {region: target}
+      if (options.type) {
+        options.accessibilityType = options.type
+        delete options.type
+      }
+      if (utils.types.has(region, ['x', 'y', 'width', 'height'])) {
+        return {
+          left: Math.round(region.x),
+          top: Math.round(region.y),
+          width: Math.round(region.width),
+          height: Math.round(region.height),
+          ...options,
+        }
+      }
+      return {...region, ...options}
+    })
+  }
 }
 
 function toMatchSettings({checkSettings = {}, configuration}) {
@@ -189,20 +195,24 @@ async function toScreenshotCheckSettings({checkSettings, context, screenshot}) {
     for (const reference of references) {
       const referenceRegions = []
       const {region, ...options} = reference.region ? reference : {region: reference}
-      if (utils.types.has(region, ['x', 'y', 'width', 'height'])) {
-        referenceRegions.push(region)
+      if (utils.types.has(region, ['width', 'height'])) {
+        const referenceRegion = utils.types.has(region, ['x', 'y'])
+          ? region
+          : {x: region.left, y: region.top, width: region.width, height: region.height}
+        referenceRegions.push(referenceRegion)
       } else {
         const elements = await context.elements(region)
-        const contextLocationInViewport = await context.getLocationInViewport()
-
-        for (const element of elements) {
-          const region = utils.geometry.offset(await element.getRegion(), contextLocationInViewport)
-          referenceRegions.push({
-            x: Math.max(0, region.x - screenshot.region.x),
-            y: Math.max(0, region.y - screenshot.region.y),
-            width: region.width,
-            height: region.height,
-          })
+        if (elements.length > 0) {
+          const contextLocationInViewport = await elements[0].context.getLocationInViewport()
+          for (const element of elements) {
+            const region = utils.geometry.offset(await element.getRegion(), contextLocationInViewport)
+            referenceRegions.push({
+              x: Math.max(0, region.x - screenshot.region.x),
+              y: Math.max(0, region.y - screenshot.region.y),
+              width: region.width,
+              height: region.height,
+            })
+          }
         }
       }
       regions.push(...referenceRegions.map(region => (reference.region ? {region, ...options} : region)))

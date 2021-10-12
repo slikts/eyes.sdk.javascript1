@@ -70,8 +70,12 @@ describe('renderStory', () => {
       selector: 'selector',
       region: 'region',
       tag: 'tag',
-      ignoreDisplacements: true,
+      ignoreDisplacements: 'ignoreDisplacements',
       properties: [{name: 'Custom property', value: null}],
+      sendDom: 'sendDom',
+      visualGridOptions: 'visualGridOptions',
+      useDom: 'useDom',
+      enablePatterns: 'enablePatterns',
     };
 
     const story = {name: 'name', kind: 'kind', parameters: {eyes: eyesOptions}};
@@ -80,11 +84,10 @@ describe('renderStory', () => {
     const results = await renderStory({story, config: {}});
     deleteUndefinedPropsRecursive(results);
 
-    const {ignoreDisplacements, properties} = eyesOptions;
+    const {properties} = eyesOptions;
     expect(results).to.eql({
       throwEx: false,
       openParams: {
-        ignoreDisplacements,
         properties: [
           {
             name: 'Component name',
@@ -112,6 +115,11 @@ describe('renderStory', () => {
         selector: 'selector',
         region: 'region',
         tag: 'tag',
+        sendDom: 'sendDom',
+        visualGridOptions: 'visualGridOptions',
+        useDom: 'useDom',
+        enablePatterns: 'enablePatterns',
+        ignoreDisplacements: 'ignoreDisplacements',
       },
     });
   });
@@ -126,6 +134,17 @@ describe('renderStory', () => {
       strictRegions: 'strict',
       layoutRegions: 'layout',
       contentRegions: 'content',
+      scriptHooks: 'scriptHooks',
+      sizeMode: 'sizeMode',
+      target: 'target',
+      fully: 'fully',
+      selector: 'selector',
+      region: 'region',
+      tag: 'tag',
+      sendDom: 'sendDom',
+      visualGridOptions: 'visualGridOptions',
+      useDom: 'useDom',
+      enablePatterns: 'enablePatterns',
     };
 
     const renderStory = makeRenderStory({
@@ -164,6 +183,17 @@ describe('renderStory', () => {
         strict: 'strict',
         layout: 'layout',
         content: 'content',
+        scriptHooks: 'scriptHooks',
+        sizeMode: 'sizeMode',
+        target: 'target',
+        fully: 'fully',
+        selector: 'selector',
+        region: 'region',
+        tag: 'tag',
+        sendDom: 'sendDom',
+        visualGridOptions: 'visualGridOptions',
+        useDom: 'useDom',
+        enablePatterns: 'enablePatterns',
       },
     });
   });
@@ -178,8 +208,19 @@ describe('renderStory', () => {
       strictRegions: 'global strict',
       layoutRegions: 'global layout',
       contentRegions: 'global content',
+      scriptHooks: 'global scriptHooks',
+      sizeMode: 'global sizeMode',
+      target: 'global target',
+      fully: 'global fully',
+      selector: 'global selector',
+      region: 'global region',
+      tag: 'global tag',
       ignoreDisplacements: true,
       properties: [{name: 'global Custom property', value: null}],
+      sendDom: 'global sendDom',
+      visualGridOptions: 'global visualGridOptions',
+      useDom: 'global useDom',
+      enablePatterns: 'global enablePatterns',
     };
 
     const renderStory = makeRenderStory({
@@ -203,8 +244,12 @@ describe('renderStory', () => {
       selector: 'selector',
       region: 'region',
       tag: 'tag',
-      ignoreDisplacements: true,
+      ignoreDisplacements: 'ignoreDisplacements',
       properties: [{name: 'Custom property', value: null}],
+      sendDom: 'sendDom',
+      visualGridOptions: 'visualGridOptions',
+      useDom: 'useDom',
+      enablePatterns: 'enablePatterns',
     };
 
     const story = {name: 'name', kind: 'kind', parameters: {eyes: eyesOptions}};
@@ -214,11 +259,10 @@ describe('renderStory', () => {
 
     deleteUndefinedPropsRecursive(results);
 
-    const {ignoreDisplacements, properties} = eyesOptions; // and NOT globalConfig
+    const {properties} = eyesOptions; // and NOT globalConfig
     expect(results).to.eql({
       throwEx: false,
       openParams: {
-        ignoreDisplacements,
         properties: [
           {
             name: 'Component name',
@@ -246,6 +290,11 @@ describe('renderStory', () => {
         selector: 'selector',
         region: 'region',
         tag: 'tag',
+        sendDom: 'sendDom',
+        visualGridOptions: 'visualGridOptions',
+        useDom: 'useDom',
+        enablePatterns: 'enablePatterns',
+        ignoreDisplacements: 'ignoreDisplacements',
       },
     });
   });
