@@ -1,6 +1,6 @@
 import assert from 'assert'
 import {By} from 'selenium-webdriver'
-import * as spec from '../../src/spec-driver'
+import * as spec from '../../src'
 
 describe('spec driver', async () => {
   let driver: spec.Driver, destroyDriver: () => void
