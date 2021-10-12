@@ -105,7 +105,7 @@ export async function getWindowSize(driver: Driver): Promise<{width: number; hei
     const window = driver.manage().window()
     if (utils.types.isFunction(window.getSize)) {
       return await window.getSize()
-    } else if (utils.types.isFunction(window.getRect)) {
+    } else {
       const rect = await window.getRect()
       return {width: rect.width, height: rect.height}
     }
@@ -236,7 +236,13 @@ export async function getElementRegion(
   _driver: Driver,
   element: Element,
 ): Promise<{x: number; y: number; width: number; height: number}> {
-  return element.getRect()
+  if (utils.types.isFunction(element.getRect)) {
+    return element.getRect()
+  } else {
+    const {x, y} = await element.getLocation()
+    const {width, height} = await element.getSize()
+    return {x, y, width, height}
+  }
 }
 export async function getElementAttribute(_driver: Driver, element: Element, attr: string): Promise<string> {
   return element.getAttribute(attr)
