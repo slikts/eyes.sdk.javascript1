@@ -117,6 +117,7 @@ describe('spec driver', async () => {
   describe('legacy driver (@webdriver)', async () => {
     before(async () => {
       ;[driver, destroyDriver] = await spec.build({browser: 'ie-11', legacy: true})
+      driver = spec.transformDriver(driver)
     })
 
     after(async () => {

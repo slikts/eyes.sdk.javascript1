@@ -74,7 +74,6 @@ export async function mainContext(driver: Driver): Promise<Driver> {
   return driver
 }
 export async function parentContext(driver: Driver): Promise<Driver> {
-  console.log('process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION', process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION)
   if (process.env.APPLITOOLS_SELENIUM_MAJOR_VERSION === '3') {
     const {Command} = require('selenium-webdriver/lib/command')
     await (driver as any).schedule(new Command('switchToParentFrame'))
