@@ -1,7 +1,7 @@
+import type {Driver, Element, Selector} from '@applitools/spec-driver-selenium'
 import {makeSDK} from '@applitools/eyes-sdk-core'
 import * as api from '@applitools/eyes-api'
-import * as spec from '@applitools/selenium-spec'
-import type {Driver, Element, Selector} from '@applitools/selenium-spec'
+import * as spec from '@applitools/spec-driver-selenium'
 
 const sdk = makeSDK({
   name: 'eyes.selenium',

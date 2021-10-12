@@ -1,6 +1,5 @@
 import type * as Selenium from 'selenium-webdriver'
 import * as utils from '@applitools/utils'
-import * as legacy from './legacy'
 
 export type Driver = Selenium.WebDriver
 export type Element = Selenium.WebElement
@@ -311,11 +310,5 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
   const driver = await builder.build()
   return [driver, () => driver.quit()]
 }
-
-// #endregion
-
-// #region LEGACY API
-
-export const wrapDriver = legacy.wrapDriver
 
 // #endregion

@@ -279,9 +279,9 @@ jobs:
           package: ${{fromJSON(needs.setup.outputs.packages).vgc.package}}
           version: ${{fromJSON(needs.setup.outputs.packages).vgc.releaseVersion}}
 
-  selenium-spec:
+  spec-selenium:
     needs: [setup, utils, test-utils]
-    if: ${{fromJSON(needs.setup.outputs.packages).selenium-spec && !failure() && !cancelled()}}
+    if: ${{fromJSON(needs.setup.outputs.packages).spec-selenium && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
       - name: Check-out repository
@@ -293,12 +293,12 @@ jobs:
       - name: Run tests
         uses: ./.github/actions/tests
         with:
-          package: ${{fromJSON(needs.setup.outputs.packages).selenium-spec.package}}
+          package: ${{fromJSON(needs.setup.outputs.packages).spec-selenium.package}}
       - name: Publish to NPM
         uses: ./.github/actions/publish
         with:
-          package: ${{fromJSON(needs.setup.outputs.packages).selenium-spec.package}}
-          version: ${{fromJSON(needs.setup.outputs.packages).selenium-spec.releaseVersion}}
+          package: ${{fromJSON(needs.setup.outputs.packages).spec-selenium.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).spec-selenium.releaseVersion}}
 
   universal:
     needs: [setup, types, utils, logger, core, vgc]
@@ -579,7 +579,7 @@ jobs:
             packages/${{fromJSON(needs.setup.outputs.packages).webdriverio-legacy.package}}/coverage-tests-metadata.json
             packages/${{fromJSON(needs.setup.outputs.packages).webdriverio-legacy.package}}/coverage-test-report.xml
   selenium:
-    needs: [setup, utils, test-utils, api, core, vgc]
+    needs: [setup, test-utils, spec-selenium, api, core, vgc]
     if: ${{fromJSON(needs.setup.outputs.packages).selenium && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
