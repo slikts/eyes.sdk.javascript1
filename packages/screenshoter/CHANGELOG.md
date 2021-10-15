@@ -4,6 +4,10 @@
 ## Unreleased
 
 
+## 3.2.7 - 2021/10/13
+
+- handle a case when scrolling element does not exist
+
 ## 3.2.6 - 2021/10/12
 
 - handle a case when scrolling element does not exist

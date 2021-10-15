@@ -4,6 +4,10 @@
 
 - support cookies
 
+## 12.23.16 - 2021/10/13
+
+- updated to @applitools/screenshoter@3.2.7 (from 3.2.6)
+
 ## 12.23.15 - 2021/10/12
 
 - updated to @applitools/screenshoter@3.2.6 (from 3.2.5)
