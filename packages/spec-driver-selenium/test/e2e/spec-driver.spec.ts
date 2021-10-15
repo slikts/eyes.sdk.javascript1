@@ -1,3 +1,4 @@
+import type {Size, DriverInfo} from '@applitools/types'
 import assert from 'assert'
 import {By} from 'selenium-webdriver'
 import * as spec from '../../src'
@@ -87,6 +88,12 @@ describe('spec driver', async () => {
     it('childContext(element)', async () => {
       await childContext()
     })
+    it('getCookies()', async () => {
+      await getCookies()
+    })
+    it('getCookies(context)', async () => {
+      await getCookies({input: {context: true}})
+    })
     it('getTitle()', async () => {
       await getTitle()
     })
@@ -102,36 +109,13 @@ describe('spec driver', async () => {
           browserName: 'chrome',
           isMobile: false,
           isNative: false,
-          platformName: 'Linux',
+          platformName: 'linux',
         },
       })
     })
-    it('getCookies()', async () => {
-      const expected = {
-        all: true,
-        cookies: [
-          {
-            domain: 'applitools.github.io',
-            expires: 16741494013,
-            priority: 'Medium',
-            sameParty: false,
-            httpOnly: false,
-            path: '/',
-            secure: true,
-            session: false,
-            size: 10,
-            sourcePort: 443,
-            sourceScheme: 'Secure',
-            name: 'hello',
-            value: 'world',
-          },
-        ],
-      }
-      await getCookies(expected)
-    })
   })
 
-  describe('onscreen desktop (@webdriver)', async () => {
+  describe('onscreen desktop', async () => {
     before(async () => {
       ;[driver, destroyDriver] = await spec.build({browser: 'chrome', headless: false})
     })
@@ -148,7 +132,7 @@ describe('spec driver', async () => {
     })
   })
 
-  describe('legacy driver (@webdriver)', async () => {
+  describe('legacy driver', async () => {
     before(async () => {
       ;[driver, destroyDriver] = await spec.build({browser: 'ie-11', legacy: true})
       driver = spec.transformDriver(driver)
@@ -181,6 +165,7 @@ describe('spec driver', async () => {
     before(async () => {
       ;[driver, destroyDriver] = await spec.build({browser: 'chrome', device: 'Pixel 3a XL'})
       driver = spec.transformDriver(driver)
+      await driver.get(url)
     })
 
     after(async () => {
@@ -189,6 +174,9 @@ describe('spec driver', async () => {
 
     it('getWindowSize()', async () => {
       await getWindowSize()
+    })
+    it('getCookies(context)', async () => {
+      await getCookies({input: {context: true}})
     })
     it('getOrientation()', async () => {
       await getOrientation({expected: 'portrait'})
@@ -204,24 +192,6 @@ describe('spec driver', async () => {
           platformVersion: '10',
         },
       })
-    })
-    it('getCookies()', async () => {
-      await spec.visit(driver, url)
-      const expected = {
-        all: false,
-        cookies: [
-          {
-            domain: 'applitools.github.io',
-            path: '/',
-            expiry: 16741494013,
-            secure: true,
-            httpOnly: false,
-            name: 'hello',
-            value: 'world',
-          },
-        ],
-      }
-      await getCookies(expected)
     })
   })
 
@@ -384,7 +354,7 @@ describe('spec driver', async () => {
     const result = await spec.getWindowSize(driver)
     assert.deepStrictEqual(result, expected)
   }
-  async function setWindowSize({input}: {input: {width: number; height: number}}) {
+  async function setWindowSize({input}: {input: Size}) {
     await spec.setWindowSize(driver, input)
     let result
     const window = driver.manage().window()
@@ -396,6 +366,25 @@ describe('spec driver', async () => {
       result = await window.getRect()
     }
     assert.deepStrictEqual(result, {x: 0, y: 0, ...input})
+  }
+  async function getCookies({input}: {input?: {context: boolean}} = {}) {
+    const cookie = {
+      name: 'hello',
+      value: 'world',
+      domain: input?.context ? '.applitools.github.io' : 'google.com',
+      path: '/',
+      expiry: 4025208067,
+      httpOnly: true,
+      secure: true,
+    }
+    if (input?.context) {
+      await driver.manage().addCookie(cookie)
+    } else {
+      // TODO remove type cast once selenium types include newest method
+      await (driver as any).sendAndGetDevToolsCommand('Network.setCookie', {...cookie, expires: cookie.expiry})
+    }
+    const result = await spec.getCookies(driver, input?.context)
+    assert.deepStrictEqual(result, [cookie])
   }
   async function getOrientation({expected}: {expected: 'portrait' | 'landscape'}) {
     const result = await spec.getOrientation(driver)
@@ -417,15 +406,11 @@ describe('spec driver', async () => {
     assert.deepStrictEqual(actual, blank)
     await driver.get(url)
   }
-  async function getDriverInfo({expected}: {expected: Record<string, any>}) {
+  async function getDriverInfo({expected}: {expected: DriverInfo}) {
     const info = await spec.getDriverInfo(driver)
     assert.deepStrictEqual(
       Object.keys(expected).reduce((obj, key) => ({...obj, [key]: info[key]}), {}),
       expected,
     )
-  }
-  async function getCookies(expected) {
-    await driver.manage().addCookie({name: 'hello', value: 'world', expiry: 16741494013})
-    assert.deepStrictEqual(await spec.getCookies(driver), expected)
   }
 })

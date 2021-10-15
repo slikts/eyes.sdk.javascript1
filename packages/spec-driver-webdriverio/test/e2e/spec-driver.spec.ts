@@ -1,6 +1,6 @@
+import type {Size, Cookie} from '@applitools/types'
 import assert from 'assert'
-import * as spec from '../../src/spec-driver'
-import {By} from '../../src/legacy'
+import * as spec from '../../src'
 
 function extractElementId(element: any) {
   return element.elementId || element['element-6066-11e4-a52e-4f735466cecf'] || element.ELEMENT
@@ -51,7 +51,7 @@ describe('spec driver', async () => {
       await isSelector({input: () => void 0, expected: true})
     })
     it('isSelector(by)', async () => {
-      await isSelector({input: By.xpath('//div'), expected: true})
+      await isSelector({input: {using: 'xpath', value: '//div'}, expected: true})
     })
     it('isSelector(wrong)', async () => {
       await isSelector({input: {} as spec.Selector, expected: false})
@@ -70,7 +70,7 @@ describe('spec driver', async () => {
       await transformSelector({input: func, expected: func})
     })
     it('transformSelector(by)', async () => {
-      const by = By.xpath('//element')
+      const by = {using: 'xpath', value: '//div'}
       await transformSelector({input: by, expected: by})
     })
     it('transformSelector(applitools-selector)', async () => {
@@ -130,20 +130,14 @@ describe('spec driver', async () => {
     it('findElements(within-element)', async () => {
       findElements({input: {selector: 'div', parent: await browser.$('#stretched')}})
     })
-    it('getTitle()', async () => {
-      await getTitle()
-    })
-    it('getUrl()', async () => {
-      await getUrl()
-    })
-    it('visit()', async () => {
-      await visit()
-    })
     it('getWindowSize()', async () => {
       await getWindowSize()
     })
     it('setWindowSize({width, height})', async () => {
       await setWindowSize({input: {width: 551, height: 552}})
+    })
+    it('getCookies()', async () => {
+      await getCookies()
     })
     it('getDeviceInfo()', async () => {
       await getDeviceInfo({
@@ -153,6 +147,15 @@ describe('spec driver', async () => {
           isNative: false,
         },
       })
+    })
+    it('getTitle()', async () => {
+      await getTitle()
+    })
+    it('getUrl()', async () => {
+      await getUrl()
+    })
+    it('visit()', async () => {
+      await visit()
     })
   })
 
@@ -193,7 +196,7 @@ describe('spec driver', async () => {
       await isSelector({input: () => null, expected: true})
     })
     it('isSelector(by)', async () => {
-      await isSelector({input: By.xpath('//div'), expected: true})
+      await isSelector({input: {using: 'xpath', value: '//div'}, expected: true})
     })
     it('isSelector(wrong)', async () => {
       await isSelector({input: {} as spec.Selector, expected: false})
@@ -212,7 +215,7 @@ describe('spec driver', async () => {
       await transformSelector({input: func, expected: func})
     })
     it('transformSelector(by)', async () => {
-      const by = By.xpath('//element')
+      const by = {using: 'xpath', value: '//div'}
       await transformSelector({input: by, expected: by})
     })
     it('transformSelector(common-selector)', async () => {
@@ -290,14 +293,11 @@ describe('spec driver', async () => {
     it('setWindowSize({width, height})', async () => {
       await setWindowSize({input: {width: 551, height: 552}})
     })
-    it('getTitle()', async () => {
-      await getTitle()
+    it('getCookies()', async () => {
+      await getCookies()
     })
-    it('getUrl()', async () => {
-      await getUrl()
-    })
-    it('visit()', async () => {
-      await visit()
+    it('getCookies(context)', async () => {
+      await getCookies({input: {context: true}})
     })
     it('getDeviceInfo()', async () => {
       await getDeviceInfo({
@@ -309,27 +309,14 @@ describe('spec driver', async () => {
         },
       })
     })
-    it('getCookies()', async () => {
-      await getCookies({
-        all: true,
-        cookies: [
-          {
-            domain: 'applitools.github.io',
-            expires: -1,
-            priority: 'Medium',
-            sameParty: false,
-            httpOnly: false,
-            path: '/',
-            secure: true,
-            session: true,
-            size: 10,
-            sourcePort: 443,
-            sourceScheme: 'Secure',
-            name: 'hello',
-            value: 'world',
-          },
-        ],
-      })
+    it('getTitle()', async () => {
+      await getTitle()
+    })
+    it('getUrl()', async () => {
+      await getUrl()
+    })
+    it('visit()', async () => {
+      await visit()
     })
   })
 
@@ -364,23 +351,6 @@ describe('spec driver', async () => {
         },
       })
     })
-    it('getCookies()', async () => {
-      await spec.visit(browser, url)
-      await getCookies({
-        all: false,
-        cookies: [
-          {
-            class: 'org.openqa.selenium.Cookie',
-            hCode: 99162322,
-            httpOnly: false,
-            path: '/',
-            secure: true,
-            name: 'hello',
-            value: 'world',
-          },
-        ],
-      })
-    })
   })
 
   describe('mobile browser (@mobile)', async () => {
@@ -390,6 +360,7 @@ describe('spec driver', async () => {
 
     before(async () => {
       ;[browser, destroyBrowser] = await spec.build({browser: 'chrome', device: 'Pixel 3a XL'})
+      await browser.url(url)
     })
 
     after(async () => {
@@ -400,8 +371,8 @@ describe('spec driver', async () => {
     it('getWindowSize()', async () => {
       await getWindowSize()
     })
-    it('getOrientation()', async () => {
-      await getOrientation({expected: 'portrait'})
+    it('getCookies(context)', async () => {
+      await getCookies({input: {context: true}})
     })
     it('getDeviceInfo()', async () => {
       await getDeviceInfo({
@@ -415,21 +386,8 @@ describe('spec driver', async () => {
         },
       })
     })
-    it('getCookies()', async () => {
-      await spec.visit(browser, url)
-      await getCookies({
-        all: false,
-        cookies: [
-          {
-            domain: 'applitools.github.io',
-            httpOnly: false,
-            path: '/',
-            secure: true,
-            name: 'hello',
-            value: 'world',
-          },
-        ],
-      })
+    it('getOrientation()', async () => {
+      await getOrientation({expected: 'portrait'})
     })
   })
 
@@ -599,7 +557,7 @@ describe('spec driver', async () => {
     const result = await spec.getWindowSize(browser)
     assert.deepStrictEqual(result, size)
   }
-  async function setWindowSize({legacy = false, input}: {legacy?: boolean; input: {width: number; height: number}}) {
+  async function setWindowSize({legacy = false, input}: {legacy?: boolean; input: Size}) {
     await spec.setWindowSize(browser, input)
     let rect
     if (legacy) {
@@ -610,6 +568,39 @@ describe('spec driver', async () => {
       rect = await browser.getWindowRect()
     }
     assert.deepStrictEqual(rect, {x: 0, y: 0, ...input})
+  }
+  async function getCookies({input}: {input?: {context: boolean}} = {}) {
+    const cookie: Cookie = {
+      name: 'hello',
+      value: 'world',
+      domain: input?.context ? '.applitools.github.io' : 'google.com',
+      path: '/',
+      expiry: 4025208067,
+      httpOnly: true,
+      secure: true,
+    }
+    if (input?.context) {
+      await browser.addCookie(cookie)
+    } else {
+      const request = {...cookie, expires: cookie.expiry}
+      if (browser.isDevTools) {
+        const puppeteer = await browser.getPuppeteer()
+        const [page] = await puppeteer.pages()
+        const cdpSession = await page.target().createCDPSession()
+        await cdpSession.send('Network.setCookie', request)
+      } else {
+        await browser.sendCommandAndGetResult('Network.setCookie', request)
+      }
+    }
+    const result = await spec.getCookies(browser, input?.context)
+    assert.deepStrictEqual(result, [cookie])
+  }
+  async function getDeviceInfo({expected}: {expected: Record<string, any>}) {
+    const info = await spec.getDriverInfo(browser)
+    assert.deepStrictEqual(
+      Object.keys(expected).reduce((obj, key) => ({...obj, [key]: info[key]}), {}),
+      expected,
+    )
   }
   async function getOrientation({expected}: {expected: string}) {
     const result = await spec.getOrientation(browser)
@@ -630,16 +621,5 @@ describe('spec driver', async () => {
     const actual = await browser.getUrl()
     assert.deepStrictEqual(actual, blank)
     await browser.url(url)
-  }
-  async function getDeviceInfo({expected}: {expected: Record<string, any>}) {
-    const info = await spec.getDriverInfo(browser)
-    assert.deepStrictEqual(
-      Object.keys(expected).reduce((obj, key) => ({...obj, [key]: info[key]}), {}),
-      expected,
-    )
-  }
-  async function getCookies(expected) {
-    await browser.addCookie({name: 'hello', value: 'world', secure: true})
-    assert.deepStrictEqual(await spec.getCookies(browser), expected)
   }
 })

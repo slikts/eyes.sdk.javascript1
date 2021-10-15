@@ -1,4 +1,5 @@
 import type * as Playwright from 'playwright'
+import type {Size, Cookie} from '@applitools/types'
 import * as utils from '@applitools/utils'
 
 export type Driver = Playwright.Page
@@ -57,7 +58,11 @@ export function extractContext(page: Driver | Context): Context {
   return isDriver(page) ? page.mainFrame() : page
 }
 export function isStaleElementError(err: any): boolean {
-  return err && err.message && err.message.includes('Protocol error (DOM.describeNode)')
+  return (
+    err?.message?.includes('Protocol error (DOM.describeNode)') || // chrome
+    err?.message?.includes('Protocol error (Page.adoptNode)') || // firefox
+    err?.message?.includes('Unable to adopt element handle from a different document') // webkit
+  )
 }
 
 // #endregion
@@ -92,26 +97,25 @@ export async function findElements(frame: Context, selector: Selector, parent?: 
   const root = parent ?? frame
   return root.$$(selector)
 }
-export async function getViewportSize(page: Driver): Promise<{width: number; height: number}> {
+export async function getViewportSize(page: Driver): Promise<Size> {
   return page.viewportSize()
 }
-export async function setViewportSize(page: Driver, size: {width: number; height: number}): Promise<void> {
+export async function setViewportSize(page: Driver, size: Size): Promise<void> {
   return page.setViewportSize(size)
+}
+export async function getCookies(page: Driver): Promise<Cookie[]> {
+  const cookies = await page.context().cookies()
+  return cookies.map(cookie => {
+    const copy = {...cookie, expiry: cookie.expires}
+    delete copy.expires
+    return copy
+  })
 }
 export async function getTitle(page: Driver): Promise<string> {
   return page.title()
 }
 export async function getUrl(page: Driver): Promise<string> {
   return page.url()
-}
-export async function getCookies(page: Driver): Promise<types.CookiesObject> {
-  const userAgent = await page.evaluate('navigator.userAgent')
-  const allCookies = await page.context().cookies()
-
-  return {
-    cookies: allCookies,
-    all: (userAgent as string).indexOf('Chrome') != -1,
-  }
 }
 export async function visit(page: Driver, url: string): Promise<void> {
   await page.goto(url)

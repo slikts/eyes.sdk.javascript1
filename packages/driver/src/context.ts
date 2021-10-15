@@ -505,6 +505,7 @@ export class Context<TDriver, TContext, TElement, TSelector> {
   }
 
   async getCookies() {
+    if (this.driver.isNative) return []
     await this.focus()
     const {cookies} = await this._spec.getCookies(this.target)
     return cookies && cookies.length > 0

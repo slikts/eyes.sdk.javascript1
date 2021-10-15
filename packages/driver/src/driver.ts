@@ -437,6 +437,21 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
     return orientation
   }
 
+  async getCookies() {
+    if (this.isNative) return []
+    const cookies = await this._spec.getCookies(this.target, true)
+    return cookies.map(cookie => ({
+      name: cookie.name,
+      value: cookie.value,
+      domain: cookie.domain,
+      path: cookie.path,
+      expiry: cookie.expires,
+      sameSite: cookie.sameSite,
+      httpOnly: cookie.httpOnly,
+      secure: cookie.secure,
+    }))
+  }
+
   async getTitle(): Promise<string> {
     if (this.isNative) return null
     const title = await this._spec.getTitle(this.target)
@@ -453,20 +468,5 @@ export class Driver<TDriver, TContext, TElement, TSelector> {
 
   async visit(url: string): Promise<void> {
     await this._spec.visit(this.target, url)
-  }
-
-  async getCookies() {
-    const {cookies, all} = await this._spec.getCookies(this.target)
-    if (!all) return null
-    return cookies.map((cookie: any) => ({
-      name: cookie.name,
-      value: cookie.value,
-      domain: cookie.domain,
-      path: cookie.path,
-      expiry: cookie.expires,
-      sameSite: cookie.sameSite,
-      httpOnly: cookie.httpOnly,
-      secure: cookie.secure,
-    }))
   }
 }

@@ -1,18 +1,18 @@
 import type {Size, Cookie} from '@applitools/types'
 import assert from 'assert'
-import * as spec from '../../src'
+import * as spec from '../../src/spec-driver'
 
 function isEqualElements(frame: spec.Context | spec.Driver, element1: spec.Element, element2: spec.Element) {
-  return frame.evaluate(([element1, element2]) => element1 === element2, [element1, element2]).catch(() => false)
+  return frame.evaluate((element1, element2) => element1 === element2, element1, element2).catch(() => false)
 }
 
 describe('spec driver', async () => {
   let page: spec.Driver, destroyPage: () => void
   const url = 'https://applitools.github.io/demo/TestPages/FramesTestPage/'
 
-  describe('headless desktop (@chromium)', async () => {
+  describe('headless desktop (@chrome)', async () => {
     before(async () => {
-      ;[page, destroyPage] = await spec.build({browser: 'chromium', headless: true})
+      ;[page, destroyPage] = await spec.build({browser: 'chrome', headless: true})
       await page.goto(url)
     })
 
@@ -39,10 +39,10 @@ describe('spec driver', async () => {
       await isSelector({input: {} as spec.Selector, expected: false})
     })
     it('transformSelector(string)', async () => {
-      await transformSelector({input: 'text=Hello World!', expected: 'text=Hello World!'})
+      await transformSelector({input: '.element', expected: '.element'})
     })
     it('transformSelector(common-selector)', async () => {
-      await transformSelector({input: {type: 'xpath', selector: '//element'}, expected: 'xpath=//element'})
+      await transformSelector({input: {type: 'xpath', selector: '//element'}, expected: '//element'})
     })
     it('isStaleElementError(err)', async () => {
       await isStaleElementError()
@@ -126,97 +126,10 @@ describe('spec driver', async () => {
       await isSelector({input: {} as spec.Selector, expected: false})
     })
     it('transformSelector(string)', async () => {
-      await transformSelector({input: 'text=Hello World!', expected: 'text=Hello World!'})
+      await transformSelector({input: '.element', expected: '.element'})
     })
     it('transformSelector(common-selector)', async () => {
-      await transformSelector({input: {type: 'xpath', selector: '//element'}, expected: 'xpath=//element'})
-    })
-    it('isStaleElementError(err)', async () => {
-      await isStaleElementError()
-    })
-    it('executeScript(script, args)', async () => {
-      await executeScript()
-    })
-    it('mainContext()', async () => {
-      await mainContext()
-    })
-    it('parentContext()', async () => {
-      await parentContext()
-    })
-    it('childContext(element)', async () => {
-      await childContext()
-    })
-    it('findElement(selector)', async () => {
-      await findElement({input: {selector: '#overflowing-div'}})
-    })
-    it('findElement(selector, parent-element)', async () => {
-      await findElement({input: {selector: 'div', parent: await page.$('#stretched')}})
-    })
-    it('findElement(non-existent)', async () => {
-      await findElement({input: {selector: 'non-existent'}, expected: null})
-    })
-    it('findElements(string)', async () => {
-      await findElements({input: {selector: 'div'}})
-    })
-    it('findElements(string, parent-element)', async () => {
-      await findElements({input: {selector: 'div', parent: await page.$('#stretched')}})
-    })
-    it('findElements(non-existent)', async () => {
-      await findElements({input: {selector: 'non-existent'}, expected: []})
-    })
-    it('getViewportSize()', async () => {
-      await getViewportSize()
-    })
-    it('setViewportSize({width, height})', async () => {
-      await setViewportSize({input: {width: 501, height: 502}})
-    })
-    it('getCookies()', async () => {
-      await getCookies()
-    })
-    it('getTitle()', async () => {
-      await getTitle()
-    })
-    it('getUrl()', async () => {
-      await getUrl()
-    })
-    it('visit()', async () => {
-      await visit()
-    })
-  })
-
-  describe('headless desktop (@webkit)', async () => {
-    before(async () => {
-      ;[page, destroyPage] = await spec.build({browser: 'webkit', headless: true})
-      await page.goto(url)
-    })
-
-    after(async () => {
-      await destroyPage()
-    })
-
-    it('isDriver(driver)', async () => {
-      await isDriver({input: page, expected: true})
-    })
-    it('isDriver(wrong)', async () => {
-      await isDriver({input: {} as spec.Driver, expected: false})
-    })
-    it('isElement(element)', async () => {
-      await isElement({input: await page.$('div'), expected: true})
-    })
-    it('isElement(wrong)', async () => {
-      await isElement({input: {} as spec.Element, expected: false})
-    })
-    it('isSelector(string)', async () => {
-      await isSelector({input: 'div', expected: true})
-    })
-    it('isSelector(wrong)', async () => {
-      await isSelector({input: {} as spec.Selector, expected: false})
-    })
-    it('transformSelector(string)', async () => {
-      await transformSelector({input: 'text=Hello World!', expected: 'text=Hello World!'})
-    })
-    it('transformSelector(common-selector)', async () => {
-      await transformSelector({input: {type: 'xpath', selector: '//element'}, expected: 'xpath=//element'})
+      await transformSelector({input: {type: 'xpath', selector: '//element'}, expected: '//element'})
     })
     it('isStaleElementError(err)', async () => {
       await isStaleElementError()
@@ -374,13 +287,13 @@ describe('spec driver', async () => {
     }
   }
   async function getViewportSize() {
-    const expected = await page.viewportSize()
+    const expected = await page.viewport()
     const result = await spec.getViewportSize(page)
     assert.deepStrictEqual(result, expected)
   }
   async function setViewportSize({input}: {input: Size}) {
     await spec.setViewportSize(page, input)
-    const actual = page.viewportSize()
+    const actual = page.viewport()
     assert.deepStrictEqual(actual, input)
   }
   async function getCookies() {
@@ -394,7 +307,7 @@ describe('spec driver', async () => {
       secure: true,
       sameSite: 'Lax',
     }
-    await page.context().addCookies([{...cookie, expires: cookie.expiry}])
+    await page.setCookie({...cookie, expires: cookie.expiry})
     const cookies = await spec.getCookies(page)
     assert.deepStrictEqual(cookies, [cookie])
   }

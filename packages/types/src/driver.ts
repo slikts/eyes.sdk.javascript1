@@ -16,7 +16,19 @@ export type DriverInfo = {
   viewportSize?: Size
   features?: {
     shadowSelector?: boolean
+    allCookies?: boolean
   }
+}
+
+export type Cookie = {
+  name: string
+  value: string
+  domain?: string
+  path?: string
+  expiry?: number
+  httpOnly?: boolean
+  secure?: boolean
+  sameSite?: 'Strict' | 'Lax' | 'None'
 }
 
 export type Selector<TSelector = never> =
@@ -57,5 +69,5 @@ export interface SpecDriver<TDriver, TContext, TElement, TSelector> {
   getElementAttribute?(driver: TDriver, element: TElement, attr: string): Promise<string>
   getElementText?(driver: TDriver, element: TElement): Promise<string>
   performAction?(driver: TDriver, steps: any[]): Promise<void>
-  getCookies?(driver: TDriver | TContext): Promise<CookiesObject>
+  getCookies?(driver: TDriver | TContext, context?: boolean): Promise<Cookie[]>
 }
