@@ -4,6 +4,18 @@
 ## Unreleased
 
 
+## 3.2.7 - 2021/10/13
+
+- handle a case when scrolling element does not exist
+
+## 3.2.6 - 2021/10/12
+
+- handle a case when scrolling element does not exist
+
+## 3.2.5 - 2021/10/5
+
+- fix issue with fractional image size after scaling
+
 ## 3.2.4 - 2021/9/9
 
 - handle selectors that evaluate to elements from a different context

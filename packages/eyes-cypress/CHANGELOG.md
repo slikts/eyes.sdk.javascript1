@@ -2,6 +2,16 @@
 
 ## Unreleased
 
+## 3.22.6 - 2021/10/18
+
+- updated to @applitools/dom-snapshot@4.5.9 (from 4.5.8)
+- updated to @applitools/visual-grid-client@15.8.36 (from 15.8.31)
+
+ ## 3.22.5 - 2021/9/29
+
+ - fix layout-breakpoints should not hit cypress timeout
+- updated to @applitools/dom-snapshot@4.5.8 (from 4.5.7)
+- updated to @applitools/visual-grid-client@15.8.31 (from 15.8.24)
 
 ## 3.22.4 - 2021/9/7
 

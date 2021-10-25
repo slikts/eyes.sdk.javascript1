@@ -14,7 +14,21 @@ export function isElement(element) {
 }
 
 export function isSelector(selector) {
-  return utils.types.isString(selector) || utils.types.has(selector, ['type', 'selector'])
+  return utils.types.has(selector, ['type', 'selector'])
+}
+
+export function transformSelector(selector) {
+  if (utils.types.isString(selector)) {
+    return {type: 'css', selector: selector}
+  } else if (utils.types.has(selector, 'selector')) {
+    if (!utils.types.isString(selector.selector)) return selector.selector
+    if (!utils.types.has(selector.selector, 'type')) return {type: 'css', selector: selector.selector}
+  }
+  return selector
+}
+
+export function extractContext(driver) {
+  return {...driver, frameId: 0}
 }
 
 export function isStaleElementError(error) {
@@ -24,9 +38,7 @@ export function isStaleElementError(error) {
 }
 
 export async function mainContext(context) {
-  const frames = await browser.webNavigation.getAllFrames({tabId: context.tabId})
-  const mainFrame = frames.find(frame => frame.parentFrameId === -1)
-  return {...context, frameId: mainFrame.frameId}
+  return {...context, frameId: 0}
 }
 
 export async function parentContext(context) {
@@ -73,22 +85,29 @@ export async function executeScript(context, script, arg) {
   })
   const {result, error} = JSON.parse(response)
 
-  if (error) {
-    if (utils.types.has(error, ['message', 'stack'])) {
-      const err = new Error(error.message)
-      err.stack = error.stack
-      throw err
-    }
-    throw error
-  } else return result
+  return new Promise((resolve, reject) => {
+    setTimeout(() => {
+      if (error) {
+        if (utils.types.has(error, ['message', 'stack'])) {
+          const err = new Error(error.message)
+          err.stack = error.stack
+          reject(err)
+        }
+        throw error
+      } else {
+        resolve(result)
+      }
+    })
+  }, 100)
 }
 
-export async function findElement(context, selector) {
-  selector = utils.types.isString(selector) ? {type: 'css', selector} : selector
+export async function findElement(context, selector, parent) {
   if (selector.type === 'css') {
     const [element] = await browser.tabs.executeScript(context.tabId, {
       frameId: context.frameId,
-      code: `JSON.stringify(refer.ref(document.querySelector('${selector.selector}')))`,
+      code: parent
+        ? `JSON.stringify(refer.ref(refer.deref(${JSON.stringify(parent)}).querySelector('${selector.selector}')))`
+        : `JSON.stringify(refer.ref(document.querySelector('${selector.selector}')))`,
     })
     return JSON.parse(element)
   } else if (selector.type === 'xpath') {
@@ -100,12 +119,15 @@ export async function findElement(context, selector) {
   }
 }
 
-export async function findElements(context, selector) {
-  selector = utils.types.isString(selector) ? {type: 'css', selector} : selector
+export async function findElements(context, selector, parent) {
   if (selector.type === 'css') {
     const [elements] = await browser.tabs.executeScript(context.tabId, {
       frameId: context.frameId,
-      code: `JSON.stringify(Array.from(document.querySelectorAll('${selector.selector}'), refer.ref))`,
+      code: parent
+        ? `JSON.stringify(Array.from(refer.deref(${JSON.stringify(parent)}).querySelectorAll('${
+            selector.selector
+          }'), refer.ref))`
+        : `JSON.stringify(Array.from(document.querySelectorAll('${selector.selector}'), refer.ref))`,
     })
     return JSON.parse(elements)
   } else if (selector.type === 'xpath') {

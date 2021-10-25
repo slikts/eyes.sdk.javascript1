@@ -1,6 +1,6 @@
 {
   "name": "@applitools/visual-grid-client",
-  "version": "15.8.31",
+  "version": "15.8.37",
   "description": "",
   "keywords": [
     "applitools",
@@ -15,7 +15,8 @@
   "author": "Amit Zur <amit.zur@applitools.com>",
   "repository": {
     "type": "git",
-    "url": "git://github.com/applitools/eyes.sdk.javascript1.git"
+    "url": "git://github.com/applitools/eyes.sdk.javascript1.git",
+    "directory": "packages/visual-grid-client"
   },
   "bugs": {
     "url": "https://github.com/applitools/eyes.sdk.javascript1/issues"
@@ -31,9 +32,9 @@
     "index.d.ts"
   ],
   "dependencies": {
-    "@applitools/eyes-sdk-core": "12.23.12",
+    "@applitools/eyes-sdk-core": "12.23.18",
     "@applitools/functional-commons": "1.6.0",
-    "@applitools/http-commons": "2.4.3",
+    "@applitools/http-commons": "2.4.5",
     "@applitools/isomorphic-fetch": "3.0.0",
     "@applitools/jsdom": "1.0.3",
     "@applitools/logger": "1.0.4",
@@ -50,10 +51,10 @@
     "@applitools/jsdom": false
   },
   "devDependencies": {
-    "@applitools/dom-snapshot": "4.5.8",
+    "@applitools/dom-snapshot": "4.5.10",
     "@applitools/sdk-release-kit": "0.13.3",
     "@applitools/test-server": "1.0.5",
-    "@applitools/test-utils": "1.0.7",
+    "@applitools/test-utils": "1.0.9",
     "chai": "^4.2.0",
     "chai-spies": "^1.0.0",
     "chai-uuid": "^1.0.6",

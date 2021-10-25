@@ -3,6 +3,14 @@
 ## Unreleased
 
 
+## 1.0.9 - 2021/10/12
+
+- fix non-w3c appium capabilities for sauce
+
+## 1.0.8 - 2021/10/12
+
+- add w3c preset for `Pixel 3a`
+
 ## 1.0.7 - 2021/8/9
 
 - fix `parseEnv`

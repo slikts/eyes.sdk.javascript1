@@ -3,6 +3,33 @@
 ## Unreleased
 
 
+## 12.23.18 - 2021/10/20
+
+- updated to @applitools/dom-snapshot@4.5.10 (from 4.5.9)
+
+## 12.23.17 - 2021/10/18
+
+- add `hostOS`, `hostApp`, and `viewportSize` properties to XML formatted test results
+- updated to @applitools/dom-snapshot@4.5.9 (from 4.5.8)
+
+## 12.23.16 - 2021/10/13
+
+- updated to @applitools/screenshoter@3.2.7 (from 3.2.6)
+
+## 12.23.15 - 2021/10/12
+
+- updated to @applitools/screenshoter@3.2.6 (from 3.2.5)
+- updated to @applitools/types@1.0.15 (from 1.0.14)
+
+## 12.23.14 - 2021/10/7
+
+- updated to @applitools/driver@1.2.6 (from 1.2.5)
+
+## 12.23.13 - 2021/10/5
+
+- updated to @applitools/driver@1.2.5 (from 1.2.4)
+- updated to @applitools/screenshoter@3.2.5 (from 3.2.4)
+
 ## 12.23.12 - 2021/9/24
 
 - extract region coordinates before taking dom capture

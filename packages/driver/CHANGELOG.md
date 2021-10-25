@@ -3,6 +3,14 @@
 ## Unreleased
 
 
+## 1.2.6 - 2021/10/7
+
+- fix issue with fractional viewport size on mobile devices
+
+## 1.2.5 - 2021/10/5
+
+- fix issue with wrong user agent overrides valid driver info
+
 ## 1.2.4 - 2021/9/24
 
 - fix issue with switching to the duplicated context

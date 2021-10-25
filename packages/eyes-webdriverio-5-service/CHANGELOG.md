@@ -3,6 +3,14 @@
 ## Unreleased
 
 
+## 1.13.6 - 2021/10/13
+
+- updated to @applitools/eyes-webdriverio@5.32.10 (from 5.32.8)
+
+## 1.13.5 - 2021/10/7
+
+- updated to @applitools/eyes-webdriverio@5.32.8 (from 5.32.6)
+
 ## 1.13.4 - 2021/9/24
 
 - updated to @applitools/eyes-webdriverio@5.32.6 (from 5.32.5)

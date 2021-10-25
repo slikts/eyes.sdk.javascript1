@@ -23,7 +23,6 @@ describe('CheckSettings', () => {
   })
 
   it('sets shadow selector with framework selector', () => {
-    debugger
     const checkSettings = CheckSettings.shadow({fakeSelector: 'el-with-shadow'}).region({fakeSelector: 'el'})
     assert.deepStrictEqual(checkSettings.toJSON(), {
       region: {
@@ -31,5 +30,10 @@ describe('CheckSettings', () => {
         shadow: {fakeSelector: 'el'},
       },
     })
+  })
+
+  it('set waitBeforeCapture', () => {
+    const checkSettings = new CheckSettings().waitBeforeCapture(1000)
+    assert.equal(checkSettings.toJSON().waitBeforeCapture, 1000)
   })
 })

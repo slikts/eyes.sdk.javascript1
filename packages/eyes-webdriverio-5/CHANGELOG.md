@@ -3,6 +3,35 @@
 ## Unreleased
 
 
+## 5.32.12 - 2021/10/20
+
+- updated to @applitools/dom-snapshot@4.5.10 (from 4.5.9)
+- updated to @applitools/eyes-sdk-core@12.23.18 (from 12.23.17)
+- updated to @applitools/visual-grid-client@15.8.37 (from 15.8.36)
+
+## 5.32.11 - 2021/10/20
+
+- updated to @applitools/dom-snapshot@4.5.9 (from 4.5.8)
+- updated to @applitools/eyes-sdk-core@12.23.17 (from 12.23.16)
+- updated to @applitools/visual-grid-client@15.8.36 (from 15.8.35)
+
+## 5.32.10 - 2021/10/13
+
+- updated to @applitools/eyes-sdk-core@12.23.16 (from 12.23.15)
+- updated to @applitools/visual-grid-client@15.8.35 (from 15.8.34)
+
+## 5.32.9 - 2021/10/12
+
+- updated to @applitools/eyes-api@1.1.4 (from 1.1.3)
+- updated to @applitools/eyes-sdk-core@12.23.15 (from 12.23.14)
+- updated to @applitools/visual-grid-client@15.8.34 (from 15.8.33)
+
+## 5.32.8 - 2021/10/7
+
+- updated to @applitools/eyes-api@1.1.3 (from 1.1.2)
+- updated to @applitools/eyes-sdk-core@12.23.14 (from 12.23.12)
+- updated to @applitools/visual-grid-client@15.8.33 (from 15.8.31)
+
 ## 5.32.7 - 2021/9/24
 
 - updated to @applitools/eyes-sdk-core@12.23.12 (from 12.23.11)

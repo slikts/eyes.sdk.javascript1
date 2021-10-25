@@ -279,6 +279,47 @@ jobs:
           package: ${{fromJSON(needs.setup.outputs.packages).vgc.package}}
           version: ${{fromJSON(needs.setup.outputs.packages).vgc.releaseVersion}}
 
+  spec-selenium:
+    needs: [setup, utils, test-utils]
+    if: ${{fromJSON(needs.setup.outputs.packages).spec-selenium && !failure() && !cancelled()}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).spec-selenium.package}}
+      - name: Publish to NPM
+        uses: ./.github/actions/publish
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).spec-selenium.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).spec-selenium.releaseVersion}}
+  spec-playwright:
+    needs: [setup, utils, test-utils]
+    if: ${{fromJSON(needs.setup.outputs.packages).spec-playwright && !failure() && !cancelled()}}
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check-out repository
+        uses: actions/checkout@v2
+      - name: Setup Node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14
+      - name: Run tests
+        uses: ./.github/actions/tests
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).spec-playwright.package}}
+      - name: Publish to NPM
+        uses: ./.github/actions/publish
+        with:
+          package: ${{fromJSON(needs.setup.outputs.packages).spec-playwright.package}}
+          version: ${{fromJSON(needs.setup.outputs.packages).spec-playwright.releaseVersion}}
+
   universal:
     needs: [setup, types, utils, logger, core, vgc]
     if: ${{fromJSON(needs.setup.outputs.packages).universal && !failure() && !cancelled()}}
@@ -408,7 +449,7 @@ jobs:
           GITHUB_TOKEN: ${{secrets.GITHUB_TOKEN}}
 
   playwright:
-    needs: [setup, utils, test-utils, api, core, vgc]
+    needs: [setup, test-utils, spec-playwright, api, core, vgc]
     if: ${{fromJSON(needs.setup.outputs.packages).playwright && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
@@ -558,7 +599,7 @@ jobs:
             packages/${{fromJSON(needs.setup.outputs.packages).webdriverio-legacy.package}}/coverage-tests-metadata.json
             packages/${{fromJSON(needs.setup.outputs.packages).webdriverio-legacy.package}}/coverage-test-report.xml
   selenium:
-    needs: [setup, utils, test-utils, api, core, vgc]
+    needs: [setup, test-utils, spec-selenium, api, core, vgc]
     if: ${{fromJSON(needs.setup.outputs.packages).selenium && !failure() && !cancelled()}}
     runs-on: ubuntu-latest
     steps:
