@@ -1,3 +1,4 @@
+const {makeLogger} = require('@applitools/logger')
 const SessionEventHandler = require('../events/SessionEventHandler')
 const RemoteSessionEventHandler = require('../events/RemoteSessionEventHandler')
 
@@ -13,6 +14,9 @@ function makeOpenEyes({sdk, runner}) {
     const eyes = new sdk.EyesFactory(runner)
     eyes.setConfiguration(config)
     if (logger) eyes.logger = logger
+    else if (config.logs) {
+      eyes.logger = makeLogger({handler: config.logs, level: 'info', colors: true})
+    }
     if (config.scrollRootElement) eyes.setScrollRootElement(config.scrollRootElement)
     if (config.cut) eyes.setCut(config.cut)
     if (config.rotation) eyes.setRotation(config.rotation)
