@@ -1,0 +1,21 @@
+{
+  "compilerOptions": {
+    "rootDir": "src",
+    "outDir": "dist",
+    "sourceMap": false,
+
+    "module": "commonjs",
+    "target": "es2017",
+    "noImplicitAny": true,
+    "preserveConstEnums": true,
+    "downlevelIteration": true,
+    "esModuleInterop": true,
+    "stripInternal": true,
+    "removeComments": true,
+    "types": ["node", "mocha", "webdriverio/async", "@applitools/spec-driver-webdriverio/v7"]
+  },
+  "ts-node": {
+    "transpileOnly": true
+  },
+  "exclude": ["dist", "types", "test"],
+}

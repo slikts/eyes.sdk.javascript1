@@ -1,1 +1,1 @@
-export * from '@applitools/spec-driver-webdriver'
+export * from '@applitools/spec-driver-webdriverio'

@@ -1,0 +1,7 @@
+{
+  "extends": "./tsconfig.base",
+  "include": ["src", "types/v6.d.ts"],
+  "compilerOptions": {
+    "types": ["node", "mocha", "webdriverio"]
+  }
+}

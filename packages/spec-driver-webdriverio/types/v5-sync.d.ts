@@ -2,7 +2,7 @@
 
 declare namespace Applitools {
   namespace WebdriverIO {
-    type Browser = globalThis.WebdriverIO.BrowserObject & {
+    interface Browser extends globalThis.WebdriverIO.BrowserObject {
       isDevTools: boolean
       getPuppeteer(): any
       getUrl(): string
@@ -16,7 +16,7 @@ declare namespace Applitools {
       switchToParentFrame(): void
       takeScreenshot(): string
     }
-    type Element = globalThis.WebdriverIO.Element
+    interface Element extends globalThis.WebdriverIO.Element {}
     type Selector = string | ((element: HTMLElement) => HTMLElement) | ((element: HTMLElement) => HTMLElement[])
   }
 }

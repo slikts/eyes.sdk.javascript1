@@ -19,7 +19,8 @@
       "transform": "@applitools/api-extractor",
       "afterDeclarations": true,
       "rootFile": "./index.ts",
-      "allowModules": ["@applitools/types", "selenium-webdriver"],
+      "allowModules": ["@applitools/types"],
+      "allowGlobalNamespaces": ["Applitools"],
       "ignoreBrands": ["applitools"]
     }]
   },

@@ -2,9 +2,9 @@ import type * as Selenium from 'selenium-webdriver'
 import type {Size, Region, Cookie, DriverInfo} from '@applitools/types'
 import * as utils from '@applitools/utils'
 
-export type Driver = Selenium.WebDriver
-export type Element = Selenium.WebElement
-export type Selector = Selenium.Locator | {using: string; value: string}
+export type Driver = Selenium.WebDriver & {__applitoolsBrand?: never}
+export type Element = Selenium.WebElement & {__applitoolsBrand?: never}
+export type Selector = (Selenium.Locator | {using: string; value: string}) & {__applitoolsBrand?: never}
 
 type CommonSelector = string | {selector: Selector | string; type?: string}
 

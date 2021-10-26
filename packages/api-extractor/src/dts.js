@@ -135,9 +135,9 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
   function $method(node, parent) {
     const signatures = $signatures(node.signatures || node.type.declaration.signatures, parent)
     return signatures.map(signature => {
+      const name = node.name.replace(/\[(\w+)\]/, '[Symbol.$1]')
       return (
-        $comment(signature.comment) +
-        `${$flags(node.flags)} ${node.name}${node.flags.isOptional ? '?' : ''}${signature}`
+        $comment(signature.comment) + `${$flags(node.flags)} ${name}${node.flags.isOptional ? '?' : ''}${signature}`
       )
     })
   }
@@ -261,10 +261,10 @@ function dts({project, context, externalModules = [], externalGlobals = []}) {
     function convert(typeReference) {
       if (!ext) {
         const inheritedType = project.children.find(child => {
-          if (child.kind === ReflectionKind.Class) {
-            return child.extendedTypes && child.extendedTypes.some(extendedType => typeReference.equals(extendedType))
+          if (child.kind === ReflectionKind.Class && child.extendedTypes) {
+            return child.extendedTypes.some(extendedType => typeReference._target === extendedType._target)
           } else if (child.kind === ReflectionKind.TypeAlias) {
-            return typeReference.equals(child.type)
+            return typeReference._target === child.type._target
           }
         })
         if (inheritedType) return {type: {type: 'unknown', name: inheritedType.name}}

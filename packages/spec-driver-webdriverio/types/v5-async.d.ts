@@ -2,7 +2,7 @@
 
 declare namespace Applitools {
   namespace WebdriverIO {
-    type Browser = globalThis.WebdriverIOAsync.BrowserObject & {
+    interface Browser extends globalThis.WebdriverIOAsync.BrowserObject {
       isDevTools: boolean,
       getPuppeteer(): Promise<any>
       getUrl(): Promise<string>

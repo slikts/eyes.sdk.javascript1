@@ -2,10 +2,10 @@ import type * as Puppeteer from 'puppeteer'
 import type {Size, Cookie} from '@applitools/types'
 import * as utils from '@applitools/utils'
 
-export type Driver = Puppeteer.Page
-export type Context = Puppeteer.Frame
-export type Element = Puppeteer.ElementHandle
-export type Selector = string
+export type Driver = Puppeteer.Page & {__applitoolsBrand?: never}
+export type Context = Puppeteer.Frame & {__applitoolsBrand?: never}
+export type Element = Puppeteer.ElementHandle & {__applitoolsBrand?: never}
+export type Selector = string & {__applitoolsBrand?: never}
 
 type CommonSelector = string | {selector: Selector | string; type?: string}
 

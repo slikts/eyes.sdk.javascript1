@@ -2,8 +2,8 @@
 
 declare namespace Applitools {
   namespace WebdriverIO {
-    type Browser = globalThis.WebdriverIO.Browser
-    type Element = globalThis.WebdriverIO.Element
+    interface Browser extends globalThis.WebdriverIO.BrowserObject {}
+    interface Element extends globalThis.WebdriverIO.Element {}
     type Selector = string | ((element: HTMLElement) => HTMLElement) | ((element: HTMLElement) => HTMLElement[])
   }
 }

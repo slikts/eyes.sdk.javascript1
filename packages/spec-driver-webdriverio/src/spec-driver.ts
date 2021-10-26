@@ -1,12 +1,13 @@
-import {Size, Region, Cookie, DriverInfo} from '@applitools/types'
+import type {Size, Region, Cookie, DriverInfo} from '@applitools/types'
 import * as utils from '@applitools/utils'
 
-export type Driver = Applitools.WebdriverIO.Browser
-export type Element =
+export type Driver = Applitools.WebdriverIO.Browser & {__applitoolsBrand?: never}
+export type Element = (
   | Applitools.WebdriverIO.Element
   | {ELEMENT: string}
   | {'element-6066-11e4-a52e-4f735466cecf': string}
-export type Selector = Applitools.WebdriverIO.Selector | {using: string; value: string}
+) & {__applitoolsBrand?: never}
+export type Selector = (Applitools.WebdriverIO.Selector | {using: string; value: string}) & {__applitoolsBrand?: never}
 
 type CommonSelector = string | {selector: Selector | string; type?: string}
 

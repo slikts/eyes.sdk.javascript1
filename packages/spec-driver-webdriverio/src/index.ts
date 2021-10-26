@@ -1,4 +1,3 @@
-import type {SpecDriver} from '@applitools/types'
 import * as spec from './spec-driver'
 
 if (!process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION) {
@@ -13,4 +12,4 @@ if (!process.env.APPLITOOLS_WEBDRIVERIO_MAJOR_VERSION) {
 
 export * from './spec-driver'
 
-export default spec as SpecDriver<spec.Driver, spec.Driver, spec.Element, spec.Selector>
+export default spec as import('@applitools/types').SpecDriver<spec.Driver, spec.Driver, spec.Element, spec.Selector>
