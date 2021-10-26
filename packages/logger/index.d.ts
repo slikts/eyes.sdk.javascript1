@@ -23,7 +23,7 @@ export type LoggerOptions = {
   timestamp?: false
   level?: LogLevels | number
   colors?: boolean | ColoringOptions
-  console?: boolean
+  console?: boolean | CustomHandler
 }
 
 export type FormatOptions = {

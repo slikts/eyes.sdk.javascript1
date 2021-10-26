@@ -32,7 +32,7 @@ function makeLogger({
   label,
   tags,
   timestamp,
-  level = LEVELS.silent,
+  level = process.env.APPLITOOLS_LOG_LEVEL || (process.env.APPLITOOLS_SHOW_LOGS ? LEVELS.info : LEVELS.silent),
   colors = false,
   console = true,
   extended = false,
@@ -54,7 +54,11 @@ function makeLogger({
 
   return {
     ...makeAPI({handler, format, label, tags, timestamp, level, colors}),
-    console: makeAPI({handler: console ? makeConsoleHandler() : handler, format, prelude: false}),
+    console: makeAPI({
+      handler: console ? (utils.types.isObject(console) ? console : makeConsoleHandler()) : handler,
+      format,
+      prelude: false,
+    }),
     extend(options = {}) {
       return makeLogger({
         format,

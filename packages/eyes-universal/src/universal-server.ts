@@ -107,16 +107,16 @@ export async function makeServer({debug = false, idleTimeout = IDLE_TIMEOUT, ...
       return results
     })
 
-    socket.command('Server.getInfo', async () => {
-      console.log('SERVER.GET_INFO')
-    })
-
     socket.command('Debug.checkSpecDriver', async ({driver, commands}) => {
       return checkSpecDriver({spec: makeSpec({socket, commands}), driver})
     })
 
     socket.command('Debug.getHistory', async () => {
       return socket.getHistory()
+    })
+
+    socket.command('Server.getInfo', async () => {
+      console.log('SERVER.GET_INFO')
     })
   })
 
