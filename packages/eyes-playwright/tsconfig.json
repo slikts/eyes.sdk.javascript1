@@ -16,10 +16,12 @@
     "stripInternal": true,
     "removeComments": true,
     "plugins": [{
-      "transform": "@applitools/api-extractor",
+      "transform": "@applitools/api-extractor/src/transformer.ts",
       "afterDeclarations": true,
       "rootFile": "./index.ts",
       "allowModules": ["playwright"],
+      "ignorePrivate": true,
+      "ignoreProtected": true,
     }]
   },
   "ts-node": {"transpileOnly": true},
