@@ -1,5 +1,4 @@
 exports.deserializeDomSnapshotResult = require('../lib/utils/deserializeDomSnapshotResult')
-exports.Logger = require('../lib/logging/Logger')
 
 exports.DiffsFoundError = require('../lib/errors/DiffsFoundError')
 exports.TestResults = require('../lib/TestResults')
@@ -37,3 +36,5 @@ exports.RunnerStartedEvent = require('../lib/logging/RunnerStartedEvent')
 exports.MatchResult = require('../lib/match/MatchResult')
 
 exports.ProxySettings = require('../lib/config/ProxySettings')
+
+exports.getBrowserKeyForUserAgent = require('../lib/utils/getBrowserKeyForUserAgent')

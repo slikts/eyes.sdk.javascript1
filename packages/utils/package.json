@@ -1,6 +1,6 @@
 {
   "name": "@applitools/utils",
-  "version": "1.2.3",
+  "version": "1.2.4",
   "keywords": [
     "applitools",
     "eyes",
@@ -17,7 +17,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/applitools/eyes.sdk.javascript1.git"
+    "url": "git://github.com/applitools/eyes.sdk.javascript1.git",
+    "directory": "packages/utils"
   },
   "license": "SEE LICENSE IN LICENSE",
   "author": {
@@ -49,7 +50,7 @@
   },
   "dependencies": {},
   "devDependencies": {
-    "@applitools/sdk-release-kit": "0.13.2",
+    "@applitools/sdk-release-kit": "0.13.3",
     "@types/node": "^14.14.7",
     "@typescript-eslint/eslint-plugin": "^4.7.0",
     "@typescript-eslint/parser": "^4.7.0",

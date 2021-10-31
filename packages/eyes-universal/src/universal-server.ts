@@ -1,8 +1,10 @@
 import type * as types from '@applitools/types'
 import type {Socket} from './socket'
 import type {Driver, Context, Element, Selector} from './spec-driver'
-import makeLogger from '@applitools/logger'
+import os from 'os'
+import path from 'path'
 import {makeSDK, checkSpecDriver} from '@applitools/eyes-sdk-core'
+import {makeLogger} from '@applitools/logger'
 import {makeSpec, webdriverSpec} from './spec-driver'
 import {makeHandler} from './handler'
 import {makeSocket} from './socket'
@@ -10,6 +12,7 @@ import {makeRefer} from './refer'
 import {withTracker} from './debug/tracker'
 
 const IDLE_TIMEOUT = 900000 // 15min
+const LOG_DIRNAME = path.resolve(os.tmpdir(), `applitools-${new Date().toISOString()}`)
 
 export async function makeServer({debug = false, idleTimeout = IDLE_TIMEOUT, ...serverConfig} = {}) {
   const {server, port} = await makeHandler(serverConfig)
@@ -18,7 +21,12 @@ export async function makeServer({debug = false, idleTimeout = IDLE_TIMEOUT, ...
     console.log(`You are trying to spawn a duplicated server, use the server on port ${port} instead`)
     return null
   }
-  const _logger = makeLogger()
+  const baseLogger = makeLogger({
+    handler: {type: 'rolling file', name: 'eyes', dirname: LOG_DIRNAME},
+    label: 'eyes',
+    level: 'info',
+    colors: false,
+  })
   let idle = setTimeout(() => server.close(), idleTimeout)
 
   server.on('connection', client => {
@@ -28,16 +36,19 @@ export async function makeServer({debug = false, idleTimeout = IDLE_TIMEOUT, ...
       socket: makeSocket(client) as Socket & types.ServerSocket<Driver, Context, Element, Selector>,
     })
 
+    const logger = baseLogger.extend()
+
     clearTimeout(idle)
     socket.on('close', () => {
       if (server.clients.size > 0) return
       idle = setTimeout(() => server.close(), idleTimeout)
     })
 
-    const sdkPromise = socket.create('Core.makeSDK', ({name, version, commands, protocol}) => {
+    const sdkPromise = socket.create('Core.makeSDK', ({name, version, cwd, commands, protocol}) => {
       return makeSDK<Driver, Context, Element, Selector>({
         name: `eyes-universal/${name}`,
         version: `${require('../package.json').version}/${version}`,
+        cwd,
         spec: protocol === 'webdriver' ? webdriverSpec : makeSpec({socket, commands}),
         VisualGridClient: require('@applitools/visual-grid-client'),
       })
@@ -50,23 +61,23 @@ export async function makeServer({debug = false, idleTimeout = IDLE_TIMEOUT, ...
     })
     socket.command('Core.getViewportSize', async ({driver}) => {
       const sdk = await sdkPromise
-      return sdk.getViewportSize({driver})
+      return sdk.getViewportSize({logger, driver})
     })
     socket.command('Core.setViewportSize', async ({driver, size}) => {
       const sdk = await sdkPromise
-      return sdk.setViewportSize({driver, size})
+      return sdk.setViewportSize({logger, driver, size})
     })
     socket.command('Core.closeBatches', async settings => {
       const sdk = await sdkPromise
-      return sdk.closeBatches(settings)
+      return sdk.closeBatches({logger, settings})
     })
     socket.command('Core.deleteTest', async settings => {
       const sdk = await sdkPromise
-      return sdk.deleteTest(settings)
+      return sdk.deleteTest({logger, settings})
     })
 
     socket.command('EyesManager.openEyes', async ({manager, driver, config}) => {
-      const eyes = await refer.deref(manager).openEyes({driver, config})
+      const eyes = await refer.deref(manager).openEyes({logger, driver, config})
       const eyesRef = refer.ref(eyes, manager)
       return eyesRef
     })
@@ -103,6 +114,10 @@ export async function makeServer({debug = false, idleTimeout = IDLE_TIMEOUT, ...
 
     socket.command('Debug.getHistory', async () => {
       return socket.getHistory()
+    })
+
+    socket.command('Server.getInfo', async () => {
+      console.log('SERVER.GET_INFO')
     })
   })
 

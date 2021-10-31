@@ -1,5 +1,6 @@
 /* global fetch */
 'use strict'
+const nock = require('nock')
 const {describe, it, beforeEach} = require('mocha')
 const {expect} = require('chai')
 const mapValues = require('lodash.mapvalues')
@@ -7,6 +8,7 @@ const makeGetAllResources = require('../../../src/sdk/getAllResources')
 const extractCssResources = require('../../../src/sdk/extractCssResources')
 const makeFetchResource = require('../../../src/sdk/fetchResource')
 const createResourceCache = require('../../../src/sdk/createResourceCache')
+const makePutResources = require('../../../src/sdk/putResources')
 const {testServerInProcess} = require('@applitools/test-server')
 const testLogger = require('../../util/testLogger')
 const {loadFixtureBuffer} = require('../../util/loadFixture')
@@ -14,6 +16,8 @@ const resourceType = require('../../../src/sdk/resourceType')
 const toRGridResource = require('../../util/toRGridResource')
 const getTestCssResources = require('../../util/getTestCssResources')
 const getTestSvgResources = require('../../util/getTestSvgResources')
+const getSha256Hash = require('../../util/getSha256Hash')
+const {getUserAgentForBrowser} = require('../../../src/sdk/getUserAgentForBrowser')
 require('@applitools/isomorphic-fetch')
 
 describe('getAllResources', () => {
@@ -91,7 +95,7 @@ describe('getAllResources', () => {
     const rGridResource = toRGridResource({url, type, value})
 
     let called = 0
-    const fetchResource = async _url => (++called, {url, type, value})
+    const fetchResource = async _rGridResource => (++called, toRGridResource({url, type, value}))
     resourceCache = createResourceCache()
     getAllResources = makeGetAllResources({
       resourceCache,
@@ -172,11 +176,12 @@ describe('getAllResources', () => {
   })
 
   it('fetches with user-agent and referer headers', async () => {
-    const fetchResource = async (url, options) => ({
-      url,
-      type: 'text/plain',
-      value: JSON.stringify(options),
-    })
+    const fetchResource = async (rGridResource, options) => {
+      rGridResource.setContent(JSON.stringify(options))
+      rGridResource.setContentType('text/plain')
+      return rGridResource
+    }
+
     resourceCache = createResourceCache()
     getAllResources = makeGetAllResources({
       resourceCache,
@@ -708,12 +713,12 @@ describe('getAllResources', () => {
     expect(resources[fontResource.url]).to.eql(toRGridResource(fontResource))
   })
 
-  it("doesn't send user-agent header when fetching google fonts", async () => {
-    const fetchResource = async (url, options) => ({
-      url,
-      type: 'text/plain',
-      value: JSON.stringify(options),
-    })
+  it('make sure we send user agent when fetching google fonts', async () => {
+    const fetchResource = async (rGridResource, options) => {
+      rGridResource.setContent(JSON.stringify(options))
+      rGridResource.setContentType('text/plain')
+      return rGridResource
+    }
     resourceCache = createResourceCache()
     getAllResources = makeGetAllResources({
       resourceCache,
@@ -721,23 +726,18 @@ describe('getAllResources', () => {
       fetchResource,
       logger: testLogger,
     })
+
     const resources = await getAllResources({
-      resourceUrls: ['https://some/url', 'https://fonts.googleapis.com/css?family=Zilla+Slab'],
+      resourceUrls: ['https://fonts.googleapis.com/css?family=Zilla+Slab'],
       preResources: {},
-      userAgent: 'bla',
+      browserName: 'ie11',
     })
-    expect(resources).to.eql({
-      'https://some/url': toRGridResource({
-        url: 'https://some/url',
-        type: 'text/plain',
-        value: JSON.stringify({headers: {'User-Agent': 'bla'}}),
-      }),
-      'https://fonts.googleapis.com/css?family=Zilla+Slab': toRGridResource({
-        url: 'https://fonts.googleapis.com/css?family=Zilla+Slab',
-        type: 'text/plain',
-        value: JSON.stringify({headers: {}}),
-      }),
-    })
+
+    const useragent = JSON.parse(
+      resources['https://fonts.googleapis.com/css?family=Zilla+Slab']._content,
+    ).headers['User-Agent']
+
+    expect(useragent).to.eql(getUserAgentForBrowser('ie11'))
   })
 
   it('handles resources with errorStatusCode (non-200 resources) from preResources', async () => {
@@ -850,5 +850,89 @@ describe('getAllResources', () => {
       {url: 'http://web.theweb.com/resources/resource.css', cookie: 'resource=alright;'},
       {url: 'http://theinternet.com/assets/public/img.png', cookie: 'assets=okay;'},
     ])
+  })
+
+  it('handles google fonts with cache', async () => {
+    // 1. initialize functions and caches
+    const fetchCache = createResourceCache()
+    const resourceCache = createResourceCache()
+    const fetchResource = makeFetchResource({
+      logger: testLogger,
+      fetchCache,
+      fetch,
+    })
+
+    const getAllResources = makeGetAllResources({
+      resourceCache,
+      extractCssResources,
+      fetchResource,
+      logger: testLogger,
+    })
+
+    const putResources = makePutResources({
+      logger: testLogger,
+      doPutResource: async () => {},
+      doCheckResources: async resources => resources,
+      resourceCache,
+      fetchCache,
+    })
+
+    // 2. mock resource fetches
+    const googleFontResource = `https://fonts.googleapis.com/some-font`
+    const standardResource = `http://bla/some-resource`
+    const mainUserAgent = 'main user agent'
+
+    nock('https://fonts.googleapis.com')
+      .get('/some-font')
+      .reply(
+        200,
+        function(_uri, _requestBody) {
+          return this.req.headers['user-agent'][0]
+        },
+        {'Content-Type': 'text/plain'},
+      )
+
+    nock('http://bla')
+      .get('/some-resource')
+      .reply(
+        200,
+        function(_uri, _requestBody) {
+          return this.req.headers['user-agent'][0]
+        },
+        {'Content-Type': 'text/plain'},
+      )
+
+    // 3. first time - get resources by fetching them
+    const resourcesWithIE = await getAllResources({
+      resourceUrls: [googleFontResource, standardResource],
+      userAgent: mainUserAgent,
+      browserName: 'ie11',
+    })
+
+    expect(resourcesWithIE[googleFontResource].getContent().toString()).to.equal(
+      getUserAgentForBrowser('ie11'),
+    )
+    expect(resourcesWithIE[standardResource].getContent().toString()).to.equal(mainUserAgent)
+
+    // 4. putResources should remove resources from fetchCache and add them to resourceCache
+    await putResources(Object.values(resourcesWithIE))
+
+    // 5. now resources should be returned from resourceCache, therefore they should not have content, only sha256
+    const resourcesWithIE_2 = await getAllResources({
+      resourceUrls: [googleFontResource, standardResource],
+      userAgent: mainUserAgent,
+      browserName: 'ie11',
+    })
+
+    // 6. since nock is replying only once, this expectation verifies that the resource was actually returned from cache
+    expect(resourcesWithIE_2[googleFontResource].getContent()).to.equal('')
+    expect(resourcesWithIE_2[googleFontResource].getSha256Hash()).to.equal(
+      getSha256Hash(getUserAgentForBrowser('ie11')),
+    )
+
+    expect(resourcesWithIE_2[standardResource].getContent()).to.equal('')
+    expect(resourcesWithIE_2[standardResource].getSha256Hash()).to.equal(
+      getSha256Hash(mainUserAgent),
+    )
   })
 })

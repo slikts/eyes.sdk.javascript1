@@ -3,6 +3,10 @@
 ## Unreleased
 
 
+## 1.1.1 - 2021/10/20
+
+- install prettier
+
 ## 1.1.0 - 2021/10/12
 
 - change default selenium version

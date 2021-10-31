@@ -2,9 +2,11 @@
 
 const assert = require('assert')
 const Axios = require('axios')
-const {ProxySettings, Logger, Configuration} = require('../../..')
+const {makeLogger} = require('@applitools/logger')
+const {ProxySettings, Configuration} = require('../../..')
 const {configureAxios, configAxiosProxy, handleRequestError} = require('../../../lib/server/requestHelpers')
-const logger = new Logger(process.env.APPLITOOLS_SHOW_LOGS)
+const {presult} = require('../../../lib/utils/GeneralUtils')
+const logger = makeLogger()
 
 describe('requestHelpers', () => {
   it('configureAxios works', () => {
@@ -135,5 +137,34 @@ describe('requestHelpers', () => {
       repeat: 0,
       url: 'http://some.url',
     })
+  })
+
+  it('handleRequestError output', async () => {
+    const axios = Axios.create({
+      async adapter(config) {
+        const error = new Error('Fake Error')
+        error.response = {status: 400, statusText: 'Bad request', data: 'Issue #1\nIssue#2', headers: {}}
+        error.request = {}
+        error.config = config
+        error.code = null
+        throw error
+      },
+    })
+
+    axios.interceptors.response.use(undefined, err => handleRequestError({err, axios, logger}))
+
+    const requestName = 'bla'
+
+    const [err] = await presult(
+      axios.request({
+        name: requestName,
+        url: 'http://some.url',
+      }),
+    )
+
+    assert.deepStrictEqual(
+      err,
+      new Error(`Error in request ${requestName}: Fake Error (Bad request)\nIssue #1\nIssue#2`),
+    )
   })
 })

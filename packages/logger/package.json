@@ -1,6 +1,6 @@
 {
   "name": "@applitools/logger",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Applitools logger",
   "keywords": [
     "applitools",
@@ -14,7 +14,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/applitools/eyes.sdk.javascript1.git"
+    "url": "git://github.com/applitools/eyes.sdk.javascript1.git",
+    "directory": "packages/logger"
   },
   "license": "SEE LICENSE IN LICENSE",
   "author": {
@@ -50,11 +51,11 @@
     }
   },
   "dependencies": {
-    "@applitools/utils": "1.2.3",
+    "@applitools/utils": "1.2.4",
     "chalk": "3.0.0"
   },
   "devDependencies": {
-    "@applitools/sdk-release-kit": "0.13.3",
+    "@applitools/sdk-release-kit": "0.13.4",
     "eslint": "^7.9.0",
     "eslint-plugin-mocha-no-only": "^1.1.1",
     "eslint-plugin-node": "^11.1.0",

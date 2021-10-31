@@ -20,8 +20,8 @@ async function takeDomSnapshots({
   const cookieJar = allCookies || []
 
   if (!breakpoints) {
-    logger.verbose(`taking single dom snapshot`)
-    await GeneralUtils.sleep(waitBeforeCapture)
+    logger.log(`taking single dom snapshot`)
+    if (waitBeforeCapture) await waitBeforeCapture()
     const snapshot = await takeDomSnapshot(logger, driver, {
       onSnapshotContext: allCookies === null ? onSnapshotContext : undefined,
       disableBrowserFetching,
@@ -43,16 +43,16 @@ async function takeDomSnapshots({
     const message = chalk.yellow(
       `The following configuration's viewport-widths are smaller than the smallest configured layout breakpoint (${smallestBreakpoint} pixels): [${smallestBrowsers}]. As a fallback, the resources that will be used for these configurations have been captured on a viewport-width of ${smallestBreakpoint} - 1 pixels. If an additional layout breakpoint is needed for you to achieve better results - please add it to your configuration.`,
     )
-    console.log(message)
+    logger.console.log(message)
   }
 
-  logger.verbose(`taking multiple dom snapshots for breakpoints: ${breakpoints}`)
-  logger.verbose(`required widths: ${[...requiredWidths.keys()].join(', ')}`)
+  logger.log(`taking multiple dom snapshots for breakpoints: ${breakpoints}`)
+  logger.log(`required widths: ${[...requiredWidths.keys()].join(', ')}`)
   const viewportSize = await getViewportSize()
   const snapshots = Array(browsers.length)
   if (requiredWidths.has(viewportSize.width)) {
     logger.log(`taking dom snapshot for existing width ${viewportSize.width}`)
-    await GeneralUtils.sleep(waitBeforeCapture)
+    if (waitBeforeCapture) await waitBeforeCapture()
     const snapshot = await takeDomSnapshot(logger, driver, {
       disableBrowserFetching,
       showLogs,
@@ -64,7 +64,7 @@ async function takeDomSnapshots({
     logger.log(`taking dom snapshot for width ${requiredWidth}`)
     try {
       await driver.setViewportSize({width: requiredWidth, height: viewportSize.height})
-      await GeneralUtils.sleep(waitBeforeCapture)
+      if (waitBeforeCapture) await waitBeforeCapture()
     } catch (err) {
       const actualViewportSize = await driver.getViewportSize()
       if (isStrictBreakpoints) {
@@ -72,13 +72,13 @@ async function takeDomSnapshots({
         const message = chalk.yellow(
           `One of the configured layout breakpoints is ${requiredWidth} pixels, while your local browser has a limit of ${actualViewportSize.width}, so the SDK couldn't resize it to the desired size. As a fallback, the resources that will be used for the following configurations: [${failedBrowsers}] have been captured on the browser's limit (${actualViewportSize.width} pixels). To resolve this, you may use a headless browser as it can be resized to any size.`,
         )
-        console.log(message)
+        logger.console.log(message)
       } else {
         const failedBrowsers = browsersInfo.map(({name}) => `(${name})`).join(', ')
         const message = chalk.yellow(
           `The following configurations [${failedBrowsers}] have a viewport-width of ${requiredWidth} pixels, while your local browser has a limit of ${actualViewportSize.width} pixels, so the SDK couldn't resize it to the desired size. As a fallback, the resources that will be used for these checkpoints have been captured on the browser's limit (${actualViewportSize.width} pixels). To resolve this, you may use a headless browser as it can be resized to any size.`,
         )
-        console.log(message)
+        logger.console.log(message)
       }
     }
 

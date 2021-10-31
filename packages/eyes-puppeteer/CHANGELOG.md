@@ -4,6 +4,29 @@
 
 - support cookies
 
+## 1.8.5 - 2021/10/30
+
+- updated to @applitools/eyes-sdk-core@12.23.22 (from 12.23.18)
+- updated to @applitools/utils@1.2.4 (from 1.2.3)
+- updated to @applitools/visual-grid-client@15.8.41 (from 15.8.37)
+- updated to @applitools/eyes-api@1.1.5 (from 1.1.4)
+- updated to @applitools/eyes-sdk-core@12.23.23 (from 12.23.22)
+- updated to @applitools/visual-grid-client@15.8.42 (from 15.8.41)
+- updated to @applitools/eyes-sdk-core@12.23.24 (from 12.23.23)
+- updated to @applitools/visual-grid-client@15.8.43 (from 15.8.42)
+
+## 1.8.4 - 2021/10/20
+
+- updated to @applitools/eyes-sdk-core@12.23.18 (from 12.23.17)
+- updated to @applitools/visual-grid-client@15.8.37 (from 15.8.36)
+
+## 1.8.3 - 2021/10/18
+
+- updated to @applitools/eyes-api@1.1.4 (from 1.0.12)
+- updated to @applitools/eyes-sdk-core@12.23.17 (from 12.22.6)
+- updated to @applitools/utils@1.2.3 (from 1.2.2)
+- updated to @applitools/visual-grid-client@15.8.36 (from 15.8.20)
+
 ## 1.8.2 - 2021/8/13
 
 - updated to @applitools/eyes-api@1.0.12 (from 1.0.11)

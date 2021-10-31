@@ -1,6 +1,6 @@
 {
   "name": "@applitools/spec-driver-playwright",
-  "version": "1.1.0",
+  "version": "1.1.1",
   "keywords": [
     "playwright",
     "chrome devtools protocol",
@@ -17,7 +17,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/applitools/eyes.sdk.javascript1.git"
+    "url": "git://github.com/applitools/eyes.sdk.javascript1.git",
+    "directory": "packages/spec-driver-playwright"
   },
   "license": "SEE LICENSE IN LICENSE",
   "author": {

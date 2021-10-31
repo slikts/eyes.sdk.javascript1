@@ -166,6 +166,9 @@ export type ChromeEmulationDeviceRenderer = {
 }
 
 export type IOSDevice =
+  | 'iPhone 13 Pro Max'
+  | 'iPhone 13 Pro'
+  | 'iPhone 13'
   | 'iPhone 12 Pro Max'
   | 'iPhone 12 Pro'
   | 'iPhone 12'
@@ -180,6 +183,7 @@ export type IOSDevice =
   | 'iPhone 7'
   | 'iPad Pro (12.9-inch) (3rd generation)'
   | 'iPad (7th generation)'
+  | 'iPad (9th generation)'
   | 'iPad Air (2nd generation)'
 
 export type IOSVersion = 'latest' | 'latest-1'

@@ -1,6 +1,6 @@
 {
   "name": "@applitools/eyes-webdriverio",
-  "version": "5.32.10",
+  "version": "5.32.12",
   "description": "Applitools Eyes SDK for WebdriverIO",
   "keywords": [
     "eyes-webdriverio",
@@ -19,7 +19,8 @@
   },
   "repository": {
     "type": "git",
-    "url": "git@github.com:applitools/eyes.sdk.javascript1.git"
+    "url": "git@github.com:applitools/eyes.sdk.javascript1.git",
+    "directory": "packages/eyes-webdriverio-5"
   },
   "license": "SEE LICENSE IN LICENSE",
   "author": {
@@ -92,7 +93,7 @@
     }
   },
   "dependencies": {
-    "@applitools/dom-snapshot": "4.5.8",
+    "@applitools/dom-snapshot": "4.5.10",
     "@applitools/eyes-api": "1.1.4",
     "@applitools/eyes-sdk-core": "12.23.16",
     "@applitools/spec-driver-webdriverio": "link:../spec-driver-webdriverio",

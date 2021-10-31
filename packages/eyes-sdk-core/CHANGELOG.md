@@ -4,6 +4,43 @@
 
 - support cookies
 
+## 12.23.24 - 2021/10/30
+
+- updated to @applitools/driver@1.2.7 (from 1.2.6)
+- updated to @applitools/screenshoter@3.2.8 (from 3.2.7)
+
+## 12.23.23 - 2021/10/30
+
+- updated to @applitools/types@1.0.18 (from 1.0.16)
+
+## 12.23.22 - 2021/10/30
+
+- change `takeDomSnapshots` to accept function for `waitBeforeCapture`
+
+## 12.23.21 - 2021/10/29
+
+- extend rGridResource to include and calculate a cacheKey , browserName and more to support key that is not only a resource url
+
+## 12.23.20 - 2021/10/28
+
+- re enable tests
+
+## 12.23.19 - 2021/10/28
+
+- add api to provide custom cwd
+- updated to @applitools/logger@1.0.5 (from 1.0.4)
+- updated to @applitools/types@1.0.16 (from 1.0.15)
+- updated to @applitools/utils@1.2.4 (from 1.2.3)
+
+## 12.23.18 - 2021/10/20
+
+- updated to @applitools/dom-snapshot@4.5.10 (from 4.5.9)
+
+## 12.23.17 - 2021/10/18
+
+- add `hostOS`, `hostApp`, and `viewportSize` properties to XML formatted test results
+- updated to @applitools/dom-snapshot@4.5.9 (from 4.5.8)
+
 ## 12.23.16 - 2021/10/13
 
 - updated to @applitools/screenshoter@3.2.7 (from 3.2.6)

@@ -4,6 +4,19 @@
 
 - add `Cookie` and `CookieObject` types
 
+## 1.0.18 - 2021/10/30
+
+- add new iPad 9th gen to `IOSDevice` type
+
+## 1.0.17 - 2021/10/30
+
+- add new iPhone 13 to `IOSDevice` type
+
+## 1.0.16 - 2021/10/27
+
+- new logger implementation
+- allow passing logger into `Core` 
+
 ## 1.0.15 - 2021/10/12
 
 - add `waitBeforeCapture` property

@@ -2,7 +2,11 @@
 
 ## Unreleased
 
+
+## 1.0.5 - 2021/10/27
+
 - add rolling file log handler
+- updated to @applitools/utils@1.2.4 (from 1.2.3)
 
 ## 1.0.4 - 2021/9/9
 

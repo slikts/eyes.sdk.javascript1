@@ -88,7 +88,7 @@ function makeCheckWindow({
       floating,
     })
 
-    const resourcesPromises = snapshots.map(async snapshot => {
+    const resourcesPromises = snapshots.map(async (snapshot, index) => {
       const {rGridDom: dom, allResources: resources} = await createRGridDOMAndGetResourceMapping({
         resourceUrls: snapshot.resourceUrls,
         resourceContents: snapshot.resourceContents,
@@ -98,6 +98,7 @@ function makeCheckWindow({
         referer: url,
         proxySettings: wrappers[0].getProxy(),
         cookies,
+        browserName: browsers[index].name,
       })
       await putResources([dom, ...Object.values(resources)])
       return {dom, resources: Object.values(resources)}

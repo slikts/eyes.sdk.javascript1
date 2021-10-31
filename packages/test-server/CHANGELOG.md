@@ -4,6 +4,10 @@
 
 - add https support
 
+## 1.0.6 - 2021/10/30
+
+- updated to @applitools/utils@1.2.4 (from 1.2.3)
+
 ## 1.0.5 - 2021/9/10
 
 - updated to @applitools/utils@1.2.3 (from 1.2.2)

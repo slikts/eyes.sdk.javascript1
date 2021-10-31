@@ -4,6 +4,42 @@
 
 - support cookies
 
+## 15.8.43 - 2021/10/30
+
+- updated to @applitools/eyes-sdk-core@12.23.24 (from 12.23.23)
+
+## 15.8.42 - 2021/10/30
+
+- updated to @applitools/eyes-sdk-core@12.23.23 (from 12.23.22)
+
+## 15.8.41 - 2021/10/30
+
+- updated to @applitools/eyes-sdk-core@12.23.22 (from 12.23.21)
+
+## 15.8.40 - 2021/10/29
+
+- adjust the caches logic to recive the extended rGridResource object instead of url to support the new fetchCache and resourceCach logic
+- replace legacy logger construction with new
+- updated to @applitools/eyes-sdk-core@12.23.20 (from 12.23.19)
+- updated to @applitools/eyes-sdk-core@12.23.21 (from 12.23.20)
+
+## 15.8.39 - 2021/10/28
+
+- updated to @applitools/eyes-sdk-core@12.23.19 (from 12.23.18)
+
+## 15.8.38 - 2021/10/27
+
+- send user agent when fetching google fonts 
+- updated to @applitools/logger@1.0.5 (from 1.0.4)
+
+## 15.8.37 - 2021/10/20
+
+- updated to @applitools/eyes-sdk-core@12.23.18 (from 12.23.17)
+
+## 15.8.36 - 2021/10/18
+
+- updated to @applitools/eyes-sdk-core@12.23.17 (from 12.23.16)
+
 ## 15.8.35 - 2021/10/13
 
 - updated to @applitools/eyes-sdk-core@12.23.16 (from 12.23.15)
