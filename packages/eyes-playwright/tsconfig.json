@@ -13,15 +13,15 @@
     "esModuleInterop": true,
     "noImplicitAny": true,
     "downlevelIteration": true,
-    "stripInternal": true,
     "removeComments": true,
     "plugins": [{
       "transform": "@applitools/api-extractor/src/transformer.ts",
       "afterDeclarations": true,
       "rootFile": "./index.ts",
       "allowModules": ["playwright"],
-      "ignorePrivate": true,
-      "ignoreProtected": true,
+      "stripPrivate": true,
+      "stripProtected": true,
+      "stripInternal": true
     }]
   },
   "ts-node": {"transpileOnly": true},

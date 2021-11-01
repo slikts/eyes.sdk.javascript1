@@ -22,7 +22,7 @@
   "rules": {
     "prettier/prettier": ["error", {
       "arrowParens": "avoid",
-      "printWidth": 120
+      "printWidth": 150
     }],
     "@typescript-eslint/no-unused-vars": [
       "error",

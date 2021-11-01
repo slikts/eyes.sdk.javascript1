@@ -20,9 +20,14 @@ declare module 'typescript' {
     createStringLiteral(text: string, isSingleQuote?: boolean, hasExtendedUnicodeEscape?: boolean): ts.StringLiteral
   }
 
+  export interface Node {
+    symbol?: ts.Symbol
+  }
+
   export interface Symbol {
     parent?: ts.Symbol
     checkFlags?: ts.CheckFlags
+    nameType?: ts.UniqueESSymbolType
   }
 
   export enum CheckFlags {
