@@ -1,21 +1,28 @@
 {
+  "include": ["src"],
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",
+    "declarationDir": "types",
+    "declaration": true,
+    "declarationMap": false,
     "sourceMap": false,
 
     "module": "commonjs",
     "target": "es2017",
-    "noImplicitAny": true,
-    "preserveConstEnums": true,
-    "downlevelIteration": true,
     "esModuleInterop": true,
-    "stripInternal": true,
+    "noImplicitAny": true,
+    "downlevelIteration": true,
     "removeComments": true,
-    "types": ["node", "mocha", "webdriverio/async", "@applitools/spec-driver-webdriverio/v7"]
+    "plugins": [{
+      "transform": "@applitools/api-extractor",
+      "afterDeclarations": true,
+      "rootFile": "./index.ts",
+      "allowGlobalNamespaces": ["Applitools"],
+      "stripPrivate": true,
+      "stripProtected": true,
+      "stripInternal": true
+    }]
   },
-  "ts-node": {
-    "transpileOnly": true
-  },
-  "exclude": ["dist", "types", "test"],
+  "ts-node": {"transpileOnly": true},
 }

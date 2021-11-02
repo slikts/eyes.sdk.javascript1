@@ -20,7 +20,6 @@
       "afterDeclarations": true,
       "rootFile": "./index.ts",
       "allowModules": ["@applitools/types", "puppeteer"],
-      "ignoreBrands": ["applitools"]
     }]
   },
   "ts-node": {"transpileOnly": true},

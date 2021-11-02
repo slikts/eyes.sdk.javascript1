@@ -20,7 +20,6 @@
       "afterDeclarations": true,
       "rootFile": "./index.ts",
       "allowModules": ["@applitools/types", "selenium-webdriver"],
-      "ignoreBrands": ["applitools"]
     }]
   },
   "ts-node": {"transpileOnly": true},

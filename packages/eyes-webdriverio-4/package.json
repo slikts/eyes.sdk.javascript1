@@ -17,9 +17,7 @@
   ],
   "scripts": {
     "lint": "eslint '**/*.ts' '**/*.js'",
-    "build": "yarn build:dist && yarn build:types",
-    "build:dist": "tsc",
-    "build:types": "api-extractor ./src/index.ts --out ./types/index.d.ts --external-globals WebdriverIO",
+    "build": "ttsc",
     "generate:tests": "coverage-tests generate https://raw.githubusercontent.com/applitools/sdk.coverage.tests/master/js/config.js --name 'eyes.webdriverio.javascript4'",
     "test": "yarn build:dist && yarn test:it && yarn test:coverage",
     "test:it": "mocha --no-timeouts \"test/it/**/*.js\"",

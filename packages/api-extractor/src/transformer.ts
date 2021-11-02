@@ -123,7 +123,7 @@ export default function transformer(program: ts.Program, config: TransformerConf
     return (
       (config.stripPrivate && declaration?.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.PrivateKeyword)) ||
       (config.stripProtected && declaration?.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.ProtectedKeyword)) ||
-      (config.stripInternal && declaration && ts.getJSDocTags(declaration)?.some(tag => tag.tagName.getText() === 'internal'))
+      (config.stripInternal && declaration && ts.getJSDocTags(declaration)?.some(tag => tag.tagName?.getText() === 'internal'))
     )
   }
 
@@ -198,17 +198,12 @@ export default function transformer(program: ts.Program, config: TransformerConf
 
   function getModuleName(sourceFile: ts.SourceFile): string {
     const fileName = sourceFile.fileName
-    const directory = modules.getOrCreateCacheForDirectory(path.dirname(fileName))
-    const file = directory.get(`./${path.basename(fileName, '.d.ts')}`, undefined)
-    if (file?.resolvedModule?.packageId?.name) {
-      return file.resolvedModule.packageId.name
-    } else {
-      const moduleName = config.allowModules?.find(moduleName => {
-        const module = modules.getOrCreateCacheForModuleName(moduleName, undefined).get(undefined)
-        return fileName.startsWith(module?.resolvedModule?.resolvedFileName.replace(module?.resolvedModule?.packageId?.subModuleName, ''))
-      })
-      return moduleName ?? path.relative(process.cwd(), fileName)
-    }
+    const dirName = fileName.includes('/node_modules/') ? sourceFile.fileName.replace(/\/node_modules\/.*$/, '') : program.getCurrentDirectory()
+    const moduleName = config.allowModules?.find(moduleName => {
+      const module = modules.getOrCreateCacheForModuleName(moduleName, undefined).get(dirName)
+      return fileName.startsWith(module?.resolvedModule?.resolvedFileName.replace(module?.resolvedModule?.packageId.subModuleName, ''))
+    })
+    return moduleName ?? path.relative(process.cwd(), fileName)
   }
 
   function getPropertyName(symbol: ts.Symbol): string | ts.PropertyName {
@@ -234,7 +229,12 @@ export default function transformer(program: ts.Program, config: TransformerConf
         name = `import('${getModuleName(symbol.valueDeclaration as ts.SourceFile)}')`
       }
       if (name) chunks.unshift(name)
+
       if (exports.symbols.has(symbol)) break
+      else if (exports.names.has(chunks[0]) && !symbol.parent) {
+        chunks.unshift('globalThis')
+        break
+      }
       symbol = symbol.parent
     }
     return chunks.join('.')
@@ -295,9 +295,6 @@ export default function transformer(program: ts.Program, config: TransformerConf
     let {type} = options
 
     type = !noReduce ? getTypeAlias(type) : type
-
-    // console.log(ts.Debug.formatTypeFlags(type.flags), ts.Debug.formatObjectFlags(type.objectFlags), type.symbol)
-    // throw 0
 
     if (isKnownType(type)) {
       return createTypeReferenceNode({type, node})
@@ -658,7 +655,6 @@ export default function transformer(program: ts.Program, config: TransformerConf
 
   function createExportDefault(options: {type: ts.Type; node?: ts.Node; isExportEquals?: boolean}): ts.Statement[] {
     const {type, node, isExportEquals} = options
-    console.log([type])
     return [
       ts.factory.createVariableStatement(
         [ts.factory.createModifier(ts.SyntaxKind.DeclareKeyword)],

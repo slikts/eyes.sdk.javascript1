@@ -16,7 +16,7 @@ declare namespace Applitools {
       switchToParentFrame(): Promise<void>
       takeScreenshot(): Promise<string>
     }
-    type Element = globalThis.WebdriverIOAsync.Element
+    interface Element extends globalThis.WebdriverIO.Element {}
     type Selector = string | ((element: HTMLElement) => HTMLElement) | ((element: HTMLElement) => HTMLElement[])
   }
 }

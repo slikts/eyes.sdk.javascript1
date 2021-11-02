@@ -20,8 +20,7 @@
       "afterDeclarations": true,
       "rootFile": "./index.ts",
       "allowModules": ["@applitools/types"],
-      "allowGlobalNamespaces": ["Applitools"],
-      "ignoreBrands": ["applitools"]
+      "allowGlobalNamespaces": ["Applitools"]
     }]
   },
   "ts-node": {"transpileOnly": true},

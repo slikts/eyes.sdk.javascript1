@@ -15,7 +15,7 @@
     "downlevelIteration": true,
     "removeComments": true,
     "plugins": [{
-      "transform": "@applitools/api-extractor/src/transformer.ts",
+      "transform": "@applitools/api-extractor",
       "afterDeclarations": true,
       "rootFile": "./index.ts",
       "allowModules": ["playwright"],
