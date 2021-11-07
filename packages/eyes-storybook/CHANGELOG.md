@@ -2,6 +2,9 @@
 
 ## Unreleased
 
+ ## 3.25.3 - 2021/11/1
+
+ - add a retry machanisem for cases we get 0 stories
 
 ## 3.25.2 - 2021/10/30
 

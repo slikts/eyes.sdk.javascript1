@@ -233,6 +233,7 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
         browserOptions.debuggerAddress = attach === true ? 'localhost:9222' : attach
       }
       desiredCapabilities[browserOptionsName] = browserOptions
+      if (browser !== 'firefox' && !browserOptions.mobileEmulation) browserOptions.w3c = false
     }
   }
   if (appium && browser === 'chrome') {
