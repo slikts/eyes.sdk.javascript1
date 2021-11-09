@@ -1,5 +1,5 @@
 'use strict';
-const shouldSetGlobalHooks = require('./shouldSetGlobalHooks');
+const isGlobalHooksSupported = require('./isGlobalHooksSupported');
 const {presult} = require('@applitools/functional-commons');
 
 function makePluginExport({startServer, eyesConfig, globalHooks}) {
@@ -12,10 +12,14 @@ function makePluginExport({startServer, eyesConfig, globalHooks}) {
       const [origOn, config] = args;
       let isGlobalHookCalledFromUserHandler = false;
       const moduleExportsResult = await pluginModuleExports(onThatCallsUserDefinedHandler, config);
-      if (shouldSetGlobalHooks(config) && !isGlobalHookCalledFromUserHandler) {
-        for (const [eventName, eventHandler] of Object.entries(globalHooks)) {
-          origOn.call(this, eventName, eventHandler);
+      if (isGlobalHooksSupported(config)) {
+        if (!isGlobalHookCalledFromUserHandler) {
+          for (const [eventName, eventHandler] of Object.entries(globalHooks)) {
+            origOn.call(this, eventName, eventHandler);
+          }
         }
+      } else {
+        eyesConfig.eyesIsGlobalHooksNotSupported = true;
       }
       return Object.assign({}, eyesConfig, {eyesPort}, moduleExportsResult);
 
@@ -26,7 +30,7 @@ function makePluginExport({startServer, eyesConfig, globalHooks}) {
       function onThatCallsUserDefinedHandler(eventName, handler) {
         const isRunEvent = eventName === 'before:run' || eventName === 'after:run';
         let handlerToCall = handler;
-        if (shouldSetGlobalHooks(config) && isRunEvent) {
+        if (isGlobalHooksSupported(config) && isRunEvent) {
           handlerToCall = handlerThatCallsUserDefinedHandler;
           isGlobalHookCalledFromUserHandler = true;
         }
