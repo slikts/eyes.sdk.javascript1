@@ -1,7 +1,6 @@
 {
   "extends": "./tsconfig.base",
-  "include": ["src", "types/v7.d.ts"],
   "compilerOptions": {
-    "types": ["node", "mocha", "webdriverio/async"]
+    "types": ["node", "mocha", "webdriverio/async", "./types/v7"]
   }
 }

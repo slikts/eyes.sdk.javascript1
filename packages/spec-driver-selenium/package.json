@@ -57,7 +57,7 @@
     }
   },
   "dependencies": {
-    "@applitools/types": "^1.0.15",
+    "@applitools/types": "1.0.15",
     "@applitools/utils": "1.2.3"
   },
   "devDependencies": {
@@ -81,7 +81,7 @@
     "selenium-webdriver": "^4.0.0",
     "ts-node": "^10.2.1",
     "ttypescript": "^1.5.12",
-    "typescript": "^4.5.0-beta"
+    "typescript": "^4.5.1-rc"
   },
   "peerDependencies": {
     "selenium-webdriver": ">=3.6.0"

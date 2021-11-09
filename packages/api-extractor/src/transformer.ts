@@ -18,6 +18,8 @@ interface TransformerConfig {
   stripProtected?: boolean
   /** Do not emit entities marked with `@internal` JSDoc comment. It is a duplication of the same named property from tsconfig */
   stripInternal?: boolean
+  /** Instead of emitting call signatures, methods, or function with union parameters transform them to a bunch of overloads with concrete arguments */
+  generateSyntheticOverloads?: boolean
 }
 
 export default function transformer(program: ts.Program, config: TransformerConfig = {}): ts.TransformerFactory<ts.SourceFile> {
@@ -71,7 +73,8 @@ export default function transformer(program: ts.Program, config: TransformerConf
           const declaration = symbol.valueDeclaration as ts.ClassDeclaration
           const extendingClause = declaration.heritageClauses?.find(heritageClause => heritageClause.token === ts.SyntaxKind.ExtendsKeyword)
           if (extendingClause) {
-            let symbol = checker.getSymbolAtLocation(extendingClause.types[0].expression)
+            const expression = extendingClause.types[0].expression
+            let symbol = checker.getSymbolAtLocation(ts.isCallExpression(expression) ? expression.arguments[0] : expression)
             if (symbol.flags & ts.SymbolFlags.Alias) symbol = checker.getAliasedSymbol(symbol)
             if (!exports.symbols.has(symbol) && !program.isSourceFileDefaultLibrary(symbol.declarations[0].getSourceFile()))
               aliases.set(symbol, exported)
@@ -120,10 +123,13 @@ export default function transformer(program: ts.Program, config: TransformerConf
   }
 
   function isStripedDeclaration(declaration: ts.Declaration): boolean {
-    return (
-      (config.stripPrivate && declaration?.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.PrivateKeyword)) ||
-      (config.stripProtected && declaration?.modifiers?.some(modifier => modifier.kind === ts.SyntaxKind.ProtectedKeyword)) ||
-      (config.stripInternal && declaration && ts.getJSDocTags(declaration)?.some(tag => tag.tagName?.getText() === 'internal'))
+    if (!declaration) return false
+    const modifierFlags = ts.getCombinedModifierFlags(declaration)
+    const jsDocTags = ts.getJSDocTags(declaration)
+    return Boolean(
+      (config.stripPrivate && modifierFlags & ts.ModifierFlags.Private) ||
+        (config.stripProtected && modifierFlags & ts.ModifierFlags.Protected) ||
+        (config.stripInternal && jsDocTags?.some(tag => tag.tagName?.getText() === 'internal')),
     )
   }
 
@@ -139,15 +145,16 @@ export default function transformer(program: ts.Program, config: TransformerConf
     if (symbol.getName() === '__global') {
       return true
     } else if (symbol.flags & ts.SymbolFlags.ValueModule) {
+      const namespaceName = symbol.getName()
+      if (config.allowGlobalNamespaces?.includes(namespaceName)) return true
       const moduleFile = symbol.valueDeclaration.getSourceFile()
       const moduleName = getModuleName(moduleFile)
       return config.allowModules?.includes(moduleName)
     } else if (symbol.flags & ts.SymbolFlags.NamespaceModule) {
       const namespaceName = symbol.getName()
       return config.allowGlobalNamespaces?.includes(namespaceName)
-    } else {
-      return false
     }
+    return false
   }
 
   function isExportedType(type: ts.Type): type is ts.TypeReference {
@@ -164,7 +171,8 @@ export default function transformer(program: ts.Program, config: TransformerConf
 
   function isTypeLiteral(type: ts.Type): type is ts.ObjectType {
     return Boolean(
-      type.flags & ts.TypeFlags.Object && type.symbol.flags & (ts.SymbolFlags.TypeLiteral | ts.SymbolFlags.Interface | ts.SymbolFlags.Class),
+      type.flags & ts.TypeFlags.Object &&
+        type.symbol.flags & (ts.SymbolFlags.TypeLiteral | ts.SymbolFlags.Interface | ts.SymbolFlags.Class | ts.SymbolFlags.Method),
     )
   }
 
@@ -200,7 +208,8 @@ export default function transformer(program: ts.Program, config: TransformerConf
     const fileName = sourceFile.fileName
     const dirName = fileName.includes('/node_modules/') ? sourceFile.fileName.replace(/\/node_modules\/.*$/, '') : program.getCurrentDirectory()
     const moduleName = config.allowModules?.find(moduleName => {
-      const module = modules.getOrCreateCacheForModuleName(moduleName, undefined).get(dirName)
+      const cache = modules.getOrCreateCacheForModuleName(moduleName, undefined)
+      const module = cache.get(dirName) ?? cache.get(`${dirName}/node_modules`)
       return fileName.startsWith(module?.resolvedModule?.resolvedFileName.replace(module?.resolvedModule?.packageId.subModuleName, ''))
     })
     return moduleName ?? path.relative(process.cwd(), fileName)
@@ -225,8 +234,10 @@ export default function transformer(program: ts.Program, config: TransformerConf
         // if global type's name already taken then add `globalThis`, otherwise nothing
         name = exports.names.has(chunks[0]) ? 'globalThis' : ''
       } else if (symbol.flags & ts.SymbolFlags.ValueModule) {
-        // if type was imported from a module use import function to access the type
-        name = `import('${getModuleName(symbol.valueDeclaration as ts.SourceFile)}')`
+        if (ts.isSourceFile(symbol.valueDeclaration)) {
+          // if type was imported from a module use import function to access the type
+          name = `import('${getModuleName(symbol.valueDeclaration as ts.SourceFile)}')`
+        }
       }
       if (name) chunks.unshift(name)
 
@@ -250,7 +261,22 @@ export default function transformer(program: ts.Program, config: TransformerConf
     const otherBaseTypes = [] as {extendedTypes: ts.Type[]; implementedTypes: ts.Type[]}[]
     if (type.symbol.flags & ts.SymbolFlags.Class) {
       extendedTypes = extendedTypes.filter(type => {
-        // TODO
+        if (type.isIntersection() /* class C extends {new () => C1 & C2} */) {
+          const classTypes = type.types.filter(type => type.symbol.flags & ts.SymbolFlags.Class)
+          const interfaceTypes = type.types.filter(type => type.symbol.flags & ts.SymbolFlags.Interface)
+          if (interfaceTypes.length > 0) {
+            otherBaseTypes.push({
+              extendedTypes: classTypes.filter(classType => {
+                const isReferable = isKnownType(type)
+                if (!isKnownType(type)) otherBaseTypes.push(getBaseTypes(classType as ts.InterfaceType))
+                return isReferable
+              }),
+              implementedTypes: interfaceTypes.filter(interfaceType => isKnownType(interfaceType)),
+            })
+            return false
+          }
+          return true
+        }
         const isReferable = isKnownType(type)
         if (!isKnownType(type)) otherBaseTypes.push(getBaseTypes(type as ts.InterfaceType))
         return isReferable
@@ -370,9 +396,27 @@ export default function transformer(program: ts.Program, config: TransformerConf
       if (ts.isTypeLiteralNode(typeNode) && typeNode.members.length === 0) continue
       typeNodes.push(typeNode)
     }
-    return typeNodes.every(ts.isTypeLiteralNode)
-      ? ts.factory.createTypeLiteralNode(typeNodes.flatMap(typeNode => typeNode.members))
-      : ts.factory.createIntersectionTypeNode(typeNodes)
+
+    if (typeNodes.every(typeNode => ts.isTypeLiteralNode(typeNode) || ts.isFunctionTypeNode(typeNode))) {
+      const members = typeNodes.reduce((members, typeNode) => {
+        if (ts.isTypeLiteralNode(typeNode)) {
+          typeNode.members.forEach(member => {
+            let name
+            if (!member.name) name = Symbol()
+            else if (ts.isIdentifier(member.name) || ts.isPrivateIdentifier(member.name)) name = member.name.escapedText as string
+            else if (ts.isStringLiteral(member.name)) name = member.name.text
+            else name = Symbol()
+            members.set(name, member)
+          })
+        } else if (ts.isFunctionTypeNode(typeNode)) {
+          members.set(Symbol(), ts.factory.createCallSignature(typeNode.typeParameters, typeNode.parameters, typeNode.type))
+        }
+        return members
+      }, new Map<string | symbol, ts.TypeElement>())
+      return ts.factory.createTypeLiteralNode([...members.values()])
+    }
+
+    return ts.factory.createIntersectionTypeNode(typeNodes)
   }
 
   function createUnionTypeNode(options: {type: ts.UnionType; node?: ts.Node}): ts.TypeNode {
@@ -414,12 +458,12 @@ export default function transformer(program: ts.Program, config: TransformerConf
     }
 
     for (const signature of type.getCallSignatures()) {
-      members.push(createCallDeclaration({signature, node}))
+      members.push(...createCallDeclaration({signature, node}))
     }
 
     for (const signature of type.getConstructSignatures()) {
       if (isStripedDeclaration(signature.declaration) || !signature.declaration) continue
-      members.push(createConstructorDeclaration({signature, node, isSignature: true}))
+      members.push(...createConstructorDeclaration({signature, node, isSignature: true}))
     }
 
     for (const symbol of type.getProperties()) {
@@ -430,7 +474,7 @@ export default function transformer(program: ts.Program, config: TransformerConf
       if (symbol.flags & ts.SymbolFlags.Method) {
         members.push(...createMethodDeclaration({symbol, node, isSignature: true}))
       } else if (symbol.flags & ts.SymbolFlags.Property) {
-        members.push(createPropertyDeclaration({symbol, node, isSignature: true}))
+        members.push(...createPropertyDeclaration({symbol, node, isSignature: true}))
       }
     }
 
@@ -456,7 +500,7 @@ export default function transformer(program: ts.Program, config: TransformerConf
       if (symbol.flags & ts.SymbolFlags.Method) {
         members.push(...createMethodDeclaration({symbol, node, isStatic: isConstructorInterface}))
       } else if (symbol.flags & ts.SymbolFlags.Property) {
-        members.push(createPropertyDeclaration({symbol, node, isStatic: isConstructorInterface}))
+        members.push(...createPropertyDeclaration({symbol, node, isStatic: isConstructorInterface}))
       } else if (symbol.flags & ts.SymbolFlags.Accessor) {
         if (symbol.flags & ts.SymbolFlags.GetAccessor) members.push(createGetAccessorDeclaration({symbol, node, isStatic: isConstructorInterface}))
         if (symbol.flags & ts.SymbolFlags.SetAccessor) members.push(createSetAccessorDeclaration({symbol, node, isStatic: isConstructorInterface}))
@@ -472,7 +516,7 @@ export default function transformer(program: ts.Program, config: TransformerConf
         ) {
           continue
         }
-        members.push(createConstructorDeclaration({signature, node}))
+        members.push(...createConstructorDeclaration({signature, node}))
       }
 
       const prototypeProperty = type.getProperty('prototype')
@@ -495,7 +539,7 @@ export default function transformer(program: ts.Program, config: TransformerConf
     const type = checker.getTypeOfSymbolAtLocation(symbol, node)
     const name = symbol.getName()
     const isRest = Boolean(symbol.checkFlags & ts.CheckFlags.RestParameter)
-    const isOptional = Boolean(symbol.checkFlags & ts.CheckFlags.RestParameter)
+    const isOptional = Boolean(symbol.checkFlags & ts.CheckFlags.OptionalParameter)
 
     return ts.factory.createParameterDeclaration(
       undefined /* decorators */,
@@ -508,20 +552,57 @@ export default function transformer(program: ts.Program, config: TransformerConf
     )
   }
 
-  function createCallDeclaration(options: {signature: ts.Signature; node?: ts.Node}): ts.CallSignatureDeclaration {
+  function createParameterDeclarations(options: {signature: ts.Signature; node?: ts.Node}): ts.ParameterDeclaration[] {
     const {signature, node} = options
-    const typeParameters = signature.getTypeParameters()?.map(typeParameter => createTypeParameterDeclaration({typeParameter, node}))
-    const parameters = signature.getParameters()?.map(symbol => createParameterDeclaration({symbol, node}))
+    return signature.getParameters().map(symbol => createParameterDeclaration({symbol, node}))
+  }
+
+  function createSyntheticParameterDeclarations(options: {signature: ts.Signature; node?: ts.Node}): ts.ParameterDeclaration[][] {
+    const {signature, node} = options
+    return signature.getParameters().reduce((parameters, symbol) => {
+      const parameter = createParameterDeclaration({symbol, node})
+      if (!ts.isUnionTypeNode(parameter.type)) {
+        return parameters.map(group => [...group, parameter])
+      }
+      return parameter.type.types.flatMap(typeNode => {
+        return parameters.map(parameters => {
+          const parameterDeclaration = ts.factory.createParameterDeclaration(
+            parameter.decorators,
+            parameter.modifiers,
+            parameter.dotDotDotToken,
+            parameter.name,
+            parameter.questionToken,
+            typeNode,
+            parameter.initializer,
+          )
+          return [...parameters, parameterDeclaration]
+        })
+      })
+    }, [].concat([[]]))
+  }
+
+  function createReturnTypeNode(options: {signature: ts.Signature; node?: ts.Node}): ts.TypeNode | ts.TypePredicateNode {
+    const {signature, node} = options
     const typePredicate = checker.getTypePredicateOfSignature(signature)
-    const returnType = typePredicate
+    const returnType = signature.getReturnType()
+    return typePredicate
       ? ts.factory.createTypePredicateNode(
-          undefined /* assetModifiers */,
+          /* assetModifiers */ undefined,
           typePredicate.parameterName,
           createTypeNode({type: typePredicate.type, node}),
         )
-      : createTypeNode({type: signature.getReturnType(), node})
+      : createTypeNode({type: returnType, node})
+  }
 
-    return ts.factory.createCallSignature(typeParameters, parameters, returnType)
+  function createCallDeclaration(options: {signature: ts.Signature; node?: ts.Node}): ts.CallSignatureDeclaration[] {
+    const {signature, node} = options
+    const typeParameters = signature.getTypeParameters()?.map(typeParameter => createTypeParameterDeclaration({typeParameter, node}))
+    const parameters = config.generateSyntheticOverloads
+      ? createSyntheticParameterDeclarations({signature, node})
+      : [createParameterDeclarations({signature, node})]
+    const returnType = createReturnTypeNode({signature, node})
+
+    return parameters.map(parameters => ts.factory.createCallSignature(typeParameters, parameters, returnType))
   }
 
   function createIndexDeclaration(options: {info: ts.IndexInfo; node?: ts.Node}): ts.IndexSignatureDeclaration {
@@ -534,23 +615,30 @@ export default function transformer(program: ts.Program, config: TransformerConf
     )
   }
 
-  function createConstructorDeclaration(options: {signature: ts.Signature; node?: ts.Node; isSignature: true}): ts.ConstructSignatureDeclaration
-  function createConstructorDeclaration(options: {signature: ts.Signature; node?: ts.Node; isSignature?: false}): ts.ConstructorDeclaration
+  function createConstructorDeclaration(options: {signature: ts.Signature; node?: ts.Node; isSignature: true}): ts.ConstructSignatureDeclaration[]
+  function createConstructorDeclaration(options: {signature: ts.Signature; node?: ts.Node; isSignature?: false}): ts.ConstructorDeclaration[]
   function createConstructorDeclaration(options: {signature: ts.Signature; node?: ts.Node; isSignature?: boolean}) {
     const {signature, node, isSignature} = options
     const modifierFlags = ts.getCombinedModifierFlags(signature.declaration)
     const modifiers = ts.factory.createModifiersFromModifierFlags(modifierFlags)
     const typeParameters = signature.getTypeParameters()?.map(typeParameter => createTypeParameterDeclaration({typeParameter, node}))
-    const parameters = signature.getParameters()?.map(symbol => createParameterDeclaration({symbol, node}))
+    const parameters = config.generateSyntheticOverloads
+      ? createSyntheticParameterDeclarations({signature, node})
+      : [createParameterDeclarations({signature, node})]
     const returnType = createTypeNode({type: signature.getReturnType(), node})
 
     return isSignature
-      ? ts.factory.createConstructSignature(typeParameters, parameters, returnType)
-      : ts.factory.createConstructorDeclaration(/* decorators */ undefined, modifiers, parameters, /* body */ undefined)
+      ? parameters.map(parameters => ts.factory.createConstructSignature(typeParameters, parameters, returnType))
+      : parameters.map(parameters => ts.factory.createConstructorDeclaration(/* decorators */ undefined, modifiers, parameters, /* body */ undefined))
   }
 
-  function createPropertyDeclaration(options: {symbol: ts.Symbol; node?: ts.Node; isSignature: true}): ts.PropertySignature
-  function createPropertyDeclaration(options: {symbol: ts.Symbol; node?: ts.Node; isSignature?: false; isStatic?: boolean}): ts.PropertyDeclaration
+  function createPropertyDeclaration(options: {symbol: ts.Symbol; node?: ts.Node; isSignature: true}): ts.PropertySignature[] | ts.MethodSignature[]
+  function createPropertyDeclaration(options: {
+    symbol: ts.Symbol
+    node?: ts.Node
+    isSignature?: false
+    isStatic?: boolean
+  }): ts.PropertyDeclaration[] | ts.MethodDeclaration[]
   function createPropertyDeclaration(options: {symbol: ts.Symbol; node?: ts.Node; isSignature?: boolean; isStatic?: boolean}) {
     const {symbol, node, isSignature, isStatic} = options
     const modifierFlags = ts.getCombinedModifierFlags(symbol.declarations.at(-1)) | (isStatic ? ts.ModifierFlags.Static : 0)
@@ -559,9 +647,29 @@ export default function transformer(program: ts.Program, config: TransformerConf
     const optionalToken = isOptional(symbol) ? ts.factory.createToken(ts.SyntaxKind.QuestionToken) : undefined
     const type = createTypeNode({type: checker.getTypeOfSymbolAtLocation(symbol, node), node})
 
-    return isSignature
-      ? ts.factory.createPropertySignature(modifiers, propertyName, optionalToken, type)
-      : ts.factory.createPropertyDeclaration(/* decorators */ undefined, modifiers, propertyName, optionalToken, type, /* initializer */ undefined)
+    if (ts.isTypeLiteralNode(type) && type.members.every(ts.isCallSignatureDeclaration)) {
+      return type.members.map((member: ts.CallSignatureDeclaration) => {
+        return isSignature
+          ? ts.factory.createMethodSignature(modifiers, propertyName, optionalToken, member.typeParameters, member.parameters, member.type)
+          : ts.factory.createMethodDeclaration(
+              /* decorators */ undefined,
+              modifiers,
+              /* asteriskToken */ undefined,
+              propertyName,
+              optionalToken,
+              member.typeParameters,
+              member.parameters,
+              member.type,
+              /* body */ undefined,
+            )
+      })
+    }
+
+    return [
+      isSignature
+        ? ts.factory.createPropertySignature(modifiers, propertyName, optionalToken, type)
+        : ts.factory.createPropertyDeclaration(/* decorators */ undefined, modifiers, propertyName, optionalToken, type, /* initializer */ undefined),
+    ]
   }
 
   function createGetAccessorDeclaration(options: {symbol: ts.Symbol; node?: ts.Node; isStatic?: boolean}): ts.GetAccessorDeclaration {
@@ -605,30 +713,27 @@ export default function transformer(program: ts.Program, config: TransformerConf
     const methodName = getPropertyName(symbol)
     const optionalToken = isOptional(symbol) ? ts.factory.createToken(ts.SyntaxKind.QuestionToken) : undefined
 
-    return signatures.map(signature => {
+    return signatures.flatMap<ts.MethodSignature | ts.MethodDeclaration>(signature => {
       const typeParameters = signature.getTypeParameters()?.map(typeParameter => createTypeParameterDeclaration({typeParameter, node}))
-      const parameters = signature.getParameters()?.map(symbol => createParameterDeclaration({symbol, node}))
-      const typePredicate = checker.getTypePredicateOfSignature(signature)
-      const returnType = typePredicate
-        ? ts.factory.createTypePredicateNode(
-            /* assetModifiers */ undefined,
-            typePredicate.parameterName,
-            createTypeNode({type: typePredicate.type, node}),
-          )
-        : createTypeNode({type: signature.getReturnType(), node})
+      const parameters = config.generateSyntheticOverloads
+        ? createSyntheticParameterDeclarations({signature, node})
+        : [createParameterDeclarations({signature, node})]
+      const returnType = createReturnTypeNode({signature, node})
 
       return isSignature
-        ? ts.factory.createMethodSignature(modifiers, methodName, optionalToken, typeParameters, parameters, returnType)
-        : ts.factory.createMethodDeclaration(
-            /* decorators */ undefined,
-            modifiers,
-            /* asteriskToken */ undefined,
-            methodName,
-            optionalToken,
-            typeParameters,
-            parameters,
-            returnType,
-            /* body */ undefined,
+        ? parameters.map(parameters => ts.factory.createMethodSignature(modifiers, methodName, optionalToken, typeParameters, parameters, returnType))
+        : parameters.map(parameters =>
+            ts.factory.createMethodDeclaration(
+              /* decorators */ undefined,
+              modifiers,
+              /* asteriskToken */ undefined,
+              methodName,
+              optionalToken,
+              typeParameters,
+              parameters,
+              returnType,
+              /* body */ undefined,
+            ),
           )
     })
   }
@@ -655,28 +760,38 @@ export default function transformer(program: ts.Program, config: TransformerConf
 
   function createExportDefault(options: {type: ts.Type; node?: ts.Node; isExportEquals?: boolean}): ts.Statement[] {
     const {type, node, isExportEquals} = options
-    return [
-      ts.factory.createVariableStatement(
-        [ts.factory.createModifier(ts.SyntaxKind.DeclareKeyword)],
-        ts.factory.createVariableDeclarationList(
-          [
-            ts.factory.createVariableDeclaration(
-              '_default',
-              undefined /* exclamationToken */,
-              createTypeNode({type, node}),
-              undefined /* initializer */,
-            ),
-          ],
-          ts.NodeFlags.Const,
+    const symbol = type.aliasSymbol ?? type.symbol
+    if (symbol.flags & ts.SymbolFlags.ExportDoesNotSupportDefaultModifier) {
+      return [
+        ts.factory.createVariableStatement(
+          [ts.factory.createModifier(ts.SyntaxKind.DeclareKeyword)],
+          ts.factory.createVariableDeclarationList(
+            [
+              ts.factory.createVariableDeclaration(
+                '_default',
+                /* exclamationToken */ undefined,
+                createTypeNode({type, node}),
+                /* initializer */ undefined,
+              ),
+            ],
+            ts.NodeFlags.Const,
+          ),
         ),
-      ),
-      ts.factory.createExportAssignment(
-        undefined /* decorators*/,
-        undefined /* modifiers */,
-        isExportEquals,
-        ts.factory.createIdentifier('_default'),
-      ),
-    ]
+        ts.factory.createExportAssignment(
+          /* decorators*/ undefined,
+          /* modifiers */ undefined,
+          isExportEquals,
+          ts.factory.createIdentifier('_default'),
+        ),
+      ]
+    } else {
+      const typeNode = createTypeNode({type, node})
+      if (ts.isTypeReferenceNode(typeNode)) {
+        return [
+          ts.factory.createExportAssignment(/* decorators*/ undefined, /* modifiers */ undefined, isExportEquals, typeNode.typeName as ts.Identifier),
+        ]
+      }
+    }
   }
 
   function createClassDeclaration(options: {type: ts.InterfaceType; name: string; node?: ts.Declaration}): ts.Statement {
@@ -708,26 +823,24 @@ export default function transformer(program: ts.Program, config: TransformerConf
 
   function createFunctionDeclaration(options: {type: ts.Type; name: string; node?: ts.Node}): ts.Statement[] {
     const {type, name, node} = options
-    return type.getCallSignatures().map(signature => {
-      const typeParameters = signature.getTypeParameters()
-      const parameters = signature.getParameters()
-      const returnType = signature.getReturnType()
-      const typePredicate = checker.getTypePredicateOfSignature(signature)
-      return ts.factory.createFunctionDeclaration(
-        undefined /* decorators */,
-        [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
-        undefined /* asteriskToken */,
-        name,
-        typeParameters?.map(typeParameter => checker.typeParameterToDeclaration(typeParameter, node, ts.NodeBuilderFlags.None)),
-        parameters?.map(symbol => createParameterDeclaration({symbol, node})),
-        typePredicate
-          ? ts.factory.createTypePredicateNode(
-              undefined /* assetModifiers */,
-              typePredicate.parameterName,
-              createTypeNode({type: typePredicate.type, node}),
-            )
-          : createTypeNode({type: returnType, node}),
-        undefined /* body */,
+    return type.getCallSignatures().flatMap(signature => {
+      const typeParameters = signature.getTypeParameters()?.map(typeParameter => createTypeParameterDeclaration({typeParameter, node}))
+      const parameters = config.generateSyntheticOverloads
+        ? createSyntheticParameterDeclarations({signature, node})
+        : [createParameterDeclarations({signature, node})]
+      const returnType = createReturnTypeNode({signature, node})
+
+      return parameters.map(parameters =>
+        ts.factory.createFunctionDeclaration(
+          /* decorators */ undefined,
+          [ts.factory.createModifier(ts.SyntaxKind.ExportKeyword)],
+          /* asteriskToken */ undefined,
+          name,
+          typeParameters,
+          parameters,
+          returnType,
+          /* body */ undefined,
+        ),
       )
     })
   }

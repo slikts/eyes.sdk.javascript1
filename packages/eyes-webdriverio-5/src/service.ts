@@ -29,7 +29,7 @@ interface EyesServiceOptions extends ConfigurationPlain {
   eyes?: EyesServiceOptions
 }
 
-export = class EyesService {
+export default class EyesService {
   private _eyes: Eyes
   private _appName: string
   private _testResults: TestResults

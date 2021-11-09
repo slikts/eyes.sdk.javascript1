@@ -40,7 +40,8 @@ describe('spec driver', async () => {
       await isSelector({input: {} as spec.Selector, expected: false})
     })
     it('transformSelector(by)', async () => {
-      await transformSelector({input: By.css('div'), expected: By.css('div')})
+      const by = By.css('div')
+      await transformSelector({input: by, expected: by})
     })
     it('transformSelector(string)', async () => {
       await transformSelector({input: '.element', expected: {css: '.element'}})
@@ -57,6 +58,15 @@ describe('spec driver', async () => {
         input: {element1: await driver.findElement({css: 'div'}), element2: await driver.findElement({css: 'h1'})},
         expected: false,
       })
+    })
+    it('mainContext()', async () => {
+      await mainContext()
+    })
+    it('parentContext()', async () => {
+      await parentContext()
+    })
+    it('childContext(element)', async () => {
+      await childContext()
     })
     it('executeScript(strings, args)', async () => {
       await executeScript()
@@ -79,14 +89,11 @@ describe('spec driver', async () => {
     it('findElements(non-existent)', async () => {
       await findElements({input: {selector: {css: 'non-existent'}}, expected: []})
     })
-    it('mainContext()', async () => {
-      await mainContext()
+    it('getWindowSize()', async () => {
+      await getWindowSize()
     })
-    it('parentContext()', async () => {
-      await parentContext()
-    })
-    it('childContext(element)', async () => {
-      await childContext()
+    it('setWindowSize({width, height})', async () => {
+      await setWindowSize({input: {width: 551, height: 552}})
     })
     it('getCookies()', async () => {
       await getCookies()
@@ -112,23 +119,6 @@ describe('spec driver', async () => {
           platformName: 'linux',
         },
       })
-    })
-  })
-
-  describe('onscreen desktop', async () => {
-    before(async () => {
-      ;[driver, destroyDriver] = await spec.build({browser: 'chrome', headless: false})
-    })
-
-    after(async () => {
-      await destroyDriver()
-    })
-
-    it('getWindowSize()', async () => {
-      await getWindowSize()
-    })
-    it('setWindowSize({width, height})', async () => {
-      await setWindowSize({input: {width: 551, height: 552}})
     })
   })
 
@@ -406,7 +396,7 @@ describe('spec driver', async () => {
     assert.deepStrictEqual(actual, blank)
     await driver.get(url)
   }
-  async function getDriverInfo({expected}: {expected: DriverInfo}) {
+  async function getDriverInfo({expected}: {expected: Partial<DriverInfo>}) {
     const info = await spec.getDriverInfo(driver)
     assert.deepStrictEqual(
       Object.keys(expected).reduce((obj, key) => ({...obj, [key]: info[key]}), {}),

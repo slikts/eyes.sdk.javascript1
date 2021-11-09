@@ -30,6 +30,11 @@ declare module 'typescript' {
     nameType?: ts.UniqueESSymbolType
   }
 
+  export enum SymbolFlags {
+    ExportSupportsDefaultModifier = ts.SymbolFlags.Class | ts.SymbolFlags.Function | ts.SymbolFlags.Interface,
+    ExportDoesNotSupportDefaultModifier = ~ts.SymbolFlags.ExportSupportsDefaultModifier,
+  }
+
   export enum CheckFlags {
     Instantiated = 1 << 0, // Instantiated symbol
     SyntheticProperty = 1 << 1, // Property in union or intersection type

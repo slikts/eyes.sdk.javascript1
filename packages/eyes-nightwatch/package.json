@@ -48,8 +48,8 @@
     "lint": "eslint '**/*.ts' '**/*.js'",
     "build": "ttsc",
     "generate:tests": "coverage-tests generate https://raw.githubusercontent.com/applitools/sdk.coverage.tests/master/js/config.js --name 'eyes-nightwatch'",
-    "test": "yarn build:dist && yarn test:it && yarn test:e2e && yarn test:coverage",
-    "test:it": "yarn test:it:headless:jwp && yarn test:it:headless:w3c && yarn test:it:headed && yarn test:it:mobile",
+    "test": "yarn test:it && yarn test:e2e && yarn test:coverage",
+    "test:it": "mocha ./test/it/spec-driver.spec.js --exit --no-timeouts -r @applitools/test-utils/mocha-hooks/docker",
     "test:it:headless:jwp": "yarn nightwatch test/it/spec-driver-headless-desktop.spec.js",
     "test:it:headless:w3c": "yarn nightwatch test/it/spec-driver-headless-desktop.spec.js --env firefox",
     "test:it:headed": "yarn nightwatch --env firefox test/it/spec-driver-onscreen-desktop.spec.js",
@@ -77,6 +77,7 @@
   "dependencies": {
     "@applitools/eyes-api": "1.1.5",
     "@applitools/eyes-sdk-core": "12.23.24",
+    "@applitools/types": "1.0.18",
     "@applitools/utils": "1.2.4",
     "@applitools/visual-grid-client": "15.8.43"
   },
@@ -102,9 +103,11 @@
     "mocha": "^8.0.1",
     "nightwatch": "1.3.4",
     "nightwatch-api": "^3.0.2",
-    "nock": "^12.0.3",
     "prettier": "^2.1.2",
-    "spec-xunit-file": "0.0.1-3"
+    "spec-xunit-file": "0.0.1-3",
+    "ts-node": "^10.4.0",
+    "ttypescript": "^1.5.12",
+    "typescript": "^4.5.1-rc"
   },
   "peerDependencies": {
     "nightwatch": ">=1.3.4"

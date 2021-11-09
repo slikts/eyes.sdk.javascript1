@@ -1,4 +1,4 @@
-import type {Size, Cookie} from '@applitools/types'
+import type {Size, Cookie, DriverInfo} from '@applitools/types'
 import assert from 'assert'
 import * as spec from '../../src'
 
@@ -73,7 +73,7 @@ describe('spec driver', async () => {
       const by = {using: 'xpath', value: '//div'}
       await transformSelector({input: by, expected: by})
     })
-    it('transformSelector(applitools-selector)', async () => {
+    it('transformSelector(common-selector)', async () => {
       await transformSelector({
         input: {selector: '.element', type: 'css'},
         expected: 'css selector:.element',
@@ -139,8 +139,8 @@ describe('spec driver', async () => {
     it('getCookies()', async () => {
       await getCookies()
     })
-    it('getDeviceInfo()', async () => {
-      await getDeviceInfo({
+    it('getDriverInfo()', async () => {
+      await getDriverInfo({
         expected: {
           browserName: 'Chrome Headless',
           isMobile: false,
@@ -224,6 +224,15 @@ describe('spec driver', async () => {
         expected: 'css selector:.element',
       })
     })
+    it('extractSelector(element)', async () => {
+      await extractSelector({
+        input: await browser.findElement('css selector', 'div'),
+        expected: undefined,
+      })
+    })
+    it('extractSelector(extended-element)', async () => {
+      await extractSelector({input: await browser.$('div'), expected: 'div'})
+    })
     it('isEqualElements(element, element)', async () => {
       await isEqualElements({
         input: {element1: await browser.$('div'), element2: await browser.$('div')},
@@ -236,14 +245,14 @@ describe('spec driver', async () => {
         expected: false,
       })
     })
-    it('extractSelector(element)', async () => {
-      await extractSelector({
-        input: await browser.findElement('css selector', 'div'),
-        expected: undefined,
-      })
+    it('mainContext()', async () => {
+      await mainContext()
     })
-    it('extractSelector(extended-element)', async () => {
-      await extractSelector({input: await browser.$('div'), expected: 'div'})
+    it('parentContext()', async () => {
+      await parentContext()
+    })
+    it('childContext(element)', async () => {
+      await childContext()
     })
     it('executeScript(strings, args)', async () => {
       await executeScript()
@@ -278,15 +287,6 @@ describe('spec driver', async () => {
     it('findElements(non-existent)', async () => {
       findElements({input: {selector: 'non-existent'}, expected: []})
     })
-    it('mainContext()', async () => {
-      await mainContext()
-    })
-    it('parentContext()', async () => {
-      await parentContext()
-    })
-    it('childContext(element)', async () => {
-      await childContext()
-    })
     it('getWindowSize()', async () => {
       await getWindowSize()
     })
@@ -299,8 +299,8 @@ describe('spec driver', async () => {
     it('getCookies(context)', async () => {
       await getCookies({input: {context: true}})
     })
-    it('getDeviceInfo()', async () => {
-      await getDeviceInfo({
+    it('getDriverInfo()', async () => {
+      await getDriverInfo({
         expected: {
           browserName: 'chrome',
           isMobile: false,
@@ -340,8 +340,8 @@ describe('spec driver', async () => {
     it('setWindowSize({width, height})', async () => {
       await setWindowSize({legacy: true, input: {width: 551, height: 552}})
     })
-    it('getDeviceInfo()', async () => {
-      await getDeviceInfo({
+    it('getDriverInfo()', async () => {
+      await getDriverInfo({
         expected: {
           browserName: 'internet explorer',
           browserVersion: '11',
@@ -374,8 +374,8 @@ describe('spec driver', async () => {
     it('getCookies(context)', async () => {
       await getCookies({input: {context: true}})
     })
-    it('getDeviceInfo()', async () => {
-      await getDeviceInfo({
+    it('getDriverInfo()', async () => {
+      await getDriverInfo({
         expected: {
           browserName: 'chrome',
           deviceName: 'Google Pixel 3a XL GoogleAPI Emulator',
@@ -415,8 +415,8 @@ describe('spec driver', async () => {
     it('getOrientation()', async () => {
       await getOrientation({expected: 'landscape'})
     })
-    it('getDeviceInfo()', async () => {
-      await getDeviceInfo({
+    it('getDriverInfo()', async () => {
+      await getDriverInfo({
         expected: {
           deviceName: 'Google Pixel 3a XL GoogleAPI Emulator',
           isMobile: true,
@@ -474,7 +474,7 @@ describe('spec driver', async () => {
     const args = [0, 'string', {key: 'value'}, [0, 1, 2, 3]]
     const [resultElement, ...resultArgs] = await spec.executeScript(browser, 'return arguments[0]', [element, ...args])
     assert.deepStrictEqual(resultArgs, args)
-    assert.ok(await browser.execute((element1, element2) => element1 === element2, resultElement, element))
+    assert.ok(await equalElements(browser, resultElement, element))
   }
   async function mainContext() {
     try {
@@ -595,10 +595,10 @@ describe('spec driver', async () => {
     const result = await spec.getCookies(browser, input?.context)
     assert.deepStrictEqual(result, [cookie])
   }
-  async function getDeviceInfo({expected}: {expected: Record<string, any>}) {
+  async function getDriverInfo({expected}: {expected: Partial<DriverInfo>}) {
     const info = await spec.getDriverInfo(browser)
     assert.deepStrictEqual(
-      Object.keys(expected).reduce((obj, key) => ({...obj, [key]: info[key]}), {}),
+      Object.keys(expected).reduce((obj, key: keyof DriverInfo) => ({...obj, [key]: info[key]}), {}),
       expected,
     )
   }

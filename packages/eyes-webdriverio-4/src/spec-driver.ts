@@ -1,14 +1,15 @@
+import type {Size, Region, Cookie, DriverInfo} from '@applitools/types'
 import * as utils from '@applitools/utils'
-import * as legacy from './legacy'
-import type * as types from '@applitools/types'
+import {By} from './legacy'
 
-export type Driver = WebdriverIO.Client<void>
-export type Element =
+export type Driver = WebdriverIO.Client<void> & {__applitoolsBrand?: never}
+export type Element = (
   | WebdriverIO.Element
   | {ELEMENT: string}
   | {'element-6066-11e4-a52e-4f735466cecf': string}
   | WebdriverIO.RawResult<WebdriverIO.Element | {ELEMENT: string} | {'element-6066-11e4-a52e-4f735466cecf': string}>
-export type Selector = string | legacy.By
+) & {__applitoolsBrand?: never}
+export type Selector = (string | By) & {__applitoolsBrand?: never}
 
 type CommonSelector = string | {selector: Selector | string; type?: string}
 
@@ -38,7 +39,7 @@ export function isElement(element: any): element is Element {
     : Boolean(element[ELEMENT_ID] || element[LEGACY_ELEMENT_ID])
 }
 export function isSelector(selector: any): selector is Selector {
-  return utils.types.isString(selector) || selector instanceof legacy.By
+  return utils.types.isString(selector) || selector instanceof By
 }
 export function transformDriver(browser: Driver): Driver {
   return new Proxy(browser, {
@@ -98,28 +99,48 @@ export async function childContext(browser: Driver, element: Element): Promise<D
   return browser
 }
 export async function findElement(browser: Driver, selector: Selector, parent?: Element): Promise<Element> {
-  selector = selector instanceof legacy.By ? selector.toString() : selector
+  selector = selector instanceof By ? selector.toString() : selector
   const {value} = parent
     ? await browser.elementIdElement(extractElementId(parent), selector)
     : await browser.element(selector)
   return value
 }
 export async function findElements(browser: Driver, selector: Selector, parent?: Element): Promise<Element[]> {
-  selector = selector instanceof legacy.By ? selector.toString() : selector
+  selector = selector instanceof By ? selector.toString() : selector
   const {value} = parent
     ? await browser.elementIdElements(extractElementId(parent), selector)
     : await browser.elements(selector)
   return value
 }
-export async function getWindowSize(browser: Driver): Promise<{width: number; height: number}> {
-  const {value: size} = (await browser.windowHandleSize()) as {value: {width: number; height: number}}
+export async function getWindowSize(browser: Driver): Promise<Size> {
+  const {value: size} = (await browser.windowHandleSize()) as {value: Size}
   return {width: size.width, height: size.height}
 }
-export async function setWindowSize(browser: Driver, size: {width: number; height: number}): Promise<void> {
+export async function setWindowSize(browser: Driver, size: Size): Promise<void> {
   await browser.windowHandlePosition({x: 0, y: 0})
   await browser.windowHandleSize(size)
 }
-export async function getDriverInfo(browser: Driver): Promise<any> {
+export async function getCookies(browser: Driver, context?: boolean): Promise<Cookie[]> {
+  if (context) return browser.getCookie() as Cookie[]
+
+  const result = await (browser as any).requestHandler.create(
+    {method: 'POST', path: '/session/:sessionId/chromium/send_command_and_get_result'},
+    {cmd: 'Network.getAllCookies', params: {}},
+  )
+
+  return result.value.cookies.map((cookie: any) => {
+    const copy = {...cookie, expiry: cookie.expires}
+    delete copy.expires
+    delete copy.size
+    delete copy.priority
+    delete copy.session
+    delete copy.sameParty
+    delete copy.sourceScheme
+    delete copy.sourcePort
+    return copy
+  })
+}
+export async function getDriverInfo(browser: Driver): Promise<DriverInfo> {
   const desiredCapabilities = browser.desiredCapabilities as any
 
   const info: any = {
@@ -128,12 +149,12 @@ export async function getDriverInfo(browser: Driver): Promise<any> {
     isNative: browser.isMobile && !desiredCapabilities.browserName,
     deviceName: desiredCapabilities.deviceName,
     platformName:
-      (browser.isIOS && 'iOS') ||
-      (browser.isAndroid && 'Android') ||
-      desiredCapabilities.platformName ||
-      desiredCapabilities.platform,
+      ((browser.isIOS && 'iOS') || (browser.isAndroid && 'Android') || desiredCapabilities.platformName) ??
+      desiredCapabilities.platform ??
+      desiredCapabilities.desired?.platformName,
     platformVersion: desiredCapabilities.platformVersion,
-    browserName: desiredCapabilities.browserName ?? desiredCapabilities.name,
+    browserName:
+      desiredCapabilities.browserName ?? desiredCapabilities.name ?? desiredCapabilities.desired?.browserName,
     browserVersion: desiredCapabilities.browserVersion ?? desiredCapabilities.version,
     pixelRatio: desiredCapabilities.pixelRatio,
   }
@@ -198,30 +219,6 @@ export async function waitUntilDisplayed(browser: Driver, selector: Selector, ti
   await browser.waitForVisible(selector as string, timeout)
 }
 
-export async function getCookies(browser: Driver): Promise<types.CookiesObject> {
-  const {isMobile, browserName} = await getDriverInfo(browser)
-  let allCookies
-  if (!isMobile && browserName.search(/chrome/i) !== -1) {
-    const cookies = await (browser as any).requestHandler.create(
-      {
-        path: '/session/:sessionId/goog/cdp/execute',
-        method: 'POST',
-      },
-      {cmd: 'Network.getAllCookies', params: {}},
-    )
-
-    allCookies = {cookies: cookies.value.cookies, all: true}
-  } else {
-    const cookies = await browser.getCookie()
-    allCookies = {cookies, all: false}
-  }
-
-  return {
-    cookies: allCookies.cookies,
-    all: allCookies.all,
-  }
-}
-
 // #endregion
 
 // #region MOBILE COMMANDS
@@ -230,10 +227,7 @@ export async function getOrientation(browser: Driver): Promise<'portrait' | 'lan
   const orientation = (await browser.getOrientation()) as unknown as string
   return orientation.toLowerCase() as 'portrait' | 'landscape'
 }
-export async function getElementRegion(
-  browser: Driver,
-  element: Element,
-): Promise<{x: number; y: number; width: number; height: number}> {
+export async function getElementRegion(browser: Driver, element: Element): Promise<Region> {
   const {value} = await browser.elementIdRect(extractElementId(element))
   return value
 }
@@ -248,6 +242,8 @@ export async function getElementText(browser: Driver, element: Element): Promise
 export async function performAction(browser: Driver, steps: any[]): Promise<void> {
   await browser.touchPerform(steps.map(({action, ...options}) => ({action, options})))
 }
+
+// #endregion
 
 // #region TESTING
 
@@ -313,11 +309,5 @@ export async function build(env: any): Promise<[Driver, () => Promise<void>]> {
 
   return [driver, () => driver.end().then(() => chromedriver.stop())]
 }
-
-// #endregion
-
-// #region LEGACY API
-
-export const wrapDriver = legacy.wrapDriver
 
 // #endregion
