@@ -52,11 +52,21 @@
   },
   "typesVersions": {
     "*": {
-      "v7": ["./types/v7.d.ts"],
-      "v6": ["./types/v6.d.ts"],
-      "v5": ["./types/v5-async.d.ts"],
-      "v5/async": ["./types/v5-async.d.ts"],
-      "v5/sync": ["./types/v5-sync.d.ts"]
+      "v7": [
+        "./types/v7.d.ts"
+      ],
+      "v6": [
+        "./types/v6.d.ts"
+      ],
+      "v5": [
+        "./types/v5-async.d.ts"
+      ],
+      "v5/async": [
+        "./types/v5-async.d.ts"
+      ],
+      "v5/sync": [
+        "./types/v5-sync.d.ts"
+      ]
     }
   },
   "files": [
@@ -95,6 +105,7 @@
     "@types/node": "^16.10.2",
     "@typescript-eslint/eslint-plugin": "^4.15.1",
     "@typescript-eslint/parser": "^4.15.1",
+    "chromedriver": "^95.0.0",
     "eslint": "^7.9.0",
     "eslint-config-prettier": "^7.2.0",
     "eslint-plugin-mocha-no-only": "^1.1.1",
