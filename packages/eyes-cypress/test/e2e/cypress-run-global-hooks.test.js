@@ -8,7 +8,18 @@ const fs = require('fs');
 const cypressConfig = require('../fixtures/testApp/cypress');
 
 const sourceTestAppPath = path.resolve(__dirname, '../fixtures/testApp');
-const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-globalHooks');
+const targetTestAppPath = path.resolve(__dirname, '../fixtures/testAppCopies/testApp-global-hooks');
+
+async function runCypress(testFile) {
+  return (
+    await pexec(
+      `./node_modules/.bin/cypress run --headless --config testFiles=${testFile},integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js`,
+      {
+        maxBuffer: 10000000,
+      },
+    )
+  ).stdout;
+}
 
 describe('global hooks', () => {
   before(async () => {
@@ -30,12 +41,7 @@ describe('global hooks', () => {
     try {
       const config = {...cypressConfig, experimentalRunEvents: true};
       fs.writeFileSync(`${targetTestAppPath}/cypress.json`, JSON.stringify(config, 2, null));
-      await pexec(
-        './node_modules/.bin/cypress run --headless --config testFiles=simple.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
-        {
-          maxBuffer: 10000000,
-        },
-      );
+      await runCypress('simple.js');
     } catch (ex) {
       console.error('Error during test!', ex.stdout);
       throw ex;
@@ -46,12 +52,7 @@ describe('global hooks', () => {
     try {
       const config = {...cypressConfig, experimentalRunEvents: false};
       fs.writeFileSync(`${targetTestAppPath}/cypress.json`, JSON.stringify(config, 2, null));
-      await pexec(
-        './node_modules/.bin/cypress run --headless --config testFiles=simple.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
-        {
-          maxBuffer: 10000000,
-        },
-      );
+      await runCypress('simple.js');
     } catch (ex) {
       console.error('Error during test!', ex.stdout);
       throw ex;
@@ -60,15 +61,18 @@ describe('global hooks', () => {
 
   it('works with cypress 6.7.0 or greater without flag', async () => {
     try {
-      await pexec(`npm install cypress@latest`, {
-        maxBuffer: 1000000,
-      });
-      await pexec(
-        './node_modules/.bin/cypress run --headless --config testFiles=simple.js,integrationFolder=cypress/integration-run,pluginsFile=cypress/plugins/index-run.js,supportFile=cypress/support/index-run.js',
-        {
-          maxBuffer: 10000000,
-        },
-      );
+      await pexec(`npm install cypress@latest`);
+      await runCypress('simple.js');
+    } catch (ex) {
+      console.error('Error during test!', ex.stdout);
+      throw ex;
+    }
+  });
+
+  it.only('works with cypress version 3 (< 6.2.0 no global hooks available)', async () => {
+    try {
+      await pexec(`npm install cypress@3`);
+      console.log(await runCypress('fail.js'));
     } catch (ex) {
       console.error('Error during test!', ex.stdout);
       throw ex;
