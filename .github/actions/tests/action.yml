@@ -28,6 +28,7 @@ runs:
   steps:
     - shell: bash
       env:
+        FORCE_COLOR: 3
         APPLITOOLS_TEST_REMOTE: ${{inputs.remote}}
         MOCHA_GREP: ${{inputs.grep}}
         MOCHA_JOBS: ${{inputs.remote == 'eg' && 50 || inputs.jobs}}
